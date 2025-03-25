@@ -78,6 +78,7 @@ AOS.init({
     'shell': 'bg-shell',
     'typescript': 'bg-typescript',
     'makefile': 'bg-shell',
+    'rust' : 'bg-rust'
   };
 
 const CACHE_DURATION = 86400000; 
