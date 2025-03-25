@@ -553,6 +553,9 @@ body.dark-mode .timeline-content h2 {
 .bg-shell {
   background: rgba(157,222,102);
 }
+.bg-rust {
+  background: rgba(213,167,137);
+}
 
 body.dark-mode .tech-dot {
   opacity: 0.9;
