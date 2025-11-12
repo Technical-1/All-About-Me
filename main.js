@@ -1,8 +1,11 @@
 // Initialize AOS (Animate On Scroll)
 AOS.init({
-    duration: 800,
-    easing: 'ease-in-out',
-    once: false // animations repeat on scroll up/down
+    duration: 1200,
+    easing: 'ease-out-cubic',
+    once: false, // animations repeat on scroll up/down
+    offset: 120, // trigger animations earlier (120px before element enters viewport)
+    delay: 50, // small delay for staggered effect
+    anchorPlacement: 'top-bottom' // start animation when top of element hits bottom of viewport
   });
   
   // Update the footer year automatically
@@ -17,11 +20,11 @@ AOS.init({
     var typed = new Typed('#typed-element', {
       strings: [
         "a Software Developer",
-        "focused on Automation",
+        "focused on AI",
         "interested in Cybersecurity"
       ],
-      typeSpeed: 50,
-      backSpeed: 30,
+      typeSpeed: 80,
+      backSpeed: 50,
       loop: true
     });
   }
