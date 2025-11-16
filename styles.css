@@ -553,6 +553,108 @@ body.dark-mode .tag:hover {
   color: #000;
 }
 
+/* Compact Skills Section Styles */
+.skills-section-home {
+  padding: 3rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.skills-section-home h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+body.dark-mode .skills-section-home h2 {
+  color: #00d1c4;
+}
+
+.skills-category-home,
+.skills-category-compact {
+  margin-bottom: 2rem;
+}
+
+.skills-category-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #5e2391;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+body.dark-mode .skills-category-title {
+  color: #00d1c4;
+}
+
+.skills-category-title-home {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+body.dark-mode .skills-category-title-home {
+  color: #e0e0e0;
+}
+
+.category-emoji {
+  font-size: 1.3rem;
+}
+
+.skills-tags,
+.skills-tags-centered {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.skills-tags-centered {
+  justify-content: center;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+  color: #333;
+  border-radius: 20px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: default;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(94, 35, 145, 0.1);
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(94, 35, 145, 0.2);
+  background: linear-gradient(135deg, #5e2391, #1f003f);
+  color: #fff;
+  border-color: #5e2391;
+}
+
+body.dark-mode .skill-tag {
+  background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+  color: #e0e0e0;
+  border-color: rgba(0, 209, 196, 0.2);
+}
+
+body.dark-mode .skill-tag:hover {
+  background: linear-gradient(135deg, #00d1c4, #00a896);
+  color: #000;
+  border-color: #00d1c4;
+  box-shadow: 0 4px 12px rgba(0, 209, 196, 0.3);
+}
+
 /* Awards Grid */
 .awards-grid {
   display: grid;
@@ -614,6 +716,29 @@ body.dark-mode .award-card {
   
   .badge {
     align-self: flex-start;
+  }
+  
+  .skills-section-home {
+    padding: 2rem 1rem;
+  }
+  
+  .skills-section-home h2 {
+    font-size: 1.6rem;
+  }
+  
+  .skills-category-title,
+  .skills-category-title-home {
+    font-size: 1.1rem;
+  }
+  
+  .skill-tag {
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+  }
+  
+  .skills-tags,
+  .skills-tags-centered {
+    gap: 0.6rem;
   }
 }
 
