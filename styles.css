@@ -1327,17 +1327,17 @@ body.dark-mode h1{
 
 /* Dark Mode Footer */
 body.dark-mode .site-footer {
-  background: linear-gradient(135deg, #00d1c4, #00a896);
-  color: #000;
+  background: linear-gradient(135deg, #1f003f, #5e2391);
+  color: #fff;
 }
 
 body.dark-mode .footer-nav a,
 body.dark-mode .footer-contact a {
-  color: #000;
+  color: #fff;
 }
 
 body.dark-mode .footer-bottom {
-  border-top-color: rgba(0, 0, 0, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Footer Mobile Responsiveness */
