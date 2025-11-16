@@ -762,7 +762,6 @@ body.dark-mode .award-card {
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
-  overflow-x: hidden;
 }
 
 .projects-section h1 {
@@ -931,7 +930,6 @@ body.dark-mode .repo-name {
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
-  overflow-x: hidden;
 }
 
 .resume-section h1 {
