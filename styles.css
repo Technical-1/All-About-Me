@@ -604,6 +604,17 @@ body.dark-mode .skills-category-title-home {
   color: #e0e0e0;
 }
 
+.skills-category-title-compact {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+body.dark-mode .skills-category-title-compact {
+  color: #e0e0e0;
+}
+
 .category-emoji {
   font-size: 1.3rem;
 }
@@ -727,7 +738,8 @@ body.dark-mode .award-card {
   }
   
   .skills-category-title,
-  .skills-category-title-home {
+  .skills-category-title-home,
+  .skills-category-title-compact {
     font-size: 1.1rem;
   }
   
