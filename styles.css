@@ -949,6 +949,18 @@ body.dark-mode .award-card {
 .bg-rust {
   background: rgba(213,167,137);
 }
+.bg-ros2 {
+  background: rgba(0, 150, 0);
+}
+.bg-opencv {
+  background: rgba(0, 200, 200);
+}
+.bg-pyqt5 {
+  background: rgba(255, 140, 0);
+}
+.bg-slam {
+  background: rgba(138, 43, 226);
+}
 
 body.dark-mode .tech-dot {
   opacity: 0.9;
