@@ -53,9 +53,48 @@ body.dark-mode {
 }
 
 .navbar-brand a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.navbar-logo {
+  height: 35px;
+  width: auto;
+  display: block;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.navbar-name {
   font-size: 1.5rem;
   font-weight: 600;
   color: #fff;
+  transition: opacity 0.3s ease;
+}
+
+.navbar-brand a:hover .navbar-logo {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.navbar-brand a:hover .navbar-name {
+  opacity: 0.9;
+}
+
+/* Mobile responsiveness for navbar */
+@media (max-width: 768px) {
+  .navbar-logo {
+    height: 30px;
+  }
+  
+  .navbar-name {
+    font-size: 1.2rem;
+  }
+  
+  .navbar-brand a {
+    gap: 0.5rem;
+  }
 }
 
 .navbar-links {
@@ -213,7 +252,7 @@ input:checked + .slider.round:before {
 ***********************************************/
 .about-section {
   padding: 4rem 2rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -240,11 +279,16 @@ input:checked + .slider.round:before {
   border-radius: 8px;
   max-width: 100%;
   height: auto;
-  margin-top: 2.5rem;
+  display: block;
+  margin-top: 0.25rem;
 }
 
 .about-text {
   flex: 1;
+}
+
+.about-text p:first-child {
+  margin-top: 0;
 }
 
 .about-text p {
@@ -556,7 +600,7 @@ body.dark-mode .tag:hover {
 /* Compact Skills Section Styles */
 .skills-section-home {
   padding: 3rem 2rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   text-align: center;
 }
@@ -576,6 +620,7 @@ body.dark-mode .skills-section-home h2 {
 .skills-category-home,
 .skills-category-compact {
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .skills-category-title {
@@ -609,6 +654,7 @@ body.dark-mode .skills-category-title-home {
   font-weight: 600;
   color: #333;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 body.dark-mode .skills-category-title-compact {
@@ -759,7 +805,7 @@ body.dark-mode .award-card {
 ***********************************************/
 .projects-section {
   padding: 2rem 2rem;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   text-align: center;
 }
@@ -786,9 +832,21 @@ body.dark-mode .award-card {
 }
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-top: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .project-card-wrapper {
