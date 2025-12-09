@@ -827,8 +827,18 @@ body.dark-mode .award-card {
 .github-graphs img {
   flex: 0 0 auto;
   border-radius: 8px;
-  height: 150px;
+  height: 220px;
   max-width: 100%;
+  border: 2px solid #000;
+}
+.gh-card-dark {
+  display: none;
+}
+body.dark-mode .gh-card-light {
+  display: none;
+}
+body.dark-mode .gh-card-dark {
+  display: inline;
 }
 .projects-grid {
   display: grid;
