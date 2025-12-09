@@ -136,6 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadPrivateRepos() {
+      // When opened directly from the file system (file://), the browser blocks
+      // fetch() to local JSON because of CORS. In that case just skip loading
+      // private repos so the page still renders.
+      if (window.location.protocol === 'file:') {
+        console.warn('Skipping private repos load in file:// preview');
+        return [];
+      }
+
       try {
         const res = await fetch('data/private_repos.json', { cache: 'no-cache' });
         if (!res.ok) throw new Error(`status ${res.status}`);
