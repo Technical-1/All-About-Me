@@ -1,0 +1,637 @@
+[
+  {
+    "repo": {
+      "name": "Ascii-React-Native",
+      "full_name": "Technical-1/Ascii-React-Native",
+      "html_url": "https://github.com/Technical-1/Ascii-React-Native",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-27T16:03:14Z"
+    },
+    "languages": [
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 57590
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "BJ-Trainer",
+      "full_name": "Technical-1/BJ-Trainer",
+      "html_url": "https://github.com/Technical-1/BJ-Trainer",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-09T07:59:15Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 752894,
+      "CSS": 4367,
+      "JavaScript": 1758,
+      "HTML": 537
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "BTC-Explorer",
+      "full_name": "Technical-1/BTC-Explorer",
+      "html_url": "https://github.com/Technical-1/BTC-Explorer",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-09T18:18:36Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 209844,
+      "CSS": 4653,
+      "HTML": 1946
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "CAP4770-Final_Project",
+      "full_name": "Technical-1/CAP4770-Final_Project",
+      "html_url": "https://github.com/Technical-1/CAP4770-Final_Project",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2024-12-03T00:46:11Z"
+    },
+    "languages": [
+      "Jupyter Notebook",
+      "Rich Text Format"
+    ],
+    "language_bytes": {
+      "Jupyter Notebook": 50998379,
+      "Rich Text Format": 486
+    },
+    "primary_language": "Jupyter Notebook"
+  },
+  {
+    "repo": {
+      "name": "ClubGG",
+      "full_name": "Technical-1/ClubGG",
+      "html_url": "https://github.com/Technical-1/ClubGG",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-07-29T13:05:46Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 814822
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "DailySMS",
+      "full_name": "Technical-1/DailySMS",
+      "html_url": "https://github.com/Technical-1/DailySMS",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2020-01-02T19:48:56Z"
+    },
+    "languages": [
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 736
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "ebay_ai_dashboard",
+      "full_name": "Technical-1/ebay_ai_dashboard",
+      "html_url": "https://github.com/Technical-1/ebay_ai_dashboard",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-06-10T01:56:23Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 305527,
+      "CSS": 4846,
+      "HTML": 772
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "Finance-POS",
+      "full_name": "Technical-1/Finance-POS",
+      "html_url": "https://github.com/Technical-1/Finance-POS",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-07-24T16:10:53Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 404812
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "Flux",
+      "full_name": "Technical-1/Flux",
+      "html_url": "https://github.com/Technical-1/Flux",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-27T16:04:44Z"
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null
+  },
+  {
+    "repo": {
+      "name": "GmailMe",
+      "full_name": "Technical-1/GmailMe",
+      "html_url": "https://github.com/Technical-1/GmailMe",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-05-26T14:12:57Z"
+    },
+    "languages": [
+      "Swift"
+    ],
+    "language_bytes": {
+      "Swift": 288309
+    },
+    "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "MultiAgent",
+      "full_name": "Technical-1/MultiAgent",
+      "html_url": "https://github.com/Technical-1/MultiAgent",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-04T16:21:20Z"
+    },
+    "languages": [
+      "Python",
+      "TypeScript",
+      "Bicep",
+      "HTML",
+      "CSS",
+      "PowerShell",
+      "Shell",
+      "Dockerfile",
+      "Batchfile",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 1137896,
+      "TypeScript": 544576,
+      "Bicep": 388314,
+      "HTML": 165138,
+      "CSS": 84671,
+      "PowerShell": 65648,
+      "Shell": 49575,
+      "Dockerfile": 4726,
+      "Batchfile": 1484,
+      "JavaScript": 532
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "Nato-Trainer",
+      "full_name": "Technical-1/Nato-Trainer",
+      "html_url": "https://github.com/Technical-1/Nato-Trainer",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-27T15:39:39Z"
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 122721,
+      "JavaScript": 889,
+      "HTML": 849,
+      "CSS": 23
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "ONESHOT",
+      "full_name": "Technical-1/ONESHOT",
+      "html_url": "https://github.com/Technical-1/ONESHOT",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-06-20T21:57:05Z"
+    },
+    "languages": [
+      "Swift",
+      "TypeScript",
+      "Shell",
+      "JavaScript",
+      "Kotlin",
+      "Batchfile",
+      "Ruby"
+    ],
+    "language_bytes": {
+      "Swift": 391380,
+      "TypeScript": 326661,
+      "Shell": 8801,
+      "JavaScript": 2857,
+      "Kotlin": 2340,
+      "Batchfile": 2068,
+      "Ruby": 1618
+    },
+    "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "PixScan",
+      "full_name": "Technical-1/PixScan",
+      "html_url": "https://github.com/Technical-1/PixScan",
+      "description": "Photo Helper is a powerful image processing app that helps you efficiently manage your photo library by combining OCR (Optical Character Recognition) with an intuitive swipe-based interface.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-04-10T17:10:11Z"
+    },
+    "languages": [
+      "Swift"
+    ],
+    "language_bytes": {
+      "Swift": 85544
+    },
+    "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "PLC_Project",
+      "full_name": "Technical-1/PLC_Project",
+      "html_url": "https://github.com/Technical-1/PLC_Project",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2024-12-13T01:45:49Z"
+    },
+    "languages": [
+      "Java"
+    ],
+    "language_bytes": {
+      "Java": 258919
+    },
+    "primary_language": "Java"
+  },
+  {
+    "repo": {
+      "name": "Pluribus-Text-Gen",
+      "full_name": "Technical-1/Pluribus-Text-Gen",
+      "html_url": "https://github.com/Technical-1/Pluribus-Text-Gen",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-09T10:26:53Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 9482,
+      "CSS": 1523,
+      "HTML": 1506
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "PokerManager",
+      "full_name": "Technical-1/PokerManager",
+      "html_url": "https://github.com/Technical-1/PokerManager",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-03-25T02:42:55Z"
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null
+  },
+  {
+    "repo": {
+      "name": "ReactNative-Expo-Firebase-Boilerplate-v2",
+      "full_name": "Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
+      "html_url": "https://github.com/Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-06-26T19:54:14Z"
+    },
+    "languages": [
+      "JavaScript",
+      "Ruby",
+      "Swift",
+      "C"
+    ],
+    "language_bytes": {
+      "JavaScript": 656334,
+      "Ruby": 2465,
+      "Swift": 2275,
+      "C": 102
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "RealEstate",
+      "full_name": "Technical-1/RealEstate",
+      "html_url": "https://github.com/Technical-1/RealEstate",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-10-12T21:34:03Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 248792,
+      "HTML": 1101
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "restauranthub",
+      "full_name": "Technical-1/restauranthub",
+      "html_url": "https://github.com/Technical-1/restauranthub",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-06-17T17:13:11Z"
+    },
+    "languages": [
+      "JavaScript",
+      "PLpgSQL",
+      "CSS",
+      "TypeScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 360389,
+      "PLpgSQL": 7862,
+      "CSS": 4603,
+      "TypeScript": 4276,
+      "HTML": 1155
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "Resume-Local-LLM",
+      "full_name": "Technical-1/Resume-Local-LLM",
+      "html_url": "https://github.com/Technical-1/Resume-Local-LLM",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-27T16:04:30Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 257687,
+      "CSS": 95746,
+      "HTML": 1937
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "SecuritySite",
+      "full_name": "Technical-1/SecuritySite",
+      "html_url": "https://github.com/Technical-1/SecuritySite",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-10-28T14:13:49Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 105982,
+      "CSS": 2167,
+      "JavaScript": 605
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "ServiceHub",
+      "full_name": "Technical-1/ServiceHub",
+      "html_url": "https://github.com/Technical-1/ServiceHub",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-07-07T16:42:15Z"
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 34071,
+      "JavaScript": 1040
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "SnapDragon",
+      "full_name": "Technical-1/SnapDragon",
+      "html_url": "https://github.com/Technical-1/SnapDragon",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-04-10T17:25:03Z"
+    },
+    "languages": [
+      "Swift"
+    ],
+    "language_bytes": {
+      "Swift": 16326
+    },
+    "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "test",
+      "full_name": "Technical-1/test",
+      "html_url": "https://github.com/Technical-1/test",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-01T15:01:29Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 40968
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "treasuries-proxy",
+      "full_name": "Technical-1/treasuries-proxy",
+      "html_url": "https://github.com/Technical-1/treasuries-proxy",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-09T18:19:51Z"
+    },
+    "languages": [
+      "JavaScript",
+      "TypeScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 10898,
+      "TypeScript": 2207,
+      "HTML": 921
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "Venmo-POS",
+      "full_name": "Technical-1/Venmo-POS",
+      "html_url": "https://github.com/Technical-1/Venmo-POS",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-07-05T14:28:11Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 168667
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "Video-To-Ascii",
+      "full_name": "Technical-1/Video-To-Ascii",
+      "html_url": "https://github.com/Technical-1/Video-To-Ascii",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-27T16:01:28Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 78474,
+      "CSS": 16011,
+      "HTML": 2314
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "WebCrawler",
+      "full_name": "Technical-1/WebCrawler",
+      "html_url": "https://github.com/Technical-1/WebCrawler",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-17T05:26:41Z"
+    },
+    "languages": [
+      "Python",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Python": 50245,
+      "Shell": 10260
+    },
+    "primary_language": "Python"
+  }
+]

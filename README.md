@@ -31,6 +31,14 @@ A polished personal website showcasing my projects, experience, and resume, buil
 
 ---
 
+## Private Repo Sync (Nightly)
+- A GitHub Action (`.github/workflows/sync-private-repos.yml`) runs nightly and on manual dispatch to refresh `data/private_repos.json` with private repo metadata and language breakdowns.
+- It uses a Personal Access Token stored in a repo secret named `GH_PRIVATE_TOKEN`.
+  - Recommended scopes: **repo** (for fine-grained, select contents: read, metadata: read, commit statuses optional).
+- The site automatically merges this JSON with live public repo data in `main.js`; no additional configuration is required once the secret is set.
+
+---
+
 ## Acknowledgments
 - **AOS** ([link](https://michalsnik.github.io/aos/)): Animate on Scroll library.  
 - **Typed.js** ([link](https://github.com/mattboldt/typed.js/)): Hero typing effect.  

@@ -92,47 +92,81 @@ const CACHE_DURATION = 86400000;
 
 document.addEventListener('DOMContentLoaded', () => {
     const repoContainer = document.getElementById('repo-container');
-    const storedData = localStorage.getItem('cachedRepos');
-    const storedTimestamp = localStorage.getItem('cachedReposTimestamp');
-    const now = Date.now();
+    if (!repoContainer) return;
 
-    // Extract AHSR card if it exists
-    const ahsrCard = repoContainer.querySelector('[data-date]');
-    const ahsrCardClone = ahsrCard ? ahsrCard.cloneNode(true) : null;
+    initRepoCards();
 
-    if (storedData && storedTimestamp && (now - storedTimestamp < CACHE_DURATION)) {
-      console.log('Using cached data');
-      const dataArray = JSON.parse(storedData);
-      
-      // Add AHSR card if it exists
-      if (ahsrCardClone) {
-        const ahsrDate = ahsrCardClone.getAttribute('data-date');
-        dataArray.push({
-          repo: {
-            name: 'AHSR (Autonomous Hospital Stretcher Robot)',
-            pushed_at: ahsrDate ? new Date(ahsrDate).toISOString() : new Date('2024-12-31').toISOString(),
-            html_url: null,
-            private: true
-          },
-          languages: ['Python', 'ROS2', 'OpenCV', 'PyQt5', 'SLAM'],
-          isAHSR: true,
-          ahsrCard: ahsrCardClone
-        });
-      }
-      
-      // Sort descending by 'pushed_at'
-      dataArray.sort((a, b) => new Date(b.repo.pushed_at) - new Date(a.repo.pushed_at));
-      renderAll(dataArray);
-    } else {
-      console.log('Fetching from GitHub');
-      fetchReposAndLanguages();
-    }
+    async function initRepoCards() {
+      const storedData = localStorage.getItem('cachedRepos');
+      const storedTimestamp = localStorage.getItem('cachedReposTimestamp');
+      const now = Date.now();
 
-    function fetchReposAndLanguages() {
-      // Extract the hardcoded AHSR card if it exists
       const ahsrCard = repoContainer.querySelector('[data-date]');
       const ahsrCardClone = ahsrCard ? ahsrCard.cloneNode(true) : null;
-      
+      const privateData = await loadPrivateRepos();
+
+      if (storedData && storedTimestamp && (now - storedTimestamp < CACHE_DURATION)) {
+        console.log('Using cached data');
+        let dataArray = JSON.parse(storedData);
+        dataArray = dataArray.concat(privateData);
+        
+        // Add AHSR card if it exists
+        if (ahsrCardClone) {
+          const ahsrDate = ahsrCardClone.getAttribute('data-date');
+          dataArray.push({
+            repo: {
+              name: 'AHSR (Autonomous Hospital Stretcher Robot)',
+              pushed_at: ahsrDate ? new Date(ahsrDate).toISOString() : new Date('2024-12-31').toISOString(),
+              html_url: null,
+              private: true
+            },
+            languages: ['Python', 'ROS2', 'OpenCV', 'PyQt5', 'SLAM'],
+            isAHSR: true,
+            ahsrCard: ahsrCardClone
+          });
+        }
+        
+        // Sort descending by 'pushed_at'
+        dataArray.sort((a, b) => new Date(b.repo.pushed_at) - new Date(a.repo.pushed_at));
+        renderAll(dataArray);
+      } else {
+        console.log('Fetching from GitHub');
+        fetchReposAndLanguages(privateData, ahsrCardClone);
+      }
+    }
+
+    async function loadPrivateRepos() {
+      try {
+        const res = await fetch('data/private_repos.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        const raw = await res.json();
+        if (!Array.isArray(raw)) return [];
+        return raw
+          .map(mapPrivateRecord)
+          .filter(Boolean);
+      } catch (err) {
+        console.error('Error loading private repos JSON:', err);
+        return [];
+      }
+    }
+
+    function mapPrivateRecord(entry) {
+      if (!entry || !entry.repo) return null;
+      const languages = Array.isArray(entry.languages) ? entry.languages : [];
+      return {
+        repo: {
+          name: entry.repo.name,
+          pushed_at: entry.repo.pushed_at,
+          html_url: entry.repo.html_url,
+          description: entry.repo.description,
+          private: true
+        },
+        languages,
+        isAHSR: false
+      };
+    }
+
+    function fetchReposAndLanguages(privateData = [], ahsrCardClone = null) {
       repoContainer.innerHTML = '';
 
       fetch('https://api.github.com/users/Technical-1/repos?per_page=100')
@@ -155,10 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
           });
 
           Promise.all(fetchPromises).then(() => {
+            let combined = finalData.concat(privateData);
+
             // Add AHSR card as a special entry if it exists
             if (ahsrCardClone) {
               const ahsrDate = ahsrCardClone.getAttribute('data-date');
-              finalData.push({
+              combined.push({
                 repo: {
                   name: 'AHSR (Autonomous Hospital Stretcher Robot)',
                   pushed_at: ahsrDate ? new Date(ahsrDate).toISOString() : new Date('2024-12-31').toISOString(),
@@ -172,15 +208,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Sort them descending by pushed_at
-            finalData.sort((a, b) => new Date(b.repo.pushed_at) - new Date(a.repo.pushed_at));
+            combined.sort((a, b) => new Date(b.repo.pushed_at) - new Date(a.repo.pushed_at));
 
             // Cache in localStorage (excluding AHSR card)
-            const cacheData = finalData.filter(item => !item.isAHSR);
+            const cacheData = combined.filter(item => !item.isAHSR);
             localStorage.setItem('cachedRepos', JSON.stringify(cacheData));
             localStorage.setItem('cachedReposTimestamp', Date.now());
 
             // Render
-            renderAll(finalData);
+            renderAll(combined);
           });
         })
         .catch(err => {
