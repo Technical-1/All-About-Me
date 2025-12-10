@@ -27,19 +27,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T07:59:15Z"
+      "pushed_at": "2025-12-09T22:49:24Z"
     },
     "languages": [
       "TypeScript",
       "CSS",
-      "JavaScript",
-      "HTML"
+      "HTML",
+      "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 752894,
-      "CSS": 4367,
-      "JavaScript": 1758,
-      "HTML": 537
+      "TypeScript": 845099,
+      "CSS": 9119,
+      "HTML": 7349,
+      "JavaScript": 5860
     },
     "primary_language": "TypeScript"
   },
@@ -48,21 +48,21 @@
       "name": "BTC-Explorer",
       "full_name": "Technical-1/BTC-Explorer",
       "html_url": "https://github.com/Technical-1/BTC-Explorer",
-      "description": null,
+      "description": "A comprehensive Bitcoin blockchain explorer and educational platform with real-time data visualization, market analysis, and corporate holdings tracking.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T18:18:36Z"
+      "pushed_at": "2025-12-09T20:20:54Z"
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 209844,
-      "CSS": 4653,
-      "HTML": 1946
+      "JavaScript": 212174,
+      "HTML": 20812,
+      "CSS": 4653
     },
     "primary_language": "JavaScript"
   },
@@ -206,7 +206,7 @@
       "name": "MultiAgent",
       "full_name": "Technical-1/MultiAgent",
       "html_url": "https://github.com/Technical-1/MultiAgent",
-      "description": null,
+      "description": "Enterprise-ready multi-agent AI automation platform—React/TypeScript frontend, domain-specialized agents, Nixtla forecasting, Azure cloud integration, and interactive data dashboards for rapid finance, marketing, and operations analytics.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -468,6 +468,25 @@
   },
   {
     "repo": {
+      "name": "security-doc-analyzer",
+      "full_name": "Technical-1/security-doc-analyzer",
+      "html_url": "https://github.com/Technical-1/security-doc-analyzer",
+      "description": "A serverless Azure Functions system that automates security document analysis using OCR text processing and AI-powered risk assessment. Processes uploaded documents against guidelines, with automated batching and archiving capabilities.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-09T21:37:04Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 40968
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
       "name": "SecuritySite",
       "full_name": "Technical-1/SecuritySite",
       "html_url": "https://github.com/Technical-1/SecuritySite",
@@ -531,33 +550,14 @@
   },
   {
     "repo": {
-      "name": "test",
-      "full_name": "Technical-1/test",
-      "html_url": "https://github.com/Technical-1/test",
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2025-12-01T15:01:29Z"
-    },
-    "languages": [
-      "Python"
-    ],
-    "language_bytes": {
-      "Python": 40968
-    },
-    "primary_language": "Python"
-  },
-  {
-    "repo": {
       "name": "treasuries-proxy",
       "full_name": "Technical-1/treasuries-proxy",
       "html_url": "https://github.com/Technical-1/treasuries-proxy",
-      "description": null,
+      "description": "Cloudflare Worker proxy for CoinGecko corporate Bitcoin treasuries data with caching and CORS support",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T18:19:51Z"
+      "pushed_at": "2025-12-09T20:10:20Z"
     },
     "languages": [
       "JavaScript",
@@ -565,7 +565,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 10898,
+      "JavaScript": 18507,
       "TypeScript": 2207,
       "HTML": 921
     },
