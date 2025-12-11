@@ -27,19 +27,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T22:49:24Z"
+      "pushed_at": "2025-12-10T22:17:39Z"
     },
     "languages": [
       "TypeScript",
+      "JavaScript",
       "CSS",
-      "HTML",
-      "JavaScript"
+      "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 845099,
-      "CSS": 9119,
-      "HTML": 7349,
-      "JavaScript": 5860
+      "TypeScript": 1046977,
+      "JavaScript": 28337,
+      "CSS": 9467,
+      "HTML": 7349
     },
     "primary_language": "TypeScript"
   },
