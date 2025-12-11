@@ -327,10 +327,10 @@ function buildRepoCard(repo, languagesArray) {
   }
 
   // Card wrapper
-  // Private: prefer homepage (live site) then fall back to repo URL
+  // Private: link only if homepage is provided (live site)
   // Public: always link to GitHub code
   const homepageUrl = (homepage || '').trim();
-  const targetHref = isPrivate ? (homepageUrl || html_url) : html_url;
+  const targetHref = isPrivate ? homepageUrl : html_url;
   let wrapper;
   if (targetHref) {
     wrapper = document.createElement('a');
