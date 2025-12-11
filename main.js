@@ -326,9 +326,11 @@ function buildRepoCard(repo, languagesArray) {
     lastUpdatedText = `Last updated: ${dateObj.toLocaleDateString(undefined, options)}`;
   }
 
-  // Card wrapper (prefer homepage if provided)
+  // Card wrapper
+  // Private: prefer homepage (live site) then fall back to repo URL
+  // Public: always link to GitHub code
   const homepageUrl = (homepage || '').trim();
-  const targetHref = homepageUrl || html_url;
+  const targetHref = isPrivate ? (homepageUrl || html_url) : html_url;
   let wrapper;
   if (targetHref) {
     wrapper = document.createElement('a');
