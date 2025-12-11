@@ -20,14 +20,14 @@
   },
   {
     "repo": {
-      "name": "BJ-Trainer",
-      "full_name": "Technical-1/BJ-Trainer",
-      "html_url": "https://github.com/Technical-1/BJ-Trainer",
-      "description": null,
+      "name": "Blackjack-Trainer",
+      "full_name": "Technical-1/Blackjack-Trainer",
+      "html_url": "https://github.com/Technical-1/Blackjack-Trainer",
+      "description": "Professional blackjack card counting trainer with 5 counting systems, Vegas-accurate rules, strategy feedback, and performance analytics. Built with React & TypeScript.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-10T22:17:39Z"
+      "pushed_at": "2025-12-11T18:41:51Z"
     },
     "languages": [
       "TypeScript",
@@ -36,8 +36,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 1046977,
-      "JavaScript": 28337,
+      "TypeScript": 1083982,
+      "JavaScript": 33761,
       "CSS": 9467,
       "HTML": 7349
     },
@@ -89,6 +89,29 @@
   },
   {
     "repo": {
+      "name": "Carmen",
+      "full_name": "Technical-1/Carmen",
+      "html_url": "https://github.com/Technical-1/Carmen",
+      "description": "Official website for Blues Brothers Live – featuring Carmen Romano as Jake Blues & Russ Peters as Elwood. Built with React, Vite, and Framer Motion.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-11T19:23:52Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 49595,
+      "CSS": 33925,
+      "HTML": 2888
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
       "name": "ClubGG",
       "full_name": "Technical-1/ClubGG",
       "html_url": "https://github.com/Technical-1/ClubGG",
@@ -105,6 +128,29 @@
       "Python": 814822
     },
     "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "CSNY",
+      "full_name": "Technical-1/CSNY",
+      "html_url": "https://github.com/Technical-1/CSNY",
+      "description": "Official website for Déjà Vu, a Crosby, Stills, Nash & Young tribute band. Built with React and Vite.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-11T19:23:52Z"
+    },
+    "languages": [
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "CSS": 35737,
+      "JavaScript": 31874,
+      "HTML": 2301
+    },
+    "primary_language": "CSS"
   },
   {
     "repo": {
@@ -331,29 +377,6 @@
       "Java": 258919
     },
     "primary_language": "Java"
-  },
-  {
-    "repo": {
-      "name": "Pluribus-Text-Gen",
-      "full_name": "Technical-1/Pluribus-Text-Gen",
-      "html_url": "https://github.com/Technical-1/Pluribus-Text-Gen",
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2025-12-09T10:26:53Z"
-    },
-    "languages": [
-      "JavaScript",
-      "CSS",
-      "HTML"
-    ],
-    "language_bytes": {
-      "JavaScript": 9482,
-      "CSS": 1523,
-      "HTML": 1506
-    },
-    "primary_language": "JavaScript"
   },
   {
     "repo": {
@@ -618,7 +641,7 @@
       "name": "WebCrawler",
       "full_name": "Technical-1/WebCrawler",
       "html_url": "https://github.com/Technical-1/WebCrawler",
-      "description": null,
+      "description": "Automated web scraper that extracts HTML content from website, converts it to Markdown format, and syncs to AWS Bedrock Knowledge Base for AI chatbot access.",
       "private": true,
       "fork": false,
       "archived": false,
