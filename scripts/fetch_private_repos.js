@@ -80,6 +80,7 @@ async function main() {
         name: repo.name,
         full_name: repo.full_name,
         html_url: repo.html_url,
+        homepage: repo.homepage,
         description: repo.description,
         private: repo.private,
         fork: repo.fork,

@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
           name: entry.repo.name,
           pushed_at: entry.repo.pushed_at,
           html_url: entry.repo.html_url,
+          homepage: entry.repo.homepage,
           description: entry.repo.description,
           private: true
         },
@@ -312,6 +313,7 @@ function buildRepoCard(repo, languagesArray) {
     name,
     description,
     html_url,
+    homepage,
     private: isPrivate,
     pushed_at
   } = repo;
@@ -324,11 +326,13 @@ function buildRepoCard(repo, languagesArray) {
     lastUpdatedText = `Last updated: ${dateObj.toLocaleDateString(undefined, options)}`;
   }
 
-  // Card wrapper
+  // Card wrapper (prefer homepage if provided)
+  const homepageUrl = (homepage || '').trim();
+  const targetHref = homepageUrl || html_url;
   let wrapper;
-  if (!isPrivate) {
+  if (targetHref) {
     wrapper = document.createElement('a');
-    wrapper.href = html_url;
+    wrapper.href = targetHref;
     wrapper.target = '_blank';
     wrapper.rel = 'noopener';
   } else {
