@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (storedData && storedTimestamp && (now - storedTimestamp < CACHE_DURATION)) {
         console.log('Using cached data');
-        let dataArray = JSON.parse(storedData);
+        let dataArray = JSON.parse(storedData).filter(item => !item?.repo?.private);
         dataArray = dataArray.concat(privateData);
         
         // Add AHSR card if it exists
@@ -219,8 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Sort them descending by pushed_at
             combined.sort((a, b) => new Date(b.repo.pushed_at) - new Date(a.repo.pushed_at));
 
-            // Cache in localStorage (excluding AHSR card)
-            const cacheData = combined.filter(item => !item.isAHSR);
+            // Cache in localStorage (exclude AHSR and private repos to avoid duplicates)
+            const cacheData = combined.filter(item => !item.isAHSR && !item.repo?.private);
             localStorage.setItem('cachedRepos', JSON.stringify(cacheData));
             localStorage.setItem('cachedReposTimestamp', Date.now());
 
