@@ -29,7 +29,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-12T02:59:22Z"
+      "pushed_at": "2025-12-12T14:40:53Z"
     },
     "languages": [
       "TypeScript",
@@ -38,8 +38,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 1084246,
-      "JavaScript": 33761,
+      "TypeScript": 1096577,
+      "JavaScript": 37144,
       "CSS": 9467,
       "HTML": 7349
     },
@@ -492,24 +492,26 @@
       "name": "Resume-Local-LLM",
       "full_name": "Technical-1/Resume-Local-LLM",
       "html_url": "https://github.com/Technical-1/Resume-Local-LLM",
-      "homepage": null,
-      "description": null,
+      "homepage": "",
+      "description": "Privacy-first AI resume optimizer that runs 100% in your browser. 6 career modes, ATS scoring, cover letters, LinkedIn optimization - all powered by WebLLM with no server, no tracking, no data ever leaving your device.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T16:04:30Z"
+      "pushed_at": "2025-12-12T23:32:41Z"
     },
     "languages": [
+      "TypeScript",
       "JavaScript",
       "CSS",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 257687,
-      "CSS": 95746,
-      "HTML": 1937
+      "TypeScript": 528530,
+      "JavaScript": 177893,
+      "CSS": 168447,
+      "HTML": 2031
     },
-    "primary_language": "JavaScript"
+    "primary_language": "TypeScript"
   },
   {
     "repo": {
@@ -582,18 +584,18 @@
       "name": "SnapDragon",
       "full_name": "Technical-1/SnapDragon",
       "html_url": "https://github.com/Technical-1/SnapDragon",
-      "homepage": null,
-      "description": null,
+      "homepage": "",
+      "description": "A modern iOS card game built with SwiftUI featuring local multiplayer, intelligent AI opponent, and real-time online play via Firebase",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-04-10T17:25:03Z"
+      "pushed_at": "2025-12-12T23:40:40Z"
     },
     "languages": [
       "Swift"
     ],
     "language_bytes": {
-      "Swift": 16326
+      "Swift": 256352
     },
     "primary_language": "Swift"
   },
