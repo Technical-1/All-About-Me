@@ -184,22 +184,24 @@
       "name": "Differential-Growth",
       "full_name": "Technical-1/Differential-Growth",
       "html_url": "https://github.com/Technical-1/Differential-Growth",
-      "homepage": null,
+      "homepage": "https://differential-growth2.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-15T21:48:24Z"
+      "pushed_at": "2025-12-16T14:27:28Z"
     },
     "languages": [
       "TypeScript",
       "CSS",
-      "JavaScript"
+      "JavaScript",
+      "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 102270,
-      "CSS": 2450,
-      "JavaScript": 1371
+      "TypeScript": 309467,
+      "CSS": 3812,
+      "JavaScript": 1371,
+      "GLSL": 975
     },
     "primary_language": "TypeScript"
   },
