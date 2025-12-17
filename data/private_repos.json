@@ -189,7 +189,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-16T14:27:28Z"
+      "pushed_at": "2025-12-16T18:43:44Z"
     },
     "languages": [
       "TypeScript",
@@ -198,7 +198,7 @@
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 309467,
+      "TypeScript": 312293,
       "CSS": 3812,
       "JavaScript": 1371,
       "GLSL": 975
@@ -228,6 +228,28 @@
       "HTML": 772
     },
     "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "EmailAnalyzer",
+      "full_name": "Technical-1/EmailAnalyzer",
+      "html_url": "https://github.com/Technical-1/EmailAnalyzer",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-17T03:16:09Z"
+    },
+    "languages": [
+      "Python",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 76737,
+      "HTML": 33358
+    },
+    "primary_language": "Python"
   },
   {
     "repo": {
