@@ -725,16 +725,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-17T05:26:41Z"
+      "pushed_at": "2025-12-18T21:41:21Z"
     },
     "languages": [
+      "HTML",
       "Python",
       "Shell"
     ],
     "language_bytes": {
-      "Python": 50245,
+      "HTML": 8977514,
+      "Python": 52193,
       "Shell": 10260
     },
-    "primary_language": "Python"
+    "primary_language": "HTML"
   }
 ]
