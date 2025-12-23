@@ -239,17 +239,21 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-17T03:16:09Z"
+      "pushed_at": "2025-12-22T21:26:32Z"
     },
     "languages": [
-      "Python",
-      "HTML"
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
     ],
     "language_bytes": {
-      "Python": 76737,
-      "HTML": 33358
+      "TypeScript": 550694,
+      "CSS": 10164,
+      "HTML": 784,
+      "JavaScript": 616
     },
-    "primary_language": "Python"
+    "primary_language": "TypeScript"
   },
   {
     "repo": {
@@ -545,7 +549,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-15T09:59:53Z"
+      "pushed_at": "2025-12-22T09:54:12Z"
     },
     "languages": [
       "TypeScript",
