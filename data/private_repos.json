@@ -55,7 +55,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T20:20:54Z"
+      "pushed_at": "2025-12-23T20:24:56Z"
     },
     "languages": [
       "JavaScript",
@@ -63,7 +63,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 212174,
+      "JavaScript": 213069,
       "HTML": 20812,
       "CSS": 4653
     },
@@ -234,12 +234,12 @@
       "name": "EmailAnalyzer",
       "full_name": "Technical-1/EmailAnalyzer",
       "html_url": "https://github.com/Technical-1/EmailAnalyzer",
-      "homepage": null,
-      "description": null,
+      "homepage": "",
+      "description": "A privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, automatically detect accounts and purchases, track subscriptions, visualize email patterns, and manage contacts—all offline with zero data uploads. Built with React, TypeScript, and IndexedDB.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-22T21:26:32Z"
+      "pushed_at": "2025-12-23T18:06:05Z"
     },
     "languages": [
       "TypeScript",
@@ -248,7 +248,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 550694,
+      "TypeScript": 594762,
       "CSS": 10164,
       "HTML": 784,
       "JavaScript": 616
@@ -653,9 +653,33 @@
   },
   {
     "repo": {
-      "name": "treasuries-proxy",
-      "full_name": "Technical-1/treasuries-proxy",
-      "html_url": "https://github.com/Technical-1/treasuries-proxy",
+      "name": "treasuries-proxy-BitcoinTreasuries.net",
+      "full_name": "Technical-1/treasuries-proxy-BitcoinTreasuries.net",
+      "html_url": "https://github.com/Technical-1/treasuries-proxy-BitcoinTreasuries.net",
+      "homepage": "",
+      "description": "Cloudflare Worker proxy for BitcoinTreasuries.net corporate Bitcoin treasuries data with caching and CORS support",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-23T20:15:54Z"
+    },
+    "languages": [
+      "JavaScript",
+      "TypeScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 32577,
+      "TypeScript": 2207,
+      "HTML": 921
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "treasuries-proxy-coingecko",
+      "full_name": "Technical-1/treasuries-proxy-coingecko",
+      "html_url": "https://github.com/Technical-1/treasuries-proxy-coingecko",
       "homepage": "https://btcexplorer.io",
       "description": "Cloudflare Worker proxy for CoinGecko corporate Bitcoin treasuries data with caching and CORS support",
       "private": true,
@@ -705,17 +729,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T16:01:28Z"
+      "pushed_at": "2025-12-23T23:15:41Z"
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 78474,
-      "CSS": 16011,
-      "HTML": 2314
+      "JavaScript": 88240,
+      "HTML": 26586,
+      "CSS": 9806
     },
     "primary_language": "JavaScript"
   },
