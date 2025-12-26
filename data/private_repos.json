@@ -653,6 +653,32 @@
   },
   {
     "repo": {
+      "name": "Snowball",
+      "full_name": "Technical-1/Snowball",
+      "html_url": "https://github.com/Technical-1/Snowball",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-26T05:01:48Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 202036,
+      "CSS": 1167,
+      "JavaScript": 387,
+      "HTML": 304
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
       "name": "treasuries-proxy-BitcoinTreasuries.net",
       "full_name": "Technical-1/treasuries-proxy-BitcoinTreasuries.net",
       "html_url": "https://github.com/Technical-1/treasuries-proxy-BitcoinTreasuries.net",
