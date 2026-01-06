@@ -409,6 +409,30 @@
   },
   {
     "repo": {
+      "name": "Personal-Budget-Tool",
+      "full_name": "Technical-1/Personal-Budget-Tool",
+      "html_url": "https://github.com/Technical-1/Personal-Budget-Tool",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-05T20:00:58Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 237107,
+      "CSS": 78088,
+      "HTML": 849
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
       "name": "PixScan",
       "full_name": "Technical-1/PixScan",
       "html_url": "https://github.com/Technical-1/PixScan",
@@ -682,16 +706,26 @@
       "name": "Themed-Crossword-Gen",
       "full_name": "Technical-1/Themed-Crossword-Gen",
       "html_url": "https://github.com/Technical-1/Themed-Crossword-Gen",
-      "homepage": null,
+      "homepage": "https://themed-crossword-gen.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-02T20:55:21Z"
+      "pushed_at": "2026-01-05T22:04:34Z"
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 201350,
+      "CSS": 11497,
+      "JavaScript": 4649,
+      "HTML": 3322
+    },
+    "primary_language": "TypeScript"
   },
   {
     "repo": {
