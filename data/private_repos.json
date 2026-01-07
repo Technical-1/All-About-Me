@@ -234,12 +234,12 @@
       "name": "EmailAnalyzer",
       "full_name": "Technical-1/EmailAnalyzer",
       "html_url": "https://github.com/Technical-1/EmailAnalyzer",
-      "homepage": "",
+      "homepage": "https://email-analyzer-eta.vercel.app",
       "description": "A privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, automatically detect accounts and purchases, track subscriptions, visualize email patterns, and manage contacts—all offline with zero data uploads. Built with React, TypeScript, and IndexedDB.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-23T18:06:05Z"
+      "pushed_at": "2026-01-06T22:49:41Z"
     },
     "languages": [
       "TypeScript",
@@ -248,7 +248,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 594762,
+      "TypeScript": 635218,
       "CSS": 10164,
       "HTML": 784,
       "JavaScript": 616
@@ -290,6 +290,26 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null
+  },
+  {
+    "repo": {
+      "name": "Git-Cloudflare-Proxy",
+      "full_name": "Technical-1/Git-Cloudflare-Proxy",
+      "html_url": "https://github.com/Technical-1/Git-Cloudflare-Proxy",
+      "homepage": "https://repolens.io",
+      "description": "Cloudflare Worker proxy for GitHub API - provides authenticated rate limits (5,000/hr) for RepoLens users without requiring sign-in",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-06T18:12:01Z"
+    },
+    "languages": [
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 8824
+    },
+    "primary_language": "TypeScript"
   },
   {
     "repo": {
@@ -707,11 +727,11 @@
       "full_name": "Technical-1/Themed-Crossword-Gen",
       "html_url": "https://github.com/Technical-1/Themed-Crossword-Gen",
       "homepage": "https://themed-crossword-gen.vercel.app",
-      "description": null,
+      "description": "AI-powered crossword puzzle generator with themed puzzles. Enter any topic and get a unique, playable crossword instantly. Features timer, hints, dark mode, sharing, and print support.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-05T22:04:34Z"
+      "pushed_at": "2026-01-06T22:39:11Z"
     },
     "languages": [
       "TypeScript",
@@ -720,8 +740,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 201350,
-      "CSS": 11497,
+      "TypeScript": 197618,
+      "CSS": 12670,
       "JavaScript": 4649,
       "HTML": 3322
     },
