@@ -432,12 +432,12 @@
       "name": "Personal-Budget-Tool",
       "full_name": "Technical-1/Personal-Budget-Tool",
       "html_url": "https://github.com/Technical-1/Personal-Budget-Tool",
-      "homepage": null,
+      "homepage": "https://budget-tracker-kappa-fawn.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-05T20:00:58Z"
+      "pushed_at": "2026-01-08T18:26:06Z"
     },
     "languages": [
       "JavaScript",
@@ -445,9 +445,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 237107,
-      "CSS": 78088,
-      "HTML": 849
+      "JavaScript": 510967,
+      "CSS": 155803,
+      "HTML": 820
     },
     "primary_language": "JavaScript"
   },
@@ -731,7 +731,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T22:39:11Z"
+      "pushed_at": "2026-01-08T14:49:09Z"
     },
     "languages": [
       "TypeScript",
@@ -742,8 +742,8 @@
     "language_bytes": {
       "TypeScript": 197618,
       "CSS": 12670,
-      "JavaScript": 4649,
-      "HTML": 3322
+      "JavaScript": 4668,
+      "HTML": 3327
     },
     "primary_language": "TypeScript"
   },
