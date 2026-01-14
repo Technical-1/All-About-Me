@@ -185,11 +185,11 @@
       "full_name": "Technical-1/Differential-Growth",
       "html_url": "https://github.com/Technical-1/Differential-Growth",
       "homepage": "https://differential-growth2.vercel.app",
-      "description": null,
+      "description": "A Next.js 15 PWA for creating organic, coral-like generative art from text, images, and shapes using differential growth algorithms. Features WebGL rendering, multi-format export, interactive brush tools, force fields, and real-time parameter animation.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-13T06:20:56Z"
+      "pushed_at": "2026-01-13T17:29:01Z"
     },
     "languages": [
       "TypeScript",
@@ -198,7 +198,7 @@
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 461858,
+      "TypeScript": 531481,
       "CSS": 3812,
       "JavaScript": 1371,
       "GLSL": 975
@@ -254,6 +254,50 @@
       "JavaScript": 616
     },
     "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "Emailer",
+      "full_name": "Technical-1/Emailer",
+      "html_url": "https://github.com/Technical-1/Emailer",
+      "homepage": null,
+      "description": "Native iOS email client for IMAP access and automatic verification code extraction. Built with SwiftUI, OAuth2 authentication, and pattern-based 2FA code detection for automation workflows.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-13T18:36:25Z"
+    },
+    "languages": [
+      "Swift"
+    ],
+    "language_bytes": {
+      "Swift": 121071
+    },
+    "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "ETH-Explorer",
+      "full_name": "Technical-1/ETH-Explorer",
+      "html_url": "https://github.com/Technical-1/ETH-Explorer",
+      "homepage": "https://eth-explorer-brown.vercel.app",
+      "description": "Interactive educational Ethereum blockchain explorer featuring live network stats, 3D visualizations, DeFi protocols, NFT collections, staking calculator, Layer 2 solutions, and treasury tracking. Built with React, Three.js, and TailwindCSS.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-13T18:51:17Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 417755,
+      "CSS": 8677,
+      "HTML": 1936
+    },
+    "primary_language": "JavaScript"
   },
   {
     "repo": {
@@ -330,6 +374,30 @@
       "Swift": 288309
     },
     "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "Kid-Talk-Translator",
+      "full_name": "Technical-1/Kid-Talk-Translator",
+      "html_url": "https://github.com/Technical-1/Kid-Talk-Translator",
+      "homepage": "https://kid-talk-translator.vercel.app/",
+      "description": "The ultimate Gen Alpha & Gen Z slang translator for confused parents, grandparents, and teachers. Features dictionary browser, quizzes, chat translator, and Urban Dictionary integration.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-13T16:33:47Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 149014,
+      "CSS": 3303,
+      "HTML": 2650
+    },
+    "primary_language": "JavaScript"
   },
   {
     "repo": {
@@ -506,6 +574,32 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null
+  },
+  {
+    "repo": {
+      "name": "Private-Collab-Whiteboard",
+      "full_name": "Technical-1/Private-Collab-Whiteboard",
+      "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
+      "homepage": "https://private-collab-whiteboard.vercel.app",
+      "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T02:43:16Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 163588,
+      "HTML": 50260,
+      "CSS": 47647,
+      "TypeScript": 1142
+    },
+    "primary_language": "JavaScript"
   },
   {
     "repo": {
