@@ -189,7 +189,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-13T17:29:01Z"
+      "pushed_at": "2026-01-14T17:15:54Z"
     },
     "languages": [
       "TypeScript",
@@ -198,10 +198,34 @@
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 531481,
+      "TypeScript": 531669,
       "CSS": 3812,
       "JavaScript": 1371,
       "GLSL": 975
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "E350-Transportation",
+      "full_name": "Technical-1/E350-Transportation",
+      "html_url": "https://github.com/Technical-1/E350-Transportation",
+      "homepage": "https://e350-transportation.vercel.app",
+      "description": "E350 Transportation - Luxury transportation services in Cincinnati/Northern Kentucky. Built with Next.js 16, React 19, TypeScript, and Tailwind CSS.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T20:02:45Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 115650,
+      "CSS": 2167,
+      "JavaScript": 605
     },
     "primary_language": "TypeScript"
   },
@@ -239,7 +263,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T22:49:41Z"
+      "pushed_at": "2026-01-14T18:18:55Z"
     },
     "languages": [
       "TypeScript",
@@ -248,7 +272,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 635218,
+      "TypeScript": 637531,
       "CSS": 10164,
       "HTML": 784,
       "JavaScript": 616
@@ -277,6 +301,30 @@
   },
   {
     "repo": {
+      "name": "emissary-risk-ops",
+      "full_name": "Technical-1/emissary-risk-ops",
+      "html_url": "https://github.com/Technical-1/emissary-risk-ops",
+      "homepage": "https://emissary-risk-ops.vercel.app",
+      "description": "Professional security company website for Emissary Risk Ops - Ohio's premier Class A licensed security and investigative services",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T19:56:03Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 138640,
+      "CSS": 3158,
+      "JavaScript": 559
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
       "name": "ETH-Explorer",
       "full_name": "Technical-1/ETH-Explorer",
       "html_url": "https://github.com/Technical-1/ETH-Explorer",
@@ -285,7 +333,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-13T18:51:17Z"
+      "pushed_at": "2026-01-14T17:47:39Z"
     },
     "languages": [
       "JavaScript",
@@ -293,7 +341,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 417755,
+      "JavaScript": 417940,
       "CSS": 8677,
       "HTML": 1936
     },
@@ -374,6 +422,30 @@
       "Swift": 288309
     },
     "primary_language": "Swift"
+  },
+  {
+    "repo": {
+      "name": "Kendra-who",
+      "full_name": "Technical-1/Kendra-who",
+      "html_url": "https://github.com/Technical-1/Kendra-who",
+      "homepage": null,
+      "description": "AWS Kendra alternative - Enterprise web scraping platform with 15 AWS integrations. Save 99.7% vs Kendra ($810/mo → $1-5/mo). ML-powered retries, natural language config, real-time monitoring.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T20:10:59Z"
+    },
+    "languages": [
+      "Python",
+      "Shell",
+      "Dockerfile"
+    ],
+    "language_bytes": {
+      "Python": 841694,
+      "Shell": 20193,
+      "Dockerfile": 1896
+    },
+    "primary_language": "Python"
   },
   {
     "repo": {
@@ -585,7 +657,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T02:43:16Z"
+      "pushed_at": "2026-01-14T17:29:34Z"
     },
     "languages": [
       "JavaScript",
@@ -595,8 +667,8 @@
     ],
     "language_bytes": {
       "JavaScript": 163588,
-      "HTML": 50260,
-      "CSS": 47647,
+      "HTML": 50484,
+      "CSS": 48286,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript"
