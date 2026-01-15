@@ -433,7 +433,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T20:10:59Z"
+      "pushed_at": "2026-01-14T22:37:18Z"
     },
     "languages": [
       "Python",
@@ -441,7 +441,7 @@
       "Dockerfile"
     ],
     "language_bytes": {
-      "Python": 841694,
+      "Python": 874934,
       "Shell": 20193,
       "Dockerfile": 1896
     },
@@ -838,6 +838,30 @@
     "language_bytes": {
       "TypeScript": 34071,
       "JavaScript": 1040
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "Simple-Backgammon",
+      "full_name": "Technical-1/Simple-Backgammon",
+      "html_url": "https://github.com/Technical-1/Simple-Backgammon",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-15T02:41:30Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 99485,
+      "CSS": 15704,
+      "JavaScript": 153
     },
     "primary_language": "TypeScript"
   },
