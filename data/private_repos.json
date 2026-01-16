@@ -263,7 +263,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T18:18:55Z"
+      "pushed_at": "2026-01-16T05:41:33Z"
     },
     "languages": [
       "TypeScript",
@@ -272,7 +272,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 637531,
+      "TypeScript": 637771,
       "CSS": 10164,
       "HTML": 784,
       "JavaScript": 616
@@ -328,7 +328,7 @@
       "name": "ETH-Explorer",
       "full_name": "Technical-1/ETH-Explorer",
       "html_url": "https://github.com/Technical-1/ETH-Explorer",
-      "homepage": "https://eth-explorer-brown.vercel.app",
+      "homepage": "https://eth-explorer-kanfer.vercel.app/",
       "description": "Interactive educational Ethereum blockchain explorer featuring live network stats, 3D visualizations, DeFi protocols, NFT collections, staking calculator, Layer 2 solutions, and treasury tracking. Built with React, Three.js, and TailwindCSS.",
       "private": true,
       "fork": false,
@@ -846,12 +846,12 @@
       "name": "Simple-Backgammon",
       "full_name": "Technical-1/Simple-Backgammon",
       "html_url": "https://github.com/Technical-1/Simple-Backgammon",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://simple-backgammon.vercel.app/",
+      "description": "A modern backgammon game with AI opponents and 3D animated dice, built with Next.js and Three.js",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-15T02:41:30Z"
+      "pushed_at": "2026-01-16T05:20:38Z"
     },
     "languages": [
       "TypeScript",
@@ -859,9 +859,9 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 99485,
-      "CSS": 15704,
-      "JavaScript": 153
+      "TypeScript": 111134,
+      "CSS": 17209,
+      "JavaScript": 1134
     },
     "primary_language": "TypeScript"
   },
