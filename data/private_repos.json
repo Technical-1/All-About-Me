@@ -372,16 +372,24 @@
       "name": "Flux",
       "full_name": "Technical-1/Flux",
       "html_url": "https://github.com/Technical-1/Flux",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://flux-particle-studio.vercel.app",
+      "description": "Generative particle art studio with ambient soundscapes. React Native + Expo for iOS, Android & Web.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T16:04:44Z"
+      "pushed_at": "2026-01-16T18:13:36Z"
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null
+    "languages": [
+      "TypeScript",
+      "Python",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 565137,
+      "Python": 46284,
+      "JavaScript": 9237
+    },
+    "primary_language": "TypeScript"
   },
   {
     "repo": {
