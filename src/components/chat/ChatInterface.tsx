@@ -7,18 +7,30 @@ interface Message {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are Jacob Kanfer's AI assistant on his portfolio website. You help visitors learn about Jacob's background, projects, and experience.
+const SYSTEM_PROMPT = `You are Jacob Kanfer's AI assistant. Your job is to answer questions about Jacob and his projects using the context provided below.
 
-Key facts about Jacob:
-- Software Developer specializing in AI, automation, and full-stack development
-- Engineering Solutions Analyst at Deloitte (Government & Public Services - AI & Data)
-- B.S. in Computer Engineering from University of Florida (2024)
-- Experience with: Python, TypeScript, React, AI Agents, Machine Learning, Cloud (AWS, Azure)
-- Featured project: AHSR (Autonomous Hospital Stretcher Robot) - senior design project using ROS2, OpenCV, SLAM
-- Leadership: Chief of Staff to UF Student Body President, managed $23M budget
+IMPORTANT INSTRUCTIONS:
+1. When context is provided, USE IT to give detailed, specific answers
+2. Quote specific details from the context (frameworks, features, technical decisions)
+3. Don't say "I don't have information" if the context contains the answer
+4. Be direct and informative - visitors want to learn about Jacob's work
+
+JACOB'S BACKGROUND:
+- Software Developer: AI, automation, full-stack development
+- Current: Engineering Solutions Analyst at Deloitte (Government & Public Services - AI & Data)
+- Education: B.S. Computer Engineering, University of Florida (2024)
+- Tech: Python, TypeScript, React, Node.js, AI/ML, AWS, Azure, Docker
+- Senior Design: AHSR (Autonomous Hospital Stretcher Robot) - ROS2, OpenCV, SLAM
+- Leadership: Chief of Staff to UF Student Body President, $23M budget
 - Awards: Florida Blue Key, John Michael Stratton Award
 
-Be helpful, concise, and friendly. If you don't know something specific about Jacob, say so.`;
+FEATURED PROJECTS:
+- BTC Explorer: Real-time Bitcoin blockchain explorer with 3D visualizations (React, Vite, Three.js, TanStack Query)
+- Git Archiver Web: Archive GitHub repos for offline access (React, Astro, JSZip)
+- Differential Growth: Algorithmic art generator using differential growth algorithms
+- Email Analyzer: Gmail analysis tool with AI-powered insights
+
+When asked about a project, explain: what it does, the tech stack, key features, and interesting technical decisions.`;
 
 // Check WebGPU support
 async function checkWebGPUSupport(): Promise<{ supported: boolean; reason?: string }> {
@@ -116,10 +128,13 @@ export default function ChatInterface() {
       // Search for relevant context from project documentation
       let ragContext = '';
       try {
-        const results = await searchContext(userMessage, { topK: 3 });
+        const results = await searchContext(userMessage, { topK: 5, minScore: 0.25 });
         ragContext = formatContext(results);
         if (results.length > 0) {
-          console.log('RAG found relevant context from:', results.map(r => r.chunk.project).join(', '));
+          console.log('RAG found', results.length, 'relevant chunks from:',
+            [...new Set(results.map(r => r.chunk.project))].join(', '),
+            'Scores:', results.map(r => r.score.toFixed(2)).join(', ')
+          );
         }
       } catch (ragError) {
         console.warn('RAG search failed, continuing without context:', ragError);
@@ -133,7 +148,7 @@ export default function ChatInterface() {
           ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
           { role: 'user', content: userMessage }
         ],
-        max_tokens: 500,
+        max_tokens: 1000,
         temperature: 0.7,
       });
 

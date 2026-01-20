@@ -132,9 +132,17 @@ export async function searchContext(
 export function formatContext(results: SearchResult[]): string {
   if (results.length === 0) return '';
 
-  const formatted = results.map(r => {
-    return `[${r.chunk.project} - ${r.chunk.section}]\n${r.chunk.content}`;
+  const formatted = results.map((r, i) => {
+    return `### Source ${i + 1}: ${r.chunk.project} (${r.chunk.file})\n${r.chunk.content}`;
   });
 
-  return `\n\n---\nRelevant context from my projects:\n\n${formatted.join('\n\n---\n\n')}`;
+  return `
+
+=== PROJECT DOCUMENTATION (USE THIS TO ANSWER) ===
+
+${formatted.join('\n\n---\n\n')}
+
+=== END OF DOCUMENTATION ===
+
+Answer the user's question using the documentation above. Be specific and cite details from the sources.`;
 }
