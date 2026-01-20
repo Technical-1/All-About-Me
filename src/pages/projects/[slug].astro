@@ -313,7 +313,10 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
       });
 
       // Find all mermaid code blocks and render them
-      document.addEventListener('DOMContentLoaded', async () => {
+      async function renderMermaidDiagrams() {
+        // Small delay to ensure DOM is fully ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         const codeBlocks = document.querySelectorAll('pre code.language-mermaid, pre code');
 
         for (const block of codeBlocks) {
@@ -411,7 +414,14 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
             }
           }
         }
-      });
+      }
+
+      // Run on load and on subsequent navigations
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
+      } else {
+        renderMermaidDiagrams();
+      }
     </script>
   )}
 
