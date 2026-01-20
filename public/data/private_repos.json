@@ -1178,5 +1178,607 @@
       "stack.md",
       "qa.md"
     ]
+  },
+  {
+    "repo": {
+      "name": "All-About-Me",
+      "full_name": "Technical-1/All-About-Me",
+      "html_url": "https://github.com/Technical-1/All-About-Me",
+      "homepage": "https://JacobKanfer.com",
+      "description": "A Resume Website with all of my experience, projects, and contact information!",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T06:35:33Z"
+    },
+    "languages": [
+      "Astro",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Astro": 63823,
+      "TypeScript": 57538,
+      "HTML": 51846,
+      "CSS": 32523,
+      "JavaScript": 23227
+    },
+    "primary_language": "Astro",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Crypto-Price-Tracker",
+      "full_name": "Technical-1/Crypto-Price-Tracker",
+      "html_url": "https://github.com/Technical-1/Crypto-Price-Tracker",
+      "homepage": "",
+      "description": "Easy to use crypto tracker that pull current prices from coingecko's api. Can be utilized by anyone holding crypto to see a comprehensive profit analysis that isn't offered on many wallets.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2022-05-25T05:52:50Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 1779
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Easy-Time-Blocking",
+      "full_name": "Technical-1/Easy-Time-Blocking",
+      "html_url": "https://github.com/Technical-1/Easy-Time-Blocking",
+      "homepage": "https://technical-1.github.io/Easy-Time-Blocking/",
+      "description": "Easy Time-Blocking is a lightweight, web-based scheduling tool that helps you visually plan your day. Simply drag or tap time slots to create blocks, add tasks and notes.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:28:27Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 159441,
+      "CSS": 32524,
+      "HTML": 23961
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "EbayViews",
+      "full_name": "Technical-1/EbayViews",
+      "html_url": "https://github.com/Technical-1/EbayViews",
+      "homepage": "",
+      "description": "Multithreaded python eBay view bot. Can generate as many views as the user wants to hopefully \"naturally\" generate interest and move the item up in the search results.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2022-05-24T22:46:52Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 747
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "email-archive-parser",
+      "full_name": "Technical-1/email-archive-parser",
+      "html_url": "https://github.com/Technical-1/email-archive-parser",
+      "homepage": "https://www.npmjs.com/package/@technical-1/email-archive-parser",
+      "description": "Parse OLM & MBOX email archives with TypeScript. Extract emails, contacts, calendars + detect accounts, purchases, subscriptions. Memory-efficient streaming for multi-GB files.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-06T22:33:54Z"
+    },
+    "languages": [
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 215686
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "FBI-API",
+      "full_name": "Technical-1/FBI-API",
+      "html_url": "https://github.com/Technical-1/FBI-API",
+      "homepage": "",
+      "description": "Random FBI API script to try it out. Wanted to see how it worked after stumbling into it. Grabs the most wanted after looping through the pages of results and puts them into an html file.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2022-06-02T14:59:56Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 575
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Git-Archiver",
+      "full_name": "Technical-1/Git-Archiver",
+      "html_url": "https://github.com/Technical-1/Git-Archiver",
+      "homepage": null,
+      "description": "A tool for automatically tracking and archiving GitHub repositories. It periodically checks for updates, compresses older versions, and ensures that even deleted or archived repositories are preserved locally.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:24:39Z"
+    },
+    "languages": [
+      "Python",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 266049,
+      "JavaScript": 33508,
+      "CSS": 16716,
+      "HTML": 7486
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Git-Archiver-Web",
+      "full_name": "Technical-1/Git-Archiver-Web",
+      "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
+      "homepage": "https://technical-1.github.io/Git-Archiver-Web/",
+      "description": "Free GitHub repository archive service - backup any public repo forever",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T04:10:39Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "JavaScript": 62056,
+      "CSS": 19017,
+      "HTML": 7306,
+      "Shell": 3401
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Image-To-Ascii-Flask",
+      "full_name": "Technical-1/Image-To-Ascii-Flask",
+      "html_url": "https://github.com/Technical-1/Image-To-Ascii-Flask",
+      "homepage": "https://image-to-ascii-erfs.onrender.com",
+      "description": "Convert images to ASCII art with an interactive web UI. Real-time preview, customizable dimensions, and multiple character sets.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-11-21T17:50:17Z"
+    },
+    "languages": [
+      "CSS",
+      "Python",
+      "HTML",
+      "JavaScript",
+      "Procfile"
+    ],
+    "language_bytes": {
+      "CSS": 7830,
+      "Python": 6909,
+      "HTML": 6328,
+      "JavaScript": 5919,
+      "Procfile": 20
+    },
+    "primary_language": "CSS",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Image-To-Ascii-Vite",
+      "full_name": "Technical-1/Image-To-Ascii-Vite",
+      "html_url": "https://github.com/Technical-1/Image-To-Ascii-Vite",
+      "homepage": "https://image-to-ascii-nine.vercel.app",
+      "description": "Convert images to ASCII art with an interactive web UI. Real-time preview, customizable dimensions, and multiple character sets.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T02:07:26Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 46912,
+      "HTML": 17842,
+      "CSS": 8000
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "iPhone-Mirroring-AIO",
+      "full_name": "Technical-1/iPhone-Mirroring-AIO",
+      "html_url": "https://github.com/Technical-1/iPhone-Mirroring-AIO",
+      "homepage": null,
+      "description": null,
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-03-04T00:35:52Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 14453,
+      "HTML": 1950
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "iPhone-Mirroring-Auto-Scripts",
+      "full_name": "Technical-1/iPhone-Mirroring-Auto-Scripts",
+      "html_url": "https://github.com/Technical-1/iPhone-Mirroring-Auto-Scripts",
+      "homepage": "",
+      "description": "A set of AppleScript and Python tools to automate the iPhone Mirroring macOS app. Gives users a toolbox to generate AppleScript for automated clicking and typing—ideal for automation tasks.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-03-06T21:14:48Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 11221
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "NeoMatrix-FrameCreator",
+      "full_name": "Technical-1/NeoMatrix-FrameCreator",
+      "html_url": "https://github.com/Technical-1/NeoMatrix-FrameCreator",
+      "homepage": "https://technical-1.github.io/NeoMatrix-FrameCreator/",
+      "description": "The NeoMatrix Frame Creator is a web-based tool that simplifies the process of designing frames for LED animations on NeoMatrix and WS2812 LED matrices.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T02:07:28Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 14394,
+      "HTML": 3226,
+      "CSS": 2599
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "OpenSource-Limitimer",
+      "full_name": "Technical-1/OpenSource-Limitimer",
+      "html_url": "https://github.com/Technical-1/OpenSource-Limitimer",
+      "homepage": "https://technical-1.github.io/OpenSource-Limitimer/",
+      "description": "A simple, mobile-friendly HTML webpage that functions as a countdown timer (\"Limitimer\"). Users can set a desired time in minutes, start the countdown, optionally enable a finish alert sound, and stop or refresh the page without losing the timer state.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:37:14Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 4767,
+      "HTML": 1110,
+      "CSS": 456
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Pluribus-Text-Gen",
+      "full_name": "Technical-1/Pluribus-Text-Gen",
+      "html_url": "https://github.com/Technical-1/Pluribus-Text-Gen",
+      "homepage": "https://pluribus-text-gen.vercel.app/",
+      "description": "Interactive particle text effect inspired by the Pluribus TV show intro. Fingerprint-style text with wave animations using HTML5 Canvas.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:28:27Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 10647,
+      "HTML": 4771,
+      "CSS": 1523
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "pythonforge",
+      "full_name": "Technical-1/pythonforge",
+      "html_url": "https://github.com/Technical-1/pythonforge",
+      "homepage": "https://pypi.org/project/quickforge/",
+      "description": "Modern Python project bootstrapper with 2025's best toolchain (uv, ruff, basedpyright)",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:24:09Z"
+    },
+    "languages": [
+      "Python",
+      "Jinja"
+    ],
+    "language_bytes": {
+      "Python": 242990,
+      "Jinja": 61632
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "QuickPass",
+      "full_name": "Technical-1/QuickPass",
+      "html_url": "https://github.com/Technical-1/QuickPass",
+      "homepage": "",
+      "description": "A secure, cross-platform desktop password manager built in Rust with AES-256-GCM encryption, dual authentication (password + pattern lock), TOTP/2FA support, and brute-force protection.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:23:38Z"
+    },
+    "languages": [
+      "Rust"
+    ],
+    "language_bytes": {
+      "Rust": 280036
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "RepoLens",
+      "full_name": "Technical-1/RepoLens",
+      "html_url": "https://github.com/Technical-1/RepoLens",
+      "homepage": "https://repolens.io/",
+      "description": "Analyze GitHub repositories with beautiful visualizations. View language breakdowns, commit history, code frequency, contributors, and generate embeddable stats widgets for your README.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-08T15:47:40Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 169662,
+      "CSS": 5039,
+      "JavaScript": 672
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Rust-Dashboard",
+      "full_name": "Technical-1/Rust-Dashboard",
+      "html_url": "https://github.com/Technical-1/Rust-Dashboard",
+      "homepage": "",
+      "description": "Rust-Dashboard is a cross-platform system monitoring tool built with sysinfo and eframe/egui. It tracks CPU, memory, disk, and network usage in real time, showing top processes by CPU and memory consumption.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T01:28:08Z"
+    },
+    "languages": [
+      "Rust"
+    ],
+    "language_bytes": {
+      "Rust": 63944
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Shopify-ATC",
+      "full_name": "Technical-1/Shopify-ATC",
+      "html_url": "https://github.com/Technical-1/Shopify-ATC",
+      "homepage": "",
+      "description": "Shopify Add To Cart link generator. Grabs 250 products from the given Shopify site and prints out each one with its respective link if that item is still in stock.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2022-05-31T12:26:23Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 961
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Supernatural-Speed-Typer",
+      "full_name": "Technical-1/Supernatural-Speed-Typer",
+      "html_url": "https://github.com/Technical-1/Supernatural-Speed-Typer",
+      "homepage": "",
+      "description": "https://thetypingcat.com typing speedtest cheater. Uses Puppeteer to emulate a user typing each character to get insanely fast scores. Can be altered to have more believable results by adding delays.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2022-05-25T06:30:57Z"
+    },
+    "languages": [
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 1490
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Technical-1",
+      "full_name": "Technical-1/Technical-1",
+      "html_url": "https://github.com/Technical-1/Technical-1",
+      "homepage": "https://jacobkanfer.com",
+      "description": "Full-stack developer passionate about building scalable applications across cloud platforms (AWS, Azure, GCP), modern web frameworks (React, Vue, Next.js), and AI/ML solutions. Experienced in automation, enterprise tools, and DevOps practices.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T04:50:12Z"
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 25298
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "UCF_DecisionChecker",
+      "full_name": "Technical-1/UCF_DecisionChecker",
+      "html_url": "https://github.com/Technical-1/UCF_DecisionChecker",
+      "homepage": "",
+      "description": "Script to check UCF acceptance status every 12 hours and texts the user once a decision has been made or if it is still waiting.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2019-11-24T03:40:45Z"
+    },
+    "languages": [
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 4912
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   }
 ]
