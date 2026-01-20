@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Resume" description="Download Jacob Kanfer's resume">
+  <section class="section">
+    <div class="container-narrow text-center">
+      <h1 class="mb-4" style="color: var(--text-heading);">Resume</h1>
+      <p class="text-lg mb-8" style="color: var(--text-secondary);">
+        Download or view my resume below
+      </p>
+
+      <div class="flex flex-wrap justify-center gap-4 mb-8">
+        <a
+          href="/Kanfer_Resume.pdf"
+          download="Jacob_Kanfer_Resume.pdf"
+          class="btn-primary"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download PDF
+        </a>
+        <a
+          href="/Kanfer_Resume.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-secondary"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open in New Tab
+        </a>
+      </div>
+
+      <div class="card overflow-hidden">
+        <div class="aspect-[8.5/11] w-full">
+          <iframe
+            src="/Kanfer_Resume.pdf"
+            class="w-full h-full border-0"
+            title="Jacob Kanfer Resume"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

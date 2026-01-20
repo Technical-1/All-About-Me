@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChatInterface from '../components/chat/ChatInterface';
+---
+
+<BaseLayout title="Chat" description="Chat with Jacob Kanfer's AI assistant powered by WebLLM">
+  <section class="section">
+    <div class="container-narrow">
+      <div class="text-center mb-8">
+        <h1 class="mb-4" style="color: var(--text-heading);">Chat with AI</h1>
+        <p class="text-lg max-w-2xl mx-auto" style="color: var(--text-secondary);">
+          Ask questions about my background, projects, or experience.
+          Powered by WebLLM - runs entirely in your browser!
+        </p>
+      </div>
+
+      <ChatInterface client:only="react" />
+
+      <div class="mt-8 text-center">
+        <p class="text-sm" style="color: var(--text-muted);">
+          This AI runs locally using <a href="https://webllm.mlc.ai/" target="_blank" rel="noopener noreferrer">WebLLM</a>.
+          No data is sent to external servers.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

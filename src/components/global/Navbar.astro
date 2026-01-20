@@ -1,0 +1,132 @@
+---
+import ThemeToggle from './ThemeToggle.tsx';
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/experience', label: 'Experience' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/resume', label: 'Resume' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/chat', label: 'Chat', highlight: true },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b" style="background-color: color-mix(in srgb, var(--bg-primary) 80%, transparent); border-color: var(--border-color);">
+  <div class="container-wide">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group" style="color: var(--text-heading);">
+        <img src="/jk-logo.svg" alt="JK Logo" class="w-8 h-8 transition-transform group-hover:scale-110" />
+        <span class="font-display font-bold hidden sm:block">
+          <span style="color: var(--accent-primary);">jacob</span>kanfer
+        </span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-1">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+              link.highlight
+                ? 'border'
+                : ''
+            ]}
+            style={
+              link.highlight
+                ? `background-color: rgba(196, 30, 58, 0.1); color: var(--accent-primary); border-color: rgba(196, 30, 58, 0.3);`
+                : currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+                  ? `color: var(--accent-primary); background-color: rgba(196, 30, 58, 0.1);`
+                  : `color: var(--text-secondary);`
+            }
+          >
+            {link.highlight && (
+              <span class="inline-block w-2 h-2 rounded-full mr-2 animate-pulse" style="background-color: var(--accent-primary);" />
+            )}
+            {link.label}
+          </a>
+        ))}
+
+        <!-- Theme Toggle -->
+        <div class="ml-2">
+          <ThemeToggle client:load />
+        </div>
+      </div>
+
+      <!-- Mobile: Theme Toggle + Menu Button -->
+      <div class="md:hidden flex items-center gap-2">
+        <ThemeToggle client:load />
+        <button
+          id="mobile-menu-btn"
+          class="p-2 rounded-lg transition-colors"
+          style="color: var(--text-secondary);"
+          aria-label="Toggle menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" class="origin-center transition-all" />
+            <line x1="3" y1="12" x2="21" y2="12" class="transition-all" />
+            <line x1="3" y1="18" x2="21" y2="18" class="origin-center transition-all" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div
+    id="mobile-menu"
+    class="md:hidden absolute top-full left-0 right-0 border-b transform -translate-y-full opacity-0 invisible transition-all duration-300"
+    style="background-color: var(--bg-surface); border-color: var(--border-color);"
+  >
+    <div class="container-wide py-4 flex flex-col gap-2">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'px-4 py-3 rounded-lg font-medium text-sm transition-all',
+            link.highlight ? 'border' : ''
+          ]}
+          style={
+            link.highlight
+              ? `background-color: rgba(196, 30, 58, 0.1); color: var(--accent-primary); border-color: rgba(196, 30, 58, 0.3);`
+              : currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+                ? `color: var(--accent-primary); background-color: rgba(196, 30, 58, 0.1);`
+                : `color: var(--text-secondary);`
+          }
+        >
+          {link.highlight && (
+            <span class="inline-block w-2 h-2 rounded-full mr-2 animate-pulse" style="background-color: var(--accent-primary);" />
+          )}
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  let isOpen = false;
+
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      isOpen = !isOpen;
+
+      if (isOpen) {
+        mobileMenu.classList.remove('-translate-y-full', 'opacity-0', 'invisible');
+        mobileMenu.classList.add('translate-y-0', 'opacity-100', 'visible');
+      } else {
+        mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
+        mobileMenu.classList.remove('translate-y-0', 'opacity-100', 'visible');
+      }
+    });
+  }
+</script>
+
+<!-- Spacer for fixed navbar -->
+<div class="h-16"></div>

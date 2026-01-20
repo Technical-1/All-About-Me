@@ -1,0 +1,292 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface ExperienceItem {
+  title: string;
+  company: string;
+  location: string;
+  period: string;
+  current?: boolean;
+  description: string[];
+  tags: string[];
+}
+
+const professionalExperience: ExperienceItem[] = [
+  {
+    title: 'Engineering Solutions Analyst',
+    company: 'Deloitte',
+    location: 'Arlington, VA',
+    period: 'Aug 2025 - Present',
+    current: true,
+    description: [
+      'Design and implement AI-powered solutions and intelligent agents for public sector clients',
+      'Develop enterprise automation solutions that enhance operational efficiency and drive innovation',
+      'Collaborate with cross-functional teams to deliver cutting-edge engineering solutions'
+    ],
+    tags: ['AI', 'Intelligent Agents', 'ServiceNow', 'Azure', 'AWS', 'Python']
+  },
+  {
+    title: 'Management Consulting Data Science Intern',
+    company: 'World Wide Technology',
+    location: 'Remote (Gainesville, FL)',
+    period: 'May 2024 - Aug 2024',
+    description: [
+      'Developed a clustering framework to integrate with existing ML models, boosting overall accuracy',
+      'Designed Snowflake tables and procedures to streamline data processing workflows',
+      'Created dynamic PowerBI dashboards that translated complex data into actionable insights'
+    ],
+    tags: ['Machine Learning', 'XGBoost', 'Snowflake', 'PowerBI', 'Python']
+  },
+  {
+    title: 'Store Manager / Lead Technician',
+    company: 'Campus Phone Repairs',
+    location: 'Gainesville, FL',
+    period: 'Jan 2022 - Nov 2023',
+    description: [
+      'Managed daily operations and led a team of four technicians, improving service efficiency by 25%',
+      'Established monthly KPIs and performance metrics to drive revenue growth and customer satisfaction',
+      'Provided technical diagnostics and repairs for iOS, macOS, Android, and Windows devices'
+    ],
+    tags: ['Team Leadership', 'Operations Management', 'Technical Diagnostics', 'Customer Service']
+  }
+];
+
+const leadershipExperience: ExperienceItem[] = [
+  {
+    title: 'Chief of Staff to the Student Body President',
+    company: 'UF Student Government',
+    location: 'Gainesville, FL',
+    period: 'Jul 2023 - May 2024',
+    description: [
+      'Regulated and approved allocations and purchases of $23 million annual SG budget',
+      'Organized and oversaw 15 agencies that plan events and projects to enhance the student experience',
+      'Led executive team on legislative trip to Washington D.C., meeting with members of Congress',
+      'Built initiative tracker to monitor progress of all executive branch initiatives'
+    ],
+    tags: ['Budget Management', 'Strategic Planning', 'Leadership', 'Project Management']
+  },
+  {
+    title: 'Vice Chair, Budget & Appropriations Committee',
+    company: 'UF Student Senate',
+    location: 'University of Florida',
+    period: 'Mar 2022 - Mar 2023',
+    description: [
+      'Managed budget approval process for $22+ million distributed to 100+ student organizations',
+      'Developed Python automation tool to streamline bill creation by auto-generating line item totals',
+      'Evaluated and amended budget proposals to ensure compliance with funding codes'
+    ],
+    tags: ['Python', 'Automation', 'Budget Analysis', 'Policy']
+  },
+  {
+    title: 'College of Engineering Senator',
+    company: 'UF Student Senate',
+    location: 'University of Florida',
+    period: 'Jan 2022 - Mar 2023',
+    description: [
+      'Represented all students in the Herbert Wertheim College of Engineering',
+      'Authored legislation including traffic safety improvements and student recognition resolutions',
+      'Advocated for engineering student needs and policy improvements'
+    ],
+    tags: ['Constituent Communications', 'Policy Advocacy', 'Leadership', 'Community Outreach']
+  },
+  {
+    title: 'Executive Vice President',
+    company: 'Beta Theta Pi',
+    location: 'University of Florida',
+    period: 'Dec 2022 - May 2023',
+    description: [
+      'Re-elected based on exceptional performance; facilitated executive actions with team of 15',
+      'Served as president\'s liaison for an organization of 180 members',
+      'Oversaw executive board and annual budgets exceeding $120,000'
+    ],
+    tags: ['Team Leadership', 'Budget Management', 'Strategic Planning', 'Communication']
+  }
+];
+
+const awards = [
+  {
+    title: 'Florida Blue Key',
+    subtitle: 'Spring 2023 Tapping Class',
+    description: 'Inducted into the oldest and most prestigious leadership honorary in the state of Florida'
+  },
+  {
+    title: 'John Michael Stratton Award',
+    subtitle: 'Outstanding Student Senator',
+    description: 'Recognizes exemplary service and leadership within the UF Student Senate'
+  }
+];
+---
+
+<BaseLayout title="Experience" description="Jacob Kanfer's professional journey - from consulting to leadership">
+  <!-- Header -->
+  <section class="section pt-8">
+    <div class="container-narrow text-center">
+      <h1 class="mb-4" style="color: var(--text-heading);">Professional Journey</h1>
+      <p class="text-lg max-w-2xl mx-auto" style="color: var(--text-secondary);">
+        From consulting to leadership, here's what I've been building
+      </p>
+    </div>
+  </section>
+
+  <!-- Professional Experience -->
+  <section class="section pt-8">
+    <div class="container-narrow">
+      <h2 class="section-title flex items-center gap-3">
+        Professional Experience
+      </h2>
+
+      <div class="space-y-6">
+        {professionalExperience.map((item) => (
+          <div class="card card-hover">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+              <div>
+                <h3 class="text-xl font-display font-bold" style="color: var(--text-heading);">{item.title}</h3>
+                <p style="color: var(--accent-primary);">{item.company}</p>
+              </div>
+              {item.current && (
+                <span class="tag-red self-start">Current</span>
+              )}
+            </div>
+
+            <div class="flex flex-wrap gap-4 text-sm mb-4" style="color: var(--text-muted);">
+              <span>{item.period}</span>
+              <span>{item.location}</span>
+            </div>
+
+            <ul class="space-y-2 mb-4" style="color: var(--text-secondary);">
+              {item.description.map((desc) => (
+                <li class="flex items-start gap-2">
+                  <span style="color: var(--accent-primary);" class="mt-1">-</span>
+                  <span>{desc}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="flex flex-wrap gap-2">
+              {item.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Project -->
+  <section class="section" style="background-color: var(--bg-surface);">
+    <div class="container-narrow">
+      <h2 class="section-title flex items-center gap-3">
+        Featured Project
+      </h2>
+
+      <div class="card card-hover">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-xl font-display font-bold" style="color: var(--text-heading);">AHSR (Autonomous Hospital Stretcher Robot)</h3>
+            <p style="color: var(--accent-secondary);">Senior Design Project</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 text-sm mb-4" style="color: var(--text-muted);">
+          <span>Jan 2023 - Dec 2024</span>
+          <span>University of Florida</span>
+        </div>
+
+        <ul class="space-y-2 mb-4" style="color: var(--text-secondary);">
+          <li class="flex items-start gap-2">
+            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
+            <span>Integrated RGB-Depth camera controls with OpenCV, using a pretrained lower-body detection model for safety override</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
+            <span>Implemented frontier-based exploration and SLAM with a custom Lidar mapping script for autonomous navigation</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
+            <span>Built waypoint navigation and logging tools enabling dynamic waypoint creation and trip replay</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
+            <span>Developed a modular PyQt5 user interface integrating with ROS2 topics wirelessly for robot control</span>
+          </li>
+        </ul>
+
+        <div class="flex flex-wrap gap-2">
+          {['Python', 'ROS2', 'OpenCV', 'PyQt5', 'SLAM', 'Robotics', 'Lidar'].map((tag) => (
+            <span class="tag-teal">{tag}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leadership Experience -->
+  <section class="section">
+    <div class="container-narrow">
+      <h2 class="section-title flex items-center gap-3">
+        Leadership Experience
+      </h2>
+
+      <div class="space-y-6">
+        {leadershipExperience.map((item) => (
+          <div class="card card-hover">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+              <div>
+                <h3 class="text-xl font-display font-bold" style="color: var(--text-heading);">{item.title}</h3>
+                <p style="color: var(--accent-secondary);">{item.company}</p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 text-sm mb-4" style="color: var(--text-muted);">
+              <span>{item.period}</span>
+              <span>{item.location}</span>
+            </div>
+
+            <ul class="space-y-2 mb-4" style="color: var(--text-secondary);">
+              {item.description.map((desc) => (
+                <li class="flex items-start gap-2">
+                  <span style="color: var(--accent-secondary);" class="mt-1">-</span>
+                  <span>{desc}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="flex flex-wrap gap-2">
+              {item.tags.map((tag) => (
+                <span class="tag-teal">{tag}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Recognition & Awards -->
+  <section class="section" style="background-color: var(--bg-surface);">
+    <div class="container-narrow">
+      <h2 class="section-title flex items-center gap-3">
+        Recognition & Awards
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        {awards.map((award) => (
+          <div class="card card-hover text-center">
+            <div
+              class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style="background-color: rgba(74, 155, 155, 0.2);"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-display font-bold mb-1" style="color: var(--text-heading);">{award.title}</h3>
+            <p class="text-sm mb-3" style="color: var(--accent-secondary);">{award.subtitle}</p>
+            <p class="text-sm" style="color: var(--text-muted);">{award.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

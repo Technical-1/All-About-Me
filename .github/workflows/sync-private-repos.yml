@@ -29,8 +29,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data/private_repos.json)" ]]; then
-            git add data/private_repos.json
+          if [[ -n "$(git status --porcelain public/data/)" ]]; then
+            git add public/data/private_repos.json public/data/featured_repos.json public/data/portfolio/
             git commit -m "chore: update private repos snapshot"
             git push
           else

@@ -1,0 +1,107 @@
+---
+// Clean hero section without Three.js particles
+---
+
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+  <!-- Subtle background elements -->
+  <div class="absolute inset-0 overflow-hidden">
+    <!-- Gradient orbs for subtle visual interest -->
+    <div class="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-20 blur-3xl" style="background: var(--accent-primary);"></div>
+    <div class="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-15 blur-3xl" style="background: var(--accent-secondary);"></div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="relative z-10 container-narrow text-center">
+    <div class="space-y-6 animate-fade-in">
+      <!-- Greeting -->
+      <p class="font-mono text-sm uppercase tracking-widest" style="color: var(--accent-secondary);">
+        Hello, I'm
+      </p>
+
+      <!-- Name -->
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-bold">
+        <span style="color: var(--text-heading);">Jacob</span>{' '}
+        <span style="color: var(--accent-primary);">Kanfer</span>
+      </h1>
+
+      <!-- Typing animation -->
+      <div class="font-sans text-xl md:text-2xl" style="color: var(--text-secondary);">
+        <span id="typed-text"></span>
+        <span class="typing-cursor"></span>
+      </div>
+
+      <!-- Tagline -->
+      <p class="max-w-xl mx-auto" style="color: var(--text-muted);">
+        Building intelligent systems at the intersection of AI and engineering.
+      </p>
+
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-4 justify-center pt-4">
+        <a href="/projects" class="btn-primary">
+          View My Work
+        </a>
+        <a href="/chat" class="btn-secondary">
+          Chat with AI
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <button
+      onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })"
+      class="transition-colors"
+      style="color: var(--accent-secondary);"
+      aria-label="Scroll to about section"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+  </div>
+</section>
+
+<script>
+  // Typing animation
+  const phrases = [
+    "a Software Developer",
+    "focused on AI",
+    "interested in Cybersecurity",
+    "building intelligent agents"
+  ];
+
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  const typedText = document.getElementById('typed-text');
+
+  function type() {
+    if (!typedText) return;
+
+    const currentPhrase = phrases[phraseIndex];
+
+    if (isDeleting) {
+      typedText.textContent = currentPhrase.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      typedText.textContent = currentPhrase.substring(0, charIndex + 1);
+      charIndex++;
+    }
+
+    let typeSpeed = isDeleting ? 50 : 100;
+
+    if (!isDeleting && charIndex === currentPhrase.length) {
+      typeSpeed = 2000;
+      isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      typeSpeed = 500;
+    }
+
+    setTimeout(type, typeSpeed);
+  }
+
+  type();
+</script>
