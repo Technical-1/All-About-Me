@@ -5,8 +5,12 @@
  * - private_repos.json: All private repos
  * - portfolio/[repo-name]/: Portfolio documentation files for each repo
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'data');
 const PRIVATE_REPOS_PATH = path.join(OUTPUT_DIR, 'private_repos.json');
