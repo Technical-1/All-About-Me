@@ -144,26 +144,28 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
     </section>
   )}
 
-  <!-- Tech Stack -->
-  <section class="section" style="background-color: var(--bg-surface);">
-    <div class="container-narrow">
-      <h2 class="section-title">Tech Stack</h2>
-      <div class="flex flex-wrap gap-3">
-        {repo.languages.map((lang) => (
-          <span
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg"
-            style="background-color: var(--bg-card); border: 1px solid var(--border-color);"
-          >
+  <!-- Tech Stack (only show if no detailed stack from portfolio) -->
+  {!stackHtml && (
+    <section class="section" style="background-color: var(--bg-surface);">
+      <div class="container-narrow">
+        <h2 class="section-title">Tech Stack</h2>
+        <div class="flex flex-wrap gap-3">
+          {repo.languages.map((lang) => (
             <span
-              class="w-3 h-3 rounded-full"
-              style={`background-color: ${getLanguageColor(lang)};`}
-            />
-            <span style="color: var(--text-primary);">{lang}</span>
-          </span>
-        ))}
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg"
+              style="background-color: var(--bg-card); border: 1px solid var(--border-color);"
+            >
+              <span
+                class="w-3 h-3 rounded-full"
+                style={`background-color: ${getLanguageColor(lang)};`}
+              />
+              <span style="color: var(--text-primary);">{lang}</span>
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- Highlights -->
   {repo.metadata?.highlights && repo.metadata.highlights.length > 0 && (
@@ -285,4 +287,71 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
       </a>
     </div>
   </section>
+
+  <!-- Mermaid Diagram Rendering -->
+  {architectureHtml && (
+    <script>
+      import mermaid from 'mermaid';
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: {
+          primaryColor: '#4A9B9B',
+          primaryTextColor: '#F5F5DC',
+          primaryBorderColor: '#4A9B9B',
+          lineColor: '#6B7280',
+          secondaryColor: '#1a1a2e',
+          tertiaryColor: '#0d0d1a',
+          background: '#0d0d1a',
+          mainBkg: '#1a1a2e',
+          secondBkg: '#0d0d1a',
+          border1: '#4A9B9B',
+          border2: '#C41E3A',
+          arrowheadColor: '#F5F5DC',
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: '14px',
+          textColor: '#F5F5DC',
+          nodeTextColor: '#F5F5DC',
+        },
+      });
+
+      // Find all mermaid code blocks and render them
+      // Note: mermaid.render returns sanitized SVG, safe to insert
+      document.addEventListener('DOMContentLoaded', async () => {
+        const codeBlocks = document.querySelectorAll('pre code.language-mermaid, pre code');
+
+        for (const block of codeBlocks) {
+          const text = block.textContent || '';
+          // Check if it looks like mermaid syntax
+          if (text.trim().startsWith('flowchart') ||
+              text.trim().startsWith('sequenceDiagram') ||
+              text.trim().startsWith('classDiagram') ||
+              text.trim().startsWith('erDiagram') ||
+              text.trim().startsWith('graph') ||
+              text.trim().startsWith('stateDiagram') ||
+              text.trim().startsWith('pie') ||
+              text.trim().startsWith('gantt')) {
+
+            const pre = block.parentElement;
+            if (!pre) continue;
+
+            // Create a container for the rendered diagram
+            const container = document.createElement('div');
+            container.className = 'mermaid-diagram my-6 overflow-x-auto';
+
+            try {
+              const { svg } = await mermaid.render(`mermaid-${Math.random().toString(36).slice(2)}`, text);
+              // mermaid.render() returns sanitized SVG output
+              container.insertAdjacentHTML('beforeend', svg);
+              pre.replaceWith(container);
+            } catch (e) {
+              console.warn('Failed to render mermaid diagram:', e);
+              // Keep the original code block if rendering fails
+            }
+          }
+        }
+      });
+    </script>
+  )}
 </BaseLayout>

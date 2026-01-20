@@ -1,7 +1,7 @@
 {
   "model": "Xenova/all-MiniLM-L6-v2",
   "dimensions": 384,
-  "generatedAt": "2026-01-20T06:39:23.814Z",
+  "generatedAt": "2026-01-20T06:41:44.999Z",
   "chunks": [
     {
       "id": "btc-explorer-introduction",
