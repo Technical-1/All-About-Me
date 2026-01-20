@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Fetches private GitHub repos using a PAT and writes JSON snapshots:
+ * Fetches GitHub repos (both private and public) and writes JSON snapshots:
  * - featured_repos.json: Curated list of featured projects
- * - private_repos.json: All private repos
+ * - private_repos.json: All repos (private + public with portfolio docs)
  * - portfolio/[repo-name]/: Portfolio documentation files for each repo
  */
 import fs from 'node:fs';
@@ -98,13 +98,13 @@ async function savePortfolioFiles(repoName, portfolioData) {
   console.log(`  Saved portfolio files for ${repoName}`);
 }
 
-async function fetchAllPrivateRepos() {
+async function fetchAllRepos(visibility) {
   let page = 1;
   const perPage = 100;
   const repos = [];
 
   while (true) {
-    const url = `${GITHUB_API}/user/repos?visibility=private&per_page=${perPage}&page=${page}&affiliation=owner`;
+    const url = `${GITHUB_API}/user/repos?visibility=${visibility}&per_page=${perPage}&page=${page}&affiliation=owner`;
     const batch = await fetchJson(url);
     repos.push(...batch);
     if (batch.length < perPage) break;
@@ -132,10 +132,56 @@ function computePrimaryLanguage(langBytes) {
   return entries[0][0];
 }
 
+async function processRepo(repo) {
+  const langBytes = await fetchLanguagesForRepo(repo);
+  const languages = Object.keys(langBytes);
+  const primaryLanguage = computePrimaryLanguage(langBytes) || repo.language || null;
+
+  // Fetch portfolio documentation files
+  const portfolioData = await fetchPortfolioFiles(repo);
+  if (portfolioData) {
+    await savePortfolioFiles(repo.name, portfolioData);
+  }
+
+  return {
+    repo: {
+      name: repo.name,
+      full_name: repo.full_name,
+      html_url: repo.html_url,
+      homepage: repo.homepage,
+      description: repo.description,
+      private: repo.private,
+      fork: repo.fork,
+      archived: repo.archived,
+      pushed_at: repo.pushed_at
+    },
+    languages,
+    language_bytes: langBytes,
+    primary_language: primaryLanguage,
+    has_portfolio: !!portfolioData,
+    portfolio_files: portfolioData ? Object.keys(portfolioData) : []
+  };
+}
+
 async function main() {
+  // Fetch both private and public repos
   console.log('Fetching private repos…');
-  const repos = await fetchAllPrivateRepos();
-  console.log(`Found ${repos.length} repos (after filtering forks/archived).`);
+  const privateRepos = await fetchAllRepos('private');
+  console.log(`Found ${privateRepos.length} private repos.`);
+
+  console.log('Fetching public repos…');
+  const publicRepos = await fetchAllRepos('public');
+  console.log(`Found ${publicRepos.length} public repos.`);
+
+  // Combine and deduplicate by name
+  const allRepos = [...privateRepos];
+  const privateNames = new Set(privateRepos.map(r => r.name));
+  for (const repo of publicRepos) {
+    if (!privateNames.has(repo.name)) {
+      allRepos.push(repo);
+    }
+  }
+  console.log(`Total unique repos: ${allRepos.length}`);
 
   // Ensure portfolio directory exists
   fs.mkdirSync(PORTFOLIO_DIR, { recursive: true });
@@ -143,38 +189,13 @@ async function main() {
   const enriched = [];
   let portfolioCount = 0;
 
-  for (const repo of repos) {
-    console.log(`Processing ${repo.name}...`);
-
-    const langBytes = await fetchLanguagesForRepo(repo);
-    const languages = Object.keys(langBytes);
-    const primaryLanguage = computePrimaryLanguage(langBytes) || repo.language || null;
-
-    // Fetch portfolio documentation files
-    const portfolioData = await fetchPortfolioFiles(repo);
-    if (portfolioData) {
-      await savePortfolioFiles(repo.name, portfolioData);
+  for (const repo of allRepos) {
+    console.log(`Processing ${repo.name}${repo.private ? '' : ' (public)'}...`);
+    const processed = await processRepo(repo);
+    enriched.push(processed);
+    if (processed.has_portfolio) {
       portfolioCount++;
     }
-
-    enriched.push({
-      repo: {
-        name: repo.name,
-        full_name: repo.full_name,
-        html_url: repo.html_url,
-        homepage: repo.homepage,
-        description: repo.description,
-        private: repo.private,
-        fork: repo.fork,
-        archived: repo.archived,
-        pushed_at: repo.pushed_at
-      },
-      languages,
-      language_bytes: langBytes,
-      primary_language: primaryLanguage,
-      has_portfolio: !!portfolioData,
-      portfolio_files: portfolioData ? Object.keys(portfolioData) : []
-    });
   }
 
   console.log(`\nFetched portfolio docs from ${portfolioCount} repos.`);
@@ -195,7 +216,7 @@ async function main() {
   // Ensure output directory exists
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  // Write all private repos
+  // Write all repos (for backward compatibility, keep the filename)
   fs.writeFileSync(PRIVATE_REPOS_PATH, JSON.stringify(enriched, null, 2), 'utf8');
   console.log(`Wrote ${enriched.length} records to ${PRIVATE_REPOS_PATH}`);
 
