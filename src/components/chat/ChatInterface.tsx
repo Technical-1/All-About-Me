@@ -20,6 +20,29 @@ Key facts about Jacob:
 
 Be helpful, concise, and friendly. If you don't know something specific about Jacob, say so.`;
 
+// Check WebGPU support
+async function checkWebGPUSupport(): Promise<{ supported: boolean; reason?: string }> {
+  if (!navigator.gpu) {
+    return { supported: false, reason: 'WebGPU API not available in this browser' };
+  }
+
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      return { supported: false, reason: 'No WebGPU adapter found (GPU may not be compatible)' };
+    }
+
+    const device = await adapter.requestDevice();
+    if (!device) {
+      return { supported: false, reason: 'Could not create WebGPU device' };
+    }
+
+    return { supported: true };
+  } catch (e) {
+    return { supported: false, reason: `WebGPU initialization failed: ${e}` };
+  }
+}
+
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -27,6 +50,7 @@ export default function ChatInterface() {
   const [loadingProgress, setLoadingProgress] = useState<string | null>(null);
   const [engine, setEngine] = useState<MLCEngine | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -38,8 +62,20 @@ export default function ChatInterface() {
   }, [messages]);
 
   const initEngine = useCallback(async () => {
-    setLoadingProgress('Initializing WebLLM...');
+    setLoadingProgress('Checking WebGPU support...');
     setError(null);
+    setErrorDetails(null);
+
+    // First check WebGPU support
+    const webgpuCheck = await checkWebGPUSupport();
+    if (!webgpuCheck.supported) {
+      setError('WebGPU is not available');
+      setErrorDetails(webgpuCheck.reason || 'Unknown reason');
+      setLoadingProgress(null);
+      return;
+    }
+
+    setLoadingProgress('Initializing WebLLM...');
 
     try {
       const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
@@ -59,9 +95,10 @@ export default function ChatInterface() {
         role: 'assistant',
         content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
       }]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('WebLLM init error:', err);
-      setError('Failed to load the AI model. Your browser may not support WebGPU.');
+      setError('Failed to load the AI model');
+      setErrorDetails(err?.message || 'Unknown error during model initialization');
       setLoadingProgress(null);
     }
   }, []);
@@ -160,15 +197,37 @@ export default function ChatInterface() {
           <span className="ml-3 text-gray-400 text-sm">jacob-ai</span>
         </div>
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center">
+          <div className="text-center max-w-lg">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">&#9888;</span>
             </div>
-            <h3 className="font-mono font-bold text-white mb-2">WebGPU Required</h3>
-            <p className="text-gray-400 text-sm mb-4 max-w-md">{error}</p>
-            <p className="text-gray-500 text-xs">
-              Try using Chrome, Edge, or another WebGPU-enabled browser.
-            </p>
+            <h3 className="font-mono font-bold text-white mb-2">{error}</h3>
+            {errorDetails && (
+              <p className="text-gray-400 text-sm mb-4 font-mono bg-black/30 p-2 rounded">{errorDetails}</p>
+            )}
+            <div className="text-left text-gray-400 text-sm space-y-2 mb-6">
+              <p className="font-semibold text-gray-300">Troubleshooting:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>Use <strong>Chrome 113+</strong> or <strong>Edge 113+</strong></li>
+                <li>Make sure your GPU drivers are up to date</li>
+                <li>Try enabling hardware acceleration in browser settings</li>
+                <li>Check <a href="chrome://gpu" className="text-cyan underline">chrome://gpu</a> for WebGPU status</li>
+                <li>Some older GPUs may not support WebGPU</li>
+              </ul>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <button onClick={initEngine} className="btn-secondary text-sm">
+                Try Again
+              </button>
+              <a
+                href="https://webgpureport.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost text-sm"
+              >
+                Check WebGPU Support
+              </a>
+            </div>
           </div>
         </div>
       </div>
