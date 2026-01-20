@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { MLCEngine, InitProgressReport } from '@mlc-ai/web-llm';
+import { searchContext, formatContext } from '../../lib/rag';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -75,9 +76,23 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
+      // Search for relevant context from project documentation
+      let ragContext = '';
+      try {
+        const results = await searchContext(userMessage, { topK: 3 });
+        ragContext = formatContext(results);
+        if (results.length > 0) {
+          console.log('RAG found relevant context from:', results.map(r => r.chunk.project).join(', '));
+        }
+      } catch (ragError) {
+        console.warn('RAG search failed, continuing without context:', ragError);
+      }
+
+      const systemPromptWithContext = SYSTEM_PROMPT + ragContext;
+
       const response = await engine.chat.completions.create({
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPromptWithContext },
           ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
           { role: 'user', content: userMessage }
         ],

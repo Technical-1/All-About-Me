@@ -17,7 +17,9 @@
     "language_bytes": {
       "JavaScript": 57590
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -43,7 +45,9 @@
       "CSS": 9467,
       "HTML": 7349
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -55,7 +59,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-07T18:21:35Z"
+      "pushed_at": "2026-01-20T01:34:39Z"
     },
     "languages": [
       "JavaScript",
@@ -63,11 +67,17 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 212125,
+      "JavaScript": 213069,
       "HTML": 20812,
       "CSS": 4653
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -89,7 +99,9 @@
       "Jupyter Notebook": 50998379,
       "Rich Text Format": 486
     },
-    "primary_language": "Jupyter Notebook"
+    "primary_language": "Jupyter Notebook",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -113,7 +125,9 @@
       "CSS": 33925,
       "HTML": 2888
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -133,7 +147,9 @@
     "language_bytes": {
       "Python": 814822
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -157,7 +173,9 @@
       "JavaScript": 31874,
       "HTML": 2301
     },
-    "primary_language": "CSS"
+    "primary_language": "CSS",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -177,7 +195,9 @@
     "language_bytes": {
       "JavaScript": 736
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -189,7 +209,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T17:15:54Z"
+      "pushed_at": "2026-01-20T01:28:27Z"
     },
     "languages": [
       "TypeScript",
@@ -203,7 +223,13 @@
       "JavaScript": 1371,
       "GLSL": 975
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -227,7 +253,9 @@
       "CSS": 2167,
       "JavaScript": 605
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -251,7 +279,9 @@
       "CSS": 4846,
       "HTML": 772
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -263,7 +293,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-16T05:41:33Z"
+      "pushed_at": "2026-01-20T01:42:06Z"
     },
     "languages": [
       "TypeScript",
@@ -277,7 +307,13 @@
       "HTML": 784,
       "JavaScript": 616
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -289,7 +325,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-13T18:36:25Z"
+      "pushed_at": "2026-01-20T01:28:26Z"
     },
     "languages": [
       "Swift"
@@ -297,7 +333,13 @@
     "language_bytes": {
       "Swift": 121071
     },
-    "primary_language": "Swift"
+    "primary_language": "Swift",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -321,7 +363,9 @@
       "CSS": 3158,
       "JavaScript": 559
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -333,7 +377,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T17:47:39Z"
+      "pushed_at": "2026-01-20T01:25:54Z"
     },
     "languages": [
       "JavaScript",
@@ -345,7 +389,13 @@
       "CSS": 8677,
       "HTML": 1936
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -365,7 +415,9 @@
     "language_bytes": {
       "Python": 404812
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -389,7 +441,9 @@
       "Python": 46284,
       "JavaScript": 9237
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -409,7 +463,9 @@
     "language_bytes": {
       "TypeScript": 8824
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -429,7 +485,9 @@
     "language_bytes": {
       "Swift": 288309
     },
-    "primary_language": "Swift"
+    "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -453,7 +511,9 @@
       "Shell": 20193,
       "Dockerfile": 1896
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -477,7 +537,9 @@
       "CSS": 3303,
       "HTML": 2650
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -515,7 +577,9 @@
       "Batchfile": 1484,
       "JavaScript": 532
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -541,7 +605,9 @@
       "HTML": 849,
       "CSS": 23
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -573,7 +639,9 @@
       "Batchfile": 2068,
       "Ruby": 1618
     },
-    "primary_language": "Swift"
+    "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -597,7 +665,9 @@
       "CSS": 155803,
       "HTML": 820
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -617,7 +687,9 @@
     "language_bytes": {
       "Swift": 85544
     },
-    "primary_language": "Swift"
+    "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -637,7 +709,9 @@
     "language_bytes": {
       "Java": 258919
     },
-    "primary_language": "Java"
+    "primary_language": "Java",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -653,7 +727,9 @@
     },
     "languages": [],
     "language_bytes": {},
-    "primary_language": null
+    "primary_language": null,
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -665,7 +741,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T17:29:34Z"
+      "pushed_at": "2026-01-20T00:39:57Z"
     },
     "languages": [
       "JavaScript",
@@ -679,7 +755,9 @@
       "CSS": 48286,
       "TypeScript": 1142
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -705,7 +783,9 @@
       "Swift": 2275,
       "C": 102
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -727,7 +807,9 @@
       "JavaScript": 248792,
       "HTML": 1101
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -755,7 +837,9 @@
       "TypeScript": 4276,
       "HTML": 1155
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -767,7 +851,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-12T10:54:45Z"
+      "pushed_at": "2026-01-19T10:30:58Z"
     },
     "languages": [
       "TypeScript",
@@ -781,7 +865,9 @@
       "CSS": 168447,
       "HTML": 2031
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -801,7 +887,9 @@
     "language_bytes": {
       "Python": 40968
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -825,7 +913,9 @@
       "CSS": 2167,
       "JavaScript": 605
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -847,7 +937,9 @@
       "TypeScript": 34071,
       "JavaScript": 1040
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -859,7 +951,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-16T05:20:38Z"
+      "pushed_at": "2026-01-20T01:25:39Z"
     },
     "languages": [
       "TypeScript",
@@ -871,7 +963,13 @@
       "CSS": 17209,
       "JavaScript": 1134
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -891,7 +989,9 @@
     "language_bytes": {
       "Swift": 256352
     },
-    "primary_language": "Swift"
+    "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -917,7 +1017,9 @@
       "JavaScript": 387,
       "HTML": 304
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -943,7 +1045,9 @@
       "JavaScript": 4668,
       "HTML": 3327
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -967,7 +1071,9 @@
       "TypeScript": 2207,
       "HTML": 921
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -991,7 +1097,9 @@
       "TypeScript": 2207,
       "HTML": 921
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1011,7 +1119,9 @@
     "language_bytes": {
       "Python": 168667
     },
-    "primary_language": "Python"
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1035,7 +1145,9 @@
       "HTML": 26586,
       "CSS": 9806
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1047,7 +1159,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-12T19:54:58Z"
+      "pushed_at": "2026-01-20T01:59:49Z"
     },
     "languages": [
       "HTML",
@@ -1059,6 +1171,12 @@
       "Python": 57246,
       "Shell": 10260
     },
-    "primary_language": "HTML"
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   }
 ]

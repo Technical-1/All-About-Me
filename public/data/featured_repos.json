@@ -1,54 +1,6 @@
 [
   {
     "repo": {
-      "name": "AHSR",
-      "full_name": "Technical-1/AHSR",
-      "html_url": "https://github.com/Technical-1/AHSR",
-      "homepage": "https://github.com/Technical-1/AHSR",
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project featuring RGB-Depth camera controls with OpenCV, frontier-based exploration and SLAM with custom Lidar mapping, waypoint navigation, and a modular PyQt5 UI integrating with ROS2 topics wirelessly.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2024-12-15T00:00:00Z"
-    },
-    "languages": [
-      "Python",
-      "C++",
-      "CMake"
-    ],
-    "language_bytes": {
-      "Python": 500000,
-      "C++": 150000,
-      "CMake": 5000
-    },
-    "primary_language": "Python"
-  },
-  {
-    "repo": {
-      "name": "Git-Archiver-Web",
-      "full_name": "Technical-1/Git-Archiver-Web",
-      "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
-      "homepage": "https://gitarchiver.com",
-      "description": "Free GitHub repository archive service - backup any public repo forever.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-01-15T00:00:00Z"
-    },
-    "languages": [
-      "TypeScript",
-      "JavaScript",
-      "CSS"
-    ],
-    "language_bytes": {
-      "TypeScript": 200000,
-      "JavaScript": 50000,
-      "CSS": 10000
-    },
-    "primary_language": "TypeScript"
-  },
-  {
-    "repo": {
       "name": "Blackjack-Trainer",
       "full_name": "Technical-1/Blackjack-Trainer",
       "html_url": "https://github.com/Technical-1/Blackjack-Trainer",
@@ -71,7 +23,9 @@
       "CSS": 9467,
       "HTML": 7349
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -83,7 +37,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-07T18:21:35Z"
+      "pushed_at": "2026-01-20T01:34:39Z"
     },
     "languages": [
       "JavaScript",
@@ -91,11 +45,17 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 212125,
+      "JavaScript": 213069,
       "HTML": 20812,
       "CSS": 4653
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -107,7 +67,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T17:15:54Z"
+      "pushed_at": "2026-01-20T01:28:27Z"
     },
     "languages": [
       "TypeScript",
@@ -121,7 +81,13 @@
       "JavaScript": 1371,
       "GLSL": 975
     },
-    "primary_language": "TypeScript"
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -133,7 +99,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T17:29:34Z"
+      "pushed_at": "2026-01-20T00:39:57Z"
     },
     "languages": [
       "JavaScript",
@@ -147,6 +113,8 @@
       "CSS": 48286,
       "TypeScript": 1142
     },
-    "primary_language": "JavaScript"
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   }
 ]
