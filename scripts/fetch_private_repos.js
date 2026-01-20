@@ -1,14 +1,32 @@
 #!/usr/bin/env node
 /**
- * Fetches private GitHub repos using a PAT and writes a JSON snapshot
- * with repo metadata plus language breakdown for use by the site.
+ * Fetches private GitHub repos using a PAT and writes JSON snapshots:
+ * - featured_repos.json: Curated list of featured projects
+ * - private_repos.json: All private repos
+ * - portfolio/[repo-name]/: Portfolio documentation files for each repo
  */
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_PATH = path.join(__dirname, '..', 'data', 'private_repos.json');
+const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'data');
+const PRIVATE_REPOS_PATH = path.join(OUTPUT_DIR, 'private_repos.json');
+const FEATURED_REPOS_PATH = path.join(OUTPUT_DIR, 'featured_repos.json');
+const PORTFOLIO_DIR = path.join(OUTPUT_DIR, 'portfolio');
 const GITHUB_API = 'https://api.github.com';
 const TOKEN = process.env.GH_PRIVATE_TOKEN;
+
+// Portfolio files to fetch from each repo's .portfolio/ directory
+const PORTFOLIO_FILES = ['architecture.md', 'stack.md', 'qa.md'];
+
+// List of repo names that should be featured
+const FEATURED_REPO_NAMES = [
+  'AHSR',
+  'Git-Archiver-Web',
+  'Blackjack-Trainer',
+  'BTC-Explorer',
+  'Differential-Growth',
+  'Private-Collab-Whiteboard'
+];
 
 if (!TOKEN) {
   console.error('Missing GH_PRIVATE_TOKEN env var. Set it in the workflow/repo secrets.');
@@ -28,6 +46,52 @@ async function fetchJson(url) {
     throw new Error(`Request failed ${res.status} ${res.statusText}: ${text}`);
   }
   return res.json();
+}
+
+async function fetchFileContent(owner, repo, filePath) {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/contents/${filePath}`;
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      if (res.status === 404) return null; // File doesn't exist
+      return null;
+    }
+    const data = await res.json();
+    if (data.content && data.encoding === 'base64') {
+      return Buffer.from(data.content, 'base64').toString('utf8');
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
+async function fetchPortfolioFiles(repo) {
+  const [owner, repoName] = repo.full_name.split('/');
+  const portfolioData = {};
+
+  for (const fileName of PORTFOLIO_FILES) {
+    const content = await fetchFileContent(owner, repoName, `.portfolio/${fileName}`);
+    if (content) {
+      portfolioData[fileName] = content;
+    }
+  }
+
+  return Object.keys(portfolioData).length > 0 ? portfolioData : null;
+}
+
+async function savePortfolioFiles(repoName, portfolioData) {
+  if (!portfolioData) return;
+
+  const repoDir = path.join(PORTFOLIO_DIR, repoName);
+  fs.mkdirSync(repoDir, { recursive: true });
+
+  for (const [fileName, content] of Object.entries(portfolioData)) {
+    const filePath = path.join(repoDir, fileName);
+    fs.writeFileSync(filePath, content, 'utf8');
+  }
+
+  console.log(`  Saved portfolio files for ${repoName}`);
 }
 
 async function fetchAllPrivateRepos() {
@@ -69,11 +133,25 @@ async function main() {
   const repos = await fetchAllPrivateRepos();
   console.log(`Found ${repos.length} repos (after filtering forks/archived).`);
 
+  // Ensure portfolio directory exists
+  fs.mkdirSync(PORTFOLIO_DIR, { recursive: true });
+
   const enriched = [];
+  let portfolioCount = 0;
+
   for (const repo of repos) {
+    console.log(`Processing ${repo.name}...`);
+
     const langBytes = await fetchLanguagesForRepo(repo);
     const languages = Object.keys(langBytes);
     const primaryLanguage = computePrimaryLanguage(langBytes) || repo.language || null;
+
+    // Fetch portfolio documentation files
+    const portfolioData = await fetchPortfolioFiles(repo);
+    if (portfolioData) {
+      await savePortfolioFiles(repo.name, portfolioData);
+      portfolioCount++;
+    }
 
     enriched.push({
       repo: {
@@ -89,14 +167,37 @@ async function main() {
       },
       languages,
       language_bytes: langBytes,
-      primary_language: primaryLanguage
+      primary_language: primaryLanguage,
+      has_portfolio: !!portfolioData,
+      portfolio_files: portfolioData ? Object.keys(portfolioData) : []
     });
   }
 
-  // Write output JSON
-  fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
-  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(enriched, null, 2), 'utf8');
-  console.log(`Wrote ${enriched.length} records to ${OUTPUT_PATH}`);
+  console.log(`\nFetched portfolio docs from ${portfolioCount} repos.`);
+
+  // Separate featured repos from all repos
+  const featuredRepos = [];
+
+  // Add featured repos in the order specified in FEATURED_REPO_NAMES
+  for (const featuredName of FEATURED_REPO_NAMES) {
+    const repo = enriched.find(r => r.repo.name === featuredName);
+    if (repo) {
+      featuredRepos.push(repo);
+    } else {
+      console.warn(`Featured repo "${featuredName}" not found in fetched repos`);
+    }
+  }
+
+  // Ensure output directory exists
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  // Write all private repos
+  fs.writeFileSync(PRIVATE_REPOS_PATH, JSON.stringify(enriched, null, 2), 'utf8');
+  console.log(`Wrote ${enriched.length} records to ${PRIVATE_REPOS_PATH}`);
+
+  // Write featured repos
+  fs.writeFileSync(FEATURED_REPOS_PATH, JSON.stringify(featuredRepos, null, 2), 'utf8');
+  console.log(`Wrote ${featuredRepos.length} featured records to ${FEATURED_REPOS_PATH}`);
 }
 
 main().catch(err => {

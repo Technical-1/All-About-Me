@@ -1,0 +1,152 @@
+[
+  {
+    "repo": {
+      "name": "AHSR",
+      "full_name": "Technical-1/AHSR",
+      "html_url": "https://github.com/Technical-1/AHSR",
+      "homepage": "https://github.com/Technical-1/AHSR",
+      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project featuring RGB-Depth camera controls with OpenCV, frontier-based exploration and SLAM with custom Lidar mapping, waypoint navigation, and a modular PyQt5 UI integrating with ROS2 topics wirelessly.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2024-12-15T00:00:00Z"
+    },
+    "languages": [
+      "Python",
+      "C++",
+      "CMake"
+    ],
+    "language_bytes": {
+      "Python": 500000,
+      "C++": 150000,
+      "CMake": 5000
+    },
+    "primary_language": "Python"
+  },
+  {
+    "repo": {
+      "name": "Git-Archiver-Web",
+      "full_name": "Technical-1/Git-Archiver-Web",
+      "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
+      "homepage": "https://gitarchiver.com",
+      "description": "Free GitHub repository archive service - backup any public repo forever.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-15T00:00:00Z"
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 200000,
+      "JavaScript": 50000,
+      "CSS": 10000
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "Blackjack-Trainer",
+      "full_name": "Technical-1/Blackjack-Trainer",
+      "html_url": "https://github.com/Technical-1/Blackjack-Trainer",
+      "homepage": "https://blackjacktrainer.pro/",
+      "description": "Professional blackjack card counting trainer with 5 counting systems, Vegas-accurate rules, strategy feedback, and performance analytics. Built with React & TypeScript.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2025-12-12T14:40:53Z"
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 1096577,
+      "JavaScript": 37144,
+      "CSS": 9467,
+      "HTML": 7349
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "BTC-Explorer",
+      "full_name": "Technical-1/BTC-Explorer",
+      "html_url": "https://github.com/Technical-1/BTC-Explorer",
+      "homepage": "https://btcexplorer.io/",
+      "description": "A comprehensive Bitcoin blockchain explorer and educational platform with real-time data visualization, market analysis, and corporate holdings tracking.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-07T18:21:35Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 212125,
+      "HTML": 20812,
+      "CSS": 4653
+    },
+    "primary_language": "JavaScript"
+  },
+  {
+    "repo": {
+      "name": "Differential-Growth",
+      "full_name": "Technical-1/Differential-Growth",
+      "html_url": "https://github.com/Technical-1/Differential-Growth",
+      "homepage": "https://differential-growth2.vercel.app",
+      "description": "A Next.js 15 PWA for creating organic, coral-like generative art from text, images, and shapes using differential growth algorithms. Features WebGL rendering, multi-format export, interactive brush tools, force fields, and real-time parameter animation.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T17:15:54Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "GLSL"
+    ],
+    "language_bytes": {
+      "TypeScript": 531669,
+      "CSS": 3812,
+      "JavaScript": 1371,
+      "GLSL": 975
+    },
+    "primary_language": "TypeScript"
+  },
+  {
+    "repo": {
+      "name": "Private-Collab-Whiteboard",
+      "full_name": "Technical-1/Private-Collab-Whiteboard",
+      "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
+      "homepage": "https://private-collab-whiteboard.vercel.app",
+      "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-14T17:29:34Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 163588,
+      "HTML": 50484,
+      "CSS": 48286,
+      "TypeScript": 1142
+    },
+    "primary_language": "JavaScript"
+  }
+]

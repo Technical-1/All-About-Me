@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GitHubRepos from '../../components/projects/GitHubRepos';
+import CaseStudyCard from '../../components/projects/CaseStudyCard';
+import { fetchFeaturedRepos } from '../../lib/github';
+
+// Fetch featured projects from dedicated JSON
+const featuredProjects = await fetchFeaturedRepos();
+---
+
+<BaseLayout title="Projects" description="Explore Jacob Kanfer's projects and GitHub contributions">
+  <!-- Header -->
+  <section class="section pt-8 pb-0">
+    <div class="container-wide text-center">
+      <h1 class="mb-4" style="color: var(--text-heading);">My Projects</h1>
+      <p class="text-lg max-w-2xl mx-auto" style="color: var(--text-secondary);">
+        A collection of my work, from robotics to web applications
+      </p>
+    </div>
+  </section>
+
+  <!-- GitHub Stats -->
+  <section class="section pb-8">
+    <div class="container-narrow">
+      <div class="card text-center">
+        <h2 class="text-xl font-display font-bold mb-6" style="color: var(--text-heading);">GitHub Contributions</h2>
+        <div class="flex justify-center">
+          <picture>
+            <source
+              srcset="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/dark_mode_simple.svg"
+              media="(prefers-color-scheme: dark)"
+            />
+            <source
+              srcset="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/light_mode_simple.svg"
+              media="(prefers-color-scheme: light)"
+            />
+            <img
+              src="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/dark_mode_simple.svg"
+              alt="GitHub Stats"
+              class="max-w-full h-auto rounded-lg"
+              id="github-stats-img"
+            />
+          </picture>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects -->
+  {featuredProjects.length > 0 && (
+    <section class="section" style="background-color: var(--bg-surface);">
+      <div class="container-wide">
+        <h2 class="section-title flex items-center gap-3">
+          Featured Projects
+        </h2>
+
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {featuredProjects.map((project) => (
+            <CaseStudyCard repo={project} featured={false} client:load />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- All Repositories -->
+  <section class="section">
+    <div class="container-wide">
+      <h2 class="section-title flex items-center gap-3">
+        All Repositories
+      </h2>
+
+      <GitHubRepos client:load />
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Update GitHub stats image based on current theme
+  function updateGitHubStatsTheme() {
+    const img = document.getElementById('github-stats-img') as HTMLImageElement;
+    if (!img) return;
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const mode = isDark ? 'dark' : 'light';
+    img.src = `https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/${mode}_mode_simple.svg`;
+  }
+
+  // Initial update
+  updateGitHubStatsTheme();
+
+  // Listen for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        updateGitHubStatsTheme();
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, { attributes: true });
+</script>

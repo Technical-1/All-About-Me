@@ -1,0 +1,140 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/global/Navbar.astro';
+import Footer from '../components/global/Footer.astro';
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title,
+  description = "Jacob Kanfer - Software Developer specializing in AI, automation, and full-stack development.",
+  image = "/jk-logo.svg"
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkanfer.com');
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+
+  <!-- Primary Meta Tags -->
+  <title>{title} | Jacob Kanfer</title>
+  <meta name="title" content={`${title} | Jacob Kanfer`} />
+  <meta name="description" content={description} />
+  <meta name="keywords" content="Jacob Kanfer, software developer, AI, automation, cybersecurity, full-stack" />
+  <meta name="author" content="Jacob Kanfer" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/jk-logo.svg" type="image/svg+xml" />
+
+  <!-- Fonts - DM Sans, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={`${title} | Jacob Kanfer`} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={new URL(image, Astro.site || 'https://jacobkanfer.com')} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="twitter:domain" content="jacobkanfer.com" />
+  <meta property="twitter:url" content={canonicalURL} />
+  <meta name="twitter:title" content={`${title} | Jacob Kanfer`} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={new URL(image, Astro.site || 'https://jacobkanfer.com')} />
+
+  <!-- View Transitions -->
+  <ViewTransitions />
+
+  <!-- Theme initialization script - prevents flash -->
+  <script is:inline>
+    function applyTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let isDark = prefersDark; // Default to system preference
+
+      if (savedTheme) {
+        try {
+          // Zustand persist saves as JSON: {"state":{"theme":"dark"},...}
+          const parsed = JSON.parse(savedTheme);
+          isDark = parsed.state?.theme === 'dark';
+        } catch {
+          // Fallback for simple string format
+          isDark = savedTheme === 'dark';
+        }
+      }
+
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    // Apply on initial load
+    applyTheme();
+
+    // Re-apply after View Transitions swap content
+    document.addEventListener('astro:after-swap', applyTheme);
+  </script>
+</head>
+<body>
+  <Navbar />
+
+  <main>
+    <slot />
+  </main>
+
+  <Footer />
+
+  <!-- Back to top button -->
+  <button
+    id="back-to-top"
+    class="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 opacity-0 invisible z-50"
+    style="background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--accent-primary);"
+    aria-label="Back to top"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 15l-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <script>
+    // Back to top button functionality
+    const backToTop = document.getElementById('back-to-top');
+
+    if (backToTop) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTop.classList.remove('opacity-0', 'invisible');
+          backToTop.classList.add('opacity-100', 'visible');
+        } else {
+          backToTop.classList.add('opacity-0', 'invisible');
+          backToTop.classList.remove('opacity-100', 'visible');
+        }
+      });
+
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/hero/HeroSection.astro';
+---
+
+<BaseLayout title="Home">
+  <!-- Hero Section with Three.js Particles -->
+  <HeroSection />
+
+  <!-- About Section -->
+  <section id="about" class="section">
+    <div class="container-narrow">
+      <div class="grid md:grid-cols-[300px_1fr] gap-8 items-start">
+        <!-- Photo -->
+        <div class="flex justify-center md:justify-start">
+          <div class="relative">
+            <img
+              src="/headshot.jpg"
+              alt="Jacob Kanfer"
+              class="w-64 h-64 object-cover rounded-2xl"
+              style="border: 2px solid var(--border-color);"
+            />
+            <div
+              class="absolute inset-0 rounded-2xl transform translate-x-3 translate-y-3 -z-10"
+              style="border: 2px solid var(--accent-secondary); opacity: 0.3;"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="space-y-4" style="color: var(--text-secondary);">
+          <p>
+            In the Fall of 2024, I graduated from the <strong style="color: var(--text-heading);">University of Florida</strong>
+            with a <strong style="color: var(--text-heading);">Bachelor of Science in Computer Engineering</strong>.
+            I repaired my first phone when I was 12 and built my first computer when I was 13, leading me to a future in technology.
+            Shortly after, I started teaching myself how to code and haven't looked back since.
+          </p>
+
+          <p>
+            During my time at UF, I gained hands-on consulting experience as a
+            <strong style="color: var(--text-heading);">Data Science Intern</strong> at World Wide Technology, working on ML/AI initiatives
+            to drive business decisions. I also held multiple leadership positions in student government
+            and campus organizations, managing budgets exceeding $23 million and leading teams of 150+ members.
+          </p>
+
+          <p>
+            Since August 2025, I have been working at <strong style="color: var(--text-heading);">Deloitte</strong> as an <strong style="color: var(--text-heading);">Engineering Solutions Analyst</strong>
+            in their Government & Public Services practice, within the <strong style="color: var(--text-heading);">AI & Data offering portfolio</strong>.
+            Based in Arlington, VA, I specialize in designing and deploying <strong style="color: var(--accent-primary);">AI-powered solutions and intelligent agents</strong>
+            that solve complex challenges for public sector clients.
+          </p>
+
+          <div class="flex flex-wrap gap-4 pt-4">
+            <a href="/experience" class="btn-ghost">
+              View Experience
+            </a>
+            <a href="/projects" class="btn-ghost">
+              Explore Projects
+            </a>
+            <a href="/resume" class="btn-ghost">
+              Download Resume
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section class="section" style="background-color: var(--bg-surface);">
+    <div class="container-wide">
+      <h2 class="section-title text-center">Software Skills</h2>
+
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <!-- Languages -->
+        <div class="card card-hover">
+          <h3 class="text-lg font-display font-bold mb-4" style="color: var(--accent-primary);">Languages</h3>
+          <div class="flex flex-wrap gap-2">
+            {['Python', 'JavaScript', 'TypeScript', 'Rust', 'Go', 'Java', 'C++', 'C', 'Swift', 'SQL', 'HTML/CSS'].map((skill) => (
+              <span class="tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Frameworks & Tools -->
+        <div class="card card-hover">
+          <h3 class="text-lg font-display font-bold mb-4" style="color: var(--accent-secondary);">Frameworks & Tools</h3>
+          <div class="flex flex-wrap gap-2">
+            {['React', 'Vue', 'Angular', 'Astro', 'Tailwind', 'Firebase', 'Electron', 'Puppeteer', 'Playwright', 'TensorFlow', 'XGBoost'].map((skill) => (
+              <span class="tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Platforms & Services -->
+        <div class="card card-hover">
+          <h3 class="text-lg font-display font-bold mb-4" style="color: var(--accent-primary);">Platforms & Services</h3>
+          <div class="flex flex-wrap gap-2">
+            {['AWS', 'Azure', 'Snowflake', 'Databricks', 'ServiceNow', 'PowerBI', 'Git/GitHub', 'Docker'].map((skill) => (
+              <span class="tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- AI & Specialties -->
+        <div class="card card-hover">
+          <h3 class="text-lg font-display font-bold mb-4" style="color: var(--accent-secondary);">AI & Specialties</h3>
+          <div class="flex flex-wrap gap-2">
+            {['AI Agents', 'Multi-Agent Workflows', 'Document Intelligence', 'Machine Learning', 'Web Scraping', 'Automation', 'Prompt Engineering'].map((skill) => (
+              <span class="tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certificates Section -->
+  <section class="section">
+    <div class="container-narrow">
+      <h2 class="section-title text-center">Certificates</h2>
+      <div class="flex flex-wrap justify-center gap-4">
+        {[
+          { name: 'AWS Certified Cloud Practitioner', variant: 'red' },
+          { name: 'Engineering Innovation', variant: 'teal' },
+          { name: 'Engineering Leadership', variant: 'red' },
+          { name: 'Engineering Project Management', variant: 'teal' },
+        ].map((cert) => (
+          <span class={`tag-${cert.variant}`}>
+            {cert.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

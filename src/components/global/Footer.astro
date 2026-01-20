@@ -1,0 +1,114 @@
+---
+const currentYear = new Date().getFullYear();
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/experience', label: 'Experience' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/resume', label: 'Resume' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const socialLinks = [
+  {
+    href: 'mailto:jacobkanfer8@gmail.com',
+    label: 'Email',
+    icon: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6'
+  },
+  {
+    href: 'https://github.com/Technical-1',
+    label: 'GitHub',
+    icon: 'M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22'
+  },
+  {
+    href: 'https://www.linkedin.com/in/jacob-kanfer',
+    label: 'LinkedIn',
+    icon: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z M2 9h4v12H2z M4 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'
+  },
+];
+---
+
+<footer class="mt-auto" style="background-color: var(--bg-surface); border-top: 1px solid var(--border-color);">
+  <div class="container-wide py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Brand -->
+      <div class="space-y-4">
+        <a href="/" class="flex items-center gap-3">
+          <img src="/jk-logo.svg" alt="JK Logo" class="w-8 h-8" />
+          <span class="font-display font-bold" style="color: var(--text-heading);">
+            <span style="color: var(--accent-primary);">jacob</span>kanfer
+          </span>
+        </a>
+        <p class="text-sm" style="color: var(--text-muted);">
+          Building solutions through code and innovation
+        </p>
+      </div>
+
+      <!-- Navigation -->
+      <div>
+        <h3 class="font-display text-sm font-bold mb-4 uppercase tracking-wider" style="color: var(--text-heading);">
+          Navigate
+        </h3>
+        <ul class="space-y-2">
+          {navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm transition-colors"
+                style="color: var(--text-muted);"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Connect -->
+      <div>
+        <h3 class="font-display text-sm font-bold mb-4 uppercase tracking-wider" style="color: var(--text-heading);">
+          Connect
+        </h3>
+        <ul class="space-y-2">
+          {socialLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target={link.href.startsWith('http') ? '_blank' : undefined}
+                rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                class="inline-flex items-center gap-2 text-sm transition-colors"
+                style="color: var(--text-muted);"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d={link.icon} />
+                </svg>
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top: 1px solid var(--border-color);">
+      <p class="text-sm" style="color: var(--text-muted);">
+        &copy; {currentYear} Jacob Kanfer. All rights reserved.
+      </p>
+      <p class="text-xs font-mono" style="color: var(--text-muted);">
+        <span style="color: var(--accent-secondary);">&gt;</span> Built with Astro + React + WebLLM
+      </p>
+    </div>
+  </div>
+</footer>
