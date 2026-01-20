@@ -31,6 +31,12 @@ const stackHtml = hasPortfolio && repo.portfolio?.stack
 const qaHtml = hasPortfolio && repo.portfolio?.qa
   ? await marked.parse(repo.portfolio.qa)
   : '';
+
+// Determine which tabs to show
+const tabs = [];
+if (architectureHtml) tabs.push({ id: 'architecture', label: 'Architecture', icon: 'grid' });
+if (stackHtml) tabs.push({ id: 'stack', label: 'Tech Stack', icon: 'layers' });
+if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
 ---
 
 <BaseLayout
@@ -38,7 +44,7 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
   description={repo.description || `Case study for ${repo.name}`}
 >
   <!-- Hero Section -->
-  <section class="section pt-8">
+  <section class="section pt-8 pb-4">
     <div class="container-narrow">
       <!-- Breadcrumb -->
       <nav class="mb-8">
@@ -98,7 +104,7 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
       </div>
 
       <!-- Actions -->
-      <div class="flex flex-wrap gap-4 mb-12">
+      <div class="flex flex-wrap gap-4">
         {!repo.private && (
           <a href={repo.html_url} target="_blank" rel="noopener noreferrer" class="btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
@@ -121,31 +127,67 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
     </div>
   </section>
 
-  <!-- Screenshots Gallery -->
-  {repo.screenshots && repo.screenshots.length > 0 && (
+  <!-- Tabbed Portfolio Content -->
+  {tabs.length > 0 && (
     <section class="section pt-0">
-      <div class="container-wide">
-        <h2 class="section-title">Screenshots</h2>
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {repo.screenshots.map((screenshot, index) => (
-            <div
-              class="aspect-video rounded-lg overflow-hidden"
-              style="background-color: var(--bg-card); border: 1px solid var(--border-color);"
+      <div class="container-narrow">
+        <!-- Tab Navigation -->
+        <div class="tab-nav flex border-b mb-0" style="border-color: var(--border-color);">
+          {tabs.map((tab, index) => (
+            <button
+              class={`tab-btn flex items-center gap-2 px-6 py-4 font-medium transition-colors ${index === 0 ? 'active' : ''}`}
+              data-tab={tab.id}
             >
-              <img
-                src={screenshot}
-                alt={`${repo.name} screenshot ${index + 1}`}
-                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-              />
-            </div>
+              {tab.icon === 'grid' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
+              )}
+              {tab.icon === 'layers' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                  <polyline points="2 17 12 22 22 17"/>
+                  <polyline points="2 12 12 17 22 12"/>
+                </svg>
+              )}
+              {tab.icon === 'help' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              )}
+              {tab.label}
+            </button>
           ))}
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content rounded-b-lg" style="background: var(--bg-card); border: 1px solid var(--border-color); border-top: none;">
+          {architectureHtml && (
+            <div class="tab-panel p-6 md:p-8" data-panel="architecture">
+              <div class="prose prose-lg max-w-none portfolio-content" set:html={architectureHtml} />
+            </div>
+          )}
+          {stackHtml && (
+            <div class="tab-panel p-6 md:p-8 hidden" data-panel="stack">
+              <div class="prose prose-lg max-w-none portfolio-content" set:html={stackHtml} />
+            </div>
+          )}
+          {qaHtml && (
+            <div class="tab-panel p-6 md:p-8 hidden" data-panel="about">
+              <div class="prose prose-lg max-w-none portfolio-content" set:html={qaHtml} />
+            </div>
+          )}
         </div>
       </div>
     </section>
   )}
 
-  <!-- Tech Stack (only show if no detailed stack from portfolio) -->
-  {!stackHtml && (
+  <!-- Tech Stack (only show if no portfolio content at all) -->
+  {!hasPortfolio && (
     <section class="section" style="background-color: var(--bg-surface);">
       <div class="container-narrow">
         <h2 class="section-title">Tech Stack</h2>
@@ -202,79 +244,6 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
     </section>
   )}
 
-  <!-- Impact -->
-  {repo.metadata?.impact && (
-    <section class="section" style="background-color: var(--bg-surface);">
-      <div class="container-narrow text-center">
-        <h2 class="section-title">Impact</h2>
-        <p class="text-xl italic" style="color: var(--accent-secondary);">
-          "{repo.metadata.impact}"
-        </p>
-      </div>
-    </section>
-  )}
-
-  <!-- README Content -->
-  {repo.readme && (
-    <section class="section">
-      <div class="container-narrow">
-        <h2 class="section-title">Documentation</h2>
-        <div class="prose prose-lg max-w-none" set:html={repo.readme} />
-      </div>
-    </section>
-  )}
-
-  <!-- Architecture (from portfolio) -->
-  {architectureHtml && (
-    <section class="section" style="background-color: var(--bg-surface);">
-      <div class="container-narrow">
-        <h2 class="section-title flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="9" y1="21" x2="9" y2="9"/>
-          </svg>
-          Architecture
-        </h2>
-        <div class="prose prose-lg max-w-none portfolio-content" set:html={architectureHtml} />
-      </div>
-    </section>
-  )}
-
-  <!-- Stack Overview (from portfolio) -->
-  {stackHtml && (
-    <section class="section">
-      <div class="container-narrow">
-        <h2 class="section-title flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-            <polyline points="2 17 12 22 22 17"/>
-            <polyline points="2 12 12 17 22 12"/>
-          </svg>
-          Stack Overview
-        </h2>
-        <div class="prose prose-lg max-w-none portfolio-content" set:html={stackHtml} />
-      </div>
-    </section>
-  )}
-
-  <!-- Q&A / About (from portfolio) -->
-  {qaHtml && (
-    <section class="section" style="background-color: var(--bg-surface);">
-      <div class="container-narrow">
-        <h2 class="section-title flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-          About This Project
-        </h2>
-        <div class="prose prose-lg max-w-none portfolio-content" set:html={qaHtml} />
-      </div>
-    </section>
-  )}
-
   <!-- Back to Projects -->
   <section class="section">
     <div class="container-narrow text-center">
@@ -287,6 +256,33 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
       </a>
     </div>
   </section>
+
+  <!-- Tab Switching Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab');
+
+          // Update active tab button
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          // Show corresponding panel
+          tabPanels.forEach(panel => {
+            if (panel.getAttribute('data-panel') === tabId) {
+              panel.classList.remove('hidden');
+            } else {
+              panel.classList.add('hidden');
+            }
+          });
+        });
+      });
+    });
+  </script>
 
   <!-- Mermaid Diagram Rendering -->
   {architectureHtml && (
@@ -369,7 +365,7 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
             // Create diagram container
             const container = document.createElement('div');
             container.className = 'mermaid-diagram overflow-auto rounded-lg';
-            container.style.cssText = 'max-height: 600px; background: var(--bg-card); border: 1px solid var(--border-color); padding: 1rem;';
+            container.style.cssText = 'max-height: 600px; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 1rem;';
 
             // Inner container for scaling
             const inner = document.createElement('div');
@@ -417,52 +413,75 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
         }
       });
     </script>
-
-    <style>
-      .mermaid-wrapper {
-        position: relative;
-      }
-
-      .mermaid-controls {
-        opacity: 0.7;
-        transition: opacity 0.2s;
-      }
-
-      .mermaid-wrapper:hover .mermaid-controls {
-        opacity: 1;
-      }
-
-      .zoom-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        background: var(--bg-surface);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .zoom-btn:hover {
-        background: var(--bg-card);
-        color: var(--accent-secondary);
-        border-color: var(--accent-secondary);
-      }
-
-      .zoom-btn:active {
-        transform: scale(0.95);
-      }
-
-      .mermaid-diagram {
-        cursor: grab;
-      }
-
-      .mermaid-diagram:active {
-        cursor: grabbing;
-      }
-    </style>
   )}
+
+  <style>
+    /* Tab Styles */
+    .tab-btn {
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-secondary);
+      border-bottom-color: var(--accent-secondary);
+      background: var(--bg-card);
+    }
+
+    .tab-panel {
+      min-height: 400px;
+    }
+
+    /* Mermaid Styles */
+    .mermaid-wrapper {
+      position: relative;
+    }
+
+    .mermaid-controls {
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .mermaid-wrapper:hover .mermaid-controls {
+      opacity: 1;
+    }
+
+    .zoom-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .zoom-btn:hover {
+      background: var(--bg-card);
+      color: var(--accent-secondary);
+      border-color: var(--accent-secondary);
+    }
+
+    .zoom-btn:active {
+      transform: scale(0.95);
+    }
+
+    .mermaid-diagram {
+      cursor: grab;
+    }
+
+    .mermaid-diagram:active {
+      cursor: grabbing;
+    }
+  </style>
 </BaseLayout>
