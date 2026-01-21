@@ -161,7 +161,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-11T19:23:52Z"
+      "pushed_at": "2026-01-21T01:08:36Z"
     },
     "languages": [
       "CSS",
@@ -169,9 +169,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "CSS": 35737,
-      "JavaScript": 31874,
-      "HTML": 2301
+      "CSS": 37236,
+      "JavaScript": 26093,
+      "HTML": 2305
     },
     "primary_language": "CSS",
     "has_portfolio": false,
@@ -923,19 +923,25 @@
       "full_name": "Technical-1/ServiceHub",
       "html_url": "https://github.com/Technical-1/ServiceHub",
       "homepage": null,
-      "description": null,
+      "description": "A comprehensive, real-time service business management platform. Built with Next.js 15, React 19, Firebase, Mantine UI. Features job management, scheduling, CRM, inventory, RBAC permissions, and mobile-first responsive design.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-07-07T16:42:15Z"
+      "pushed_at": "2026-01-21T01:51:09Z"
     },
     "languages": [
       "TypeScript",
-      "JavaScript"
+      "HTML",
+      "JavaScript",
+      "CSS",
+      "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 34071,
-      "JavaScript": 1040
+      "TypeScript": 2983439,
+      "HTML": 542598,
+      "JavaScript": 40588,
+      "CSS": 40480,
+      "MDX": 6655
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -970,6 +976,28 @@
       "stack.md",
       "qa.md"
     ]
+  },
+  {
+    "repo": {
+      "name": "SmoothQueue",
+      "full_name": "Technical-1/SmoothQueue",
+      "html_url": "https://github.com/Technical-1/SmoothQueue",
+      "homepage": null,
+      "description": "iOS app that uses AI to optimize Apple Music playlists for smooth DJ-style transitions",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-20T17:43:05Z"
+    },
+    "languages": [
+      "Swift"
+    ],
+    "language_bytes": {
+      "Swift": 362682
+    },
+    "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1189,7 +1217,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T07:06:28Z"
+      "pushed_at": "2026-01-20T07:18:22Z"
     },
     "languages": [
       "Astro",
@@ -1241,7 +1269,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:28:27Z"
+      "pushed_at": "2026-01-21T00:45:23Z"
     },
     "languages": [
       "JavaScript",
@@ -1249,9 +1277,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 159441,
-      "CSS": 32524,
-      "HTML": 23961
+      "JavaScript": 170287,
+      "CSS": 34033,
+      "HTML": 23880
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1369,7 +1397,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T04:10:39Z"
+      "pushed_at": "2026-01-21T04:09:38Z"
     },
     "languages": [
       "JavaScript",
@@ -1747,7 +1775,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T04:50:12Z"
+      "pushed_at": "2026-01-21T04:56:54Z"
     },
     "languages": [
       "Python"
