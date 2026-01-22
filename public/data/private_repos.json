@@ -491,6 +491,32 @@
   },
   {
     "repo": {
+      "name": "Hackathon",
+      "full_name": "Technical-1/Hackathon",
+      "html_url": "https://github.com/Technical-1/Hackathon",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-22T00:39:14Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 149291,
+      "CSS": 60374,
+      "HTML": 55715
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "Kendra-who",
       "full_name": "Technical-1/Kendra-who",
       "html_url": "https://github.com/Technical-1/Kendra-who",
@@ -927,7 +953,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-21T01:51:09Z"
+      "pushed_at": "2026-01-22T00:57:44Z"
     },
     "languages": [
       "TypeScript",
@@ -937,9 +963,9 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 2983439,
+      "TypeScript": 3178888,
       "HTML": 542598,
-      "JavaScript": 40588,
+      "JavaScript": 41903,
       "CSS": 40480,
       "MDX": 6655
     },
@@ -996,6 +1022,32 @@
       "Swift": 362682
     },
     "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "SmoothQueue-Website",
+      "full_name": "Technical-1/SmoothQueue-Website",
+      "html_url": "https://github.com/Technical-1/SmoothQueue-Website",
+      "homepage": "https://smoothqueue-landing.vercel.app",
+      "description": "Landing page for SmoothQueue - AI-powered playlist optimization for Apple Music",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-22T03:48:43Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 23417,
+      "CSS": 13275,
+      "HTML": 1442
+    },
+    "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1209,6 +1261,38 @@
   },
   {
     "repo": {
+      "name": "Work-Files",
+      "full_name": "Technical-1/Work-Files",
+      "html_url": "https://github.com/Technical-1/Work-Files",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-21T22:18:00Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Python",
+      "SCSS",
+      "Dockerfile"
+    ],
+    "language_bytes": {
+      "JavaScript": 339423,
+      "HTML": 301083,
+      "CSS": 104680,
+      "Python": 13950,
+      "SCSS": 3672,
+      "Dockerfile": 1244
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "All-About-Me",
       "full_name": "Technical-1/All-About-Me",
       "html_url": "https://github.com/Technical-1/All-About-Me",
@@ -1217,7 +1301,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T07:18:22Z"
+      "pushed_at": "2026-01-21T07:18:42Z"
     },
     "languages": [
       "Astro",
@@ -1397,7 +1481,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-21T04:09:38Z"
+      "pushed_at": "2026-01-22T04:13:27Z"
     },
     "languages": [
       "JavaScript",
@@ -1775,7 +1859,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-21T04:56:54Z"
+      "pushed_at": "2026-01-22T05:00:05Z"
     },
     "languages": [
       "Python"
