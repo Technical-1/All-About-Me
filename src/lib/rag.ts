@@ -99,7 +99,7 @@ export async function searchContext(
     minScore?: number;
   } = {}
 ): Promise<SearchResult[]> {
-  const { topK = 5, projectFilter, minScore = 0.3 } = options;
+  const { topK = 4, projectFilter, minScore = 0.40 } = options;
 
   const [embeddings, queryEmbedding] = await Promise.all([
     loadEmbeddings(),
@@ -119,30 +119,44 @@ export async function searchContext(
     score: cosineSimilarity(queryEmbedding, chunk.embedding),
   }));
 
-  // Sort by score descending and filter by minimum score
-  return scored
-    .filter(r => r.score >= minScore)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+  // Sort by score descending
+  const sorted = scored.sort((a, b) => b.score - a.score);
+
+  // Filter by minimum score
+  const filtered = sorted.filter(r => r.score >= minScore).slice(0, topK);
+
+  // Fallback: if nothing passes threshold but we have some results, take top 2 with lower threshold
+  if (filtered.length === 0 && sorted.length > 0 && sorted[0].score >= 0.30) {
+    return sorted.slice(0, 2);
+  }
+
+  return filtered;
 }
 
 /**
  * Format search results as context string for the LLM
  */
 export function formatContext(results: SearchResult[]): string {
-  if (results.length === 0) return '';
+  if (results.length === 0) {
+    return '\n\n[No relevant documentation found. Answer based on general knowledge or explain what you would need.]';
+  }
 
-  const formatted = results.map((r, i) => {
-    return `### Source ${i + 1}: ${r.chunk.project} (${r.chunk.file})\n${r.chunk.content}`;
-  });
+  // Group by project
+  const byProject = new Map<string, SearchResult[]>();
+  for (const r of results) {
+    const existing = byProject.get(r.chunk.project) || [];
+    existing.push(r);
+    byProject.set(r.chunk.project, existing);
+  }
 
-  return `
+  const sections: string[] = [];
+  for (const [project, chunks] of byProject) {
+    const chunkTexts = chunks.map(r => {
+      const relevance = r.score >= 0.6 ? 'HIGH' : r.score >= 0.45 ? 'MEDIUM' : 'LOW';
+      return `[${r.chunk.section}] (relevance: ${relevance})\n${r.chunk.content}`;
+    });
+    sections.push(`### ${project}\n${chunkTexts.join('\n\n')}`);
+  }
 
-=== PROJECT DOCUMENTATION (USE THIS TO ANSWER) ===
-
-${formatted.join('\n\n---\n\n')}
-
-=== END OF DOCUMENTATION ===
-
-Answer the user's question using the documentation above. Be specific and cite details from the sources.`;
+  return `\n\n## Retrieved Documentation\n\n${sections.join('\n\n---\n\n')}\n\n[Base your answer on the above documentation.]`;
 }

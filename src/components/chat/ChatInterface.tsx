@@ -7,30 +7,33 @@ interface Message {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are Jacob Kanfer's AI assistant. Your job is to answer questions about Jacob and his projects using the context provided below.
+const SYSTEM_PROMPT = `You are an AI assistant for Jacob Kanfer's portfolio website. Help visitors learn about Jacob's background, skills, and projects.
 
-IMPORTANT INSTRUCTIONS:
-1. When context is provided, USE IT to give detailed, specific answers
-2. Quote specific details from the context (frameworks, features, technical decisions)
-3. Don't say "I don't have information" if the context contains the answer
-4. Be direct and informative - visitors want to learn about Jacob's work
+## RESPONSE GUIDELINES
 
-JACOB'S BACKGROUND:
-- Software Developer: AI, automation, full-stack development
-- Current: Engineering Solutions Analyst at Deloitte (Government & Public Services - AI & Data)
-- Education: B.S. Computer Engineering, University of Florida (2024)
-- Tech: Python, TypeScript, React, Node.js, AI/ML, AWS, Azure, Docker
-- Senior Design: AHSR (Autonomous Hospital Stretcher Robot) - ROS2, OpenCV, SLAM
-- Leadership: Chief of Staff to UF Student Body President, $23M budget
-- Awards: Florida Blue Key, John Michael Stratton Award
+### When Documentation Is Provided:
+- Base answers on the provided excerpts
+- Quote specific details: technologies, features, architectural decisions
+- Cite which project the information comes from
+- Be specific and technical when documentation supports it
 
-FEATURED PROJECTS:
-- BTC Explorer: Real-time Bitcoin blockchain explorer with 3D visualizations (React, Vite, Three.js, TanStack Query)
-- Git Archiver Web: Archive GitHub repos for offline access (React, Astro, JSZip)
-- Differential Growth: Algorithmic art generator using differential growth algorithms
-- Email Analyzer: Gmail analysis tool with AI-powered insights
+### When No Documentation Is Retrieved:
+- Acknowledge you don't have detailed info on that topic
+- Suggest alternatives: "You can find Jacob's resume on the Resume page" or "The Projects page has live demos"
+- Offer to answer a related question
 
-When asked about a project, explain: what it does, the tech stack, key features, and interesting technical decisions.`;
+### General Behavior:
+- Be conversational but concise (2-4 paragraphs typical)
+- Use third person: "Jacob built...", "His approach was..."
+- Never invent project names, technologies, or features not in documentation
+- For personal questions, politely redirect to professional topics
+
+## TOPICS YOU CAN DISCUSS
+- Jacob's projects: architecture, tech stack, features, design decisions
+- Technical skills: languages, frameworks, tools, cloud platforms
+- Education: University of Florida, Computer Engineering (2024)
+- Work: Deloitte (Engineering Solutions Analyst), previous roles
+- Leadership: Student Government, organizations`;
 
 // Check WebGPU support
 async function checkWebGPUSupport(): Promise<{ supported: boolean; reason?: string }> {
@@ -64,6 +67,7 @@ export default function ChatInterface() {
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const preloadStarted = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -97,7 +101,7 @@ export default function ChatInterface() {
       };
 
       const newEngine = await CreateMLCEngine(
-        'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+        'SmolLM2-1.7B-Instruct-q4f16_1-MLC',
         { initProgressCallback: progressCallback }
       );
 
@@ -115,6 +119,13 @@ export default function ChatInterface() {
     }
   }, []);
 
+  const handleStartChatHover = useCallback(() => {
+    if (!preloadStarted.current && !engine && !loadingProgress) {
+      preloadStarted.current = true;
+      initEngine();
+    }
+  }, [engine, loadingProgress, initEngine]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !engine || isLoading) return;
@@ -128,7 +139,7 @@ export default function ChatInterface() {
       // Search for relevant context from project documentation
       let ragContext = '';
       try {
-        const results = await searchContext(userMessage, { topK: 5, minScore: 0.25 });
+        const results = await searchContext(userMessage);
         ragContext = formatContext(results);
         if (results.length > 0) {
           console.log('RAG found', results.length, 'relevant chunks from:',
@@ -148,8 +159,8 @@ export default function ChatInterface() {
           ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
           { role: 'user', content: userMessage }
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_tokens: 800,
+        temperature: 0.3,
       });
 
       const assistantMessage = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
@@ -190,7 +201,12 @@ export default function ChatInterface() {
                   This chat runs entirely in your browser using WebLLM.
                   No data is sent to external servers.
                 </p>
-                <button onClick={initEngine} className="btn-primary">
+                <button
+                  onClick={initEngine}
+                  onMouseEnter={handleStartChatHover}
+                  onFocus={handleStartChatHover}
+                  className="btn-primary"
+                >
                   Start Chat
                 </button>
               </>
