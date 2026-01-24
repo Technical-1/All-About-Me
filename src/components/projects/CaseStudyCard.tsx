@@ -177,20 +177,12 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3 pt-2">
-          <a
-            href={`/projects/${slug}`}
-            className="btn-primary text-sm py-2 px-4"
-          >
-            {repo.metadata?.featured ? 'View Case Study' : 'View Details'}
-          </a>
-          {!repo.private && (
+          {repo.has_portfolio && (
             <a
-              href={repo.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary text-sm py-2 px-4"
+              href={`/projects/${slug}`}
+              className="btn-primary text-sm py-2 px-4"
             >
-              View Code
+              {repo.metadata?.featured ? 'View Case Study' : 'View Details'}
             </a>
           )}
           {repo.homepage && (
@@ -198,7 +190,18 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               href={repo.homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-ghost text-sm py-2 px-4"
+              className="text-sm py-2 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                border: '2px solid #3B82F6',
+                color: '#3B82F6',
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               Live Demo
             </a>
