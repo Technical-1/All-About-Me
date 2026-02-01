@@ -190,18 +190,7 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               href={repo.homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm py-2 px-4 rounded-lg font-medium transition-colors"
-              style={{
-                border: '2px solid #3B82F6',
-                color: '#3B82F6',
-                backgroundColor: 'transparent',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
+              className="btn-secondary text-sm py-2 px-4"
             >
               Live Demo
             </a>

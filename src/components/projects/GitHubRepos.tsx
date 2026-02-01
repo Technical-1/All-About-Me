@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllRepos, getLanguageColor, type GitHubRepo } from '../../lib/github';
+import { getAllRepos, getLanguageColor, getRepoSlug, type GitHubRepo } from '../../lib/github';
 
 export default function GitHubRepos() {
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
@@ -73,7 +73,7 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
   return (
     <Tag
       {...linkProps}
-      className="card card-hover group transition-all duration-300 cursor-pointer"
+      className="card card-hover group transition-all duration-300 cursor-pointer flex flex-col"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3
@@ -102,7 +102,7 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
 
       <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>Last updated: {lastUpdated}</p>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         {repo.languages.slice(0, 5).map((lang) => (
           <span
             key={lang}
@@ -117,6 +117,30 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
           </span>
         ))}
       </div>
+
+      {/* Action buttons for repos with portfolio documentation */}
+      {repo.has_portfolio && (
+        <div className="flex gap-2 mt-auto pt-2 border-t border-border/50">
+          <a
+            href={`/projects/${getRepoSlug(repo)}`}
+            className="btn-secondary text-xs py-1.5 px-3 flex-1 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View Details
+          </a>
+          {repo.homepage && (
+            <a
+              href={repo.homepage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary text-xs py-1.5 px-3 flex-1 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Live Demo
+            </a>
+          )}
+        </div>
+      )}
     </Tag>
   );
 }
