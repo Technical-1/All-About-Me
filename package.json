@@ -30,6 +30,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "puppeteer": "^24.36.1",
     "tsx": "^4.7.0"
   }
 }
