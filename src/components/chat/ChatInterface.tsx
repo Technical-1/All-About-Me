@@ -25,13 +25,13 @@ function ModeToggle({ mode, onToggle }: ModeToggleProps) {
           role="switch"
           aria-checked={mode === 'cloud'}
           aria-label={`Switch to ${mode === 'local' ? 'cloud' : 'local'} mode`}
-          className={`relative w-12 h-6 rounded-full transition-colors ${
-            mode === 'cloud' ? 'bg-cyan' : 'bg-gray-600'
+          className={`relative w-12 h-6 rounded-full transition-colors border border-border ${
+            mode === 'cloud' ? 'bg-cyan' : 'bg-surface'
           }`}
         >
-          <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-            mode === 'cloud' ? 'translate-x-7' : 'translate-x-1'
-          }`} />
+          <span className={`absolute top-1 w-4 h-4 rounded-full transition-transform ${
+            mode === 'cloud' ? 'translate-x-7 bg-white' : 'translate-x-1 bg-accent-secondary'
+          }`} style={{ backgroundColor: mode === 'cloud' ? 'white' : 'var(--accent-secondary)' }} />
         </button>
         <span className={mode === 'cloud' ? 'text-cyan' : 'text-muted'}>Cloud</span>
       </div>
@@ -255,7 +255,7 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-red-500" />
           <div className="terminal-dot bg-yellow-500" />
           <div className="terminal-dot bg-green-500" />
-          <span className="ml-3 text-gray-400 text-sm">jacob-ai</span>
+          <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
         <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
         <div className="flex-1 flex items-center justify-center p-8">
@@ -264,15 +264,15 @@ export default function ChatInterface() {
               <>
                 <div className="w-12 h-12 border-2 border-cyan border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                 <p className="text-cyan font-mono text-sm mb-2">Loading AI Model...</p>
-                <p className="text-gray-400 text-xs max-w-md">{loadingProgress}</p>
+                <p className="text-muted text-xs max-w-md">{loadingProgress}</p>
               </>
             ) : (
               <>
                 <div className="w-16 h-16 bg-cyan/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">&#129302;</span>
                 </div>
-                <h3 className="font-mono font-bold text-white mb-2">Chat with AI</h3>
-                <p className="text-gray-400 text-sm mb-6 max-w-md">
+                <h3 className="font-mono font-bold text-heading mb-2">Chat with AI</h3>
+                <p className="text-muted text-sm mb-6 max-w-md">
                   This chat runs entirely in your browser using WebLLM.
                   No data is sent to external servers.
                 </p>
@@ -300,7 +300,7 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-red-500" />
           <div className="terminal-dot bg-yellow-500" />
           <div className="terminal-dot bg-green-500" />
-          <span className="ml-3 text-gray-400 text-sm">jacob-ai</span>
+          <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
         <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
         <div className="flex-1 flex items-center justify-center p-8">
@@ -308,12 +308,12 @@ export default function ChatInterface() {
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">&#9888;</span>
             </div>
-            <h3 className="font-mono font-bold text-white mb-2">{error}</h3>
+            <h3 className="font-mono font-bold text-heading mb-2">{error}</h3>
             {errorDetails && (
-              <p className="text-gray-400 text-sm mb-4 font-mono bg-black/30 p-2 rounded">{errorDetails}</p>
+              <p className="text-muted text-sm mb-4 font-mono bg-card p-2 rounded border border-border">{errorDetails}</p>
             )}
-            <div className="text-left text-gray-400 text-sm space-y-2 mb-6">
-              <p className="font-semibold text-gray-300">Troubleshooting:</p>
+            <div className="text-left text-muted text-sm space-y-2 mb-6">
+              <p className="font-semibold text-secondary">Troubleshooting:</p>
               <ul className="list-disc list-inside space-y-1 text-xs">
                 <li>Use <strong>Chrome 113+</strong> or <strong>Edge 113+</strong></li>
                 <li>Make sure your GPU drivers are up to date</li>
@@ -348,7 +348,7 @@ export default function ChatInterface() {
         <div className="terminal-dot bg-red-500" />
         <div className="terminal-dot bg-yellow-500" />
         <div className="terminal-dot bg-green-500" />
-        <span className="ml-3 text-gray-400 text-sm">jacob-ai ~ chat</span>
+        <span className="ml-3 text-muted text-sm">jacob-ai ~ chat</span>
       </div>
 
       <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
@@ -391,7 +391,7 @@ export default function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about Jacob's experience, projects, skills..."
-            className="flex-1 px-4 py-3 bg-surface border border-border rounded-lg text-white placeholder-muted focus:outline-none focus:border-cyan/50 transition-colors font-code text-sm"
+            className="flex-1 px-4 py-3 bg-surface border border-border rounded-lg text-primary placeholder-muted focus:outline-none focus:border-cyan/50 transition-colors font-code text-sm"
             disabled={isLoading}
           />
           <button

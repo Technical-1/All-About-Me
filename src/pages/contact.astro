@@ -3,16 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Contact" description="Get in touch with Jacob Kanfer">
-  <section class="section">
+  <section class="section pt-8">
     <div class="container-narrow">
-      <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="mb-4" style="color: var(--text-heading);">Let's Connect</h1>
-        <p class="text-lg" style="color: var(--text-secondary);">
-          Have a question or want to work together? I'd love to hear from you!
-        </p>
-      </div>
-
       <div class="grid lg:grid-cols-[1fr_300px] gap-8">
         <!-- Contact Form -->
         <div class="card">
@@ -183,7 +175,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
         if (data.success) {
           formStatus.textContent = "Message sent successfully! I'll get back to you soon.";
-          formStatus.style.color = '#22c55e';
+          formStatus.style.color = 'var(--accent-secondary)';
           (form as HTMLFormElement).reset();
         } else {
           formStatus.textContent = 'Something went wrong. Please try emailing me directly.';
