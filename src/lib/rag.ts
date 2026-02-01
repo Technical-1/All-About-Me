@@ -27,10 +27,14 @@ interface SearchResult {
 }
 
 let embeddingsCache: EmbeddingsData | null = null;
-let embedderPromise: Promise<any> | null = null;
+
+// Type for the embedder pipeline function
+type EmbedderPipeline = (text: string, options: { pooling: string; normalize: boolean }) => Promise<{ data: ArrayLike<number> }>;
+let embedderPromise: Promise<EmbedderPipeline> | null = null;
 
 /**
  * Compute cosine similarity between two vectors
+ * Returns 0 if either vector has zero magnitude (prevents NaN/Infinity)
  */
 function cosineSimilarity(a: number[], b: number[]): number {
   let dotProduct = 0;
@@ -42,6 +46,9 @@ function cosineSimilarity(a: number[], b: number[]): number {
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
+
+  // Guard against zero-magnitude vectors to prevent division by zero
+  if (normA === 0 || normB === 0) return 0;
 
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
@@ -64,11 +71,11 @@ export async function loadEmbeddings(): Promise<EmbeddingsData> {
 /**
  * Get or create the embedder pipeline (cached for reuse)
  */
-async function getEmbedder() {
+async function getEmbedder(): Promise<EmbedderPipeline> {
   if (!embedderPromise) {
     embedderPromise = (async () => {
       const { pipeline } = await import('@xenova/transformers');
-      return pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+      return pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2') as Promise<EmbedderPipeline>;
     })();
   }
   return embedderPromise;

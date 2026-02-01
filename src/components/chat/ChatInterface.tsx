@@ -7,6 +7,41 @@ interface Message {
   content: string;
 }
 
+type ChatMode = 'local' | 'cloud';
+
+// Reusable toggle component to avoid duplication
+interface ModeToggleProps {
+  mode: ChatMode;
+  onToggle: () => void;
+}
+
+function ModeToggle({ mode, onToggle }: ModeToggleProps) {
+  return (
+    <div className="px-4 py-2 border-b border-border flex items-center justify-between">
+      <div className="flex items-center gap-2 text-sm">
+        <span className={mode === 'local' ? 'text-cyan' : 'text-muted'}>Local</span>
+        <button
+          onClick={onToggle}
+          role="switch"
+          aria-checked={mode === 'cloud'}
+          aria-label={`Switch to ${mode === 'local' ? 'cloud' : 'local'} mode`}
+          className={`relative w-12 h-6 rounded-full transition-colors ${
+            mode === 'cloud' ? 'bg-cyan' : 'bg-gray-600'
+          }`}
+        >
+          <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+            mode === 'cloud' ? 'translate-x-7' : 'translate-x-1'
+          }`} />
+        </button>
+        <span className={mode === 'cloud' ? 'text-cyan' : 'text-muted'}>Cloud</span>
+      </div>
+      <span className="text-xs text-muted">
+        {mode === 'local' ? 'Runs in browser (WebGPU)' : 'Powered by Claude'}
+      </span>
+    </div>
+  );
+}
+
 const SYSTEM_PROMPT = `You are an AI assistant for Jacob Kanfer's portfolio website. Help visitors learn about Jacob's background, skills, and projects.
 
 ## RESPONSE GUIDELINES
@@ -66,6 +101,7 @@ export default function ChatInterface() {
   const [engine, setEngine] = useState<MLCEngine | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [mode, setMode] = useState<ChatMode>('cloud');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const preloadStarted = useRef(false);
 
@@ -111,10 +147,11 @@ export default function ChatInterface() {
         role: 'assistant',
         content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
       }]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('WebLLM init error:', err);
       setError('Failed to load the AI model');
-      setErrorDetails(err?.message || 'Unknown error during model initialization');
+      const message = err instanceof Error ? err.message : 'Unknown error during model initialization';
+      setErrorDetails(message);
       setLoadingProgress(null);
     }
   }, []);
@@ -126,9 +163,39 @@ export default function ChatInterface() {
     }
   }, [engine, loadingProgress, initEngine]);
 
+  // Set initial greeting for cloud mode
+  useEffect(() => {
+    if (mode === 'cloud' && messages.length === 0) {
+      setMessages([{
+        role: 'assistant',
+        content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
+      }]);
+    }
+  }, [mode]);
+
+  const sendCloudMessage = async (userMessage: string): Promise<string> => {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [
+          ...messages.map(m => ({ role: m.role, content: m.content })),
+          { role: 'user', content: userMessage }
+        ]
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to get response');
+    }
+    const data = await response.json();
+    return data.message;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !engine || isLoading) return;
+    if (!input.trim() || isLoading) return;
+    if (mode === 'local' && !engine) return;
 
     const userMessage = input.trim();
     setInput('');
@@ -136,35 +203,42 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // Search for relevant context from project documentation
-      let ragContext = '';
-      try {
-        const results = await searchContext(userMessage);
-        ragContext = formatContext(results);
-        if (results.length > 0) {
-          console.log('RAG found', results.length, 'relevant chunks from:',
-            [...new Set(results.map(r => r.chunk.project))].join(', '),
-            'Scores:', results.map(r => r.score.toFixed(2)).join(', ')
-          );
+      if (mode === 'cloud') {
+        // Cloud mode: use API endpoint
+        const assistantMessage = await sendCloudMessage(userMessage);
+        setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+      } else {
+        // Local mode: use WebLLM engine
+        // Search for relevant context from project documentation
+        let ragContext = '';
+        try {
+          const results = await searchContext(userMessage);
+          ragContext = formatContext(results);
+          if (results.length > 0) {
+            console.log('RAG found', results.length, 'relevant chunks from:',
+              [...new Set(results.map(r => r.chunk.project))].join(', '),
+              'Scores:', results.map(r => r.score.toFixed(2)).join(', ')
+            );
+          }
+        } catch (ragError) {
+          console.warn('RAG search failed, continuing without context:', ragError);
         }
-      } catch (ragError) {
-        console.warn('RAG search failed, continuing without context:', ragError);
+
+        const systemPromptWithContext = SYSTEM_PROMPT + ragContext;
+
+        const response = await engine!.chat.completions.create({
+          messages: [
+            { role: 'system', content: systemPromptWithContext },
+            ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+            { role: 'user', content: userMessage }
+          ],
+          max_tokens: 800,
+          temperature: 0.3,
+        });
+
+        const assistantMessage = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+        setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
       }
-
-      const systemPromptWithContext = SYSTEM_PROMPT + ragContext;
-
-      const response = await engine.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPromptWithContext },
-          ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-          { role: 'user', content: userMessage }
-        ],
-        max_tokens: 800,
-        temperature: 0.3,
-      });
-
-      const assistantMessage = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (err) {
       console.error('Chat error:', err);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
@@ -173,8 +247,8 @@ export default function ChatInterface() {
     }
   };
 
-  // Initial loading state
-  if (!engine && !error) {
+  // Initial loading state - only show for local mode when engine isn't ready
+  if (mode === 'local' && !engine && !error) {
     return (
       <div className="terminal h-[600px] flex flex-col">
         <div className="terminal-header">
@@ -183,6 +257,7 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-green-500" />
           <span className="ml-3 text-gray-400 text-sm">jacob-ai</span>
         </div>
+        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             {loadingProgress ? (
@@ -217,8 +292,8 @@ export default function ChatInterface() {
     );
   }
 
-  // Error state
-  if (error) {
+  // Error state - only show for local mode
+  if (mode === 'local' && error) {
     return (
       <div className="terminal h-[600px] flex flex-col">
         <div className="terminal-header">
@@ -227,6 +302,7 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-green-500" />
           <span className="ml-3 text-gray-400 text-sm">jacob-ai</span>
         </div>
+        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-lg">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -274,6 +350,8 @@ export default function ChatInterface() {
         <div className="terminal-dot bg-green-500" />
         <span className="ml-3 text-gray-400 text-sm">jacob-ai ~ chat</span>
       </div>
+
+      <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

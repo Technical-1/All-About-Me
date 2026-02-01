@@ -74,6 +74,62 @@ async function getPortfolioFiles(
 }
 
 /**
+ * Get all markdown files from the personal directory
+ */
+async function getPersonalFiles(
+  personalDir: string
+): Promise<{ project: string; file: string; path: string }[]> {
+  const files: { project: string; file: string; path: string }[] = [];
+
+  if (!(await directoryExists(personalDir))) {
+    console.log(`Personal directory does not exist: ${personalDir}`);
+    return files;
+  }
+
+  const personalFiles = await readdir(personalDir, { withFileTypes: true });
+
+  for (const file of personalFiles) {
+    if (!file.isFile() || !file.name.endsWith('.md')) continue;
+
+    files.push({
+      project: 'Jacob Kanfer',
+      file: file.name,
+      path: join(personalDir, file.name),
+    });
+  }
+
+  return files;
+}
+
+/**
+ * Get all markdown files from the blog directory
+ */
+async function getBlogFiles(
+  blogDir: string
+): Promise<{ project: string; file: string; path: string }[]> {
+  const files: { project: string; file: string; path: string }[] = [];
+
+  if (!(await directoryExists(blogDir))) {
+    console.log(`Blog directory does not exist: ${blogDir}`);
+    return files;
+  }
+
+  const blogFiles = await readdir(blogDir, { withFileTypes: true });
+
+  for (const file of blogFiles) {
+    if (!file.isFile() || !file.name.endsWith('.md')) continue;
+
+    files.push({
+      project: 'Blog',
+      file: file.name,
+      path: join(blogDir, file.name),
+    });
+  }
+
+  return files;
+}
+
+/**
  * Generate embeddings for text chunks
  */
 async function generateEmbeddings(
@@ -101,18 +157,27 @@ async function generateEmbeddings(
 async function main() {
   const cwd = process.cwd();
   const portfolioDir = join(cwd, 'public/data/portfolio');
+  const personalDir = join(cwd, 'public/data/personal');
+  const blogDir = join(cwd, 'src/content/blog');
   const outputDir = join(cwd, 'public/data/rag');
   const outputPath = join(outputDir, 'embeddings.json');
 
   console.log('Starting embedding generation...');
   console.log(`Model: ${MODEL_NAME}`);
   console.log(`Portfolio directory: ${portfolioDir}`);
+  console.log(`Personal directory: ${personalDir}`);
+  console.log(`Blog directory: ${blogDir}`);
 
-  // Get all portfolio files
+  // Get all files from each source
   const portfolioFiles = await getPortfolioFiles(portfolioDir);
+  const personalFiles = await getPersonalFiles(personalDir);
+  const blogFiles = await getBlogFiles(blogDir);
 
-  if (portfolioFiles.length === 0) {
-    console.log('No portfolio files found. Generating empty output.');
+  // Combine all files
+  const allFiles = [...portfolioFiles, ...personalFiles, ...blogFiles];
+
+  if (allFiles.length === 0) {
+    console.log('No files found. Generating empty output.');
 
     const output: EmbeddingsOutput = {
       model: MODEL_NAME,
@@ -127,7 +192,10 @@ async function main() {
     return;
   }
 
-  console.log(`Found ${portfolioFiles.length} markdown file(s) to process.`);
+  console.log(`Found ${portfolioFiles.length} portfolio file(s)`);
+  console.log(`Found ${personalFiles.length} personal file(s)`);
+  console.log(`Found ${blogFiles.length} blog file(s)`);
+  console.log(`Total: ${allFiles.length} markdown file(s) to process.`);
 
   // Load the embedding model
   console.log('Loading embedding model...');
@@ -136,7 +204,7 @@ async function main() {
   // Process each file
   const allChunks: EmbeddedChunk[] = [];
 
-  for (const { project, file, path } of portfolioFiles) {
+  for (const { project, file, path } of allFiles) {
     console.log(`Processing ${project}/${file}...`);
 
     try {
