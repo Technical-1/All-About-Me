@@ -36,7 +36,7 @@ function ModeToggle({ mode, onToggle }: ModeToggleProps) {
         >
           <span
             className={`absolute top-1 w-4 h-4 rounded-full transition-transform duration-200 ${
-              isCloud ? 'translate-x-7' : 'translate-x-1'
+              isCloud ? 'translate-x-6' : 'translate-x-1'
             }`}
             style={{ backgroundColor: isCloud ? 'white' : 'var(--accent-secondary)' }}
           />
