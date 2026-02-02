@@ -117,18 +117,43 @@ import HeroSection from '../components/hero/HeroSection.astro';
 
   <!-- Certificates Section -->
   <section class="section">
-    <div class="container-narrow">
+    <div class="container-wide">
       <h2 class="section-title text-center">Certificates</h2>
-      <div class="flex flex-wrap justify-center gap-4">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {[
-          { name: 'AWS Certified Cloud Practitioner', variant: 'red' },
-          { name: 'Engineering Innovation', variant: 'teal' },
-          { name: 'Engineering Leadership', variant: 'red' },
-          { name: 'Engineering Project Management', variant: 'teal' },
+          { name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', variant: 'red' },
+          { name: 'Engineering Innovation', issuer: 'University of Florida', variant: 'teal' },
+          { name: 'Engineering Leadership', issuer: 'University of Florida', variant: 'red' },
+          { name: 'Engineering Project Management', issuer: 'University of Florida', variant: 'teal' },
         ].map((cert) => (
-          <span class={`tag-${cert.variant}`}>
-            {cert.name}
-          </span>
+          <div class="card card-hover flex flex-col items-center text-center p-6">
+            <div
+              class="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+              style={`background-color: ${cert.variant === 'red' ? 'rgba(196, 30, 58, 0.1)' : 'rgba(74, 155, 155, 0.1)'};`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style={`color: var(--accent-${cert.variant === 'red' ? 'primary' : 'secondary'});`}
+              >
+                <circle cx="12" cy="8" r="6"/>
+                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-semibold text-sm mb-1" style="color: var(--text-heading);">
+              {cert.name}
+            </h3>
+            <p class="text-xs" style="color: var(--text-secondary);">
+              {cert.issuer}
+            </p>
+          </div>
         ))}
       </div>
     </div>
