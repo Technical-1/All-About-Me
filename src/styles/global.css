@@ -10,7 +10,7 @@
   --border-color: #E8E0D4;
   --text-primary: #1A1A1E;
   --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
+  --text-muted: #4D5560;
   --text-heading: #0A0A0C;
 
   --accent-primary: #C41E3A;
@@ -34,7 +34,7 @@ html.dark {
   --border-color: #2A2A32;
   --text-primary: #E5E7EB;
   --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
+  --text-muted: #A0A8B4;
   --text-heading: #FFFFFF;
 
   --accent-primary: #E8364F;
@@ -49,7 +49,13 @@ html.dark {
 /* Base Styles */
 @layer base {
   html {
-    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -99,7 +105,7 @@ html.dark {
   }
 
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl;
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl;
   }
 
   h2 {
@@ -112,11 +118,22 @@ html.dark {
 
   a {
     color: var(--accent-primary);
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 2px;
   }
 
   a:hover {
     color: var(--accent-primary-light);
+    text-decoration-color: currentColor;
+  }
+
+  /* Remove underline from nav links and buttons */
+  nav a,
+  .btn,
+  .card a {
+    text-decoration: none;
   }
 
   code {
@@ -205,6 +222,36 @@ html.dark {
   .btn-ghost:hover {
     color: var(--text-heading);
     background-color: var(--bg-card);
+  }
+
+  /* Focus indicators for accessibility */
+  .btn:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+
+  .btn-secondary:focus-visible {
+    outline-color: var(--accent-secondary);
+  }
+
+  a:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 0;
+    border-color: var(--accent-secondary);
+  }
+
+  /* Remove default focus outline since we're using focus-visible */
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 
   /* Tags */
@@ -343,6 +390,19 @@ html.dark {
 
 /* Animations */
 @layer utilities {
+  /* Screen reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out forwards;
   }
@@ -380,5 +440,74 @@ html.dark {
       opacity: 1;
       transform: scale(1);
     }
+  }
+}
+
+/* Mermaid Diagram Overrides - theme-aware */
+.mermaid {
+  /* Node backgrounds */
+  .node rect,
+  .node polygon,
+  .node circle,
+  .node ellipse {
+    fill: var(--bg-card) !important;
+    stroke: var(--accent-secondary) !important;
+  }
+
+  /* Node labels */
+  .node .label,
+  .nodeLabel,
+  .node text,
+  .label text,
+  text.nodeLabel,
+  span.nodeLabel {
+    fill: var(--text-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Subgraph/cluster backgrounds */
+  .cluster rect {
+    fill: var(--bg-surface) !important;
+    stroke: var(--accent-primary) !important;
+  }
+
+  /* Cluster labels */
+  .cluster text,
+  .cluster-label text {
+    fill: var(--text-heading) !important;
+  }
+
+  /* Edge labels */
+  .edgeLabel {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Edge label text */
+  .edgeLabel text {
+    fill: var(--text-primary) !important;
+  }
+
+  /* Flowchart links */
+  .flowchart-link {
+    stroke: var(--text-muted) !important;
+  }
+
+  /* Arrow markers */
+  marker path {
+    fill: var(--text-muted) !important;
+    stroke: var(--text-muted) !important;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -111,6 +111,15 @@ export default {
         'card-dark': '0 1px 3px rgba(0, 0, 0, 0.3)',
         'card-hover-dark': '0 10px 25px rgba(0, 0, 0, 0.4)',
       },
+      borderRadius: {
+        'none': '0',
+        'sm': '0.375rem',   // 6px - small elements
+        'DEFAULT': '0.5rem', // 8px - buttons, inputs
+        'md': '0.75rem',    // 12px - cards
+        'lg': '1rem',       // 16px - large cards
+        'xl': '1.5rem',     // 24px - modals, featured
+        'full': '9999px',   // pills
+      },
     },
   },
   plugins: [require('@tailwindcss/typography')],

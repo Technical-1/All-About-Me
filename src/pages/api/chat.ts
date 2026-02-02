@@ -2,8 +2,66 @@ import type { APIRoute } from 'astro';
 import Anthropic from '@anthropic-ai/sdk';
 import { searchContext, formatContext } from '../../lib/rag-server';
 
+// Simple in-memory rate limiting
+// Note: This resets on server restart. For production, use Redis or similar.
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 20; // 20 requests per minute per IP
+const MAX_RATE_LIMIT_ENTRIES = 10000; // Prevent unbounded memory growth
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+
+  // Clean up expired entry for this IP if exists
+  const existingRecord = rateLimitMap.get(ip);
+  if (existingRecord && now > existingRecord.resetTime) {
+    rateLimitMap.delete(ip);
+  }
+
+  const record = rateLimitMap.get(ip);
+
+  if (!record) {
+    // Prevent unbounded memory growth - if map is too large, reject new IPs
+    if (rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+      // Perform cleanup before rejecting
+      cleanupExpiredEntries();
+      if (rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+        // Still too many entries, reject to prevent DoS via memory exhaustion
+        return { allowed: false, remaining: 0 };
+      }
+    }
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, remaining: RATE_LIMIT_MAX - 1 };
+  }
+
+  if (record.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  // Increment count (not atomic, but acceptable for portfolio site traffic levels)
+  record.count = record.count + 1;
+  return { allowed: true, remaining: RATE_LIMIT_MAX - record.count };
+}
+
+function cleanupExpiredEntries(): void {
+  const now = Date.now();
+  for (const [ip, record] of rateLimitMap.entries()) {
+    if (now > record.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}
+
+// Clean up old entries periodically (every 5 minutes to reduce overhead)
+setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+
 // This API route must be server-rendered (not static)
 export const prerender = false;
+
+// Validation limits
+const MAX_MESSAGE_LENGTH = 4000; // ~1000 tokens
+const MAX_MESSAGES_COUNT = 20;   // Reasonable conversation length
+const MAX_TOTAL_CHARS = 32000;   // Prevent massive context
 
 const SYSTEM_PROMPT = `You are a helpful assistant for Jacob Kanfer's portfolio website. Your role is to help visitors learn about Jacob's background, projects, skills, and experiences.
 
@@ -41,19 +99,81 @@ interface ChatRequest {
   messages: ChatMessage[];
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  // Rate limiting - only trust clientAddress from Astro (server-set)
+  // Don't use X-Forwarded-For as it can be spoofed by clients
+  const ip = clientAddress || 'unknown';
+  const rateLimit = checkRateLimit(ip);
+
+  if (!rateLimit.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'Too many requests. Please wait a minute and try again.' }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': '60',
+          'X-RateLimit-Remaining': '0',
+        }
+      }
+    );
+  }
+
   try {
     // Parse request body
     const body = await request.json() as ChatRequest;
 
-    // Validate request
+    // Validate request structure
     if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Invalid request: messages array is required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate message count
+    if (body.messages.length > MAX_MESSAGES_COUNT) {
+      return new Response(
+        JSON.stringify({ error: `Conversation too long. Maximum ${MAX_MESSAGES_COUNT} messages allowed.` }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate individual messages and total length
+    let totalChars = 0;
+    for (const msg of body.messages) {
+      // Check message structure
+      if (!msg.content || typeof msg.content !== 'string') {
+        return new Response(
+          JSON.stringify({ error: 'Invalid message format' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check message length
+      if (msg.content.length > MAX_MESSAGE_LENGTH) {
+        return new Response(
+          JSON.stringify({ error: `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters per message.` }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check role is valid
+      if (msg.role !== 'user' && msg.role !== 'assistant') {
+        return new Response(
+          JSON.stringify({ error: 'Invalid message role' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      totalChars += msg.content.length;
+    }
+
+    // Check total conversation length
+    if (totalChars > MAX_TOTAL_CHARS) {
+      return new Response(
+        JSON.stringify({ error: 'Conversation too long. Please start a new chat.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -62,7 +182,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'Server configuration error: API key not configured' }),
+        JSON.stringify({ error: 'Service temporarily unavailable.' }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
@@ -110,7 +230,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (assistantMessage.type !== 'text') {
       return new Response(
-        JSON.stringify({ error: 'Unexpected response format from AI' }),
+        JSON.stringify({ error: 'Unable to process your request. Please try again.' }),
         {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
@@ -128,7 +248,10 @@ export const POST: APIRoute = async ({ request }) => {
       }),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+        }
       }
     );
 
@@ -137,24 +260,32 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Handle specific Anthropic API errors
     if (error instanceof Anthropic.APIError) {
+      // Log full error server-side for debugging
+      console.error('Anthropic API error details:', {
+        status: error.status,
+        message: error.message,
+      });
+
+      // Return generic message to client (don't leak internal details)
+      const statusCode = error.status || 500;
+      const clientMessage = statusCode === 429
+        ? 'Too many requests. Please wait a moment and try again.'
+        : statusCode === 401
+          ? 'Service temporarily unavailable.'
+          : 'Unable to process your request. Please try again.';
+
       return new Response(
-        JSON.stringify({
-          error: 'AI service error',
-          details: error.message
-        }),
+        JSON.stringify({ error: clientMessage }),
         {
-          status: error.status || 500,
+          status: statusCode,
           headers: { 'Content-Type': 'application/json' }
         }
       );
     }
 
-    // Handle general errors
+    // Handle general errors - never expose internal details
     return new Response(
-      JSON.stringify({
-        error: 'An unexpected error occurred',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }),
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' }

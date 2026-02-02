@@ -96,9 +96,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
   </script>
 </head>
 <body>
+  <!-- Skip to main content link for keyboard users -->
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:font-medium"
+    style="background-color: var(--accent-primary); color: white;"
+  >
+    Skip to main content
+  </a>
+
   <Navbar />
 
-  <main>
+  <main id="main-content">
     <slot />
   </main>
 

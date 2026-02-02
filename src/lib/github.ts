@@ -53,10 +53,28 @@ interface PrivateRepoEntry {
   screenshots?: string[];
   readme?: string;
   metadata?: GitHubRepoMetadata;
+  // Portfolio fields
+  has_portfolio?: boolean;
+  portfolio_files?: string[];
 }
 
-const CACHE_KEY = 'github_repos_cache';
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp';
+// GitHub API response types (subset of fields we use)
+interface GitHubAPIRepo {
+  name: string;
+  full_name: string;
+  html_url: string;
+  homepage: string | null;
+  description: string | null;
+  private: boolean;
+  fork: boolean;
+  archived: boolean;
+  pushed_at: string;
+  language: string | null;
+  languages_url: string;
+}
+
+const CACHE_KEY = 'github_repos_cache_v2'; // v2: added has_portfolio field
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v2';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
@@ -65,43 +83,35 @@ export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
   );
 
   if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
+    const status = response.status;
+    if (status === 403) {
+      console.warn('GitHub API rate limited. Using cached data or returning empty.');
+      return [];
+    }
+    throw new Error(`GitHub API error: ${status}`);
   }
 
-  const repos = await response.json();
+  const repos: GitHubAPIRepo[] = await response.json();
 
-  const reposWithLanguages: GitHubRepo[] = await Promise.all(
-    repos
-      .filter((repo: any) => !repo.fork && !repo.archived)
-      .map(async (repo: any) => {
-        let languages: string[] = [];
-        try {
-          const langResponse = await fetch(repo.languages_url);
-          if (langResponse.ok) {
-            const langData = await langResponse.json();
-            languages = Object.keys(langData);
-          }
-        } catch {
-          // Ignore language fetch errors
-        }
+  // Map repos without making individual language requests
+  // The primary_language from the API is sufficient for display
+  const mappedRepos: GitHubRepo[] = repos
+    .filter((repo) => !repo.fork && !repo.archived)
+    .map((repo) => ({
+      name: repo.name,
+      full_name: repo.full_name,
+      html_url: repo.html_url,
+      homepage: repo.homepage,
+      description: repo.description,
+      private: repo.private,
+      fork: repo.fork,
+      archived: repo.archived,
+      pushed_at: repo.pushed_at,
+      languages: repo.language ? [repo.language] : [],
+      primary_language: repo.language,
+    }));
 
-        return {
-          name: repo.name,
-          full_name: repo.full_name,
-          html_url: repo.html_url,
-          homepage: repo.homepage,
-          description: repo.description,
-          private: repo.private,
-          fork: repo.fork,
-          archived: repo.archived,
-          pushed_at: repo.pushed_at,
-          languages,
-          primary_language: repo.language,
-        };
-      })
-  );
-
-  return reposWithLanguages;
+  return mappedRepos;
 }
 
 async function fetchReposFromJson(filename: string): Promise<GitHubRepo[]> {
@@ -131,7 +141,7 @@ async function fetchReposFromJson(filename: string): Promise<GitHubRepo[]> {
       html_url: entry.repo.html_url,
       homepage: entry.repo.homepage,
       description: entry.repo.description,
-      private: true,
+      private: entry.repo.private,
       fork: entry.repo.fork,
       archived: entry.repo.archived,
       pushed_at: entry.repo.pushed_at,
@@ -140,6 +150,8 @@ async function fetchReposFromJson(filename: string): Promise<GitHubRepo[]> {
       screenshots: entry.screenshots,
       readme: entry.readme,
       metadata: entry.metadata,
+      has_portfolio: entry.has_portfolio,
+      portfolio_files: entry.portfolio_files,
     }));
   } catch (error) {
     console.error(`Error fetching ${filename}:`, error);
@@ -214,6 +226,38 @@ export async function fetchFeaturedReposWithPortfolio(): Promise<GitHubRepo[]> {
   );
 
   return reposWithPortfolio;
+}
+
+export async function fetchAllReposWithPortfolio(): Promise<GitHubRepo[]> {
+  // Fetch both private and featured repos (which contain portfolio docs)
+  const [privateRepos, featuredRepos] = await Promise.all([
+    fetchPrivateRepos(),
+    fetchFeaturedRepos(),
+  ]);
+
+  // Combine and dedupe by full_name
+  const repoMap = new Map<string, GitHubRepo>();
+  for (const repo of [...privateRepos, ...featuredRepos]) {
+    if (!repoMap.has(repo.full_name)) {
+      repoMap.set(repo.full_name, repo);
+    }
+  }
+
+  // Fetch portfolio data for repos that have portfolio files
+  const reposWithPortfolio = await Promise.all(
+    Array.from(repoMap.values())
+      .filter(repo => repo.has_portfolio || repo.portfolio_files?.length)
+      .map(async (repo) => {
+        const portfolio = await fetchPortfolioData(repo.name);
+        return {
+          ...repo,
+          portfolio,
+          has_portfolio: !!portfolio,
+        };
+      })
+  );
+
+  return reposWithPortfolio.filter(repo => repo.has_portfolio);
 }
 
 export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {

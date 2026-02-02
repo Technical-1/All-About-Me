@@ -1,33 +1,71 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <BaseLayout title="Blog" description="Articles and thoughts from Jacob Kanfer">
-  <section class="section">
-    <div class="container-narrow text-center">
-      <h1 class="mb-4" style="color: var(--text-heading);">Blog</h1>
-      <p class="text-lg mb-12" style="color: var(--text-secondary);">
-        Thoughts on AI, software development, and technology
-      </p>
+  <section class="section pt-8">
+    <div class="container-narrow">
+      <h2 class="section-title">Thoughts on AI & Development</h2>
 
-      <div class="card">
-        <div class="py-16">
-          <div
-            class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-            style="background-color: rgba(74, 155, 155, 0.2);"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
+      {posts.length === 0 ? (
+        <div class="card">
+          <div class="py-16 text-center">
+            <div
+              class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+              style="background-color: rgba(74, 155, 155, 0.2);"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-secondary);">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </div>
+            <h2 class="text-xl font-display font-bold mb-3" style="color: var(--text-heading);">No Posts Yet</h2>
+            <p class="max-w-md mx-auto" style="color: var(--text-muted);">
+              Blog posts are in the works. In the meantime, check out the <a href="/projects" class="underline">Projects</a> page
+              or <a href="/chat" class="underline">chat with the AI assistant</a> to learn more about my work.
+            </p>
           </div>
-          <h2 class="text-xl font-display font-bold mb-3" style="color: var(--text-heading);">Coming Soon</h2>
-          <p class="max-w-md mx-auto" style="color: var(--text-muted);">
-            I'm working on some articles about AI, local LLMs, and my experiences in software development.
-            Check back soon!
-          </p>
         </div>
-      </div>
+      ) : (
+        <div class="space-y-6">
+          {posts.map((post) => (
+            <article class="card card-hover">
+              <a href={`/blog/${post.id}`} class="block">
+                <div class="flex flex-wrap gap-2 mb-3">
+                  {post.data.tags.map((tag) => (
+                    <span class="tag-teal">{tag}</span>
+                  ))}
+                </div>
+
+                <h2 class="text-xl font-display font-bold mb-2 transition-colors" style="color: var(--text-heading);">
+                  {post.data.title}
+                </h2>
+
+                <p class="mb-3" style="color: var(--text-secondary);">
+                  {post.data.description}
+                </p>
+
+                <time
+                  datetime={post.data.pubDate.toISOString()}
+                  class="text-sm"
+                  style="color: var(--text-muted);"
+                >
+                  {post.data.pubDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'UTC',
+                  })}
+                </time>
+              </a>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
