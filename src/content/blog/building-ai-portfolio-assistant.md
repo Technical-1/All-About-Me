@@ -44,7 +44,9 @@ The system has two main phases:
 4. Inject context into Claude Haiku prompt
 5. Return response to client
 
-The user can toggle between modes, and cloud mode serves as a fallback for browsers without WebGPU support.
+The system automatically detects WebGPU support on page load. If your browser supports it, you get a toggle to switch between modes. If not, you're automatically placed in cloud mode with no confusing options shown.
+
+Both modes support **streaming responses**—text appears word-by-word as it's generated, just like ChatGPT or Claude. This makes the experience feel responsive even before the full response is ready.
 
 ## WebLLM: Running LLMs in the Browser
 
@@ -65,19 +67,47 @@ The key advantage? **Zero API costs, zero rate limits, complete privacy.** The c
 
 ## Cloud Mode: Claude Haiku Fallback
 
-Not everyone has WebGPU support (it requires Chrome 113+ or recent Edge). For these users, I added a cloud mode powered by Claude Haiku:
+Not everyone has WebGPU support (it requires Chrome 113+ or recent Edge). For these users, I added a cloud mode powered by Claude Haiku with streaming responses:
 
 ```typescript
+// Request with streaming enabled
 const response = await fetch('/api/chat', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ messages }),
+  body: JSON.stringify({ messages, stream: true }),
 });
+
+// Read the SSE stream
+const reader = response.body.getReader();
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  // Parse and display each chunk as it arrives
+  const chunk = decoder.decode(value);
+  // Update UI with partial response...
+}
 ```
 
-The server performs the same RAG search and injects context into Claude's prompt. This gives users a seamless experience regardless of their browser capabilities.
+The server uses Anthropic's streaming API to send text chunks as Server-Sent Events (SSE). Each chunk updates the UI immediately, so users see text appear word-by-word rather than waiting for the complete response.
 
 To prevent abuse, the cloud endpoint includes rate limiting (20 requests per minute per IP) and input validation (message length limits, conversation size caps).
+
+### Automatic Mode Detection
+
+On page load, the chat checks for WebGPU support:
+
+```typescript
+useEffect(() => {
+  checkWebGPUSupport().then(result => {
+    setWebGPUSupported(result.supported);
+    if (!result.supported) {
+      setMode('cloud'); // Force cloud mode
+    }
+  });
+}, []);
+```
+
+If WebGPU isn't available, users only see "Cloud Mode" in the header—no confusing toggle for a feature they can't use.
 
 ## The RAG System: Teaching the AI About My Projects
 
@@ -254,6 +284,8 @@ After building and iterating on this system, here's what I've learned:
 - The AI gives genuinely informed answers about my projects
 - Local mode means zero ongoing costs for most users
 - Cloud fallback ensures everyone gets a good experience
+- Streaming responses make both modes feel snappy and responsive
+- Automatic WebGPU detection means users never see broken features
 - Hybrid search catches both semantic matches and exact keyword matches
 - The documentation structure forces me to think clearly about my architectural decisions
 

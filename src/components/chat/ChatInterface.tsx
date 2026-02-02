@@ -9,7 +9,7 @@ interface Message {
 
 type ChatMode = 'local' | 'cloud';
 
-// Reusable toggle component to avoid duplication
+// Reusable toggle component - only shown when WebGPU is supported
 interface ModeToggleProps {
   mode: ChatMode;
   onToggle: () => void;
@@ -38,6 +38,18 @@ function ModeToggle({ mode, onToggle }: ModeToggleProps) {
       <span className="text-xs text-muted">
         {mode === 'local' ? 'Runs in browser (WebGPU)' : 'Powered by Claude'}
       </span>
+    </div>
+  );
+}
+
+// Cloud-only header when WebGPU is not supported
+function CloudOnlyHeader() {
+  return (
+    <div className="px-4 py-2 border-b border-border flex items-center justify-between">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-cyan">Cloud Mode</span>
+      </div>
+      <span className="text-xs text-muted">Powered by Claude</span>
     </div>
   );
 }
@@ -72,7 +84,7 @@ const SYSTEM_PROMPT = `You are an AI assistant for Jacob Kanfer's portfolio webs
 
 // Check WebGPU support
 async function checkWebGPUSupport(): Promise<{ supported: boolean; reason?: string }> {
-  if (!navigator.gpu) {
+  if (typeof navigator === 'undefined' || !navigator.gpu) {
     return { supported: false, reason: 'WebGPU API not available in this browser' };
   }
 
@@ -102,6 +114,8 @@ export default function ChatInterface() {
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [mode, setMode] = useState<ChatMode>('cloud');
+  const [webGPUSupported, setWebGPUSupported] = useState<boolean | null>(null);
+  const [streamingContent, setStreamingContent] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const preloadStarted = useRef(false);
 
@@ -111,7 +125,18 @@ export default function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingContent]);
+
+  // Check WebGPU support on mount
+  useEffect(() => {
+    checkWebGPUSupport().then(result => {
+      setWebGPUSupported(result.supported);
+      // If WebGPU is not supported, force cloud mode
+      if (!result.supported) {
+        setMode('cloud');
+      }
+    });
+  }, []);
 
   const initEngine = useCallback(async () => {
     setLoadingProgress('Checking WebGPU support...');
@@ -173,7 +198,7 @@ export default function ChatInterface() {
     }
   }, [mode]);
 
-  const sendCloudMessage = async (userMessage: string): Promise<string> => {
+  const sendCloudMessageStreaming = async (userMessage: string): Promise<void> => {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -181,15 +206,62 @@ export default function ChatInterface() {
         messages: [
           ...messages.map(m => ({ role: m.role, content: m.content })),
           { role: 'user', content: userMessage }
-        ]
+        ],
+        stream: true
       }),
     });
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to get response');
     }
-    const data = await response.json();
-    return data.message;
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+    let fullContent = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              // Stream complete
+              setMessages(prev => [...prev, { role: 'assistant', content: fullContent }]);
+              setStreamingContent('');
+              return;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                fullContent += parsed.text;
+                setStreamingContent(fullContent);
+              }
+            } catch {
+              // Ignore parse errors for incomplete JSON
+            }
+          }
+        }
+      }
+
+      // If we get here without [DONE], still save what we have
+      if (fullContent) {
+        setMessages(prev => [...prev, { role: 'assistant', content: fullContent }]);
+        setStreamingContent('');
+      }
+    } finally {
+      reader.releaseLock();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,14 +273,14 @@ export default function ChatInterface() {
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
+    setStreamingContent('');
 
     try {
       if (mode === 'cloud') {
-        // Cloud mode: use API endpoint
-        const assistantMessage = await sendCloudMessage(userMessage);
-        setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+        // Cloud mode: use streaming API endpoint
+        await sendCloudMessageStreaming(userMessage);
       } else {
-        // Local mode: use WebLLM engine
+        // Local mode: use WebLLM engine with streaming
         // Search for relevant context from project documentation
         let ragContext = '';
         try {
@@ -226,7 +298,9 @@ export default function ChatInterface() {
 
         const systemPromptWithContext = SYSTEM_PROMPT + ragContext;
 
-        const response = await engine!.chat.completions.create({
+        // Use streaming for local mode
+        let fullContent = '';
+        const stream = await engine!.chat.completions.create({
           messages: [
             { role: 'system', content: systemPromptWithContext },
             ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
@@ -234,13 +308,21 @@ export default function ChatInterface() {
           ],
           max_tokens: 800,
           temperature: 0.3,
+          stream: true,
         });
 
-        const assistantMessage = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
-        setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content || '';
+          fullContent += delta;
+          setStreamingContent(fullContent);
+        }
+
+        setMessages(prev => [...prev, { role: 'assistant', content: fullContent }]);
+        setStreamingContent('');
       }
     } catch (err) {
       console.error('Chat error:', err);
+      setStreamingContent('');
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
     } finally {
       setIsLoading(false);
@@ -257,7 +339,9 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-green-500" />
           <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
-        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+        {webGPUSupported && (
+          <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+        )}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             {loadingProgress ? (
@@ -302,7 +386,9 @@ export default function ChatInterface() {
           <div className="terminal-dot bg-green-500" />
           <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
-        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+        {webGPUSupported && (
+          <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+        )}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-lg">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -351,7 +437,12 @@ export default function ChatInterface() {
         <span className="ml-3 text-muted text-sm">jacob-ai ~ chat</span>
       </div>
 
-      <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+      {/* Only show toggle if WebGPU is supported, otherwise show cloud-only header */}
+      {webGPUSupported ? (
+        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+      ) : (
+        <CloudOnlyHeader />
+      )}
 
       {/* Messages */}
       <div
@@ -376,7 +467,18 @@ export default function ChatInterface() {
           </div>
         ))}
 
-        {isLoading && (
+        {/* Streaming content */}
+        {streamingContent && (
+          <div className="flex justify-start" role="status" aria-label="Assistant is responding">
+            <div className="chat-bubble-ai">
+              <p className="whitespace-pre-wrap">{streamingContent}</p>
+              <span className="inline-block w-2 h-4 bg-cyan animate-pulse ml-1" aria-hidden="true" />
+            </div>
+          </div>
+        )}
+
+        {/* Loading indicator (only shown when not streaming) */}
+        {isLoading && !streamingContent && (
           <div className="flex justify-start" role="status" aria-label="Assistant is typing">
             <div className="chat-bubble-ai">
               <div className="flex items-center gap-2">
