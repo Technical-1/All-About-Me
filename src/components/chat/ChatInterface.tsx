@@ -365,8 +365,12 @@ export default function ChatInterface() {
 
         const systemPromptWithContext = SYSTEM_PROMPT + ragContext;
 
-        // Use streaming for local mode
+        // Use streaming for local mode with buffered updates
+        // Buffer tokens and update UI every 150ms to avoid choppy display
         let fullContent = '';
+        let lastUpdateTime = Date.now();
+        const UPDATE_INTERVAL = 150; // ms between UI updates
+
         const stream = await engine!.chat.completions.create({
           messages: [
             { role: 'system', content: systemPromptWithContext },
@@ -381,8 +385,19 @@ export default function ChatInterface() {
         for await (const chunk of stream) {
           const delta = chunk.choices[0]?.delta?.content || '';
           fullContent += delta;
-          setStreamingContent(fullContent);
+
+          // Only update UI if enough time has passed since last update
+          const now = Date.now();
+          if (now - lastUpdateTime >= UPDATE_INTERVAL) {
+            setStreamingContent(fullContent);
+            lastUpdateTime = now;
+          }
         }
+
+        // Final update to ensure all content is displayed
+        setStreamingContent(fullContent);
+        // Small delay before finalizing to let user see complete response
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         setMessages(prev => [...prev, { role: 'assistant', content: fullContent }]);
         setStreamingContent('');
