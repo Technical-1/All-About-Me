@@ -32,3 +32,9 @@ Since August 2025, Jacob has been working at Deloitte as an Engineering Solution
 ## Professional Focus
 
 Jacob focuses on AI-powered solutions and intelligent agents. His work involves designing and implementing cutting-edge technology solutions for public sector clients, helping government agencies leverage artificial intelligence to solve complex challenges and improve operational efficiency.
+
+## Personal Details
+
+### What is Jacob's favorite color?
+
+Jacob's favorite color is purple. Purple is Jacob's preferred color. When asked about his favorite color, Jacob would say purple. Jacob loves the color purple.

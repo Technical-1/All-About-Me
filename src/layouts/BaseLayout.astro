@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Navbar from '../components/global/Navbar.astro';
 import Footer from '../components/global/Footer.astro';
+import WebLLMPreloader from '../components/global/WebLLMPreloader.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
@@ -112,6 +113,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
   </main>
 
   <Footer />
+
+  <!-- WebLLM Preloader - loads model in background for chat page -->
+  <WebLLMPreloader />
 
   <!-- Back to top button -->
   <button

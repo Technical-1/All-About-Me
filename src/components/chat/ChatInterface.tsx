@@ -127,13 +127,24 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages, streamingContent]);
 
-  // Check WebGPU support on mount
+  // Check WebGPU support on mount and check for preloaded engine
   useEffect(() => {
     checkWebGPUSupport().then(result => {
       setWebGPUSupported(result.supported);
       // If WebGPU is not supported, force cloud mode
       if (!result.supported) {
         setMode('cloud');
+      } else {
+        // Check if engine was preloaded by global preloader
+        const preloadedEngine = (window as unknown as { __webllmEngine?: MLCEngine }).__webllmEngine;
+        if (preloadedEngine && !engine) {
+          console.log('[Chat] Found preloaded WebLLM engine on mount');
+          setEngine(preloadedEngine);
+          setMessages([{
+            role: 'assistant',
+            content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
+          }]);
+        }
       }
     });
   }, []);
@@ -149,6 +160,19 @@ export default function ChatInterface() {
       setError('WebGPU is not available');
       setErrorDetails(webgpuCheck.reason || 'Unknown reason');
       setLoadingProgress(null);
+      return;
+    }
+
+    // Check if engine was preloaded globally
+    const preloadedEngine = (window as unknown as { __webllmEngine?: MLCEngine }).__webllmEngine;
+    if (preloadedEngine) {
+      console.log('[Chat] Using preloaded WebLLM engine');
+      setEngine(preloadedEngine);
+      setLoadingProgress(null);
+      setMessages([{
+        role: 'assistant',
+        content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
+      }]);
       return;
     }
 

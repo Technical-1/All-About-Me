@@ -1,0 +1,82 @@
+---
+// WebLLMPreloader.astro
+// Preloads WebLLM model weights in the background on any page
+// This ensures the model is cached in IndexedDB before users visit the chat page
+---
+
+<script>
+  // Only run preloading once per session
+  const PRELOAD_KEY = 'webllm_preload_started';
+
+  async function preloadWebLLM() {
+    // Skip if already started this session
+    if (sessionStorage.getItem(PRELOAD_KEY)) {
+      return;
+    }
+
+    // Check WebGPU support first
+    if (typeof navigator === 'undefined' || !navigator.gpu) {
+      console.log('[WebLLM Preloader] WebGPU not available, skipping preload');
+      return;
+    }
+
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (!adapter) {
+        console.log('[WebLLM Preloader] No WebGPU adapter found, skipping preload');
+        return;
+      }
+    } catch (e) {
+      console.log('[WebLLM Preloader] WebGPU check failed, skipping preload');
+      return;
+    }
+
+    // Mark as started to prevent duplicate preloads
+    sessionStorage.setItem(PRELOAD_KEY, 'true');
+    console.log('[WebLLM Preloader] Starting background model preload...');
+
+    try {
+      // Dynamically import WebLLM
+      const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
+
+      // Create engine with progress callback - this downloads and caches the model
+      const engine = await CreateMLCEngine(
+        'SmolLM2-1.7B-Instruct-q4f16_1-MLC',
+        {
+          initProgressCallback: (report) => {
+            // Log progress but don't show UI (background operation)
+            if (report.progress && report.progress % 20 === 0) {
+              console.log(`[WebLLM Preloader] ${report.text}`);
+            }
+          }
+        }
+      );
+
+      // Store the engine reference globally so ChatInterface can use it
+      (window as any).__webllmEngine = engine;
+      console.log('[WebLLM Preloader] Model preloaded and cached successfully!');
+    } catch (err) {
+      console.warn('[WebLLM Preloader] Background preload failed:', err);
+      // Clear the flag so it can retry on next page
+      sessionStorage.removeItem(PRELOAD_KEY);
+    }
+  }
+
+  // Start preloading after page becomes interactive
+  if (document.readyState === 'complete') {
+    // Use requestIdleCallback if available for lower priority
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => preloadWebLLM(), { timeout: 5000 });
+    } else {
+      setTimeout(preloadWebLLM, 1000);
+    }
+  } else {
+    window.addEventListener('load', () => {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(() => preloadWebLLM(), { timeout: 5000 });
+      } else {
+        setTimeout(preloadWebLLM, 1000);
+      }
+    });
+  }
+</script>
