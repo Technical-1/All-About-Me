@@ -145,25 +145,15 @@ export async function searchContext(
  */
 export function formatContext(results: SearchResult[]): string {
   if (results.length === 0) {
-    return '\n\n[No relevant documentation found. Answer based on general knowledge or explain what you would need.]';
+    return '\n\n## Retrieved Documentation\n\nNo relevant documentation found. Say "I don\'t have that specific information about Jacob."';
   }
 
-  // Group by project
-  const byProject = new Map<string, SearchResult[]>();
-  for (const r of results) {
-    const existing = byProject.get(r.chunk.project) || [];
-    existing.push(r);
-    byProject.set(r.chunk.project, existing);
-  }
-
+  // For small LLMs, simpler formatting works better
   const sections: string[] = [];
-  for (const [project, chunks] of byProject) {
-    const chunkTexts = chunks.map(r => {
-      const relevance = r.score >= 0.6 ? 'HIGH' : r.score >= 0.45 ? 'MEDIUM' : 'LOW';
-      return `[${r.chunk.section}] (relevance: ${relevance})\n${r.chunk.content}`;
-    });
-    sections.push(`### ${project}\n${chunkTexts.join('\n\n')}`);
+  for (const r of results) {
+    // Include only the content, keep it simple
+    sections.push(`FACT: ${r.chunk.content}`);
   }
 
-  return `\n\n## Retrieved Documentation\n\n${sections.join('\n\n---\n\n')}\n\n[Base your answer on the above documentation.]`;
+  return `\n\n## Retrieved Documentation\n\nUSE THESE FACTS TO ANSWER (do not make up information):\n\n${sections.join('\n\n')}\n\nIMPORTANT: Your answer MUST come from the facts above. Do not invent or guess.`;
 }
