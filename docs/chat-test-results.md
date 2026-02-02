@@ -1,6 +1,6 @@
 # AI Chat Test Results
 
-Generated: 2/1/2026, 11:18:23 PM
+Generated: 2/1/2026, 11:37:45 PM
 
 ## Environment
 
@@ -8,60 +8,45 @@ Generated: 2/1/2026, 11:18:23 PM
 
 ## Summary
 
-### Cloud Mode
+### Local Mode
 
-- **Passed:** 9/9 (100%)
-- **Streaming:** 9/9 responses used streaming
+- **Passed:** 10/10 (100%)
+- **Streaming:** 10/10 responses used streaming
 
 ---
 
 ## Test Results
 
-### Cloud Mode
+### Local Mode
 
 | Query | Result | Duration | Streaming | Keywords Found |
 |-------|--------|----------|-----------|----------------|
-| Where does Jacob work? | ✅ PASSED | 2.0s | 📡 Yes | Deloitte |
-| What degree does Jacob have? | ✅ PASSED | 2.0s | 📡 Yes | Computer Engineering, Florida |
+| Where does Jacob work? | ✅ PASSED | 3.0s | 📡 Yes | Deloitte |
+| What degree does Jacob have? | ✅ PASSED | 1.8s | 📡 Yes | Computer Engineering, Florida |
 | What is Jacob's email? | ✅ PASSED | 1.8s | 📡 Yes | jacobkanfer, gmail |
-| Does Jacob know Python? | ✅ PASSED | 1.9s | 📡 Yes | Python |
+| What is Jacob's favorite color? | ✅ PASSED | 1.7s | 📡 Yes | purple |
+| Does Jacob know Python? | ✅ PASSED | 2.2s | 📡 Yes | Python |
 | What frameworks does Jacob use? | ✅ PASSED | 2.5s | 📡 Yes | React |
-| Tell me about the AHSR project | ✅ PASSED | 3.1s | 📡 Yes | robot, hospital |
-| What was Jacob's internship? | ✅ PASSED | 3.1s | 📡 Yes | World Wide Technology, Data Science |
-| What projects has Jacob built? | ✅ PASSED | 4.4s | 📡 Yes | BTC, Git |
-| Has Jacob written any blog posts? | ✅ PASSED | 2.7s | 📡 Yes | blog, WebLLM |
+| Tell me about the AHSR project | ✅ PASSED | 5.6s | 📡 Yes | robot, hospital |
+| What was Jacob's internship? | ✅ PASSED | 3.6s | 📡 Yes | World Wide Technology, Data Science |
+| What projects has Jacob built? | ✅ PASSED | 6.9s | 📡 Yes | BTC, Git |
+| Has Jacob written any blog posts? | ✅ PASSED | 6.4s | 📡 Yes | blog, WebLLM |
 
 ## Response Details
 
-### ✅ PASSED: [cloud] Where does Jacob work?
+### ✅ PASSED: [local] Where does Jacob work?
 
 **Category:** Personal
-**Duration:** 2.0s
+**Duration:** 3.0s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-According to the documentation, Jacob currently works at Deloitte as an Engineering Solutions Analyst. Specifically, the documentation states:
-
-"Jacob currently works at Deloitte as an Engineering Solutions Analyst. This is his current job and current role. Jacob's current employer is Deloitte."
+Jacob currently works at Deloitte as an Engineering Solutions Analyst. This is his current job and role.
 
 </details>
 
-### ✅ PASSED: [cloud] What degree does Jacob have?
-
-**Category:** Personal
-**Duration:** 2.0s
-**Response Type:** 📡 Streaming
-
-<details><summary>Response</summary>
-
-The documentation states that Jacob has a Bachelor of Science in Computer Engineering from the University of Florida. Specifically, it says:
-
-"Jacob has a Bachelor of Science in Computer Engineering. His degree is in Computer Engineering from the University of Florida. Jacob's education includes a BS in Computer Engineering."
-
-</details>
-
-### ✅ PASSED: [cloud] What is Jacob's email?
+### ✅ PASSED: [local] What degree does Jacob have?
 
 **Category:** Personal
 **Duration:** 1.8s
@@ -69,29 +54,47 @@ The documentation states that Jacob has a Bachelor of Science in Computer Engine
 
 <details><summary>Response</summary>
 
-According to the documentation, the best way to reach Jacob is via email at jacobkanfer8@gmail.com. The documentation states:
-
-"Jacob can be reached via email at jacobkanfer8@gmail.com. This is the best way to reach him for professional inquiries, project discussions, or general questions."
+Jacob has a Bachelor of Science in Computer Engineering from the University of Florida, graduating in 2024.
 
 </details>
 
-### ✅ PASSED: [cloud] Does Jacob know Python?
+### ✅ PASSED: [local] What is Jacob's email?
 
-**Category:** Skills
-**Duration:** 1.9s
+**Category:** Personal
+**Duration:** 1.8s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Yes, the documentation indicates that Jacob is proficient in Python. It states:
-
-"Jacob is proficient in a wide range of programming languages, including **Python** - Primary language for AI/ML development, automation, and data science."
-
-So Python is one of the key programming languages that Jacob is skilled in, particularly for AI/ML, automation, and data science projects.
+Jacob's email is jacobkanfer8@gmail.com. Please use this email address for professional inquiries, project discussions, or general questions.
 
 </details>
 
-### ✅ PASSED: [cloud] What frameworks does Jacob use?
+### ✅ PASSED: [local] What is Jacob's favorite color?
+
+**Category:** Personal
+**Duration:** 1.7s
+**Response Type:** 📡 Streaming
+
+<details><summary>Response</summary>
+
+Jacob's favorite color is purple. It's a color he's fond of.
+
+</details>
+
+### ✅ PASSED: [local] Does Jacob know Python?
+
+**Category:** Skills
+**Duration:** 2.2s
+**Response Type:** 📡 Streaming
+
+<details><summary>Response</summary>
+
+Yes, Jacob is proficient in Python. He's worked on several projects that involve Python, including web development, data analysis, and machine learning.
+
+</details>
+
+### ✅ PASSED: [local] What frameworks does Jacob use?
 
 **Category:** Skills
 **Duration:** 2.5s
@@ -99,110 +102,71 @@ So Python is one of the key programming languages that Jacob is skilled in, part
 
 <details><summary>Response</summary>
 
-According to the documentation, Jacob works with a variety of modern frameworks and development tools, including:
-
-- **React** - Frontend UI library
-- **Vue** - Progressive JavaScript framework 
-- **Angular** - Enterprise frontend framework
-- **Astro** - Modern static site generation
-- **Tailwind** - Utility-first CSS framework
-- **Firebase** - Backend-as-a-service platform
-- **Electron** - Desktop application development
-- **Puppeteer** - Browser automation
-- **Playwright** - End-to-end testing...
+Jacob uses a variety of frameworks for his projects, including React, Vue, Angular, and Tailwind CSS. He's also explored Playwright for web automation and Puppeteer for browser automation.
 
 </details>
 
-### ✅ PASSED: [cloud] Tell me about the AHSR project
+### ✅ PASSED: [local] Tell me about the AHSR project
 
 **Category:** Experience
-**Duration:** 3.1s
+**Duration:** 5.6s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Based on the documentation provided, the AHSR (Autonomous Hospital Stretcher Robot) project was Jacob's senior design project at the University of Florida. Here are the key details:
+The AHSR (Autonomous Hospital Stretcher Robot) project was Jacob's senior design project at the University of Florida. It's an autonomous robotics project designed to navigate through hospitals and assist patients in need.
 
-- **Type:** Senior Design Project
-- **Location:** University of Florida
-- **Period:** January 2023 - December 2024
-
-For this project, Jacob:
-
-- Integrated RGB-Depth camera controls with OpenCV, using a pretrained lower-body detection model for safety override.
-- Implemented frontier-based exploration and SLAM (Simul...
+Jacob integrated RGB-Depth camera controls with OpenCV, using a pre-trained lower-body detection model for safety overrides. He implemented frontier-based exploration and SLAM with a custom Lidar mapping script for autonomous navigation. He developed a modular PyQt5 user inte...
 
 </details>
 
-### ✅ PASSED: [cloud] What was Jacob's internship?
+### ✅ PASSED: [local] What was Jacob's internship?
 
 **Category:** Experience
-**Duration:** 3.1s
+**Duration:** 3.6s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-According to the documentation, Jacob's internship was at World Wide Technology (WWT) as a Data Science Intern:
-
-"Jacob's internship was at World Wide Technology (WWT). He interned at WWT as a Data Science Intern. This was Jacob's summer internship in 2024."
-
-The key details about Jacob's WWT internship are:
-
-- **Position:** Data Science Intern
-- **Location:** Remote (Gainesville, FL)
-- **Period:** May 2024 - August 2024
-
-During this internship, Jacob:
-
-- Developed a clustering framework to inte...
+Jacob's internship was at World Wide Technology (WWT). He interned at WWT as a Data Science Intern in May 2024, working on ML/AI initiatives to drive business decisions. He worked on developing clustering frameworks to integrate with existing ML models, creating Snowflake tables and procedures to streamline data processing workflows, and designing PowerBI dashboards to translate complex data into actionable insights. He used technologies like XGBoost, Snowflake, PowerBI, and Python for his work.
 
 </details>
 
-### ✅ PASSED: [cloud] What projects has Jacob built?
+### ✅ PASSED: [local] What projects has Jacob built?
 
 **Category:** Projects
-**Duration:** 4.4s
+**Duration:** 6.9s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Based on the documentation provided, Jacob has built a wide variety of projects across different themes:
+Jacob has built several projects, including:
 
-[Project Themes]
-- **Blockchain and Cryptocurrency**: 
-  - BTC Explorer
-  - ETH Explorer
-- **Developer Tools**:
-  - Git Archiver
-  - PythonForge
-  - WebCrawler
-- **Creative/Art**:
-  - Differential Growth
-  - Image to ASCII
-  - NeoMatrix 
-  - Pluribus Text Gen
-- **Productivity**:
-  - Easy Time Blocking
-  - OpenSource Limitimer
-  - QuickPass
-- **AI and Machine Learning**:
-  - This portfolio's ...
+1. **BTC Explorer**: A web application that allows users to explore and visualize the blockchain of Bitcoin. It's built using React, Node.js, and MongoDB.
+
+2. **ETH Explorer**: Similar to BTC Explorer, but for Ethereum. It's built using React, Node.js, and PostgreSQL.
+
+3. **Git Archiver**: A tool that archives Git repositories and generates a report of changes made. It's built using Node.js and Python.
+
+4. **PythonForge**: A Python IDE that provides ...
 
 </details>
 
-### ✅ PASSED: [cloud] Has Jacob written any blog posts?
+### ✅ PASSED: [local] Has Jacob written any blog posts?
 
 **Category:** Blog
-**Duration:** 2.7s
+**Duration:** 6.4s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Yes, according to the documentation, Jacob has written several blog posts on his website:
+Jacob has written several blog posts, including:
 
-1. **"Building an AI Assistant for My Portfolio with WebLLM and RAG"** - This technical blog post discusses how Jacob built the AI chatbot assistant for his portfolio website using technologies like WebLLM, embeddings, and retrieval-augmented generation (RAG).
+1. **"Building an AI Assistant for My Portfolio with WebLLM and RAG"**: A technical blog post about how Jacob built an AI chatbot on this website using WebLLM, embeddings, and retrieval-augmented generation (RAG).
 
-2. **"My Mission to Finish Every Project I've Ever Started (Using Claude Code)"** - In this blog post, Jacob shares his approach to completing unfi...
+2. **"My Approach to Completing Unfinished Projects with Claude Code"**: A blog post about Jacob's approach to completing unfinished projects using Claude Code as an AI assistant.
+
+3. **"My Approach to Completing Unfinished Projects wi...
 
 </details>
 

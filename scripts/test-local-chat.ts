@@ -19,6 +19,7 @@ const TEST_QUERIES = [
   { query: "Where does Jacob work?", keywords: ["Deloitte"], category: "Personal" },
   { query: "What degree does Jacob have?", keywords: ["Computer Engineering", "Florida"], category: "Personal" },
   { query: "What is Jacob's email?", keywords: ["jacobkanfer", "gmail"], category: "Personal" },
+  { query: "What is Jacob's favorite color?", keywords: ["purple"], category: "Personal" },
 
   // Skills
   { query: "Does Jacob know Python?", keywords: ["Python"], category: "Skills" },
