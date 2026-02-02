@@ -122,11 +122,14 @@ export default function ChatInterface() {
   const [mode, setMode] = useState<ChatMode>('cloud');
   const [webGPUSupported, setWebGPUSupported] = useState<boolean | null>(null);
   const [streamingContent, setStreamingContent] = useState<string>('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const preloadStarted = useRef(false);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll within the messages container only, not the whole page
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -476,6 +479,7 @@ export default function ChatInterface() {
 
       {/* Messages */}
       <div
+        ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
         role="log"
         aria-label="Chat messages"
@@ -520,8 +524,6 @@ export default function ChatInterface() {
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
