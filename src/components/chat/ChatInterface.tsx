@@ -84,6 +84,12 @@ const SYSTEM_PROMPT = `You are an AI assistant for Jacob Kanfer's portfolio webs
 
 // Check WebGPU support
 async function checkWebGPUSupport(): Promise<{ supported: boolean; reason?: string }> {
+  // Skip on mobile devices - WebGPU support is unreliable
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    return { supported: false, reason: 'WebGPU is not supported on mobile devices' };
+  }
+
   if (typeof navigator === 'undefined' || !navigator.gpu) {
     return { supported: false, reason: 'WebGPU API not available in this browser' };
   }
