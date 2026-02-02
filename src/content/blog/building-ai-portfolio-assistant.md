@@ -1,13 +1,13 @@
 ---
 title: "Building an AI Assistant for My Portfolio with WebLLM and RAG"
-description: "How I added a browser-based AI chatbot that actually knows about my projects using embeddings, retrieval-augmented generation, and zero server costs."
+description: "How I built a portfolio AI chatbot with hybrid local/cloud modes, RAG retrieval, and zero mandatory server costs."
 pubDate: 2026-01-20
 tags: ["AI", "WebLLM", "RAG", "Embeddings", "TypeScript"]
 ---
 
 When I redesigned my portfolio site, I wanted to do something more interesting than the typical "About Me" page. What if visitors could have a conversation with an AI that actually *knows* about my projects? Not a generic chatbot, but one that could explain the architecture decisions I made in my Bitcoin Explorer, discuss why I chose certain libraries, or describe how my differential growth algorithm works.
 
-The result is an AI assistant that runs entirely in your browser, requires no API keys, and genuinely understands my work. Here's how I built it.
+The result is an AI assistant that genuinely understands my work—with two modes: a **local mode** that runs entirely in your browser using WebLLM, and a **cloud mode** powered by Claude Haiku for browsers without WebGPU support. Here's how I built it.
 
 ## The Challenge
 
@@ -16,7 +16,7 @@ Most AI chatbots fall into two categories:
 1. **Generic LLMs** that know nothing about you specifically
 2. **RAG systems** that require expensive server infrastructure
 
-I wanted the best of both worlds: an AI that knows my projects intimately, but runs client-side with zero hosting costs. The solution combines three technologies: WebLLM for browser-based inference, semantic embeddings for knowledge retrieval, and a carefully structured documentation system.
+I wanted the best of both worlds: an AI that knows my projects intimately, with the flexibility to run either client-side (zero costs) or via a lightweight cloud API (for unsupported browsers). The solution combines four technologies: WebLLM for browser-based inference, Claude Haiku for cloud fallback, semantic embeddings for knowledge retrieval, and a hybrid search system that combines semantic similarity with keyword matching.
 
 ## Architecture Overview
 
@@ -28,29 +28,56 @@ The system has two main phases:
 3. Generate embeddings using a sentence transformer
 4. Store the embeddings as a static JSON file
 
-**Runtime (Browser)**
+**Runtime (Two Modes)**
+
+*Local Mode (WebLLM):*
 1. User asks a question
-2. Embed the question using the same model
-3. Find the most relevant documentation chunks via cosine similarity
+2. Embed the question using the same model (runs in browser)
+3. Find the most relevant documentation via hybrid search
 4. Inject that context into the LLM prompt
-5. Generate a response using WebLLM
+5. Generate a response using WebLLM (SmolLM2-1.7B)
+
+*Cloud Mode (Claude Haiku):*
+1. User asks a question
+2. Send query to server API endpoint
+3. Server performs hybrid search on embeddings
+4. Inject context into Claude Haiku prompt
+5. Return response to client
+
+The user can toggle between modes, and cloud mode serves as a fallback for browsers without WebGPU support.
 
 ## WebLLM: Running LLMs in the Browser
 
-[WebLLM](https://github.com/mlc-ai/web-llm) is remarkable. It uses WebGPU to run large language models directly in your browser with near-native performance. I'm using Llama 3.2 3B, which offers a good balance between capability and download size.
+[WebLLM](https://github.com/mlc-ai/web-llm) is remarkable. It uses WebGPU to run large language models directly in your browser with near-native performance. I'm using SmolLM2-1.7B, a compact but capable model that offers fast inference with a smaller download.
 
 ```typescript
 import { CreateMLCEngine } from '@mlc-ai/web-llm';
 
 const engine = await CreateMLCEngine(
-  'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+  'SmolLM2-1.7B-Instruct-q4f16_1-MLC',
   { initProgressCallback: (report) => setLoadingProgress(report.text) }
 );
 ```
 
-The first load downloads ~1.5GB of model weights, but they're cached in IndexedDB for subsequent visits. After that, the model loads in seconds.
+The first load downloads ~800MB of model weights, but they're cached in IndexedDB for subsequent visits. After that, the model loads in seconds.
 
 The key advantage? **Zero API costs, zero rate limits, complete privacy.** The conversation never leaves your device.
+
+## Cloud Mode: Claude Haiku Fallback
+
+Not everyone has WebGPU support (it requires Chrome 113+ or recent Edge). For these users, I added a cloud mode powered by Claude Haiku:
+
+```typescript
+const response = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ messages }),
+});
+```
+
+The server performs the same RAG search and injects context into Claude's prompt. This gives users a seamless experience regardless of their browser capabilities.
+
+To prevent abuse, the cloud endpoint includes rate limiting (20 requests per minute per IP) and input validation (message length limits, conversation size caps).
 
 ## The RAG System: Teaching the AI About My Projects
 
@@ -105,29 +132,41 @@ These vectors capture the *semantic meaning* of the text. Similar concepts clust
 
 At build time, I generate embeddings for all 887 chunks across 17 projects and save them to a static JSON file (~15MB).
 
-### Step 4: Retrieval
+### Step 4: Hybrid Retrieval
 
-When you ask a question, I embed it using the same model and find the closest chunks via cosine similarity:
+Pure semantic search has a weakness: it can miss exact matches. If someone asks about "BTC Explorer," semantic similarity might rank a chunk about "cryptocurrency wallets" higher than one that literally contains "BTC Explorer."
+
+The solution is hybrid search—combining semantic similarity with keyword boosting:
 
 ```typescript
-function cosineSimilarity(a: number[], b: number[]): number {
-  let dot = 0, normA = 0, normB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-}
-
-const results = chunks
+// First: semantic similarity ranking
+const semanticResults = chunks
   .map(chunk => ({ chunk, score: cosineSimilarity(queryEmbedding, chunk.embedding) }))
-  .filter(r => r.score >= 0.25)
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 5);
+  .filter(r => r.score >= 0.20)
+  .sort((a, b) => b.score - a.score);
+
+// Extract keywords from query (filter out stopwords)
+const keywords = query.toLowerCase()
+  .split(/\s+/)
+  .filter(w => w.length > 2)
+  .filter(w => !['the', 'and', 'for', 'what', 'how', 'about'].includes(w));
+
+// Boost scores for chunks containing exact keywords
+const boosted = semanticResults.map(r => {
+  let keywordBoost = 0;
+  for (const keyword of keywords) {
+    if (r.chunk.content.toLowerCase().includes(keyword)) {
+      // Stronger boost for longer keywords (likely project names)
+      keywordBoost += keyword.length > 4 ? 0.15 : 0.08;
+    }
+  }
+  return { ...r, score: Math.min(r.score + keywordBoost, 1.0) };
+});
 ```
 
-The top 5 most relevant chunks get injected into the system prompt, giving the LLM specific context to answer from.
+This hybrid approach ensures that when someone asks about a specific project by name, chunks from that project get prioritized—even if other chunks are semantically similar.
+
+The top 8 most relevant chunks get injected into the system prompt, giving the LLM specific context to answer from.
 
 ## The System Prompt
 
@@ -157,20 +196,39 @@ Many of my project documents include Mermaid diagrams. These render as interacti
 flowchart TB
     subgraph Browser["Browser (Client-Side)"]
         Q[User Question]
-        E[Embed Query]
-        S[Similarity Search]
-        LLM[WebLLM Inference]
+        Toggle{Mode?}
+
+        subgraph Local["Local Mode"]
+            E1[Embed Query]
+            S1[Hybrid Search]
+            LLM1[SmolLM2-1.7B]
+        end
+
+        subgraph Cloud["Cloud Mode"]
+            API["/api/chat"]
+        end
+    end
+
+    subgraph Server["Server"]
+        S2[Hybrid Search]
+        LLM2[Claude Haiku]
     end
 
     subgraph Static["Static Assets"]
         EMB[embeddings.json]
     end
 
-    Q --> E
-    E --> S
-    EMB --> S
-    S --> LLM
-    LLM --> Response
+    Q --> Toggle
+    Toggle -->|Local| E1
+    Toggle -->|Cloud| API
+    E1 --> S1
+    EMB --> S1
+    EMB --> S2
+    S1 --> LLM1
+    API --> S2
+    S2 --> LLM2
+    LLM1 --> Response
+    LLM2 --> Response
 ```
 
 I customized the Mermaid theme to match my site's dark aesthetic, with zoom controls for detailed diagrams:
@@ -190,25 +248,24 @@ mermaid.initialize({
 
 ## Results and Lessons Learned
 
-After building this system, here's what I've learned:
+After building and iterating on this system, here's what I've learned:
 
 **What Works Well:**
 - The AI gives genuinely informed answers about my projects
-- Browser-based inference means zero ongoing costs
+- Local mode means zero ongoing costs for most users
+- Cloud fallback ensures everyone gets a good experience
+- Hybrid search catches both semantic matches and exact keyword matches
 - The documentation structure forces me to think clearly about my architectural decisions
-- Visitors engage more deeply with projects they're curious about
 
 **Challenges:**
-- WebGPU isn't supported everywhere (Chrome 113+ required)
-- Initial model download is 1.5GB (though cached afterward)
-- Embedding 887 chunks takes ~60 seconds at build time
-- The 3B model occasionally hallucinates despite having context
+- WebGPU browser support is improving but not universal
+- Initial model download is ~800MB (cached afterward)
+- Embedding 950+ chunks takes ~60 seconds at build time
+- Balancing model size vs. capability (switched from 3B to 1.7B for faster loads)
 
-**Future Improvements:**
-- Stream responses for better UX
-- Add source citations to responses
-- Explore smaller, faster models as they become available
-- Consider hybrid approach with server fallback for unsupported browsers
+**What I'd Do Differently:**
+- Start with hybrid search from the beginning—pure semantic search missed obvious matches
+- The cloud fallback should have been built earlier, not as an afterthought
 
 ## Try It Yourself
 
@@ -216,9 +273,9 @@ Head to the [Chat](/chat) page and ask the AI anything about my projects. Try qu
 
 - "How does BTC Explorer fetch blockchain data?"
 - "What state management does the Differential Growth project use?"
-- "Why did you choose WebLLM over an API-based solution?"
+- "Tell me about Jacob's experience with TypeScript"
 
-The AI will retrieve relevant documentation and give you a detailed, accurate answer—all running locally in your browser.
+The AI will retrieve relevant documentation and give you a detailed, accurate answer. If your browser supports WebGPU, it runs entirely locally. Otherwise, it seamlessly falls back to the cloud API.
 
 ---
 
