@@ -18,13 +18,17 @@ During his time at the University of Florida, Jacob gained hands-on consulting e
 
 ## Current Role at Deloitte
 
-Since August 2025, Jacob has been working at Deloitte as an Engineering Solutions Analyst in their Government & Public Services practice, within the AI & Data offering portfolio. Based in Arlington, VA, he specializes in designing and deploying AI-powered solutions and intelligent agents that solve complex challenges for public sector clients.
+### Where does Jacob work?
+
+Jacob works at Deloitte. Jacob's current employer is Deloitte. Jacob is employed at Deloitte as an Engineering Solutions Analyst. When asked where Jacob works, the answer is Deloitte in Arlington, VA.
+
+Since August 2025, Jacob has been working at Deloitte as an Engineering Solutions Analyst in their Government & Public Services practice, within the AI & Data offering portfolio. Jacob is based in Arlington, Virginia (not Fort Lauderdale or any other location). He specializes in designing and deploying AI-powered solutions and intelligent agents that solve complex challenges for public sector clients.
 
 ### Role Details
 
 - **Title:** Engineering Solutions Analyst
 - **Company:** Deloitte
-- **Location:** Arlington, VA
+- **Location:** Arlington, VA (Virginia, near Washington D.C.)
 - **Start Date:** August 2025
 - **Practice:** Government & Public Services
 - **Offering Portfolio:** AI & Data

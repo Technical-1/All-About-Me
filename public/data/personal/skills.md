@@ -2,8 +2,11 @@
 
 ## Programming Languages
 
-Jacob is proficient in a wide range of programming languages:
+### What programming languages does Jacob know?
 
+Jacob is proficient in a wide range of programming languages. His primary languages include Python for AI/ML development, JavaScript and TypeScript for web development, and Rust for systems programming.
+
+Jacob knows the following programming languages:
 - **Python** - Primary language for AI/ML development, automation, and data science
 - **JavaScript** - Web development and frontend applications
 - **TypeScript** - Type-safe web development
@@ -18,18 +21,23 @@ Jacob is proficient in a wide range of programming languages:
 
 ## Frameworks and Tools
 
-Jacob works with modern frameworks and development tools:
+### What frameworks does Jacob use?
 
-- **React** - Frontend UI library
-- **Vue** - Progressive JavaScript framework
+Jacob uses many modern frameworks and development tools. His primary frontend framework is React, which he uses for building interactive user interfaces. Jacob also works with Vue, Angular, and Astro for different project needs. For styling, Jacob uses Tailwind CSS extensively.
+
+What frameworks does Jacob know? Jacob is experienced with React, Vue, Angular, Astro, Tailwind, Firebase, Electron, Puppeteer, Playwright, TensorFlow, and XGBoost. React is Jacob's go-to framework for frontend development.
+
+Jacob works with the following frameworks and tools:
+- **React** - Jacob's primary frontend UI library for building interactive web applications
+- **Vue** - Progressive JavaScript framework for web apps
 - **Angular** - Enterprise frontend framework
-- **Astro** - Modern static site generation
-- **Tailwind** - Utility-first CSS framework
+- **Astro** - Modern static site generation (used for this portfolio site)
+- **Tailwind CSS** - Utility-first CSS framework Jacob uses for styling
 - **Firebase** - Backend-as-a-service platform
 - **Electron** - Desktop application development
-- **Puppeteer** - Browser automation
+- **Puppeteer** - Browser automation and testing
 - **Playwright** - End-to-end testing and automation
-- **TensorFlow** - Machine learning framework
+- **TensorFlow** - Machine learning framework for AI projects
 - **XGBoost** - Gradient boosting machine learning
 
 ## Platforms and Services
