@@ -80,12 +80,12 @@ graph TB
     PLAN --> LINT
     PLAN --> TYPE
 
-    style CLI fill:#1a3a4a,color:#fff
-    style Models fill:#2a1a3d,color:#fff
-    style Generator fill:#1a3d2a,color:#fff
-    style Templates fill:#3d2a1a,color:#fff
-    style Auditor fill:#3d1a2a,color:#fff
-    style Upgrader fill:#1a3d3d,color:#fff
+    style CLI fill:#e1f5fe
+    style Models fill:#f3e5f5
+    style Generator fill:#e8f5e9
+    style Templates fill:#fff3e0
+    style Auditor fill:#fce4ec
+    style Upgrader fill:#e0f2f1
 ```
 
 ## Data Flow Diagram

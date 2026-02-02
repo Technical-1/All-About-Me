@@ -612,24 +612,24 @@
       "name": "Nato-Trainer",
       "full_name": "Technical-1/Nato-Trainer",
       "html_url": "https://github.com/Technical-1/Nato-Trainer",
-      "homepage": null,
+      "homepage": "https://mastercode-three.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T15:39:39Z"
+      "pushed_at": "2026-02-02T06:27:04Z"
     },
     "languages": [
       "TypeScript",
-      "JavaScript",
       "HTML",
-      "CSS"
+      "CSS",
+      "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 122721,
-      "JavaScript": 889,
-      "HTML": 849,
-      "CSS": 23
+      "TypeScript": 439290,
+      "HTML": 8660,
+      "CSS": 1258,
+      "JavaScript": 927
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -1301,23 +1301,25 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-31T07:19:31Z"
+      "pushed_at": "2026-02-02T05:22:11Z"
     },
     "languages": [
-      "Astro",
       "TypeScript",
+      "Astro",
       "HTML",
       "CSS",
-      "JavaScript"
+      "JavaScript",
+      "Shell"
     ],
     "language_bytes": {
-      "Astro": 71245,
-      "TypeScript": 61943,
+      "TypeScript": 110127,
+      "Astro": 79333,
       "HTML": 51846,
-      "CSS": 32523,
-      "JavaScript": 23943
+      "CSS": 35290,
+      "JavaScript": 24616,
+      "Shell": 7015
     },
-    "primary_language": "Astro",
+    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1481,7 +1483,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-30T20:29:16Z"
+      "pushed_at": "2026-02-02T05:48:10Z"
     },
     "languages": [
       "JavaScript",
@@ -1859,7 +1861,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-01T05:23:11Z"
+      "pushed_at": "2026-02-02T05:25:39Z"
     },
     "languages": [
       "Python"
