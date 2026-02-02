@@ -383,6 +383,16 @@ async function main() {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
 
+    // Capture browser console errors
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        console.log(`  [Browser Error]: ${msg.text()}`);
+      }
+    });
+    page.on('pageerror', err => {
+      console.log(`  [Page Error]: ${err.message}`);
+    });
+
     // Navigate to chat page to check WebGPU support
     console.log('Navigating to chat page...');
     await page.goto(CHAT_URL, { waitUntil: 'networkidle2' });
