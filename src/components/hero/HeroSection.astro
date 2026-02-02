@@ -63,45 +63,69 @@
 </section>
 
 <script>
-  // Typing animation
-  const phrases = [
-    "a Software Developer",
-    "focused on AI",
-    "interested in Cybersecurity",
-    "building intelligent agents"
-  ];
+  // Typing animation with View Transitions support
+  function initTypingAnimation() {
+    const phrases = [
+      "a Software Developer",
+      "focused on AI",
+      "interested in Cybersecurity",
+      "building intelligent agents"
+    ];
 
-  let phraseIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
-  const typedText = document.getElementById('typed-text');
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let timeoutId: number | null = null;
 
-  function type() {
-    if (!typedText) return;
+    function type() {
+      const typedText = document.getElementById('typed-text');
+      if (!typedText) {
+        // Element not found, retry in a moment
+        timeoutId = window.setTimeout(type, 100);
+        return;
+      }
 
-    const currentPhrase = phrases[phraseIndex];
+      const currentPhrase = phrases[phraseIndex];
 
-    if (isDeleting) {
-      typedText.textContent = currentPhrase.substring(0, charIndex - 1);
-      charIndex--;
-    } else {
-      typedText.textContent = currentPhrase.substring(0, charIndex + 1);
-      charIndex++;
+      if (isDeleting) {
+        typedText.textContent = currentPhrase.substring(0, charIndex - 1);
+        charIndex--;
+      } else {
+        typedText.textContent = currentPhrase.substring(0, charIndex + 1);
+        charIndex++;
+      }
+
+      let typeSpeed = isDeleting ? 50 : 100;
+
+      if (!isDeleting && charIndex === currentPhrase.length) {
+        typeSpeed = 2000;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        typeSpeed = 500;
+      }
+
+      timeoutId = window.setTimeout(type, typeSpeed);
     }
 
-    let typeSpeed = isDeleting ? 50 : 100;
+    // Start the animation
+    type();
 
-    if (!isDeleting && charIndex === currentPhrase.length) {
-      typeSpeed = 2000;
-      isDeleting = true;
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      typeSpeed = 500;
-    }
-
-    setTimeout(type, typeSpeed);
+    // Return cleanup function
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }
 
-  type();
+  // Initialize on first load
+  let cleanup = initTypingAnimation();
+
+  // Re-initialize after View Transitions
+  document.addEventListener('astro:after-swap', () => {
+    if (cleanup) cleanup();
+    cleanup = initTypingAnimation();
+  });
 </script>

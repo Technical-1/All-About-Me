@@ -1,13 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { fetchFeaturedReposWithPortfolio, getRepoSlug, getLanguageColor, categoryLabels } from '../../lib/github';
+import { fetchAllReposWithPortfolio, getRepoSlug, getLanguageColor, categoryLabels } from '../../lib/github';
 import type { GitHubRepo } from '../../lib/github';
 import { marked } from 'marked';
 
 export async function getStaticPaths() {
-  const featuredRepos = await fetchFeaturedReposWithPortfolio();
+  const reposWithPortfolio = await fetchAllReposWithPortfolio();
 
-  return featuredRepos.map((repo) => ({
+  return reposWithPortfolio.map((repo) => ({
     params: { slug: getRepoSlug(repo) },
     props: { repo },
   }));
@@ -68,9 +68,14 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
           )}
         </div>
 
-        <h1 class="text-4xl md:text-5xl font-display font-bold mb-4" style="color: var(--text-heading);">
-          {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-        </h1>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <h1 class="text-4xl md:text-5xl font-display font-bold" style="color: var(--text-heading);">
+            {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+          </h1>
+          <div class="text-sm" style="color: var(--text-muted);">
+            Last updated {new Date(repo.pushed_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+          </div>
+        </div>
 
         <p class="text-xl" style="color: var(--text-secondary);">
           {repo.description}
@@ -78,30 +83,22 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
       </div>
 
       <!-- Quick Info -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {repo.metadata?.role && (
-          <div class="card" style="padding: 1rem;">
-            <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Role</div>
-            <div class="font-medium" style="color: var(--text-heading);">{repo.metadata.role}</div>
-          </div>
-        )}
-        {repo.metadata?.duration && (
-          <div class="card" style="padding: 1rem;">
-            <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Duration</div>
-            <div class="font-medium" style="color: var(--text-heading);">{repo.metadata.duration}</div>
-          </div>
-        )}
-        <div class="card" style="padding: 1rem;">
-          <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Languages</div>
-          <div class="font-medium" style="color: var(--text-heading);">{repo.languages.length}</div>
+      {(repo.metadata?.role || repo.metadata?.duration) && (
+        <div class="flex flex-wrap gap-4 mb-8">
+          {repo.metadata?.role && (
+            <div class="card" style="padding: 1rem;">
+              <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Role</div>
+              <div class="font-medium" style="color: var(--text-heading);">{repo.metadata.role}</div>
+            </div>
+          )}
+          {repo.metadata?.duration && (
+            <div class="card" style="padding: 1rem;">
+              <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Duration</div>
+              <div class="font-medium" style="color: var(--text-heading);">{repo.metadata.duration}</div>
+            </div>
+          )}
         </div>
-        <div class="card" style="padding: 1rem;">
-          <div class="text-xs uppercase tracking-wider mb-1" style="color: var(--text-muted);">Last Updated</div>
-          <div class="font-medium" style="color: var(--text-heading);">
-            {new Date(repo.pushed_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-          </div>
-        </div>
-      </div>
+      )}
 
       <!-- Actions -->
       <div class="flex flex-wrap gap-4">
@@ -293,22 +290,37 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
         startOnLoad: false,
         theme: 'dark',
         themeVariables: {
-          primaryColor: '#4A9B9B',
-          primaryTextColor: '#F5F5DC',
+          // Base colors
+          primaryColor: '#2d4a4a',
+          primaryTextColor: '#ffffff',
           primaryBorderColor: '#4A9B9B',
-          lineColor: '#6B7280',
-          secondaryColor: '#1a1a2e',
-          tertiaryColor: '#0d0d1a',
+          lineColor: '#9CA3AF',
+          secondaryColor: '#3d2a2a',
+          tertiaryColor: '#1a1a2e',
           background: '#0d0d1a',
           mainBkg: '#1a1a2e',
           secondBkg: '#0d0d1a',
+
+          // Node styling - dark backgrounds with light text
+          nodeBkg: '#1a2e2e',
+          nodeTextColor: '#ffffff',
+          nodeBorder: '#4A9B9B',
+
+          // Cluster/subgraph styling
+          clusterBkg: '#1a1a2e',
+          clusterBorder: '#C41E3A',
+          titleColor: '#F5F5DC',
+
+          // Text colors
+          textColor: '#ffffff',
+          labelTextColor: '#ffffff',
+
+          // Other
           border1: '#4A9B9B',
           border2: '#C41E3A',
           arrowheadColor: '#F5F5DC',
           fontFamily: 'JetBrains Mono, monospace',
           fontSize: '14px',
-          textColor: '#F5F5DC',
-          nodeTextColor: '#F5F5DC',
         },
       });
 
