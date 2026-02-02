@@ -4,7 +4,7 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,9 +19,7 @@ export default defineConfig({
       lastmod: new Date(),
     })
   ],
-  // Static by default, API routes opt-in to server with prerender = false
+  // Hybrid mode: static pages by default, API routes can opt-in to server rendering
   output: 'static',
-  adapter: node({
-    mode: 'standalone'
-  })
+  adapter: vercel()
 });
