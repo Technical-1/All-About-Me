@@ -1,0 +1,13 @@
+# robots.txt for jacobkanfer.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://jacobkanfer.com/sitemap-index.xml
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow raw data files
+Disallow: /data/rag/
