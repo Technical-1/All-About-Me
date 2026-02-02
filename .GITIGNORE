@@ -29,3 +29,8 @@ firebase-debug.log
 
 # Local dev artifacts
 .firebase/
+.env*.local
+
+# Screenshots
+*.png
+Screenshot*

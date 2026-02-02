@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="section pt-8">
+    <div class="container-narrow">
+      <!-- Breadcrumb -->
+      <nav class="mb-8">
+        <ol class="flex items-center gap-2 text-sm" style="color: var(--text-muted);">
+          <li><a href="/blog" class="hover:underline">Blog</a></li>
+          <li>/</li>
+          <li style="color: var(--text-secondary);" class="truncate">{post.data.title}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="mb-12">
+        <div class="flex flex-wrap gap-2 mb-4">
+          {post.data.tags.map((tag) => (
+            <span class="tag-teal text-xs">{tag}</span>
+          ))}
+        </div>
+
+        <h1 class="text-4xl md:text-5xl font-display font-bold mb-4" style="color: var(--text-heading);">
+          {post.data.title}
+        </h1>
+
+        <p class="text-xl mb-6" style="color: var(--text-secondary);">
+          {post.data.description}
+        </p>
+
+        <div class="flex items-center gap-4 text-sm" style="color: var(--text-muted);">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {formattedDate}
+          </time>
+          {post.data.updatedDate && (
+            <span>
+              (Updated: {post.data.updatedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'UTC',
+              })})
+            </span>
+          )}
+        </div>
+      </header>
+
+      {post.data.heroImage && (
+        <img
+          src={post.data.heroImage}
+          alt={post.data.title}
+          class="w-full rounded-lg mb-12"
+        />
+      )}
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-none">
+        <Content />
+      </div>
+
+      <!-- Back to Blog -->
+      <div class="mt-16 pt-8 border-t border-border">
+        <a href="/blog" class="btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to Blog
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .prose {
+    color: var(--text-secondary);
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    color: var(--text-heading);
+    font-family: var(--font-display);
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+  }
+
+  .prose h2 {
+    font-size: 1.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .prose h3 {
+    font-size: 1.25rem;
+  }
+
+  .prose p {
+    margin-bottom: 1.5em;
+    line-height: 1.8;
+  }
+
+  .prose a {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+  }
+
+  .prose a:hover {
+    color: var(--accent-primary);
+  }
+
+  .prose code {
+    background-color: var(--bg-surface);
+    padding: 0.2em 0.4em;
+    border-radius: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--accent-primary);
+  }
+
+  .prose pre {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.5em 0;
+  }
+
+  .prose pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+  }
+
+  .prose ul, .prose ol {
+    margin: 1.5em 0;
+    padding-left: 1.5em;
+  }
+
+  .prose li {
+    margin-bottom: 0.5em;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid var(--accent-secondary);
+    padding-left: 1rem;
+    margin: 1.5em 0;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  .prose img {
+    border-radius: 0.5rem;
+    margin: 2em 0;
+  }
+
+  .prose hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 3em 0;
+  }
+</style>

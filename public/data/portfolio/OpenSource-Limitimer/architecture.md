@@ -30,12 +30,12 @@ flowchart TB
     JS --> Audio
     LS --> JS
 
-    style User fill:#e1f5fe
-    style HTML fill:#fff3e0
-    style CSS fill:#fff3e0
-    style JS fill:#e8f5e9
-    style LS fill:#fce4ec
-    style Audio fill:#f3e5f5
+    style User fill:#1a3a4a,color:#fff
+    style HTML fill:#3d2a1a,color:#fff
+    style CSS fill:#3d2a1a,color:#fff
+    style JS fill:#1a3d2a,color:#fff
+    style LS fill:#3d1a2a,color:#fff
+    style Audio fill:#2a1a3d,color:#fff
 ```
 
 ## Data Flow Diagram
