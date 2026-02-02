@@ -16,27 +16,35 @@ interface ModeToggleProps {
 }
 
 function ModeToggle({ mode, onToggle }: ModeToggleProps) {
+  // Toggle: Local on left, Cloud on right
+  // When mode === 'local': ball on left, local highlighted
+  // When mode === 'cloud': ball on right, cloud highlighted
+  const isCloud = mode === 'cloud';
+
   return (
     <div className="px-4 py-2 border-b border-border flex items-center justify-between">
       <div className="flex items-center gap-2 text-sm">
-        <span className={mode === 'local' ? 'text-cyan' : 'text-muted'}>Local</span>
+        <span className={!isCloud ? 'text-cyan font-medium' : 'text-muted'}>Local</span>
         <button
           onClick={onToggle}
           role="switch"
-          aria-checked={mode === 'cloud'}
-          aria-label={`Switch to ${mode === 'local' ? 'cloud' : 'local'} mode`}
+          aria-checked={isCloud}
+          aria-label={`Currently ${mode} mode. Click to switch to ${isCloud ? 'local' : 'cloud'} mode`}
           className={`relative w-12 h-6 rounded-full transition-colors border border-border ${
-            mode === 'cloud' ? 'bg-cyan' : 'bg-surface'
+            isCloud ? 'bg-cyan' : 'bg-surface'
           }`}
         >
-          <span className={`absolute top-1 w-4 h-4 rounded-full transition-transform ${
-            mode === 'cloud' ? 'translate-x-7 bg-white' : 'translate-x-1 bg-accent-secondary'
-          }`} style={{ backgroundColor: mode === 'cloud' ? 'white' : 'var(--accent-secondary)' }} />
+          <span
+            className={`absolute top-1 w-4 h-4 rounded-full transition-transform duration-200 ${
+              isCloud ? 'translate-x-7' : 'translate-x-1'
+            }`}
+            style={{ backgroundColor: isCloud ? 'white' : 'var(--accent-secondary)' }}
+          />
         </button>
-        <span className={mode === 'cloud' ? 'text-cyan' : 'text-muted'}>Cloud</span>
+        <span className={isCloud ? 'text-cyan font-medium' : 'text-muted'}>Cloud</span>
       </div>
       <span className="text-xs text-muted">
-        {mode === 'local' ? 'Runs in browser (WebGPU)' : 'Powered by Claude'}
+        {isCloud ? 'Powered by Claude' : 'Runs in browser (WebGPU)'}
       </span>
     </div>
   );
@@ -221,7 +229,33 @@ export default function ChatInterface() {
     }
   }, [engine, loadingProgress, initEngine]);
 
-  // Set initial greeting for cloud mode
+  // Handle mode switch - reset chat state for a fresh start
+  const handleModeSwitch = useCallback(() => {
+    const newMode = mode === 'local' ? 'cloud' : 'local';
+    setMode(newMode);
+    setMessages([]);
+    setStreamingContent('');
+    setError(null);
+    setErrorDetails(null);
+    setInput('');
+
+    // Set greeting for the new mode
+    if (newMode === 'cloud') {
+      setMessages([{
+        role: 'assistant',
+        content: "Hi! I'm Jacob's AI assistant (Cloud Mode). Feel free to ask me about his background, projects, or experience!"
+      }]);
+    } else if (newMode === 'local' && engine) {
+      // Local mode with engine ready
+      setMessages([{
+        role: 'assistant',
+        content: "Hi! I'm Jacob's AI assistant (Local Mode). Feel free to ask me about his background, projects, or experience!"
+      }]);
+    }
+    // If switching to local and no engine, the loading/init state will show
+  }, [mode, engine]);
+
+  // Set initial greeting for cloud mode on first load
   useEffect(() => {
     if (mode === 'cloud' && messages.length === 0) {
       setMessages([{
@@ -229,7 +263,7 @@ export default function ChatInterface() {
         content: "Hi! I'm Jacob's AI assistant. Feel free to ask me about his background, projects, or experience!"
       }]);
     }
-  }, [mode]);
+  }, []);
 
   const sendCloudMessageStreaming = async (userMessage: string): Promise<void> => {
     const response = await fetch('/api/chat', {
@@ -373,7 +407,7 @@ export default function ChatInterface() {
           <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
         {webGPUSupported && (
-          <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+          <ModeToggle mode={mode} onToggle={handleModeSwitch} />
         )}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
@@ -420,7 +454,7 @@ export default function ChatInterface() {
           <span className="ml-3 text-muted text-sm">jacob-ai</span>
         </div>
         {webGPUSupported && (
-          <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+          <ModeToggle mode={mode} onToggle={handleModeSwitch} />
         )}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-lg">
@@ -472,7 +506,7 @@ export default function ChatInterface() {
 
       {/* Only show toggle if WebGPU is supported, otherwise show cloud-only header */}
       {webGPUSupported ? (
-        <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
+        <ModeToggle mode={mode} onToggle={handleModeSwitch} />
       ) : (
         <CloudOnlyHeader />
       )}
