@@ -7,6 +7,38 @@
 <script>
   // Only run preloading once per session
   const PRELOAD_KEY = 'webllm_preload_started';
+  const PRELOAD_FAILED_KEY = 'webllm_preload_failed';
+
+  async function checkFullWebGPUSupport(): Promise<boolean> {
+    // Skip on mobile devices - WebGPU support is unreliable
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      console.log('[WebLLM Preloader] Mobile device detected, skipping preload');
+      return false;
+    }
+
+    // Check basic WebGPU API
+    if (typeof navigator === 'undefined' || !navigator.gpu) {
+      return false;
+    }
+
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (!adapter) {
+        return false;
+      }
+
+      // Actually request a device to ensure full support
+      const device = await adapter.requestDevice();
+      if (!device) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   async function preloadWebLLM() {
     // Skip if already started this session
@@ -14,20 +46,15 @@
       return;
     }
 
-    // Check WebGPU support first
-    if (typeof navigator === 'undefined' || !navigator.gpu) {
-      console.log('[WebLLM Preloader] WebGPU not available, skipping preload');
+    // Skip if previously failed this session (don't retry failures)
+    if (sessionStorage.getItem(PRELOAD_FAILED_KEY)) {
       return;
     }
 
-    try {
-      const adapter = await navigator.gpu.requestAdapter();
-      if (!adapter) {
-        console.log('[WebLLM Preloader] No WebGPU adapter found, skipping preload');
-        return;
-      }
-    } catch (e) {
-      console.log('[WebLLM Preloader] WebGPU check failed, skipping preload');
+    // Thorough WebGPU check including mobile detection
+    const supported = await checkFullWebGPUSupport();
+    if (!supported) {
+      console.log('[WebLLM Preloader] WebGPU not fully supported, skipping preload');
       return;
     }
 
@@ -57,7 +84,8 @@
       console.log('[WebLLM Preloader] Model preloaded and cached successfully!');
     } catch (err) {
       console.warn('[WebLLM Preloader] Background preload failed:', err);
-      // Clear the flag so it can retry on next page
+      // Mark as failed so we don't retry this session
+      sessionStorage.setItem(PRELOAD_FAILED_KEY, 'true');
       sessionStorage.removeItem(PRELOAD_KEY);
     }
   }
