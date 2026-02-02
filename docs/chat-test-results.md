@@ -1,6 +1,6 @@
 # AI Chat Test Results
 
-Generated: 2/1/2026, 11:37:45 PM
+Generated: 2/2/2026, 12:52:26 PM
 
 ## Environment
 
@@ -21,28 +21,28 @@ Generated: 2/1/2026, 11:37:45 PM
 
 | Query | Result | Duration | Streaming | Keywords Found |
 |-------|--------|----------|-----------|----------------|
-| Where does Jacob work? | ✅ PASSED | 3.0s | 📡 Yes | Deloitte |
+| Where does Jacob work? | ✅ PASSED | 3.3s | 📡 Yes | Deloitte |
 | What degree does Jacob have? | ✅ PASSED | 1.8s | 📡 Yes | Computer Engineering, Florida |
 | What is Jacob's email? | ✅ PASSED | 1.8s | 📡 Yes | jacobkanfer, gmail |
-| What is Jacob's favorite color? | ✅ PASSED | 1.7s | 📡 Yes | purple |
-| Does Jacob know Python? | ✅ PASSED | 2.2s | 📡 Yes | Python |
-| What frameworks does Jacob use? | ✅ PASSED | 2.5s | 📡 Yes | React |
-| Tell me about the AHSR project | ✅ PASSED | 5.6s | 📡 Yes | robot, hospital |
-| What was Jacob's internship? | ✅ PASSED | 3.6s | 📡 Yes | World Wide Technology, Data Science |
-| What projects has Jacob built? | ✅ PASSED | 6.9s | 📡 Yes | BTC, Git |
-| Has Jacob written any blog posts? | ✅ PASSED | 6.4s | 📡 Yes | blog, WebLLM |
+| What is Jacob's favorite color? | ✅ PASSED | 2.3s | 📡 Yes | purple |
+| Does Jacob know Python? | ✅ PASSED | 2.3s | 📡 Yes | Python |
+| What frameworks does Jacob use? | ✅ PASSED | 12.2s | 📡 Yes | React |
+| Tell me about the AHSR project | ✅ PASSED | 7.0s | 📡 Yes | robot, hospital |
+| What was Jacob's internship? | ✅ PASSED | 7.3s | 📡 Yes | World Wide Technology |
+| What projects has Jacob built? | ✅ PASSED | 14.9s | 📡 Yes | BTC, Git |
+| Has Jacob written any blog posts? | ✅ PASSED | 12.9s | 📡 Yes | blog, WebLLM |
 
 ## Response Details
 
 ### ✅ PASSED: [local] Where does Jacob work?
 
 **Category:** Personal
-**Duration:** 3.0s
+**Duration:** 3.3s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Jacob currently works at Deloitte as an Engineering Solutions Analyst. This is his current job and role.
+Jacob currently works at Deloitte as an Engineering Solutions Analyst in their Government & Public Services practice, within the AI & Data offering portfolio, based in Arlington, Virginia.
 
 </details>
 
@@ -54,7 +54,7 @@ Jacob currently works at Deloitte as an Engineering Solutions Analyst. This is h
 
 <details><summary>Response</summary>
 
-Jacob has a Bachelor of Science in Computer Engineering from the University of Florida, graduating in 2024.
+Jacob graduated from the University of Florida in Fall 2024 with a Bachelor of Science in Computer Engineering.
 
 </details>
 
@@ -66,107 +66,129 @@ Jacob has a Bachelor of Science in Computer Engineering from the University of F
 
 <details><summary>Response</summary>
 
-Jacob's email is jacobkanfer8@gmail.com. Please use this email address for professional inquiries, project discussions, or general questions.
+Jacob's email is jacobkanfer8@gmail.com. Please include a clear subject line in your email to help him respond more efficiently.
 
 </details>
 
 ### ✅ PASSED: [local] What is Jacob's favorite color?
 
 **Category:** Personal
-**Duration:** 1.7s
+**Duration:** 2.3s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Jacob's favorite color is purple. It's a color he's fond of.
+Jacob's favorite color is purple, as stated in the FACT: "Favorite Color: Jacob's favorite color is purple."
 
 </details>
 
 ### ✅ PASSED: [local] Does Jacob know Python?
 
 **Category:** Skills
-**Duration:** 2.2s
+**Duration:** 2.3s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Yes, Jacob is proficient in Python. He's worked on several projects that involve Python, including web development, data analysis, and machine learning.
+Yes, Jacob is proficient in Python, as stated in the FACT: "Python: Jacob is proficient in Python for AI/ML development, automation, and data science."
 
 </details>
 
 ### ✅ PASSED: [local] What frameworks does Jacob use?
 
 **Category:** Skills
-**Duration:** 2.5s
+**Duration:** 12.2s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Jacob uses a variety of frameworks for his projects, including React, Vue, Angular, and Tailwind CSS. He's also explored Playwright for web automation and Puppeteer for browser automation.
+Jacob is proficient in several frontend frameworks and libraries, including:
+- **React**: Jacob's primary frontend UI library for building interactive web applications.
+- **Vue**: Jacob's primary frontend framework for building web applications.
+
+For styling, Jacob uses Tailwind CSS extensively, and for backend development, Jacob is proficient in:
+- **Node.js**: Jacob's primary backend programming language for server-side development.
+
+For databases, Jacob is familiar with:
+- **MongoDB**: Jacob'...
 
 </details>
 
 ### ✅ PASSED: [local] Tell me about the AHSR project
 
 **Category:** Experience
-**Duration:** 5.6s
+**Duration:** 7.0s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-The AHSR (Autonomous Hospital Stretcher Robot) project was Jacob's senior design project at the University of Florida. It's an autonomous robotics project designed to navigate through hospitals and assist patients in need.
+The Autonomous Hospital Stretcher Robot (AHSR) is a senior design project that Jacob worked on at the University of Florida in January 2023 - December 2024. It's an autonomous robotics project designed to navigate through hospitals and assist patients in need.
 
-Jacob integrated RGB-Depth camera controls with OpenCV, using a pre-trained lower-body detection model for safety overrides. He implemented frontier-based exploration and SLAM with a custom Lidar mapping script for autonomous navigation. He developed a modular PyQt5 user inte...
+**Type:** Senior Design Project
+
+**Location:** University of Florida
+
+**Period:** January 2023 - December 2024
+
+**Founder:** Jacob Kanfer
+
+**Motivation:** Jacob was motivated to create an autonomous robot that could navigate through hospi...
 
 </details>
 
 ### ✅ PASSED: [local] What was Jacob's internship?
 
 **Category:** Experience
-**Duration:** 3.6s
+**Duration:** 7.3s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
-Jacob's internship was at World Wide Technology (WWT). He interned at WWT as a Data Science Intern in May 2024, working on ML/AI initiatives to drive business decisions. He worked on developing clustering frameworks to integrate with existing ML models, creating Snowflake tables and procedures to streamline data processing workflows, and designing PowerBI dashboards to translate complex data into actionable insights. He used technologies like XGBoost, Snowflake, PowerBI, and Python for his work.
+Jacob's internship was at World Wide Technology (WWT) in May 2024, where he worked on ML/AI initiatives to drive business decisions. He interned on a team working on:
+
+1. **Clustering:** Jacob developed a clustering framework to integrate with existing ML models, boosting overall accuracy.
+2. **Snowflake:** He designed and implemented Snowflake tables and procedures to streamline data processing workflows.
+3. **PowerBI:** He created dynamic PowerBI dashboards that translated complex data into ac...
 
 </details>
 
 ### ✅ PASSED: [local] What projects has Jacob built?
 
 **Category:** Projects
-**Duration:** 6.9s
+**Duration:** 14.9s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
 Jacob has built several projects, including:
 
-1. **BTC Explorer**: A web application that allows users to explore and visualize the blockchain of Bitcoin. It's built using React, Node.js, and MongoDB.
+1. **BTC Explorer:** Jacob developed an application that allows users to explore and visualize BTC transactions, blocks, and nodes.
 
-2. **ETH Explorer**: Similar to BTC Explorer, but for Ethereum. It's built using React, Node.js, and PostgreSQL.
+2. **ETH Explorer:** Jacob created an application that allows users to explore and visualize ETH transactions, blocks, and nodes.
 
-3. **Git Archiver**: A tool that archives Git repositories and generates a report of changes made. It's built using Node.js and Python.
+3. **Git Archiver:** Jacob built an application that archives Git repositories and allows users to
 
-4. **PythonForge**: A Python IDE that provides ...
+Jacob's projects span several themes, including:
+
+1. **Blockchain and Cryptocurrency:** Ja...
 
 </details>
 
 ### ✅ PASSED: [local] Has Jacob written any blog posts?
 
 **Category:** Blog
-**Duration:** 6.4s
+**Duration:** 12.9s
 **Response Type:** 📡 Streaming
 
 <details><summary>Response</summary>
 
 Jacob has written several blog posts, including:
 
-1. **"Building an AI Assistant for My Portfolio with WebLLM and RAG"**: A technical blog post about how Jacob built an AI chatbot on this website using WebLLM, embeddings, and retrieval-augmented generation (RAG).
+1. **"Building an AI Assistant for My Portfolio with WebLLM and RAG":** A technical blog post about how Jacob built the AI chatbot on his portfolio website using WebLLM, embeddings, and retrieval-augmented generation (RAG).
 
-2. **"My Approach to Completing Unfinished Projects with Claude Code"**: A blog post about Jacob's approach to completing unfinished projects using Claude Code as an AI assistant.
+2. **"My Mission to Finish Every Project I've Ever Started (Using Claude Code)":** A blog post about Jacob's approach to completing unfinished projects using Claude Code as an AI assistant.
 
-3. **"My Approach to Completing Unfinished Projects wi...
+3. **"What I've Learned So Far in ...
 
 </details>
 
