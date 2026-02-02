@@ -97,6 +97,7 @@ interface ChatMessage {
 
 interface ChatRequest {
   messages: ChatMessage[];
+  stream?: boolean;
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
@@ -122,6 +123,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
     // Parse request body
     const body = await request.json() as ChatRequest;
+    const shouldStream = body.stream === true;
 
     // Validate request structure
     if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
@@ -212,9 +214,54 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     // Build the system prompt with retrieved context
     const systemPromptWithContext = SYSTEM_PROMPT + contextString;
 
-    // Create Anthropic client and make API call
+    // Create Anthropic client
     const anthropic = new Anthropic({ apiKey });
 
+    // Streaming response
+    if (shouldStream) {
+      const stream = await anthropic.messages.stream({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 1024,
+        system: systemPromptWithContext,
+        messages: body.messages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+      });
+
+      // Create a ReadableStream that emits SSE events
+      const encoder = new TextEncoder();
+      const readable = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const event of stream) {
+              if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+                const data = JSON.stringify({ text: event.delta.text });
+                controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+              }
+            }
+            // Send done event
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          } catch (error) {
+            console.error('Stream error:', error);
+            controller.error(error);
+          }
+        }
+      });
+
+      return new Response(readable, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+        }
+      });
+    }
+
+    // Non-streaming response (for backwards compatibility)
     const response = await anthropic.messages.create({
       model: 'claude-3-haiku-20240307',
       max_tokens: 1024,
