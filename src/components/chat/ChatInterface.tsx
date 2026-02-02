@@ -35,10 +35,11 @@ function ModeToggle({ mode, onToggle }: ModeToggleProps) {
           }`}
         >
           <span
-            className={`absolute top-1 w-4 h-4 rounded-full transition-transform duration-200 ${
-              isCloud ? 'translate-x-6' : 'translate-x-1'
-            }`}
-            style={{ backgroundColor: isCloud ? 'white' : 'var(--accent-secondary)' }}
+            className="absolute top-1 w-4 h-4 rounded-full transition-all duration-200"
+            style={{
+              backgroundColor: isCloud ? 'white' : 'var(--accent-secondary)',
+              left: isCloud ? 'calc(100% - 20px)' : '4px'
+            }}
           />
         </button>
         <span className={isCloud ? 'text-cyan font-medium' : 'text-muted'}>Cloud</span>
