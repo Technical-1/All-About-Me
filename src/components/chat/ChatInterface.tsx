@@ -354,11 +354,19 @@ export default function ChatInterface() {
       <ModeToggle mode={mode} onToggle={() => setMode(mode === 'local' ? 'cloud' : 'local')} />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        role="log"
+        aria-label="Chat messages"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {messages.map((message, index) => (
           <div
             key={index}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            role="article"
+            aria-label={message.role === 'user' ? 'Your message' : 'Assistant response'}
           >
             <div
               className={message.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}
@@ -369,12 +377,13 @@ export default function ChatInterface() {
         ))}
 
         {isLoading && (
-          <div className="flex justify-start">
+          <div className="flex justify-start" role="status" aria-label="Assistant is typing">
             <div className="chat-bubble-ai">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" />
-                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                <span className="sr-only">Loading response...</span>
+                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" aria-hidden="true" />
+                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} aria-hidden="true" />
+                <div className="w-2 h-2 bg-cyan rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -391,6 +400,7 @@ export default function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about Jacob's experience, projects, skills..."
+            aria-label="Type your message to chat with Jacob's AI assistant"
             className="flex-1 px-4 py-3 bg-surface border border-border rounded-lg text-primary placeholder-muted focus:outline-none focus:border-cyan/50 transition-colors font-code text-sm"
             disabled={isLoading}
           />
