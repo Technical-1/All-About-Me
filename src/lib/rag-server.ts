@@ -190,31 +190,18 @@ export async function searchContext(
 /**
  * Format search results as context string for the LLM
  *
- * Server-side version with:
- * - Adjusted relevance thresholds (HIGH >= 0.55, MEDIUM >= 0.40)
- * - Note about citing sources
+ * Formats context as natural background knowledge - no labels, headers, or
+ * citations that the model might parrot back in its response.
  */
 export function formatContext(results: SearchResult[]): string {
   if (results.length === 0) {
-    return '\n\n[No relevant documentation found. Answer based on general knowledge or explain what you would need.]';
+    return '';
   }
 
-  // Group by project
-  const byProject = new Map<string, SearchResult[]>();
-  for (const r of results) {
-    const existing = byProject.get(r.chunk.project) || [];
-    existing.push(r);
-    byProject.set(r.chunk.project, existing);
-  }
+  // Just the content, no labels or metadata that could be quoted
+  const content = results
+    .map(r => r.chunk.content)
+    .join('\n\n');
 
-  const sections: string[] = [];
-  for (const [project, chunks] of byProject) {
-    const chunkTexts = chunks.map(r => {
-      const relevance = r.score >= 0.55 ? 'HIGH' : r.score >= 0.40 ? 'MEDIUM' : 'LOW';
-      return `[${r.chunk.section}] (relevance: ${relevance})\n${r.chunk.content}`;
-    });
-    sections.push(`### ${project}\n${chunkTexts.join('\n\n')}`);
-  }
-
-  return `\n\n## Retrieved Documentation\n\n${sections.join('\n\n---\n\n')}\n\n[Base your answer on the above documentation. When referencing specific projects or features, cite the source.]`;
+  return `\n\n---\nBackground information about Jacob:\n\n${content}\n---`;
 }

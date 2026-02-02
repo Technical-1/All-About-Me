@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-02-02T18:15:15.979Z",
+  "webGPUSupported": true,
+  "results": [
+    {
+      "query": "What is Jacob's favorite color?",
+      "category": "Personal",
+      "mode": "local",
+      "response": "Jacob's favorite color is purple.",
+      "hasExpectedContent": true,
+      "qualityIssues": [],
+      "duration": 3274,
+      "responseLength": 33
+    },
+    {
+      "query": "Where does Jacob work?",
+      "category": "Work",
+      "mode": "local",
+      "response": "Jacob currently works at Deloitte, an engineering solutions analyst in their AI & Data offering portfolio, based in Arlington, Virginia.",
+      "hasExpectedContent": true,
+      "qualityIssues": [],
+      "duration": 1646,
+      "responseLength": 136
+    },
+    {
+      "query": "What degree does Jacob have?",
+      "category": "Education",
+      "mode": "local",
+      "response": "Jacob has a Bachelor of Science in Computer Engineering from the University of Florida, which he graduated with in 2024.",
+      "hasExpectedContent": true,
+      "qualityIssues": [],
+      "duration": 1743,
+      "responseLength": 120
+    },
+    {
+      "query": "Does Jacob know Python?",
+      "category": "Skills",
+      "mode": "local",
+      "response": "Yes, Jacob is proficient in Python, including its primary use for AI/ML development, web development, and systems programming.",
+      "hasExpectedContent": true,
+      "qualityIssues": [],
+      "duration": 1969,
+      "responseLength": 126
+    },
+    {
+      "query": "Tell me about the AHSR project",
+      "category": "Projects",
+      "mode": "local",
+      "response": "The AHSR (Autonomous Hospital Stretcher Robot) is a senior design project Jacob worked on at the University of Florida. It's an autonomous robotics project designed for hospital use. Jacob integrated RGB-Depth camera controls with OpenCV, using a pretrained lower-body detection model for safety override. He implemented frontier-based exploration and SLAM (Simultaneous Localization and Mapping) with a custom Lidar mapping script for autonomous navigation. He developed a modular PyQt5 user interface integrating with ROS2 topics for robot control, and created a waypoint navigation and logging tool for dynamic waypoint creation and trip replay. Jacob's work on AHSR was designed to be modular, allowing for easy integration with other robots and applications, and to be easily reconfigurable for different environments and tasks.",
+      "hasExpectedContent": true,
+      "qualityIssues": [],
+      "duration": 3405,
+      "responseLength": 833
+    }
+  ]
+}

@@ -142,18 +142,18 @@ export async function searchContext(
 
 /**
  * Format search results as context string for the LLM
+ *
+ * Formats as simple background info without labels that could be quoted back.
  */
 export function formatContext(results: SearchResult[]): string {
   if (results.length === 0) {
-    return '\n\n## Retrieved Documentation\n\nNo relevant documentation found. Say "I don\'t have that specific information about Jacob."';
+    return '';
   }
 
-  // For small LLMs, simpler formatting works better
-  const sections: string[] = [];
-  for (const r of results) {
-    // Include only the content, keep it simple
-    sections.push(`FACT: ${r.chunk.content}`);
-  }
+  // Simple format - just the content, no labels
+  const content = results
+    .map(r => r.chunk.content)
+    .join('\n\n');
 
-  return `\n\n## Retrieved Documentation\n\nUSE THESE FACTS TO ANSWER (do not make up information):\n\n${sections.join('\n\n')}\n\nIMPORTANT: Your answer MUST come from the facts above. Do not invent or guess.`;
+  return `\n\nBackground information:\n${content}`;
 }
