@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Navbar from '../components/global/Navbar.astro';
 import Footer from '../components/global/Footer.astro';
 import WebLLMPreloader from '../components/global/WebLLMPreloader.astro';
+import GeometricBackground from '../components/global/GeometricBackground.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
@@ -97,6 +98,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
   </script>
 </head>
 <body>
+  <!-- Geometric background shapes -->
+  <GeometricBackground />
+
   <!-- Skip to main content link for keyboard users -->
   <a
     href="#main-content"
@@ -108,7 +112,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
 
   <Navbar />
 
-  <main id="main-content">
+  <main id="main-content" class="relative z-10">
     <slot />
   </main>
 

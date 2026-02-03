@@ -321,6 +321,10 @@ export const languageColors: Record<string, string> = {
   shell: '#89e051',
   bash: '#89e051',
   makefile: '#427819',
+  ros2: '#22314E',
+  opencv: '#5C3EE8',
+  pyqt5: '#41CD52',
+  glsl: '#5686A5',
 };
 
 export function getLanguageColor(language: string): string {

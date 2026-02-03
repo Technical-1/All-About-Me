@@ -119,40 +119,53 @@ import HeroSection from '../components/hero/HeroSection.astro';
   <section class="section">
     <div class="container-wide">
       <h2 class="section-title text-center">Certificates</h2>
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div class="flex flex-wrap justify-center gap-6">
         {[
-          { name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', variant: 'red' },
-          { name: 'Engineering Innovation', issuer: 'University of Florida', variant: 'teal' },
-          { name: 'Engineering Leadership', issuer: 'University of Florida', variant: 'red' },
-          { name: 'Engineering Project Management', issuer: 'University of Florida', variant: 'teal' },
-        ].map((cert) => (
-          <div class="card card-hover flex flex-col items-center text-center p-6">
-            <div
-              class="w-12 h-12 rounded-full flex items-center justify-center mb-4"
-              style={`background-color: ${cert.variant === 'red' ? 'rgba(196, 30, 58, 0.1)' : 'rgba(74, 155, 155, 0.1)'};`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                style={`color: var(--accent-${cert.variant === 'red' ? 'primary' : 'secondary'});`}
-              >
-                <circle cx="12" cy="8" r="6"/>
-                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
-              </svg>
-            </div>
-            <h3 class="font-display font-semibold text-sm mb-1" style="color: var(--text-heading);">
-              {cert.name}
+          {
+            issuer: 'Amazon Web Services',
+            variant: 'red',
+            certs: ['AWS Certified Cloud Practitioner', 'AWS Partner: Agentic AI Essentials'],
+          },
+          {
+            issuer: 'Deloitte AI Academy',
+            variant: 'teal',
+            certs: ['GenAI 101 & Prompt Engineering', 'Advanced Prompt Engineer With Coding', 'AI Strategist'],
+          },
+          {
+            issuer: 'University of Florida',
+            variant: 'red',
+            certs: ['Engineering Innovation', 'Engineering Leadership', 'Engineering Project Management'],
+          },
+        ].map((group) => (
+          <div class="card p-5">
+            <h3 class="font-display font-bold text-base mb-3" style={`color: var(--accent-${group.variant === 'red' ? 'primary' : 'secondary'});`}>
+              {group.issuer}
             </h3>
-            <p class="text-xs" style="color: var(--text-secondary);">
-              {cert.issuer}
-            </p>
+            <div class="space-y-2">
+              {group.certs.map((cert) => (
+                <div class="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="flex-shrink-0"
+                    style={`color: var(--accent-${group.variant === 'red' ? 'primary' : 'secondary'});`}
+                  >
+                    <circle cx="12" cy="8" r="6"/>
+                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                  </svg>
+                  <span class="text-sm" style="color: var(--text-heading);">
+                    {cert}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
