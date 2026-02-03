@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* OG Image: 1200x630 standard size */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    .og-card {
+      width: 1200px;
+      height: 630px;
+      background: #0A0A0C;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 80px;
+      gap: 80px;
+    }
+
+    /* Code/terminal aesthetic - syntax highlighting colors as accents */
+    .terminal {
+      width: 550px;
+      background: #14141A;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .terminal-header {
+      padding: 12px 16px;
+      background: #1A1A1E;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #E8364F; }
+    .terminal-dot.yellow { background: #FBBF24; }
+    .terminal-dot.green { background: #5FB5B5; }
+
+    .terminal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-left: 12px;
+    }
+
+    .terminal-body {
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .line {
+      display: flex;
+      gap: 8px;
+    }
+
+    .prompt {
+      color: #5FB5B5;
+    }
+
+    .command {
+      color: #E5E7EB;
+    }
+
+    .output {
+      color: rgba(255, 255, 255, 0.6);
+      padding-left: 0;
+    }
+
+    .highlight {
+      color: #E8364F;
+    }
+
+    .string {
+      color: #A5D6A7;
+    }
+
+    .comment {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 20px;
+      background: #E8364F;
+      animation: blink 1s infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Right side content */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 28px;
+    }
+
+    .name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .name .first {
+      color: #E8364F;
+    }
+
+    .name .last {
+      color: #FFFFFF;
+    }
+
+    .tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 32px;
+    }
+
+    .links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #5FB5B5;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .link-icon {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+    }
+
+    /* Subtle grid */
+    .grid-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 32px 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="og-card">
+    <div class="grid-bg"></div>
+
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dot red"></div>
+        <div class="terminal-dot yellow"></div>
+        <div class="terminal-dot green"></div>
+        <span class="terminal-title">jacob@dev ~ </span>
+      </div>
+      <div class="terminal-body">
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="command">whoami</span>
+        </div>
+        <div class="output">jacob.kanfer</div>
+        <br>
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="command">cat skills.json</span>
+        </div>
+        <div class="output">{</div>
+        <div class="output">  <span class="highlight">"focus"</span>: <span class="string">"AI & Automation"</span>,</div>
+        <div class="output">  <span class="highlight">"stack"</span>: <span class="string">"Full-Stack"</span>,</div>
+        <div class="output">  <span class="highlight">"status"</span>: <span class="string">"Building cool stuff"</span></div>
+        <div class="output">}</div>
+        <br>
+        <div class="line">
+          <span class="prompt">$</span>
+          <span class="cursor"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <svg class="logo" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="matrix(1.3333333,0,0,-1.3333333,0,384)">
+          <g transform="scale(0.1)">
+            <path d="M 230.73,2650.1 H 2649.92 V 2487.99 H 2880 V 2880 H 0 V 1319.25 H 230.73 V 2650.1" fill="#E8364F"/>
+            <path d="M 2649.92,2057.71 V 949.75 L 2880,612.801 V 2397.09 l -230.08,-339.38" fill="#E8364F"/>
+            <path d="M 2879.97,390.34 H 2649.92 V 228.719 H 230.73 V 521.922 L 0,656.16 V 0 h 2880 v 390.34 h -0.03" fill="#E8364F"/>
+            <path d="m 2175.09,1502.81 c 0,0 602.57,885.59 615.54,904.98 -40.45,0 -721.68,0 -721.68,0 l -472.6,-812.43 c 0,0 0,514.94 0,812.43 -239.68,0 -713.729,0 -713.729,0 V 839.539 H 703.008 V 1239.06 H 0 V 748.961 L 478.535,470.539 H 1596.35 l 0.09,822.531 566.93,-822.531 h 716.6 L 2175.09,1502.81" fill="#E8364F"/>
+          </g>
+        </g>
+      </svg>
+
+      <h1 class="name">
+        <span class="first">jacob</span><br><span class="last">kanfer</span>
+      </h1>
+
+      <p class="tagline">// software engineer</p>
+
+      <div class="links">
+        <span class="link">
+          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          jacobkanfer.com
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

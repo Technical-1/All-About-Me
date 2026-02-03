@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* OG Image: 1200x630 standard size */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+    .og-card {
+      width: 1200px;
+      height: 630px;
+      background: #0A0A0C;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 80px;
+      gap: 60px;
+    }
+
+    /* Geometric shapes */
+    .shape {
+      position: absolute;
+      border-radius: 4px;
+    }
+
+    .shape-1 {
+      width: 200px;
+      height: 200px;
+      background: #E8364F;
+      opacity: 0.08;
+      top: -50px;
+      right: 120px;
+      transform: rotate(15deg);
+    }
+
+    .shape-2 {
+      width: 130px;
+      height: 130px;
+      background: #5FB5B5;
+      opacity: 0.1;
+      bottom: -30px;
+      right: 280px;
+      transform: rotate(-20deg);
+    }
+
+    .shape-3 {
+      width: 70px;
+      height: 70px;
+      background: #5FB5B5;
+      opacity: 0.12;
+      top: 180px;
+      left: 60px;
+      transform: rotate(30deg);
+    }
+
+    /* Grid pattern */
+    .grid-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 32px 32px;
+    }
+
+    /* Chat mockup */
+    .chat-window {
+      width: 480px;
+      flex-shrink: 0;
+      background: #14141A;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      background: #1A1A1E;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #E8364F, #5FB5B5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-avatar svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .chat-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+
+    .chat-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #5FB5B5;
+    }
+
+    .chat-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: #E8364F;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 14px 18px;
+      align-self: flex-start;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #5FB5B5;
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+
+    /* Right side content */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 28px;
+    }
+
+    .page-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #5FB5B5;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+
+    .title .highlight {
+      color: #E8364F;
+    }
+
+    .description {
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
+    }
+
+    /* Accent line */
+    .accent-line {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #E8364F 0%, #5FB5B5 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="og-card">
+    <div class="accent-line"></div>
+    <div class="grid-pattern"></div>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8V4H8"/>
+            <rect x="8" y="4" width="8" height="4" rx="1"/>
+            <path d="M4 12h16"/>
+            <path d="M4 16h16"/>
+            <path d="M4 20h16"/>
+          </svg>
+        </div>
+        <div>
+          <div class="chat-title">Jacob AI</div>
+          <div class="chat-subtitle">Online</div>
+        </div>
+      </div>
+      <div class="chat-body">
+        <div class="message user">Tell me about Jacob</div>
+        <div class="message ai">I'm an AI trained on Jacob's experience and projects. Ask me anything!</div>
+        <div class="typing">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <svg class="logo" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="matrix(1.3333333,0,0,-1.3333333,0,384)">
+          <g transform="scale(0.1)">
+            <path d="M 230.73,2650.1 H 2649.92 V 2487.99 H 2880 V 2880 H 0 V 1319.25 H 230.73 V 2650.1" fill="#E8364F"/>
+            <path d="M 2649.92,2057.71 V 949.75 L 2880,612.801 V 2397.09 l -230.08,-339.38" fill="#E8364F"/>
+            <path d="M 2879.97,390.34 H 2649.92 V 228.719 H 230.73 V 521.922 L 0,656.16 V 0 h 2880 v 390.34 h -0.03" fill="#E8364F"/>
+            <path d="m 2175.09,1502.81 c 0,0 602.57,885.59 615.54,904.98 -40.45,0 -721.68,0 -721.68,0 l -472.6,-812.43 c 0,0 0,514.94 0,812.43 -239.68,0 -713.729,0 -713.729,0 V 839.539 H 703.008 V 1239.06 H 0 V 748.961 L 478.535,470.539 H 1596.35 l 0.09,822.531 566.93,-822.531 h 716.6 L 2175.09,1502.81" fill="#E8364F"/>
+          </g>
+        </g>
+      </svg>
+
+      <div class="page-label">AI Chat</div>
+
+      <h1 class="title">Ask <span class="highlight">Me</span><br>Anything</h1>
+
+      <p class="description">Chat with an AI version of Jacob</p>
+    </div>
+  </div>
+</body>
+</html>
