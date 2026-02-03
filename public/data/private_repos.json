@@ -613,23 +613,25 @@
       "full_name": "Technical-1/Nato-Trainer",
       "html_url": "https://github.com/Technical-1/Nato-Trainer",
       "homepage": "https://mastercode-three.vercel.app",
-      "description": null,
+      "description": "Master code systems: NATO phonetic alphabet, Morse code, Braille, ASL, military acronyms. Spaced repetition, multiple study modes, progress tracking. React + TypeScript PWA.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-02T06:27:04Z"
+      "pushed_at": "2026-02-03T05:17:44Z"
     },
     "languages": [
       "TypeScript",
+      "Python",
       "HTML",
-      "CSS",
-      "JavaScript"
+      "JavaScript",
+      "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 439290,
-      "HTML": 8660,
-      "CSS": 1258,
-      "JavaScript": 927
+      "TypeScript": 486418,
+      "Python": 19208,
+      "HTML": 14203,
+      "JavaScript": 11919,
+      "CSS": 1258
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -839,6 +841,30 @@
   },
   {
     "repo": {
+      "name": "redfin-scraper",
+      "full_name": "Technical-1/redfin-scraper",
+      "html_url": "https://github.com/Technical-1/redfin-scraper",
+      "homepage": null,
+      "description": "Electron GUI app for scraping Redfin property data using Puppeteer",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-02T17:52:14Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 51825,
+      "HTML": 3718
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "restauranthub",
       "full_name": "Technical-1/restauranthub",
       "html_url": "https://github.com/Technical-1/restauranthub",
@@ -877,7 +903,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-27T14:10:36Z"
+      "pushed_at": "2026-02-02T10:07:00Z"
     },
     "languages": [
       "TypeScript",
@@ -1301,22 +1327,22 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-02T05:22:11Z"
+      "pushed_at": "2026-02-03T04:57:57Z"
     },
     "languages": [
       "TypeScript",
-      "Astro",
       "HTML",
+      "Astro",
       "CSS",
       "JavaScript",
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 110127,
-      "Astro": 79333,
-      "HTML": 51846,
+      "TypeScript": 124540,
+      "HTML": 107495,
+      "Astro": 81592,
       "CSS": 35290,
-      "JavaScript": 24616,
+      "JavaScript": 26987,
       "Shell": 7015
     },
     "primary_language": "TypeScript",
@@ -1483,7 +1509,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-02T05:48:10Z"
+      "pushed_at": "2026-02-03T04:52:25Z"
     },
     "languages": [
       "JavaScript",
@@ -1492,10 +1518,10 @@
       "Shell"
     ],
     "language_bytes": {
-      "JavaScript": 62056,
-      "CSS": 19017,
-      "HTML": 7306,
-      "Shell": 3401
+      "JavaScript": 104339,
+      "CSS": 42266,
+      "HTML": 32935,
+      "Shell": 10130
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1621,17 +1647,17 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T02:07:28Z"
+      "pushed_at": "2026-02-03T04:15:24Z"
     },
     "languages": [
       "JavaScript",
-      "HTML",
-      "CSS"
+      "CSS",
+      "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 14394,
-      "HTML": 3226,
-      "CSS": 2599
+      "JavaScript": 60021,
+      "CSS": 30754,
+      "HTML": 29884
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1651,17 +1677,21 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:37:14Z"
+      "pushed_at": "2026-02-03T01:35:16Z"
     },
     "languages": [
       "JavaScript",
+      "Astro",
       "HTML",
-      "CSS"
+      "CSS",
+      "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 4767,
-      "HTML": 1110,
-      "CSS": 456
+      "JavaScript": 246238,
+      "Astro": 63935,
+      "HTML": 38982,
+      "CSS": 35485,
+      "TypeScript": 3046
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1861,7 +1891,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-02T05:25:39Z"
+      "pushed_at": "2026-02-03T05:23:45Z"
     },
     "languages": [
       "Python"
