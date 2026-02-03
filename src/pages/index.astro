@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroSection from '../components/hero/HeroSection.astro';
+import { Image } from 'astro:assets';
+import headshot from '../../public/headshot.jpg';
 ---
 
 <BaseLayout title="Home" image="/og/og-home.png">
@@ -14,9 +16,11 @@ import HeroSection from '../components/hero/HeroSection.astro';
         <!-- Photo -->
         <div class="flex justify-center md:justify-start">
           <div class="relative">
-            <img
-              src="/headshot.jpg"
+            <Image
+              src={headshot}
               alt="Jacob Kanfer"
+              width={256}
+              height={256}
               class="w-64 h-64 object-cover rounded-2xl"
               style="border: 2px solid var(--border-color);"
             />
@@ -50,7 +54,7 @@ import HeroSection from '../components/hero/HeroSection.astro';
             that solve complex challenges for public sector clients.
           </p>
 
-          <div class="flex flex-wrap gap-4 pt-4">
+          <div class="flex flex-wrap justify-center gap-2 pt-4">
             <a href="/experience" class="btn-ghost">
               View Experience
             </a>
