@@ -97,6 +97,9 @@ export async function embedQuery(query: string): Promise<number[]> {
 
 /**
  * Search for relevant chunks given a query
+ *
+ * Uses hybrid search: combines semantic similarity with keyword boosting
+ * to improve accuracy for specific project names and technical terms.
  */
 export async function searchContext(
   query: string,
@@ -106,7 +109,7 @@ export async function searchContext(
     minScore?: number;
   } = {}
 ): Promise<SearchResult[]> {
-  const { topK = 4, projectFilter, minScore = 0.40 } = options;
+  const { topK = 8, projectFilter, minScore = 0.20 } = options;
 
   const [embeddings, queryEmbedding] = await Promise.all([
     loadEmbeddings(),
@@ -120,7 +123,7 @@ export async function searchContext(
     chunks = chunks.filter(c => c.project === projectFilter);
   }
 
-  // Score all chunks
+  // Score all chunks with semantic similarity
   const scored: SearchResult[] = chunks.map(chunk => ({
     chunk,
     score: cosineSimilarity(queryEmbedding, chunk.embedding),
@@ -129,12 +132,41 @@ export async function searchContext(
   // Sort by score descending
   const sorted = scored.sort((a, b) => b.score - a.score);
 
-  // Filter by minimum score
-  const filtered = sorted.filter(r => r.score >= minScore).slice(0, topK);
+  // Extract keywords from query for hybrid matching
+  const queryLower = query.toLowerCase();
+  const stopwords = ['the', 'and', 'for', 'what', 'how', 'does', 'has', 'about', 'tell', 'jacob', 'can', 'you', 'with', 'this', 'that', 'are', 'was', 'been'];
+  const keywords = queryLower
+    .split(/\s+/)
+    .filter(w => w.length > 2)
+    .filter(w => !stopwords.includes(w));
 
-  // Fallback: if nothing passes threshold but we have some results, take top 2 with lower threshold
-  if (filtered.length === 0 && sorted.length > 0 && sorted[0].score >= 0.30) {
-    return sorted.slice(0, 2);
+  // Keyword boost: chunks containing exact query keywords get a score boost
+  const boosted = sorted.map(r => {
+    const contentLower = (r.chunk.content + ' ' + r.chunk.section + ' ' + r.chunk.project).toLowerCase();
+    let keywordBoost = 0;
+
+    for (const keyword of keywords) {
+      if (contentLower.includes(keyword)) {
+        // Stronger boost for longer/rarer keywords (likely proper nouns or project names)
+        keywordBoost += keyword.length > 4 ? 0.15 : 0.08;
+      }
+    }
+
+    return {
+      ...r,
+      score: Math.min(r.score + keywordBoost, 1.0), // Cap at 1.0
+    };
+  });
+
+  // Re-sort with boosted scores
+  boosted.sort((a, b) => b.score - a.score);
+
+  // Filter by minimum score
+  const filtered = boosted.filter(r => r.score >= minScore).slice(0, topK);
+
+  // Fallback: if nothing passes threshold but we have some results, take top 5
+  if (filtered.length === 0 && boosted.length > 0) {
+    return boosted.slice(0, 5);
   }
 
   return filtered;
