@@ -187,7 +187,7 @@ html.dark {
 
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200;
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200;
     font-family: var(--font-display);
   }
 
@@ -217,11 +217,13 @@ html.dark {
   .btn-ghost {
     @apply btn;
     color: var(--text-secondary);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
   }
 
   .btn-ghost:hover {
-    color: var(--text-heading);
-    background-color: var(--bg-card);
+    color: var(--accent-secondary);
+    border-color: var(--accent-secondary);
   }
 
   /* Focus indicators for accessibility */
