@@ -14,22 +14,12 @@ const featuredProjects = await fetchFeaturedRepos();
     <div class="container-narrow">
       <div class="card text-center">
         <div class="flex justify-center">
-          <picture>
-            <source
-              srcset="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/dark_mode_simple.svg"
-              media="(prefers-color-scheme: dark)"
-            />
-            <source
-              srcset="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/light_mode_simple.svg"
-              media="(prefers-color-scheme: light)"
-            />
-            <img
-              src="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/dark_mode_simple.svg"
-              alt="GitHub Stats"
-              class="max-w-full h-auto rounded-lg"
-              id="github-stats-img"
-            />
-          </picture>
+          <img
+            src="https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/dark_mode_simple.svg"
+            alt="GitHub Stats"
+            class="max-w-full h-auto rounded-lg"
+            id="github-stats-img"
+          />
         </div>
       </div>
     </div>
