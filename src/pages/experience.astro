@@ -9,6 +9,7 @@ interface ExperienceItem {
   current?: boolean;
   description: string[];
   tags: string[];
+  links?: { label: string; url: string }[];
 }
 
 const professionalExperience: ExperienceItem[] = [
@@ -66,6 +67,19 @@ const leadershipExperience: ExperienceItem[] = [
     tags: ['Budget Management', 'Strategic Planning', 'Leadership', 'Project Management']
   },
   {
+    title: 'President & Founding Executive Vice President',
+    company: 'Emerging Industries and Research Club',
+    location: 'University of Florida',
+    period: 'Aug 2022 - Sep 2024',
+    description: [
+      'Founded and grew the organization from concept to active campus presence over 2+ years',
+      'Led executive team as President, creating new positions to promote long-term club sustainability',
+      'Facilitated executive board interviews and selected candidates for leadership roles',
+      'Collaborated with executive board to plan events and club meetings'
+    ],
+    tags: ['Founder', 'Team Leadership', 'Event Planning', 'Talent Development']
+  },
+  {
     title: 'Vice Chair, Budget & Appropriations Committee',
     company: 'UF Student Senate',
     location: 'University of Florida',
@@ -75,7 +89,8 @@ const leadershipExperience: ExperienceItem[] = [
       'Developed Python automation tool to streamline bill creation by auto-generating line item totals',
       'Evaluated and amended budget proposals to ensure compliance with funding codes'
     ],
-    tags: ['Python', 'Automation', 'Budget Analysis', 'Policy']
+    tags: ['Python', 'Automation', 'Budget Analysis', 'Policy'],
+    links: [{ label: 'FY 22-23 Operating Budget', url: 'https://sg.ufl.edu/wp-content/uploads/2022/06/Student-Senate-Bill-2022-1015-Amended-FY-22-23-Operating-Budget.pdf' }]
   },
   {
     title: 'College of Engineering Senator',
@@ -87,7 +102,8 @@ const leadershipExperience: ExperienceItem[] = [
       'Authored legislation including traffic safety improvements and student recognition resolutions',
       'Advocated for engineering student needs and policy improvements'
     ],
-    tags: ['Constituent Communications', 'Policy Advocacy', 'Leadership', 'Community Outreach']
+    tags: ['Constituent Communications', 'Policy Advocacy', 'Leadership'],
+    links: [{ label: 'Calhoun Wolverton Resolution', url: 'https://sg.ufl.edu/wp-content/uploads/2021/07/2021-1027-Resolution-Recognizing-the-Perseverance-of-Calhoun-Wolverton.pdf' }]
   },
   {
     title: 'Executive Vice President',
@@ -165,56 +181,8 @@ const awards = [
     </div>
   </section>
 
-  <!-- Featured Project -->
-  <section class="section" style="background-color: var(--bg-surface);">
-    <div class="container-narrow">
-      <h2 class="section-title flex items-center gap-3">
-        Featured Project
-      </h2>
-
-      <div class="card card-hover">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
-          <div>
-            <h3 class="text-xl font-display font-bold" style="color: var(--text-heading);">AHSR (Autonomous Hospital Stretcher Robot)</h3>
-            <p style="color: var(--accent-secondary);">Senior Design Project</p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-4 text-sm mb-4" style="color: var(--text-muted);">
-          <span>Jan 2023 - Dec 2024</span>
-          <span>University of Florida</span>
-        </div>
-
-        <ul class="space-y-2 mb-4" style="color: var(--text-secondary);">
-          <li class="flex items-start gap-2">
-            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
-            <span>Integrated RGB-Depth camera controls with OpenCV, using a pretrained lower-body detection model for safety override</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
-            <span>Implemented frontier-based exploration and SLAM with a custom Lidar mapping script for autonomous navigation</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
-            <span>Built waypoint navigation and logging tools enabling dynamic waypoint creation and trip replay</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span style="color: var(--accent-secondary);" class="mt-1">-</span>
-            <span>Developed a modular PyQt5 user interface integrating with ROS2 topics wirelessly for robot control</span>
-          </li>
-        </ul>
-
-        <div class="flex flex-wrap gap-2">
-          {['Python', 'ROS2', 'OpenCV', 'PyQt5', 'SLAM', 'Robotics', 'Lidar'].map((tag) => (
-            <span class="tag-teal">{tag}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Leadership Experience -->
-  <section class="section">
+  <section class="section" style="background-color: var(--bg-surface);">
     <div class="container-narrow">
       <h2 class="section-title flex items-center gap-3">
         Leadership Experience
@@ -244,9 +212,24 @@ const awards = [
               ))}
             </ul>
 
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               {item.tags.map((tag) => (
                 <span class="tag-teal">{tag}</span>
+              ))}
+              {item.links && item.links.map((link) => (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+                  style="background-color: rgba(196, 30, 58, 0.1); color: var(--accent-primary); border: 1px solid rgba(196, 30, 58, 0.3);"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  {link.label}
+                </a>
               ))}
             </div>
           </div>
@@ -256,7 +239,7 @@ const awards = [
   </section>
 
   <!-- Recognition & Awards -->
-  <section class="section" style="background-color: var(--bg-surface);">
+  <section class="section">
     <div class="container-narrow">
       <h2 class="section-title flex items-center gap-3">
         Recognition & Awards

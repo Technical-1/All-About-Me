@@ -1,0 +1,185 @@
+---
+// Geometric background shapes matching the OG image style
+// Features rotated rectangles in red (primary) and teal (secondary)
+// with both filled and outline variants
+---
+
+<div class="geometric-bg" aria-hidden="true">
+  <!-- Grid pattern -->
+  <div class="geo-grid"></div>
+
+  <!-- Red shapes (top-right area) -->
+  <div class="geo-shape geo-red-filled geo-1"></div>
+  <div class="geo-shape geo-red-outline geo-2"></div>
+
+  <!-- Teal shapes (bottom-right area) -->
+  <div class="geo-shape geo-teal-filled geo-3"></div>
+  <div class="geo-shape geo-teal-outline geo-4"></div>
+  <div class="geo-shape geo-teal-filled geo-5"></div>
+</div>
+
+<style>
+  .geometric-bg {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle grid pattern */
+  .geo-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+    background-size: 80px 80px;
+    opacity: 0.3;
+  }
+
+  /* Base shape styles */
+  .geo-shape {
+    position: absolute;
+    border-radius: 8px;
+  }
+
+  /* Red filled shape */
+  .geo-red-filled {
+    background-color: var(--accent-primary);
+    opacity: 0.08;
+  }
+
+  /* Red outline shape */
+  .geo-red-outline {
+    border: 2px solid var(--accent-primary);
+    opacity: 0.15;
+    background: transparent;
+  }
+
+  /* Teal filled shape */
+  .geo-teal-filled {
+    background-color: var(--accent-secondary);
+    opacity: 0.06;
+  }
+
+  /* Teal outline shape */
+  .geo-teal-outline {
+    border: 2px solid var(--accent-secondary);
+    opacity: 0.12;
+    background: transparent;
+  }
+
+  /* Shape 1: Large red filled rectangle (top-right) */
+  .geo-1 {
+    width: 400px;
+    height: 350px;
+    top: -50px;
+    right: -100px;
+    transform: rotate(25deg);
+  }
+
+  /* Shape 2: Red outline diamond (center-right) */
+  .geo-2 {
+    width: 180px;
+    height: 180px;
+    top: 200px;
+    right: 15%;
+    transform: rotate(45deg);
+  }
+
+  /* Shape 3: Teal filled rectangle (bottom-right) */
+  .geo-3 {
+    width: 250px;
+    height: 200px;
+    bottom: 150px;
+    right: 5%;
+    transform: rotate(-15deg);
+  }
+
+  /* Shape 4: Teal outline diamond (center) */
+  .geo-4 {
+    width: 120px;
+    height: 120px;
+    top: 45%;
+    right: 25%;
+    transform: rotate(45deg);
+  }
+
+  /* Shape 5: Small teal filled (bottom) */
+  .geo-5 {
+    width: 300px;
+    height: 250px;
+    bottom: -80px;
+    right: -50px;
+    transform: rotate(20deg);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .geo-1 {
+      width: 300px;
+      height: 250px;
+      right: -80px;
+    }
+    .geo-2 {
+      width: 140px;
+      height: 140px;
+      right: 10%;
+    }
+    .geo-3 {
+      width: 200px;
+      height: 160px;
+    }
+    .geo-4 {
+      width: 100px;
+      height: 100px;
+      right: 20%;
+    }
+    .geo-5 {
+      width: 220px;
+      height: 180px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .geo-grid {
+      background-size: 60px 60px;
+      opacity: 0.2;
+    }
+    .geo-1 {
+      width: 200px;
+      height: 180px;
+      top: -30px;
+      right: -60px;
+    }
+    .geo-2 {
+      width: 100px;
+      height: 100px;
+      top: 150px;
+      right: 5%;
+    }
+    .geo-3 {
+      width: 150px;
+      height: 120px;
+      bottom: 100px;
+    }
+    .geo-4 {
+      width: 80px;
+      height: 80px;
+      right: 15%;
+    }
+    .geo-5 {
+      width: 160px;
+      height: 130px;
+      bottom: -50px;
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .geo-shape {
+      transition: none;
+    }
+  }
+</style>

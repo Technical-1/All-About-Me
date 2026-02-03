@@ -4,7 +4,7 @@ import GitHubRepos from '../../components/projects/GitHubRepos';
 import CaseStudyCard from '../../components/projects/CaseStudyCard';
 import { fetchFeaturedRepos } from '../../lib/github';
 
-// Fetch featured projects from dedicated JSON
+// Fetch featured projects from dedicated JSON (includes AHSR)
 const featuredProjects = await fetchFeaturedRepos();
 ---
 
@@ -36,21 +36,19 @@ const featuredProjects = await fetchFeaturedRepos();
   </section>
 
   <!-- Featured Projects -->
-  {featuredProjects.length > 0 && (
-    <section class="section" style="background-color: var(--bg-surface);">
-      <div class="container-wide">
-        <h2 class="section-title flex items-center gap-3">
-          Featured Projects
-        </h2>
+  <section class="section" style="background-color: var(--bg-surface);">
+    <div class="container-wide">
+      <h2 class="section-title flex items-center gap-3">
+        Featured Projects
+      </h2>
 
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {featuredProjects.map((project) => (
-            <CaseStudyCard repo={project} featured={false} client:load />
-          ))}
-        </div>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {featuredProjects.map((project) => (
+          <CaseStudyCard repo={project} featured={false} client:load />
+        ))}
       </div>
-    </section>
-  )}
+    </div>
+  </section>
 
   <!-- All Repositories -->
   <section class="section">
