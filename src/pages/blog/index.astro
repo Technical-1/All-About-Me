@@ -6,7 +6,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<BaseLayout title="Blog" description="Articles and thoughts from Jacob Kanfer">
+<BaseLayout title="Blog" description="Articles and thoughts from Jacob Kanfer" image="/og/og-blog.png">
   <section class="section pt-8">
     <div class="container-narrow">
       <h2 class="section-title">Thoughts on AI & Development</h2>

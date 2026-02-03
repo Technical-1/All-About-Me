@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* OG Image: 1200x630 standard size */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+    .og-card {
+      width: 1200px;
+      height: 630px;
+      background: #0A0A0C;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Geometric shapes */
+    .shape {
+      position: absolute;
+      border-radius: 4px;
+    }
+
+    .shape-1 {
+      width: 220px;
+      height: 220px;
+      background: #E8364F;
+      opacity: 0.1;
+      top: -60px;
+      left: -40px;
+      transform: rotate(15deg);
+    }
+
+    .shape-2 {
+      width: 160px;
+      height: 160px;
+      background: #5FB5B5;
+      opacity: 0.12;
+      bottom: -40px;
+      right: -20px;
+      transform: rotate(-20deg);
+    }
+
+    .shape-3 {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #5FB5B5;
+      opacity: 0.2;
+      top: 150px;
+      right: 120px;
+      transform: rotate(45deg);
+    }
+
+    .shape-4 {
+      width: 80px;
+      height: 80px;
+      background: #E8364F;
+      opacity: 0.08;
+      bottom: 100px;
+      left: 150px;
+      transform: rotate(30deg);
+    }
+
+    /* Grid pattern */
+    .grid-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(232, 54, 79, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232, 54, 79, 0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      max-width: 800px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 32px;
+    }
+
+    .page-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #5FB5B5;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 80px;
+      font-weight: 700;
+      line-height: 1.05;
+      margin-bottom: 28px;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+
+    .title .highlight {
+      color: #E8364F;
+    }
+
+    .description {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
+      margin-bottom: 40px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 18px 36px;
+      background: #E8364F;
+      color: white;
+      border-radius: 100px;
+      box-shadow: 0 0 40px rgba(232, 54, 79, 0.4);
+    }
+
+    .cta-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Accent line */
+    .accent-line {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #E8364F 0%, #5FB5B5 100%);
+    }
+
+    /* Vignette */
+    .vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.25) 100%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="og-card">
+    <div class="accent-line"></div>
+    <div class="grid-pattern"></div>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="vignette"></div>
+
+    <div class="content">
+      <svg class="logo" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="matrix(1.3333333,0,0,-1.3333333,0,384)">
+          <g transform="scale(0.1)">
+            <path d="M 230.73,2650.1 H 2649.92 V 2487.99 H 2880 V 2880 H 0 V 1319.25 H 230.73 V 2650.1" fill="#E8364F"/>
+            <path d="M 2649.92,2057.71 V 949.75 L 2880,612.801 V 2397.09 l -230.08,-339.38" fill="#E8364F"/>
+            <path d="M 2879.97,390.34 H 2649.92 V 228.719 H 230.73 V 521.922 L 0,656.16 V 0 h 2880 v 390.34 h -0.03" fill="#E8364F"/>
+            <path d="m 2175.09,1502.81 c 0,0 602.57,885.59 615.54,904.98 -40.45,0 -721.68,0 -721.68,0 l -472.6,-812.43 c 0,0 0,514.94 0,812.43 -239.68,0 -713.729,0 -713.729,0 V 839.539 H 703.008 V 1239.06 H 0 V 748.961 L 478.535,470.539 H 1596.35 l 0.09,822.531 566.93,-822.531 h 716.6 L 2175.09,1502.81" fill="#E8364F"/>
+          </g>
+        </g>
+      </svg>
+
+      <div class="page-label">Contact</div>
+
+      <h1 class="title">Let's <span class="highlight">Connect</span></h1>
+
+      <p class="description">Have a project in mind? Let's talk.</p>
+
+      <div class="cta-button">
+        <svg class="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Get In Touch
+      </div>
+    </div>
+  </div>
+</body>
+</html>

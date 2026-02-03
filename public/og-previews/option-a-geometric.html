@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* OG Image: 1200x630 standard size */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Inter:wght@400;500&display=swap');
+
+    .og-card {
+      width: 1200px;
+      height: 630px;
+      background: #FAF8F5;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 80px;
+    }
+
+    /* Geometric shapes */
+    .shape {
+      position: absolute;
+      border-radius: 4px;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: #C41E3A;
+      opacity: 0.1;
+      top: -80px;
+      right: 200px;
+      transform: rotate(15deg);
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: #4A9B9B;
+      opacity: 0.15;
+      bottom: -60px;
+      right: 80px;
+      transform: rotate(-20deg);
+    }
+
+    .shape-3 {
+      width: 150px;
+      height: 150px;
+      border: 3px solid #C41E3A;
+      opacity: 0.3;
+      top: 100px;
+      right: 400px;
+      transform: rotate(45deg);
+    }
+
+    .shape-4 {
+      width: 80px;
+      height: 80px;
+      background: #4A9B9B;
+      opacity: 0.2;
+      bottom: 150px;
+      right: 350px;
+      transform: rotate(30deg);
+    }
+
+    /* Grid pattern */
+    .grid-pattern {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 500px;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(196, 30, 58, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196, 30, 58, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      max-width: 700px;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 32px;
+    }
+
+    .name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .name .first {
+      color: #C41E3A;
+    }
+
+    .name .last {
+      color: #1A1A1E;
+    }
+
+    .tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 28px;
+      color: #6B7280;
+      font-weight: 400;
+      margin-bottom: 40px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 12px;
+    }
+
+    .tag {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 100px;
+      background: rgba(196, 30, 58, 0.08);
+      color: #C41E3A;
+      border: 1px solid rgba(196, 30, 58, 0.2);
+    }
+
+    .tag.teal {
+      background: rgba(74, 155, 155, 0.08);
+      color: #3A7B7B;
+      border-color: rgba(74, 155, 155, 0.2);
+    }
+
+    /* Accent line */
+    .accent-line {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 8px;
+      height: 100%;
+      background: linear-gradient(180deg, #C41E3A 0%, #4A9B9B 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="og-card">
+    <div class="accent-line"></div>
+    <div class="grid-pattern"></div>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+
+    <div class="content">
+      <svg class="logo" viewBox="0 0 384 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="384" height="384" fill="#FAF8F5"/>
+        <g transform="matrix(1.3333333,0,0,-1.3333333,0,384)">
+          <g transform="scale(0.1)">
+            <path d="M 230.73,2650.1 H 2649.92 V 2487.99 H 2880 V 2880 H 0 V 1319.25 H 230.73 V 2650.1" fill="#C41E3A"/>
+            <path d="M 2649.92,2057.71 V 949.75 L 2880,612.801 V 2397.09 l -230.08,-339.38" fill="#C41E3A"/>
+            <path d="M 2879.97,390.34 H 2649.92 V 228.719 H 230.73 V 521.922 L 0,656.16 V 0 h 2880 v 390.34 h -0.03" fill="#C41E3A"/>
+            <path d="m 2175.09,1502.81 c 0,0 602.57,885.59 615.54,904.98 -40.45,0 -721.68,0 -721.68,0 l -472.6,-812.43 c 0,0 0,514.94 0,812.43 -239.68,0 -713.729,0 -713.729,0 V 839.539 H 703.008 V 1239.06 H 0 V 748.961 L 478.535,470.539 H 1596.35 l 0.09,822.531 566.93,-822.531 h 716.6 L 2175.09,1502.81" fill="#C41E3A"/>
+          </g>
+        </g>
+      </svg>
+
+      <h1 class="name">
+        <span class="first">jacob</span> <span class="last">kanfer</span>
+      </h1>
+
+      <p class="tagline">Software Engineer & AI Developer</p>
+
+      <div class="tags">
+        <span class="tag">Full-Stack</span>
+        <span class="tag teal">AI & Automation</span>
+        <span class="tag">Cloud</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
