@@ -52,28 +52,36 @@ const featuredProjects = await fetchFeaturedRepos();
   </section>
 </BaseLayout>
 
-<script>
+<script is:inline>
   // Update GitHub stats image based on current theme
   function updateGitHubStatsTheme() {
-    const img = document.getElementById('github-stats-img') as HTMLImageElement;
+    var img = document.getElementById('github-stats-img');
     if (!img) return;
 
-    const isDark = document.documentElement.classList.contains('dark');
-    const mode = isDark ? 'dark' : 'light';
-    img.src = `https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/${mode}_mode_simple.svg`;
+    var isDark = document.documentElement.classList.contains('dark');
+    var mode = isDark ? 'dark' : 'light';
+    img.src = 'https://raw.githubusercontent.com/Technical-1/Technical-1/main/compact/' + mode + '_mode_simple.svg';
   }
 
-  // Initial update
-  updateGitHubStatsTheme();
+  function setupGitHubStatsTheme() {
+    // Initial update
+    updateGitHubStatsTheme();
 
-  // Listen for theme changes
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        updateGitHubStatsTheme();
-      }
+    // Listen for theme changes via class mutations
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          updateGitHubStatsTheme();
+        }
+      });
     });
-  });
 
-  observer.observe(document.documentElement, { attributes: true });
+    observer.observe(document.documentElement, { attributes: true });
+  }
+
+  // Run on initial load
+  setupGitHubStatsTheme();
+
+  // Re-run after View Transitions swap content
+  document.addEventListener('astro:after-swap', setupGitHubStatsTheme);
 </script>
