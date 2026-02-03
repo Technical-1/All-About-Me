@@ -9,10 +9,18 @@ interface ThemeState {
   setTheme: (theme: Theme) => void;
 }
 
+// Get initial theme from DOM (already set by inline script in BaseLayout)
+function getInitialTheme(): Theme {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  }
+  return 'light';
+}
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'light',
+      theme: getInitialTheme(),
       toggleTheme: () => {
         const newTheme = get().theme === 'light' ? 'dark' : 'light';
         set({ theme: newTheme });
@@ -26,8 +34,14 @@ export const useThemeStore = create<ThemeState>()(
     {
       name: 'theme',
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          applyTheme(state.theme);
+        // Only apply if we have a saved state AND it differs from current DOM state
+        if (state && typeof document !== 'undefined') {
+          const currentIsDark = document.documentElement.classList.contains('dark');
+          const savedIsDark = state.theme === 'dark';
+          // Only apply if different - the inline script already handled initial load
+          if (currentIsDark !== savedIsDark) {
+            applyTheme(state.theme);
+          }
         }
       },
     }
@@ -42,27 +56,4 @@ function applyTheme(theme: Theme) {
       document.documentElement.classList.remove('dark');
     }
   }
-}
-
-// Initialize theme on first load (handles SSR)
-export function initializeTheme() {
-  if (typeof window === 'undefined') return;
-
-  const savedTheme = localStorage.getItem('theme');
-  let theme: Theme = 'light';
-
-  if (savedTheme) {
-    try {
-      const parsed = JSON.parse(savedTheme);
-      theme = parsed.state?.theme || 'light';
-    } catch {
-      theme = 'light';
-    }
-  } else {
-    // Check system preference
-    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
-  applyTheme(theme);
-  return theme;
 }
