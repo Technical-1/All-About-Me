@@ -33,4 +33,5 @@ firebase-debug.log
 
 # Screenshots
 *.png
+!public/og/*.png
 Screenshot*
