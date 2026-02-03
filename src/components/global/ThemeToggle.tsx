@@ -2,11 +2,17 @@ import { useEffect, useState } from 'react';
 import { useThemeStore } from '../../stores/themeStore';
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme } = useThemeStore();
+  const { theme, toggleTheme, setTheme } = useThemeStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Sync Zustand state with actual DOM state (set by inline script)
+    const isDark = document.documentElement.classList.contains('dark');
+    const currentTheme = isDark ? 'dark' : 'light';
+    if (theme !== currentTheme) {
+      setTheme(currentTheme);
+    }
   }, []);
 
   // Prevent hydration mismatch by not rendering until mounted
