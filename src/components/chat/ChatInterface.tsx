@@ -30,9 +30,10 @@ function ModeToggle({ mode, onToggle }: ModeToggleProps) {
           role="switch"
           aria-checked={isCloud}
           aria-label={`Currently ${mode} mode. Click to switch to ${isCloud ? 'local' : 'cloud'} mode`}
-          className={`relative w-12 h-6 rounded-full transition-colors border border-border ${
-            isCloud ? 'bg-cyan' : 'bg-surface'
-          }`}
+          className="relative w-12 h-6 rounded-full transition-colors border border-border"
+          style={{
+            backgroundColor: isCloud ? 'var(--accent-secondary)' : 'var(--border-color)'
+          }}
         >
           <span
             className="absolute top-1 w-4 h-4 rounded-full transition-all duration-200"
