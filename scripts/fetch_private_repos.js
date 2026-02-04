@@ -52,16 +52,8 @@ const MANUAL_REPOS = [
     primary_language: 'Python',
     metadata: {
       featured: true,
-      category: 'ai',
       role: 'Software Lead',
-      duration: 'Jan 2023 - Dec 2024',
-      highlights: [
-        'Led software architecture for autonomous navigation system',
-        'Implemented computer vision safety system using OpenCV',
-        'Integrated ROS2 navigation stack with custom SLAM algorithms',
-        'Coordinated 6-person engineering team across hardware and software'
-      ],
-      impact: 'Successfully demonstrated autonomous hospital navigation with 95% path completion rate'
+      duration: 'Jan 2023 - Dec 2024'
     }
   }
 ];

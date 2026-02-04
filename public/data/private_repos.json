@@ -1367,7 +1367,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-04T17:18:36Z"
+      "pushed_at": "2026-02-04T17:24:15Z"
     },
     "languages": [
       "TypeScript",
@@ -1378,11 +1378,11 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 125562,
+      "TypeScript": 125759,
       "HTML": 107495,
       "Astro": 85336,
       "CSS": 35380,
-      "JavaScript": 26987,
+      "JavaScript": 29258,
       "Shell": 7015
     },
     "primary_language": "TypeScript",
@@ -1996,16 +1996,8 @@
     "primary_language": "Python",
     "metadata": {
       "featured": true,
-      "category": "ai",
       "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024",
-      "highlights": [
-        "Led software architecture for autonomous navigation system",
-        "Implemented computer vision safety system using OpenCV",
-        "Integrated ROS2 navigation stack with custom SLAM algorithms",
-        "Coordinated 6-person engineering team across hardware and software"
-      ],
-      "impact": "Successfully demonstrated autonomous hospital navigation with 95% path completion rate"
+      "duration": "Jan 2023 - Dec 2024"
     },
     "has_portfolio": true,
     "portfolio_files": [
