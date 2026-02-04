@@ -1,3 +1,10 @@
+/**
+ * CaseStudyCard Component
+ *
+ * Rich card display for featured projects in the "Featured Projects" section.
+ * Shows hero image, category badge, languages, expandable highlights, and action buttons.
+ * Used on the projects index page for curated/highlighted work.
+ */
 import { useState } from 'react';
 import type { GitHubRepo } from '../../lib/github';
 import { getLanguageColor, getRepoSlug, categoryLabels } from '../../lib/github';

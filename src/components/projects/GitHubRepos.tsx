@@ -1,3 +1,10 @@
+/**
+ * GitHubRepos Component
+ *
+ * Displays a grid of all GitHub repositories in the "All Repositories" section.
+ * Fetches data client-side from GitHub API + local JSON, with localStorage caching.
+ * Featured repos are excluded (shown in their own section above).
+ */
 import { useState, useEffect } from 'react';
 import { getAllRepos, getLanguageColor, getRepoSlug, type GitHubRepo } from '../../lib/github';
 
@@ -57,6 +64,11 @@ export default function GitHubRepos() {
   );
 }
 
+/**
+ * Individual repository card with name, description, languages, and action buttons.
+ * Links to GitHub (public) or homepage (private) on card click.
+ * Shows "View Details" button if portfolio documentation exists.
+ */
 function RepoCard({ repo }: { repo: GitHubRepo }) {
   const href = repo.private ? repo.homepage : repo.html_url;
   const lastUpdated = new Date(repo.pushed_at).toLocaleDateString('en-US', {

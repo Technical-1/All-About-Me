@@ -1,3 +1,21 @@
+/**
+ * GitHub Repository Data Layer
+ *
+ * This module handles fetching and managing repository data from multiple sources:
+ * 1. GitHub API - for public repos (client-side, with rate limiting)
+ * 2. private_repos.json - pre-fetched repo data with enriched metadata
+ * 3. featured_repos.json - curated list of featured projects
+ * 4. Portfolio markdown files - detailed project documentation
+ *
+ * Data is cached in localStorage (2 hours) to reduce API calls and improve UX.
+ * The nightly GitHub Action (sync-private-repos.yml) refreshes the JSON files.
+ */
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/** Extended metadata for featured/highlighted projects */
 export interface GitHubRepoMetadata {
   featured?: boolean;
   category?: 'web' | 'mobile' | 'cli' | 'ai' | 'automation' | 'other';
@@ -73,13 +91,27 @@ interface GitHubAPIRepo {
   languages_url: string;
 }
 
-const CACHE_KEY = 'github_repos_cache_v5'; // v5: added hidden repos filter
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v5';
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours (reduced from 24 for fresher data)
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
 
-// Repos to hide from the frontend (e.g., work-related, personal files)
+// Cache settings for localStorage (client-side only)
+const CACHE_KEY = 'github_repos_cache_v5';
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v5';
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+// Repos to exclude from the public projects page
 const HIDDEN_REPOS = ['Work-Files'];
 
+// ============================================================================
+// DATA FETCHING FUNCTIONS
+// ============================================================================
+
+/**
+ * Fetches public repositories from the GitHub API.
+ * Filters out forks and archived repos.
+ * Note: Subject to GitHub API rate limits (60 req/hour unauthenticated).
+ */
 export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
   const response = await fetch(
     'https://api.github.com/users/Technical-1/repos?per_page=100&sort=pushed'
@@ -117,6 +149,11 @@ export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
   return mappedRepos;
 }
 
+/**
+ * Fetches repository data from a local JSON file.
+ * Works in both server (SSG build) and client (browser) environments.
+ * Used for private_repos.json and featured_repos.json.
+ */
 async function fetchReposFromJson(filename: string): Promise<GitHubRepo[]> {
   try {
     let data: PrivateRepoEntry[];
@@ -170,6 +207,10 @@ export async function fetchFeaturedRepos(): Promise<GitHubRepo[]> {
   return fetchReposFromJson('featured_repos.json');
 }
 
+/**
+ * Fetches portfolio documentation (architecture.md, stack.md, qa.md) for a project.
+ * Portfolio files provide detailed project info for the detail pages.
+ */
 export async function fetchPortfolioData(repoName: string): Promise<PortfolioData | null> {
   const files = ['architecture.md', 'stack.md', 'qa.md'];
   const portfolio: PortfolioData = {};
@@ -263,6 +304,13 @@ export async function fetchAllReposWithPortfolio(): Promise<GitHubRepo[]> {
   return reposWithPortfolio.filter(repo => repo.has_portfolio);
 }
 
+/**
+ * Main function to get all repositories for the projects page.
+ * Combines public repos (GitHub API) with private repos (JSON).
+ * - Deduplicates by full_name, preferring enriched JSON data
+ * - Filters out featured repos (shown separately) and hidden repos
+ * - Caches results in localStorage for 2 hours
+ */
 export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
   // Check cache first
   if (useCache && typeof localStorage !== 'undefined') {
@@ -313,6 +361,11 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
   return allRepos;
 }
 
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/** Filters repos to only those marked as featured */
 export function getFeaturedRepos(repos: GitHubRepo[]): GitHubRepo[] {
   return repos.filter((repo) => repo.metadata?.featured === true);
 }
@@ -325,6 +378,11 @@ export function getRepoSlug(repo: GitHubRepo): string {
   return repo.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
+// ============================================================================
+// DISPLAY CONSTANTS
+// ============================================================================
+
+/** GitHub-style colors for programming languages */
 export const languageColors: Record<string, string> = {
   python: '#3572A5',
   javascript: '#f1e05a',

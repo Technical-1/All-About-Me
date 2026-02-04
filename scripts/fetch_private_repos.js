@@ -1,9 +1,21 @@
 #!/usr/bin/env node
 /**
- * Fetches GitHub repos (both private and public) and writes JSON snapshots:
+ * GitHub Repository Sync Script
+ *
+ * This script runs nightly via GitHub Actions to sync repository data.
+ * It fetches all repos (public + private) and extracts portfolio documentation.
+ *
+ * Output files (in public/data/):
+ * - private_repos.json: All repos with enriched metadata
  * - featured_repos.json: Curated list of featured projects
- * - private_repos.json: All repos (private + public with portfolio docs)
- * - portfolio/[repo-name]/: Portfolio documentation files for each repo
+ * - portfolio/[repo-name]/: Markdown docs (architecture.md, stack.md, qa.md)
+ *
+ * Requirements:
+ * - GH_PRIVATE_TOKEN env var with repo access
+ *
+ * Usage:
+ *   node scripts/fetch_private_repos.js
+ *   # Or via GitHub Actions: .github/workflows/sync-private-repos.yml
  */
 import fs from 'node:fs';
 import path from 'node:path';
