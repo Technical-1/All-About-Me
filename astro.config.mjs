@@ -1,4 +1,5 @@
 // @ts-check
+// Vercel deployment test - 2026-02-04
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
