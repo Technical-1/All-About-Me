@@ -32,6 +32,40 @@ const FEATURED_REPO_NAMES = [
   'Private-Collab-Whiteboard'
 ];
 
+// Manual entries for external repos not in the user's GitHub account
+// These are projects like university senior design that live elsewhere
+const MANUAL_REPOS = [
+  {
+    repo: {
+      name: 'AHSR',
+      full_name: 'UF-Senior-Design/AHSR',
+      html_url: '',
+      homepage: null,
+      description: 'Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.',
+      private: true,
+      fork: false,
+      archived: false,
+      pushed_at: '2024-12-15T00:00:00Z'
+    },
+    languages: ['Python', 'C++', 'ROS2'],
+    language_bytes: { Python: 50000, 'C++': 30000 },
+    primary_language: 'Python',
+    metadata: {
+      featured: true,
+      category: 'ai',
+      role: 'Software Lead',
+      duration: 'Jan 2023 - Dec 2024',
+      highlights: [
+        'Led software architecture for autonomous navigation system',
+        'Implemented computer vision safety system using OpenCV',
+        'Integrated ROS2 navigation stack with custom SLAM algorithms',
+        'Coordinated 6-person engineering team across hardware and software'
+      ],
+      impact: 'Successfully demonstrated autonomous hospital navigation with 95% path completion rate'
+    }
+  }
+];
+
 if (!TOKEN) {
   console.error('Missing GH_PRIVATE_TOKEN env var. Set it in the workflow/repo secrets.');
   process.exit(1);
@@ -200,14 +234,42 @@ async function main() {
 
   console.log(`\nFetched portfolio docs from ${portfolioCount} repos.`);
 
+  // Add manual repos (external projects not in user's GitHub)
+  for (const manualRepo of MANUAL_REPOS) {
+    // Check if portfolio files exist for manual repos
+    const portfolioData = {};
+    for (const fileName of PORTFOLIO_FILES) {
+      const filePath = path.join(PORTFOLIO_DIR, manualRepo.repo.name, fileName);
+      if (fs.existsSync(filePath)) {
+        portfolioData[fileName] = fs.readFileSync(filePath, 'utf8');
+      }
+    }
+
+    enriched.push({
+      ...manualRepo,
+      has_portfolio: Object.keys(portfolioData).length > 0,
+      portfolio_files: Object.keys(portfolioData)
+    });
+    console.log(`Added manual repo: ${manualRepo.repo.name}`);
+  }
+
   // Separate featured repos from all repos
   const featuredRepos = [];
 
   // Add featured repos in the order specified in FEATURED_REPO_NAMES
+  // Also mark them as featured in the enriched list
   for (const featuredName of FEATURED_REPO_NAMES) {
-    const repo = enriched.find(r => r.repo.name === featuredName);
-    if (repo) {
-      featuredRepos.push(repo);
+    const repoIndex = enriched.findIndex(r => r.repo.name === featuredName);
+    if (repoIndex !== -1) {
+      // Mark as featured in the main list
+      enriched[repoIndex] = {
+        ...enriched[repoIndex],
+        metadata: {
+          ...enriched[repoIndex].metadata,
+          featured: true
+        }
+      };
+      featuredRepos.push(enriched[repoIndex]);
     } else {
       console.warn(`Featured repo "${featuredName}" not found in fetched repos`);
     }
