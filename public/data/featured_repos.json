@@ -1,42 +1,6 @@
 [
   {
     "repo": {
-      "name": "AHSR",
-      "full_name": "UF-Senior-Design/AHSR",
-      "html_url": "",
-      "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot with computer vision safety systems, SLAM navigation, and wireless control interfaces.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2024-12-15T00:00:00Z"
-    },
-    "languages": [
-      "Python",
-      "ROS2",
-      "OpenCV",
-      "PyQt5"
-    ],
-    "language_bytes": {
-      "Python": 50000,
-      "ROS2": 30000,
-      "OpenCV": 15000,
-      "PyQt5": 10000
-    },
-    "primary_language": "Python",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "metadata": {
-      "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024"
-    }
-  },
-  {
-    "repo": {
       "name": "Git-Archiver-Web",
       "full_name": "Technical-1/Git-Archiver-Web",
       "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
@@ -45,7 +9,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-03T04:52:25Z"
+      "pushed_at": "2026-02-04T04:45:44Z"
     },
     "languages": [
       "JavaScript",
