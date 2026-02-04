@@ -73,9 +73,9 @@ interface GitHubAPIRepo {
   languages_url: string;
 }
 
-const CACHE_KEY = 'github_repos_cache_v3'; // v3: fixed deduplication to prefer enriched data
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v3';
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_KEY = 'github_repos_cache_v4'; // v4: filter featured repos, reduced cache
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v4';
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours (reduced from 24 for fresher data)
 
 export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
   const response = await fetch(
@@ -294,10 +294,11 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
     repoMap.set(repo.full_name, repo);
   }
 
-  // Convert to array and sort by pushed_at descending
-  const allRepos = Array.from(repoMap.values()).sort(
-    (a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime()
-  );
+  // Convert to array, filter out featured repos, and sort by pushed_at descending
+  // Featured repos are shown in their own section, so exclude them from "All Repositories"
+  const allRepos = Array.from(repoMap.values())
+    .filter(repo => repo.metadata?.featured !== true)
+    .sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
 
   // Cache the results
   if (typeof localStorage !== 'undefined') {

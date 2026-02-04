@@ -1,6 +1,48 @@
 [
   {
     "repo": {
+      "name": "AHSR",
+      "full_name": "UF-Senior-Design/AHSR",
+      "html_url": "",
+      "homepage": null,
+      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2024-12-15T00:00:00Z"
+    },
+    "languages": [
+      "Python",
+      "C++",
+      "ROS2"
+    ],
+    "language_bytes": {
+      "Python": 50000,
+      "C++": 30000
+    },
+    "primary_language": "Python",
+    "metadata": {
+      "featured": true,
+      "category": "ai",
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024",
+      "highlights": [
+        "Led software architecture for autonomous navigation system",
+        "Implemented computer vision safety system using OpenCV",
+        "Integrated ROS2 navigation stack with custom SLAM algorithms",
+        "Coordinated 6-person engineering team across hardware and software"
+      ],
+      "impact": "Successfully demonstrated autonomous hospital navigation with 95% path completion rate"
+    },
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
       "name": "Git-Archiver-Web",
       "full_name": "Technical-1/Git-Archiver-Web",
       "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
@@ -29,7 +71,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -57,7 +102,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -87,7 +135,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -119,7 +170,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -147,6 +201,9 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "featured": true
+    }
   }
 ]
