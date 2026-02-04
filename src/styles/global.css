@@ -199,6 +199,7 @@ html.dark {
 
   .btn-primary:hover {
     background-color: var(--accent-primary-light);
+    color: white;
     box-shadow: 0 0 20px rgba(196, 30, 58, 0.3);
   }
 
