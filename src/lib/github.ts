@@ -73,8 +73,8 @@ interface GitHubAPIRepo {
   languages_url: string;
 }
 
-const CACHE_KEY = 'github_repos_cache_v2'; // v2: added has_portfolio field
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v2';
+const CACHE_KEY = 'github_repos_cache_v3'; // v3: fixed deduplication to prefer enriched data
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v3';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function fetchPublicRepos(): Promise<GitHubRepo[]> {
@@ -280,8 +280,22 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
     fetchPrivateRepos(),
   ]);
 
-  // Combine and sort by pushed_at descending
-  const allRepos = [...publicRepos, ...privateRepos].sort(
+  // Merge repos, preferring privateRepos (from JSON) over publicRepos (from API)
+  // since JSON has enriched metadata like has_portfolio, screenshots, etc.
+  const repoMap = new Map<string, GitHubRepo>();
+
+  // Add public repos first
+  for (const repo of publicRepos) {
+    repoMap.set(repo.full_name, repo);
+  }
+
+  // Override with private/enriched repos (these have portfolio data)
+  for (const repo of privateRepos) {
+    repoMap.set(repo.full_name, repo);
+  }
+
+  // Convert to array and sort by pushed_at descending
+  const allRepos = Array.from(repoMap.values()).sort(
     (a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime()
   );
 
