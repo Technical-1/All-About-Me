@@ -182,7 +182,7 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               href={`/projects/${slug}`}
               className="btn-primary text-sm py-2 px-4"
             >
-              {repo.metadata?.featured ? 'View Case Study' : 'View Details'}
+              View Details
             </a>
           )}
           {repo.homepage && (
