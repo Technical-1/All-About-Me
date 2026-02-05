@@ -38,14 +38,14 @@ const PORTFOLIO_FILES = ['architecture.md', 'stack.md', 'qa.md'];
 // Preview images to fetch from each repo's .portfolio/ directory
 const PREVIEW_FILES = ['preview.png', 'preview.gif'];
 
-// List of repo names that should be featured
+// List of repo names that should be featured (order matters for display)
 const FEATURED_REPO_NAMES = [
-  'AHSR',
-  'Git-Archiver-Web',
-  'Blackjack-Trainer',
+  'Private-Collab-Whiteboard',
   'BTC-Explorer',
-  'Differential-Growth',
-  'Private-Collab-Whiteboard'
+  'Git-Archiver-Web',
+  'AHSR',
+  'RepoLens',
+  'Blackjack-Trainer'
 ];
 
 // Manual entries for external repos not in the user's GitHub account
