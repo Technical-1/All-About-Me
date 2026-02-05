@@ -108,7 +108,7 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
         )}
       </div>
 
-      <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+      <p className="text-sm mb-3 line-clamp-4" style={{ color: 'var(--text-secondary)' }}>
         {repo.description || 'No description provided.'}
       </p>
 

@@ -135,7 +135,7 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
             {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
           </h3>
           <p
-            className="text-sm line-clamp-2"
+            className="text-sm line-clamp-4"
             style={{ color: 'var(--text-secondary)' }}
           >
             {repo.description || 'No description available.'}
