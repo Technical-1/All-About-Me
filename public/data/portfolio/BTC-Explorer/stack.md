@@ -81,7 +81,7 @@ I built several custom hooks in `useBlockchain.js`:
 - `useBlockchainWebSocket()` - WebSocket connection to Blockchain.info for live transactions
 - `useMempoolData()` - Polling mempool.space API for network stats
 - `useBitcoinPrice()` - Multi-source price fetching (CoinGecko primary, Coinbase fallback)
-- `useMstrPrice()` - Yahoo Finance with Stooq fallback for stock data
+- `useMstrPrice()` - MSTR stock price via Vercel serverless function (Yahoo Finance → Stooq fallback chain)
 
 ## Animation & UI
 
@@ -113,8 +113,9 @@ For the Power Law chart and Treasury visualizations, I needed a React-native cha
 
 | Technology | Purpose |
 |------------|---------|
-| Vercel | Frontend hosting with edge network |
-| Cloudflare Workers | API proxy functions |
+| Vercel | Frontend hosting with edge network + serverless functions |
+| Vercel Serverless Functions | MSTR stock price API proxy (`/api/mstr`) |
+| Cloudflare Workers | API proxy functions for treasury and price data |
 | GitHub | Source control |
 
 ### Why Vercel
@@ -122,6 +123,8 @@ For the Power Law chart and Treasury visualizations, I needed a React-native cha
 - Zero-config deployment for Vite/React apps
 - Global edge network for fast loading worldwide
 - Automatic HTTPS and CDN caching
+- **Serverless Functions** for same-origin API proxying (eliminates CORS issues)
+- CDN-level response caching for serverless functions (`s-maxage`, `stale-while-revalidate`)
 - Easy environment variable management
 - Free tier sufficient for this project
 
@@ -129,7 +132,7 @@ For the Power Law chart and Treasury visualizations, I needed a React-native cha
 
 I built lightweight proxy workers to solve several problems:
 
-1. **CORS restrictions** - Yahoo Finance and other APIs block browser requests
+1. **CORS restrictions** - BitcoinTreasuries.net and CoinGecko APIs block browser requests
 2. **Rate limiting** - Aggregate requests to stay under API limits
 3. **Fallback handling** - Try multiple data sources automatically
 4. **Response caching** - Cache responses at the edge
@@ -137,6 +140,15 @@ I built lightweight proxy workers to solve several problems:
 **Workers I deployed:**
 - `treasuries-proxy` - Proxies BitcoinTreasuries.net and aggregates data
 - `treasuries-proxy-coingecko` - Handles CoinGecko API with caching
+
+### Why Vercel Serverless Functions (for MSTR)
+
+Yahoo Finance began returning `429 Too Many Requests` for requests without a proper `User-Agent` header, and Stooq lacks CORS headers entirely. Instead of relying solely on external Cloudflare Workers, I added a Vercel serverless function at `/api/mstr` that:
+
+1. **Runs server-side** - Can set `User-Agent` headers that browsers can't for cross-origin requests
+2. **Is same-origin** - No CORS preflight needed, the browser treats it like any other page resource
+3. **Has CDN caching** - Vercel caches responses for 60s with 120s stale-while-revalidate
+4. **Has built-in fallback** - Tries Yahoo Finance first, falls back to Stooq
 
 ## External Data Sources
 
@@ -146,15 +158,15 @@ I built lightweight proxy workers to solve several problems:
 | Blockchain.info WebSocket | Live unconfirmed transactions, new blocks | Real-time stream |
 | CoinGecko | Bitcoin price, 24h change | 10-30 calls/minute |
 | Coinbase | Spot price (fallback) | Public API |
-| Yahoo Finance | MSTR stock price | Rate limited |
-| Stooq | MSTR price (fallback) | CORS-friendly |
-| BitcoinTreasuries.net | Corporate holdings data | Via proxy |
+| Yahoo Finance | MSTR stock price (via `/api/mstr` serverless function) | Rate limited; requires User-Agent |
+| Stooq | MSTR price (fallback via `/api/mstr`) | No CORS; server-side only |
+| BitcoinTreasuries.net | Corporate, ETF, and government holdings (100+ entities) | Via proxy, 6h cache |
 
 ## Development Tools
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| ESLint | 9.39.1 | Code linting |
+| ESLint | 9.39.1 | Code linting and quality |
 | PostCSS | 8.4.32 | CSS processing |
 | Autoprefixer | 10.4.16 | CSS vendor prefixes |
 | TypeScript (types) | 5.5.2 | Type definitions for workers |
@@ -162,9 +174,11 @@ I built lightweight proxy workers to solve several problems:
 ### Code Quality
 
 I configured ESLint with:
-- React hooks rules for proper dependency arrays
-- JSX accessibility rules for a11y compliance
-- React Refresh rules for hot reload compatibility
+- `eslint-plugin-react-hooks` for proper dependency arrays
+- `eslint-plugin-jsx-a11y` for accessibility compliance
+- `eslint-plugin-react-refresh` for hot reload compatibility
+- `eslint-plugin-react` for React best practices
+- `globals` for environment-specific global definitions
 
 ## Bundle Size Considerations
 
@@ -198,9 +212,16 @@ The Three.js bundle is significant (~500KB), but I only load it on pages that ne
 **Dev Dependencies:**
 ```json
 {
+  "@types/react": "^18.2.0",
+  "@types/react-dom": "^18.2.0",
   "@vitejs/plugin-react": "^4.2.0",
   "autoprefixer": "^10.4.16",
   "eslint": "^9.39.1",
+  "eslint-plugin-jsx-a11y": "^6.10.2",
+  "eslint-plugin-react": "^7.37.5",
+  "eslint-plugin-react-hooks": "^7.0.1",
+  "eslint-plugin-react-refresh": "^0.4.24",
+  "globals": "^16.5.0",
   "postcss": "^8.4.32",
   "tailwindcss": "^3.3.6",
   "vite": "^5.0.0"

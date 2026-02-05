@@ -26,6 +26,10 @@ flowchart TB
         Coinbase[Coinbase API]
     end
 
+    subgraph Serverless["Vercel Serverless Functions"]
+        MstrAPI[/api/mstr<br/>MSTR Price Proxy]
+    end
+
     subgraph Edge["Edge Functions"]
         TreasuryProxy[Treasury Proxy<br/>Cloudflare Worker]
         CoinGeckoProxy[CoinGecko Proxy<br/>Cloudflare Worker]
@@ -43,9 +47,12 @@ flowchart TB
 
     State --> Mempool
     State --> Blockchain
+    State --> MstrAPI
     State --> TreasuryProxy
     State --> CoinGeckoProxy
 
+    MstrAPI --> Yahoo
+    MstrAPI --> Stooq
     TreasuryProxy --> Yahoo
     TreasuryProxy --> Stooq
     CoinGeckoProxy --> CoinGecko
@@ -120,13 +127,15 @@ I chose React 18 with client-side rendering for several reasons:
 
 For the live transaction stream, I use WebSockets connecting directly to Blockchain.info's public API. I implemented automatic reconnection logic and visibility-based pause/resume to conserve bandwidth when the tab is not active.
 
-**3. Edge Function Proxies**
+**3. Server-Side API Proxies**
 
-Several APIs I needed (Yahoo Finance, BitcoinTreasuries.net) have CORS restrictions. I built lightweight Cloudflare Workers to proxy requests and cache responses.
+Several APIs I needed (Yahoo Finance, BitcoinTreasuries.net) have CORS restrictions. I use two approaches to solve this:
+- **Vercel Serverless Functions** - A `/api/mstr` endpoint fetches MSTR stock price server-side from Yahoo Finance (with proper User-Agent headers) and Stooq as fallback. Vercel's CDN caches responses for 60 seconds with stale-while-revalidate, reducing upstream API calls. Being same-origin, this eliminates CORS entirely.
+- **Cloudflare Workers** - Lightweight proxies for BitcoinTreasuries.net and CoinGecko data, caching responses at the edge. The treasury proxy aggregates data from BitcoinTreasuries.net, covering 100+ entities across companies, ETFs, governments, and private holdings.
 
 **4. Aggressive Client-Side Caching**
 
-I implemented a multi-layer caching strategy using TanStack Query and LocalStorage.
+I implemented a multi-layer caching strategy using TanStack Query and LocalStorage. Treasury data uses a 6-hour cache with a force-refresh option (`?refresh=1` URL parameter) for debugging. The getCached/setCached utilities in useBlockchain.js provide TTL-based localStorage caching across all data sources.
 
 **5. Lazy Loading and Code Splitting**
 
@@ -139,20 +148,28 @@ I maintain a curated dataset in bitcoinData.js for historical events and wallet 
 ### Component Architecture
 
 ```
+api/
+└── mstr.js               # Vercel serverless: MSTR price (Yahoo → Stooq fallback)
 src/
-├── main.jsx           # App entry, providers setup
-├── App.jsx            # Route definitions, lazy imports
+├── main.jsx              # App entry, providers setup
+├── App.jsx               # Route definitions, lazy imports
 ├── components/
-│   ├── Layout.jsx     # Navigation, footer, live status bar
-│   └── ThreeScenes.jsx # All 3D visualizations
+│   ├── Layout.jsx        # Navigation, footer, live status bar
+│   └── ThreeScenes.jsx   # All 3D visualizations
 ├── pages/
-│   ├── HomePage.jsx       # Landing with hero and features
-│   ├── LivePage.jsx       # Real-time transaction stream
-│   ├── PowerLawPage.jsx   # Price model and calculator
-│   └── CorporateHoldingsPage.jsx # Treasury tracker
+│   ├── HomePage.jsx              # Landing with hero and features
+│   ├── LivePage.jsx              # Real-time transaction stream
+│   ├── MarketsPage.jsx           # Wrapper → VisualizationsPage
+│   ├── VisualizationsPage.jsx    # Price history, adoption, halving charts
+│   ├── PowerLawPage.jsx          # Price model and calculator
+│   ├── CorporateHoldingsPage.jsx # 100+ entity treasury tracker
+│   ├── MicroStrategyPage.jsx     # Strategy deep dive
+│   ├── LearnPage.jsx             # Wrapper → TechnologyPage
+│   ├── TechnologyPage.jsx        # Bitcoin technology education
+│   └── WalletsPage.jsx           # Hardware & software wallet guide
 └── lib/
     ├── useBlockchain.js   # All data fetching hooks
-    ├── bitcoinData.js     # Static datasets
+    ├── bitcoinData.js     # Static datasets (72+ events, wallets, specs)
     └── queryClient.js     # TanStack Query config
 ```
 
@@ -164,7 +181,7 @@ src/
 - Real-time prices are limited by free API rate limits
 
 **What I Gained:**
-- Zero infrastructure costs (static hosting + free API tiers)
+- Zero infrastructure costs (static hosting + free API tiers + serverless functions)
 - Simple deployment and maintenance
 - No database to manage or scale
 - Application works offline with cached data
