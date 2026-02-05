@@ -96,8 +96,9 @@ interface GitHubAPIRepo {
 // ============================================================================
 
 // Cache settings for localStorage (client-side only)
-const CACHE_KEY = 'github_repos_cache_v5';
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v5';
+// Bump version when featured repos list changes to invalidate stale caches
+const CACHE_KEY = 'github_repos_cache_v6';
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v6';
 const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
 // Repos to exclude from the public projects page
