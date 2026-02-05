@@ -493,8 +493,42 @@ export default function ChatInterface() {
     );
   }
 
+  // Header with mode-specific subtitle
+  const ChatHeader = () => (
+    <div className="text-center mb-8">
+      <h1 className="mb-4" style={{ color: 'var(--text-heading)' }}>Chat with AI</h1>
+      <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+        Ask questions about my background, projects, or experience.
+        {mode === 'local'
+          ? ' Powered by WebLLM - runs entirely in your browser!'
+          : ' Powered by Claude - fast and intelligent responses.'}
+      </p>
+    </div>
+  );
+
+  // Privacy disclaimer based on mode
+  const PrivacyDisclaimer = () => (
+    <div className="mt-8 text-center">
+      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+        {mode === 'local' ? (
+          <>
+            This AI runs locally using <a href="https://webllm.mlc.ai/" target="_blank" rel="noopener noreferrer" className="underline">WebLLM</a>.
+            No data is sent to external servers.
+          </>
+        ) : (
+          <>
+            Cloud mode uses <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer" className="underline">Claude</a> via a secure API.
+            Messages are processed by Anthropic's servers.
+          </>
+        )}
+      </p>
+    </div>
+  );
+
   // Chat interface
   return (
+    <>
+    <ChatHeader />
     <div className="terminal h-[600px] flex flex-col">
       <div className="terminal-header">
         <div className="terminal-dot bg-red-500" />
@@ -581,5 +615,7 @@ export default function ChatInterface() {
         </div>
       </form>
     </div>
+    <PrivacyDisclaimer />
+    </>
   );
 }
