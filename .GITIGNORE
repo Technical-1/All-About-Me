@@ -31,7 +31,10 @@ firebase-debug.log
 .firebase/
 .env*.local
 
-# Screenshots
+# Images (ignore loose PNGs except in specific directories)
 *.png
 !public/og/*.png
-Screenshot*
+!public/screenshots/**
+
+# macOS desktop screenshots (files starting with "Screenshot")
+/Screenshot*
