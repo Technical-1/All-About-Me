@@ -109,23 +109,33 @@ const currentPath = Astro.url.pathname;
 </nav>
 
 <script>
-  const menuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  let isOpen = false;
+  function initMobileMenu() {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let isOpen = false;
 
-  if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-      isOpen = !isOpen;
+    if (menuBtn && mobileMenu) {
+      // Reset menu state on page load
+      isOpen = false;
+      mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
+      mobileMenu.classList.remove('translate-y-0', 'opacity-100', 'visible');
 
-      if (isOpen) {
-        mobileMenu.classList.remove('-translate-y-full', 'opacity-0', 'invisible');
-        mobileMenu.classList.add('translate-y-0', 'opacity-100', 'visible');
-      } else {
-        mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
-        mobileMenu.classList.remove('translate-y-0', 'opacity-100', 'visible');
-      }
-    });
+      menuBtn.addEventListener('click', () => {
+        isOpen = !isOpen;
+
+        if (isOpen) {
+          mobileMenu.classList.remove('-translate-y-full', 'opacity-0', 'invisible');
+          mobileMenu.classList.add('translate-y-0', 'opacity-100', 'visible');
+        } else {
+          mobileMenu.classList.add('-translate-y-full', 'opacity-0', 'invisible');
+          mobileMenu.classList.remove('translate-y-0', 'opacity-100', 'visible');
+        }
+      });
+    }
   }
+
+  // Initialize on first load and after View Transitions
+  document.addEventListener('astro:page-load', initMobileMenu);
 </script>
 
 <!-- Spacer for fixed navbar -->
