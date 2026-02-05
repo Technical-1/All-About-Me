@@ -121,11 +121,24 @@ async function fetchBinaryFile(owner, repo, filePath) {
       return null;
     }
     const data = await res.json();
+
+    // For small files, content is returned as base64
     if (data.content && data.encoding === 'base64') {
-      return Buffer.from(data.content, 'base64'); // Return as Buffer, not string
+      return Buffer.from(data.content, 'base64');
     }
+
+    // For large files (>1MB), GitHub doesn't include content
+    // Use the download_url instead (requires auth for private repos)
+    if (data.download_url) {
+      const rawRes = await fetch(data.download_url, { headers });
+      if (!rawRes.ok) return null;
+      const arrayBuffer = await rawRes.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    }
+
     return null;
   } catch (err) {
+    console.error(`  Error fetching ${filePath}: ${err.message}`);
     return null;
   }
 }
