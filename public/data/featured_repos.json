@@ -1,37 +1,77 @@
 [
   {
     "repo": {
-      "name": "AHSR",
-      "full_name": "UF-Senior-Design/AHSR",
-      "html_url": "",
-      "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.",
+      "name": "Private-Collab-Whiteboard",
+      "full_name": "Technical-1/Private-Collab-Whiteboard",
+      "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
+      "homepage": "https://private-collab-whiteboard.vercel.app",
+      "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2024-12-15T00:00:00Z"
+      "pushed_at": "2026-02-05T20:43:57Z"
     },
     "languages": [
-      "Python",
-      "C++",
-      "ROS2"
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "TypeScript"
     ],
     "language_bytes": {
-      "Python": 50000,
-      "C++": 30000
+      "JavaScript": 163588,
+      "HTML": 50484,
+      "CSS": 48286,
+      "TypeScript": 1142
     },
-    "primary_language": "Python",
-    "metadata": {
-      "featured": true,
-      "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024"
-    },
+    "primary_language": "JavaScript",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "screenshots": [
+      "/screenshots/private-collab-whiteboard/preview.png"
+    ],
+    "metadata": {
+      "featured": true
+    }
+  },
+  {
+    "repo": {
+      "name": "BTC-Explorer",
+      "full_name": "Technical-1/BTC-Explorer",
+      "html_url": "https://github.com/Technical-1/BTC-Explorer",
+      "homepage": "https://btcexplorer.io/",
+      "description": "A comprehensive Bitcoin blockchain explorer and educational platform with real-time data visualization, market analysis, and corporate holdings tracking.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-05T20:30:59Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 215899,
+      "HTML": 215088,
+      "CSS": 4653
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/btc-explorer/preview.png"
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -73,6 +113,69 @@
   },
   {
     "repo": {
+      "name": "AHSR",
+      "full_name": "UF-Senior-Design/AHSR",
+      "html_url": "",
+      "homepage": null,
+      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2024-12-15T00:00:00Z"
+    },
+    "languages": [
+      "Python",
+      "C++",
+      "ROS2"
+    ],
+    "language_bytes": {
+      "Python": 50000,
+      "C++": 30000
+    },
+    "primary_language": "Python",
+    "metadata": {
+      "featured": true,
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024"
+    },
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "RepoLens",
+      "full_name": "Technical-1/RepoLens",
+      "html_url": "https://github.com/Technical-1/RepoLens",
+      "homepage": "https://repolens.io/",
+      "description": "Analyze GitHub repositories with beautiful visualizations. View language breakdowns, commit history, code frequency, contributors, and generate embeddable stats widgets for your README.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-01-08T15:47:40Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 169662,
+      "CSS": 5039,
+      "JavaScript": 672
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": [],
+    "metadata": {
+      "featured": true
+    }
+  },
+  {
+    "repo": {
       "name": "Blackjack-Trainer",
       "full_name": "Technical-1/Blackjack-Trainer",
       "html_url": "https://github.com/Technical-1/Blackjack-Trainer",
@@ -96,105 +199,6 @@
       "HTML": 7349
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
-    "metadata": {
-      "featured": true
-    }
-  },
-  {
-    "repo": {
-      "name": "BTC-Explorer",
-      "full_name": "Technical-1/BTC-Explorer",
-      "html_url": "https://github.com/Technical-1/BTC-Explorer",
-      "homepage": "https://btcexplorer.io/",
-      "description": "A comprehensive Bitcoin blockchain explorer and educational platform with real-time data visualization, market analysis, and corporate holdings tracking.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-01-20T01:34:39Z"
-    },
-    "languages": [
-      "JavaScript",
-      "HTML",
-      "CSS"
-    ],
-    "language_bytes": {
-      "JavaScript": 213069,
-      "HTML": 20812,
-      "CSS": 4653
-    },
-    "primary_language": "JavaScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "metadata": {
-      "featured": true
-    }
-  },
-  {
-    "repo": {
-      "name": "Differential-Growth",
-      "full_name": "Technical-1/Differential-Growth",
-      "html_url": "https://github.com/Technical-1/Differential-Growth",
-      "homepage": "https://differential-growth2.vercel.app",
-      "description": "A Next.js 15 PWA for creating organic, coral-like generative art from text, images, and shapes using differential growth algorithms. Features WebGL rendering, multi-format export, interactive brush tools, force fields, and real-time parameter animation.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-01-20T01:28:27Z"
-    },
-    "languages": [
-      "TypeScript",
-      "CSS",
-      "JavaScript",
-      "GLSL"
-    ],
-    "language_bytes": {
-      "TypeScript": 531669,
-      "CSS": 3812,
-      "JavaScript": 1371,
-      "GLSL": 975
-    },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "metadata": {
-      "featured": true
-    }
-  },
-  {
-    "repo": {
-      "name": "Private-Collab-Whiteboard",
-      "full_name": "Technical-1/Private-Collab-Whiteboard",
-      "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
-      "homepage": "https://private-collab-whiteboard.vercel.app",
-      "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-01-20T00:39:57Z"
-    },
-    "languages": [
-      "JavaScript",
-      "HTML",
-      "CSS",
-      "TypeScript"
-    ],
-    "language_bytes": {
-      "JavaScript": 163588,
-      "HTML": 50484,
-      "CSS": 48286,
-      "TypeScript": 1142
-    },
-    "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": [],
     "metadata": {

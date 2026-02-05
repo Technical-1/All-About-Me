@@ -62,7 +62,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:34:39Z"
+      "pushed_at": "2026-02-05T20:30:59Z"
     },
     "languages": [
       "JavaScript",
@@ -70,8 +70,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 213069,
-      "HTML": 20812,
+      "JavaScript": 215899,
+      "HTML": 215088,
       "CSS": 4653
     },
     "primary_language": "JavaScript",
@@ -80,6 +80,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/btc-explorer/preview.png"
     ],
     "metadata": {
       "featured": true
@@ -189,10 +192,7 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ],
-    "metadata": {
-      "featured": true
-    }
+    ]
   },
   {
     "repo": {
@@ -744,7 +744,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T00:39:57Z"
+      "pushed_at": "2026-02-05T20:43:57Z"
     },
     "languages": [
       "JavaScript",
@@ -759,8 +759,15 @@
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/private-collab-whiteboard/preview.png"
+    ],
     "metadata": {
       "featured": true
     }
@@ -1351,7 +1358,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T18:52:47Z"
+      "pushed_at": "2026-02-05T21:21:47Z"
     },
     "languages": [
       "TypeScript",
@@ -1365,7 +1372,7 @@
       "TypeScript": 136475,
       "Astro": 85086,
       "HTML": 55649,
-      "JavaScript": 18767,
+      "JavaScript": 18784,
       "CSS": 10534,
       "Shell": 7015
     },
@@ -1809,7 +1816,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
