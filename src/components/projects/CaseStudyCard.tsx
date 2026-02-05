@@ -2,12 +2,14 @@
  * CaseStudyCard Component
  *
  * Rich card display for featured projects in the "Featured Projects" section.
- * Shows hero image, category badge, languages, expandable highlights, and action buttons.
+ * Shows hero image with animated GIF preview on hover (desktop) or scroll (mobile).
+ * Includes category badge, languages, expandable highlights, and action buttons.
  * Used on the projects index page for curated/highlighted work.
  */
 import { useState } from 'react';
 import type { GitHubRepo } from '../../lib/github';
 import { getLanguageColor, getRepoSlug, categoryLabels } from '../../lib/github';
+import { useAnimatedPreview } from '../../hooks/useAnimatedPreview';
 
 interface CaseStudyCardProps {
   repo: GitHubRepo;
@@ -18,7 +20,20 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
   const [isExpanded, setIsExpanded] = useState(false);
   const slug = getRepoSlug(repo);
 
-  const heroScreenshot = repo.screenshots?.[0] || `/screenshots/${slug}/hero.png`;
+  // Paths for preview images (convention-based)
+  const pngPath = `/screenshots/${slug}/preview.png`;
+  const gifPath = `/screenshots/${slug}/preview.gif`;
+
+  // Animated preview hook handles desktop hover and mobile scroll
+  const {
+    isAnimating,
+    containerRef,
+    onMouseEnter,
+    onMouseLeave,
+    gifExists,
+  } = useAnimatedPreview({ pngPath, gifPath });
+
+  // Check if project has screenshots defined in data
   const hasScreenshots = repo.screenshots && repo.screenshots.length > 0;
 
   return (
@@ -26,21 +41,46 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
       className={`card card-hover overflow-hidden ${featured ? 'md:col-span-2' : ''}`}
       style={{ padding: 0 }}
     >
-      {/* Hero Screenshot */}
+      {/* Hero Screenshot with Animated Preview */}
       <div
+        ref={containerRef}
         className="relative h-48 overflow-hidden group"
         style={{ backgroundColor: 'var(--bg-surface)' }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         {hasScreenshots ? (
-          <img
-            src={heroScreenshot}
-            alt={`${repo.name} screenshot`}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              // Fallback to placeholder
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
+          <>
+            {/* Static PNG - base layer */}
+            <img
+              src={pngPath}
+              alt={`${repo.name} screenshot`}
+              className={`
+                w-full h-full object-cover
+                transition-all duration-500
+                ${!isAnimating && !gifExists ? 'group-hover:scale-105' : ''}
+                ${isAnimating ? 'opacity-0' : 'opacity-100'}
+              `}
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+
+            {/* Animated GIF - overlay when animating */}
+            {gifExists && (
+              <img
+                src={isAnimating ? gifPath : undefined}
+                alt=""
+                aria-hidden="true"
+                className={`
+                  absolute inset-0 w-full h-full object-cover
+                  transition-opacity duration-300
+                  ${isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+                `}
+              />
+            )}
+          </>
         ) : (
           <div
             className="w-full h-full flex items-center justify-center"
