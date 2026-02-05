@@ -28,11 +28,15 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'data');
 const PRIVATE_REPOS_PATH = path.join(OUTPUT_DIR, 'private_repos.json');
 const FEATURED_REPOS_PATH = path.join(OUTPUT_DIR, 'featured_repos.json');
 const PORTFOLIO_DIR = path.join(OUTPUT_DIR, 'portfolio');
+const SCREENSHOTS_DIR = path.join(__dirname, '..', 'public', 'screenshots');
 const GITHUB_API = 'https://api.github.com';
 const TOKEN = process.env.GH_PRIVATE_TOKEN;
 
 // Portfolio files to fetch from each repo's .portfolio/ directory
 const PORTFOLIO_FILES = ['architecture.md', 'stack.md', 'qa.md'];
+
+// Preview images to fetch from each repo's .portfolio/ directory
+const PREVIEW_FILES = ['preview.png', 'preview.gif'];
 
 // List of repo names that should be featured
 const FEATURED_REPO_NAMES = [
@@ -108,6 +112,24 @@ async function fetchFileContent(owner, repo, filePath) {
   }
 }
 
+async function fetchBinaryFile(owner, repo, filePath) {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/contents/${filePath}`;
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      if (res.status === 404) return null; // File doesn't exist
+      return null;
+    }
+    const data = await res.json();
+    if (data.content && data.encoding === 'base64') {
+      return Buffer.from(data.content, 'base64'); // Return as Buffer, not string
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
 async function fetchPortfolioFiles(repo) {
   const [owner, repoName] = repo.full_name.split('/');
   const portfolioData = {};
@@ -134,6 +156,47 @@ async function savePortfolioFiles(repoName, portfolioData) {
   }
 
   console.log(`  Saved portfolio files for ${repoName}`);
+}
+
+function getRepoSlug(repoName) {
+  return repoName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+async function fetchPreviewImages(repo) {
+  const [owner, repoName] = repo.full_name.split('/');
+  const downloadedFiles = [];
+
+  for (const fileName of PREVIEW_FILES) {
+    const content = await fetchBinaryFile(owner, repoName, `.portfolio/${fileName}`);
+    if (content) {
+      downloadedFiles.push(fileName);
+    }
+  }
+
+  return downloadedFiles.length > 0 ? downloadedFiles : null;
+}
+
+async function savePreviewImages(repo, previewFiles) {
+  if (!previewFiles || previewFiles.length === 0) return [];
+
+  const [owner, repoName] = repo.full_name.split('/');
+  const slug = getRepoSlug(repo.name);
+  const screenshotDir = path.join(SCREENSHOTS_DIR, slug);
+  fs.mkdirSync(screenshotDir, { recursive: true });
+
+  const savedPaths = [];
+
+  for (const fileName of previewFiles) {
+    const content = await fetchBinaryFile(owner, repoName, `.portfolio/${fileName}`);
+    if (content) {
+      const filePath = path.join(screenshotDir, fileName);
+      fs.writeFileSync(filePath, content);
+      savedPaths.push(`/screenshots/${slug}/${fileName}`);
+      console.log(`  Saved preview image: ${fileName}`);
+    }
+  }
+
+  return savedPaths;
 }
 
 async function fetchAllRepos(visibility) {
@@ -181,6 +244,10 @@ async function processRepo(repo) {
     await savePortfolioFiles(repo.name, portfolioData);
   }
 
+  // Fetch preview images from .portfolio/
+  const previewFiles = await fetchPreviewImages(repo);
+  const screenshots = await savePreviewImages(repo, previewFiles);
+
   return {
     repo: {
       name: repo.name,
@@ -197,7 +264,8 @@ async function processRepo(repo) {
     language_bytes: langBytes,
     primary_language: primaryLanguage,
     has_portfolio: !!portfolioData,
-    portfolio_files: portfolioData ? Object.keys(portfolioData) : []
+    portfolio_files: portfolioData ? Object.keys(portfolioData) : [],
+    screenshots: screenshots.length > 0 ? screenshots : undefined
   };
 }
 
@@ -221,8 +289,9 @@ async function main() {
   }
   console.log(`Total unique repos: ${allRepos.length}`);
 
-  // Ensure portfolio directory exists
+  // Ensure output directories exist
   fs.mkdirSync(PORTFOLIO_DIR, { recursive: true });
+  fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 
   const enriched = [];
   let portfolioCount = 0;
