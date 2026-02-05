@@ -64,6 +64,9 @@
       "stack.md",
       "qa.md"
     ],
+    "screenshots": [
+      "/screenshots/git-archiver-web/preview.png"
+    ],
     "metadata": {
       "featured": true
     }

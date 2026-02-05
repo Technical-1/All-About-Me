@@ -1351,7 +1351,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T18:20:43Z"
+      "pushed_at": "2026-02-05T18:52:47Z"
     },
     "languages": [
       "TypeScript",
@@ -1365,7 +1365,7 @@
       "TypeScript": 136475,
       "Astro": 85086,
       "HTML": 55649,
-      "JavaScript": 18314,
+      "JavaScript": 18767,
       "CSS": 10534,
       "Shell": 7015
     },
@@ -1557,6 +1557,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-archiver-web/preview.png"
     ],
     "metadata": {
       "featured": true
