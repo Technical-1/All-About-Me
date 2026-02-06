@@ -2,19 +2,20 @@
 
 ## What is Happy Preview?
 
-A CLI-to-mobile preview proxy. Send HTML snippets or images from Claude Code to a live Vercel URL, then check them on your phone before pushing to production. One URL, one preview — latest always wins.
+A CLI-to-mobile preview proxy. Send HTML snippets, images, or Markdown from Claude Code to a live Vercel URL, then check them on your phone before pushing to production. One URL, one preview — latest always wins.
 
 ## Key Features
 
 - **HTML Preview** — Renders in a sandboxed iframe with full viewport
 - **Image Preview** — Base64-encoded PNG, JPG, GIF, SVG, WEBP
+- **Markdown Preview** — Server-side conversion with dark theme, GFM tables, code blocks
 - **Bearer Token Auth** — API key on the POST endpoint
 - **Auto-Cleanup** — 24-hour Redis TTL
 - **Claude Code Skill** — Hands-free "send to preview" from the CLI
 
 ## Technical Highlights
 
-- **28 tests** covering API validation, auth, storage, component rendering, and edge cases
+- **41 tests** covering API validation, auth, storage, markdown conversion, component rendering, and edge cases
 - **Security-focused** — iframe sandbox without `allow-same-origin`, 5MB payload limit, runtime type validation
 - **Zero-config viewing** — Just open the URL on any device
 - **Separated error handling** — JSON parse errors (400) vs Redis failures (500)
@@ -47,3 +48,6 @@ Prevents untrusted HTML from accessing the parent page's cookies, storage, or DO
 
 **What's the size limit?**
 5MB total payload. Images larger than ~3.7MB raw will exceed this after base64 encoding (~33% overhead).
+
+**Why convert Markdown server-side instead of on the client?**
+The viewer already knows how to render HTML in an iframe. Converting on the API side means zero new client dependencies and no changes to the display component — Markdown just becomes styled HTML before storage.
