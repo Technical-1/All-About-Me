@@ -119,31 +119,31 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
           </span>
         )}
 
-        {/* Private Badge */}
-        {repo.private && (
-          <span
-            className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium"
-            style={{
-              backgroundColor: 'rgba(196, 30, 58, 0.1)',
-              color: 'var(--accent-primary)',
-              border: '1px solid rgba(196, 30, 58, 0.3)',
-            }}
-          >
-            Private
-          </span>
-        )}
       </div>
 
       {/* Content */}
       <div className="p-6 space-y-4 flex-1 flex flex-col">
-        {/* Title & Description */}
-        <div>
+        {/* Title & Private Badge */}
+        <div className="flex items-start justify-between gap-2">
           <h3
             className="text-xl font-display font-bold mb-2 line-clamp-1"
             style={{ color: 'var(--text-heading)' }}
           >
             {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
           </h3>
+          {repo.private && (
+            <span
+              className="flex-shrink-0 px-2 py-0.5 rounded text-xs font-medium"
+              style={{
+                backgroundColor: 'rgba(196, 30, 58, 0.1)',
+                color: 'var(--accent-primary)',
+                border: '1px solid rgba(196, 30, 58, 0.3)',
+              }}
+            >
+              Private
+            </span>
+          )}
+        </div>
           {/* Mobile: no clamp, Desktop: min 3-line height, expands smoothly on hover */}
           <div
             className="md:min-h-[3.9rem] overflow-hidden transition-[max-height] duration-500 ease-in-out"
@@ -165,8 +165,8 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
           Last updated: {lastUpdated}
         </p>
 
-        {/* Tech Tags - single line on desktop, wrap on mobile */}
-        <div className="flex flex-wrap md:flex-nowrap gap-2 overflow-hidden">
+        {/* Tech Tags - wrap to next line if needed */}
+        <div className="flex flex-wrap gap-2">
           {repo.languages.slice(0, 5).map((lang) => (
             <span
               key={lang}
