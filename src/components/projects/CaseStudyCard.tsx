@@ -18,7 +18,15 @@ interface CaseStudyCardProps {
 
 export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const slug = getRepoSlug(repo);
+
+  // Format last updated date
+  const lastUpdated = new Date(repo.pushed_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   // Paths for preview images (convention-based)
   const pngPath = `/screenshots/${slug}/preview.png`;
@@ -38,8 +46,10 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
 
   return (
     <article
-      className={`card card-hover overflow-hidden ${featured ? 'md:col-span-2' : ''}`}
+      className={`card card-hover overflow-hidden flex flex-col ${featured ? 'md:col-span-2' : ''}`}
       style={{ padding: 0 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Hero Screenshot with Animated Preview */}
       <div
@@ -125,47 +135,60 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 flex-1 flex flex-col">
         {/* Title & Description */}
         <div>
           <h3
-            className="text-xl font-display font-bold mb-2"
+            className="text-xl font-display font-bold mb-2 line-clamp-1"
             style={{ color: 'var(--text-heading)' }}
           >
             {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
           </h3>
-          <p
-            className="text-sm line-clamp-4"
-            style={{ color: 'var(--text-secondary)' }}
+          {/* Mobile: no clamp, Desktop: min 3-line height, expands smoothly on hover */}
+          <div
+            className="md:min-h-[3.9rem] overflow-hidden transition-[max-height] duration-500 ease-in-out"
+            style={{
+              maxHeight: isHovered ? '12rem' : '3.9rem',
+            }}
           >
-            {repo.description || 'No description available.'}
-          </p>
+            <p
+              className="text-sm"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {repo.description || 'No description available.'}
+            </p>
+          </div>
         </div>
 
-        {/* Tech Tags */}
-        <div className="flex flex-wrap gap-2">
-          {repo.languages.slice(0, 4).map((lang) => (
+        {/* Last Updated */}
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          Last updated: {lastUpdated}
+        </p>
+
+        {/* Tech Tags - single line on desktop, wrap on mobile */}
+        <div className="flex flex-wrap md:flex-nowrap gap-2 overflow-hidden">
+          {repo.languages.slice(0, 5).map((lang) => (
             <span
               key={lang}
-              className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono whitespace-nowrap"
               style={{
                 backgroundColor: 'var(--bg-surface)',
                 color: 'var(--text-muted)',
               }}
             >
               <span
-                className="w-2 h-2 rounded-full"
+                className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ backgroundColor: getLanguageColor(lang) }}
               />
               {lang}
             </span>
           ))}
-          {repo.languages.length > 4 && (
+          {repo.languages.length > 5 && (
             <span
-              className="px-2 py-1 rounded text-xs"
+              className="px-2 py-1 rounded text-xs whitespace-nowrap"
               style={{ color: 'var(--text-muted)' }}
             >
-              +{repo.languages.length - 4} more
+              +{repo.languages.length - 5}
             </span>
           )}
         </div>
@@ -205,7 +228,12 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               </svg>
             </button>
 
-            {isExpanded && (
+            <div
+              className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
+              style={{
+                maxHeight: isExpanded ? '20rem' : '0',
+              }}
+            >
               <ul className="mt-3 space-y-2">
                 {repo.metadata.highlights.map((highlight, index) => (
                   <li
@@ -218,16 +246,19 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
                   </li>
                 ))}
               </ul>
-            )}
+            </div>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex flex-wrap gap-3 pt-2">
+        {/* Spacer to push actions to bottom */}
+        <div className="flex-1" />
+
+        {/* Actions - sticky to bottom, full width split */}
+        <div className="flex gap-3 pt-2 mt-auto">
           {repo.has_portfolio && (
             <a
               href={`/projects/${slug}`}
-              className="btn-primary text-sm py-2 px-4"
+              className="btn-primary text-sm py-2 px-4 flex-1 text-center"
             >
               View Details
             </a>
@@ -237,7 +268,7 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               href={repo.homepage}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary text-sm py-2 px-4"
+              className="btn-secondary text-sm py-2 px-4 flex-1 text-center"
             >
               Live Demo
             </a>
