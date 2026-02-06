@@ -75,7 +75,7 @@ graph TB
     DET --> REC
     REC --> SCORE
 
-    Auditor --> PLAN
+    DET -.-> PLAN
     PLAN --> PKG
     PLAN --> LINT
     PLAN --> TYPE

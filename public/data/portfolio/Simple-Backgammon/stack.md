@@ -29,7 +29,7 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 
 - **Three.js 0.182.0** - 3D rendering
   - Powers the hero background animation on the home page
-  - Used for potential future enhancements
+  - Isolated to specific components for code splitting
 - **HTML5 Canvas API** - 2D board rendering
   - Direct pixel manipulation for game board
   - Smooth piece movement animations

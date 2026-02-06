@@ -132,12 +132,13 @@ quickforge/
 │       ├── generator.py     # Project generation logic
 │       ├── auditor.py       # Project analysis
 │       ├── upgrader.py      # Migration logic
-│       └── templates/       # Jinja2 templates (20+ files)
+│       └── templates/       # Jinja2 templates (18 files)
 ├── tests/
 │   ├── conftest.py          # pytest fixtures
 │   ├── test_cli.py          # CLI tests
 │   ├── test_models.py       # Model validation tests
 │   ├── test_generator.py    # Generation tests
+│   ├── test_add.py          # Feature addition tests
 │   ├── test_auditor.py      # Audit tests
 │   └── test_upgrader.py     # Migration tests
 ├── .github/

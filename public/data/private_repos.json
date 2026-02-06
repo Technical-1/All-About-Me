@@ -614,7 +614,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-04T02:50:14Z"
+      "pushed_at": "2026-02-06T00:43:26Z"
     },
     "languages": [
       "TypeScript",
@@ -631,8 +631,15 @@
       "CSS": 1258
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/nato-trainer/preview.png"
+    ]
   },
   {
     "repo": {
@@ -744,7 +751,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T20:43:57Z"
+      "pushed_at": "2026-02-05T22:12:44Z"
     },
     "languages": [
       "JavaScript",
@@ -753,8 +760,8 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 163588,
-      "HTML": 50484,
+      "JavaScript": 167283,
+      "HTML": 50642,
       "CSS": 48286,
       "TypeScript": 1142
     },
@@ -863,6 +870,32 @@
       "HTML": 3718
     },
     "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Remote-Preview",
+      "full_name": "Technical-1/Remote-Preview",
+      "html_url": "https://github.com/Technical-1/Remote-Preview",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-06T03:01:57Z"
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 17626,
+      "JavaScript": 630,
+      "CSS": 504
+    },
+    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1012,16 +1045,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T06:43:40Z"
+      "pushed_at": "2026-02-06T06:24:13Z"
     },
     "languages": [
       "TypeScript",
       "CSS",
+      "HTML",
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 197566,
+      "TypeScript": 197828,
       "CSS": 17209,
+      "HTML": 13331,
       "JavaScript": 1213
     },
     "primary_language": "TypeScript",
@@ -1030,6 +1065,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/simple-backgammon/preview.png"
     ]
   },
   {
@@ -1326,7 +1364,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T18:00:12Z"
+      "pushed_at": "2026-02-05T22:55:16Z"
     },
     "languages": [
       "JavaScript",
@@ -1358,7 +1396,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T21:21:47Z"
+      "pushed_at": "2026-02-06T02:53:09Z"
     },
     "languages": [
       "TypeScript",
@@ -1369,7 +1407,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 136475,
+      "TypeScript": 135433,
       "Astro": 85086,
       "HTML": 55649,
       "JavaScript": 18784,
@@ -1416,7 +1454,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-21T00:45:23Z"
+      "pushed_at": "2026-02-06T06:13:41Z"
     },
     "languages": [
       "JavaScript",
@@ -1426,7 +1464,7 @@
     "language_bytes": {
       "JavaScript": 170287,
       "CSS": 34033,
-      "HTML": 23880
+      "HTML": 29734
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1434,6 +1472,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/easy-time-blocking/preview.png"
     ]
   },
   {
@@ -1544,7 +1585,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T18:45:31Z"
+      "pushed_at": "2026-02-06T04:54:15Z"
     },
     "languages": [
       "JavaScript",
@@ -1748,15 +1789,19 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:24:09Z"
+      "pushed_at": "2026-02-06T03:06:55Z"
     },
     "languages": [
       "Python",
-      "Jinja"
+      "Jinja",
+      "HTML",
+      "JavaScript"
     ],
     "language_bytes": {
       "Python": 242990,
-      "Jinja": 61632
+      "Jinja": 61632,
+      "HTML": 4386,
+      "JavaScript": 940
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -1764,6 +1809,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pythonforge/preview.png"
     ]
   },
   {
@@ -1901,7 +1949,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-05T05:18:35Z"
+      "pushed_at": "2026-02-06T05:24:12Z"
     },
     "languages": [
       "Python"
