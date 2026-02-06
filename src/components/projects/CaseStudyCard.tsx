@@ -124,9 +124,9 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
       {/* Content */}
       <div className="p-6 space-y-4 flex-1 flex flex-col">
         {/* Title & Private Badge */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <h3
-            className="text-xl font-display font-bold mb-2 line-clamp-1"
+            className="text-xl font-display font-bold line-clamp-1"
             style={{ color: 'var(--text-heading)' }}
           >
             {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
