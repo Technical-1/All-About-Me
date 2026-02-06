@@ -47,6 +47,7 @@ flowchart LR
         Difficulty["/difficulty"]
         Game["/game"]
         Online["/online"]
+        OnlineRoom["/online/[roomCode]"]
         Stats["/stats"]
     end
 
@@ -60,6 +61,7 @@ flowchart LR
         GameChat
         SavedGamesModal
         Stats_Comp["Stats Display"]
+        Footer
     end
 
     subgraph Logic["Game Logic"]
@@ -68,6 +70,7 @@ flowchart LR
         MovesModule["moves.ts"]
         BoardModule["board.ts"]
         DiceModule["dice.ts"]
+        StorageModule["storage.ts"]
     end
 
     Home --> ModeSelector
@@ -78,7 +81,9 @@ flowchart LR
     Game --> Dice3D
     Game --> GameControls
     Online --> Board
-    Online --> GameChat
+    OnlineRoom --> Board
+    OnlineRoom --> Dice3D
+    OnlineRoom --> GameChat
     Stats --> Stats_Comp
 
     Board --> GameModule
@@ -183,13 +188,15 @@ The AI runs entirely client-side, keeping server load minimal and allowing insta
 ### Directory Structure Rationale
 
 ```
-/app              - Next.js 14 App Router pages
-/components       - React components (UI only, no business logic)
-/lib              - Pure TypeScript modules (game logic, storage, types)
-/lib/multiplayer  - Multiplayer-specific type definitions
-/hooks            - Custom React hooks (bridge between UI and logic)
-/party            - PartyKit server code (separate runtime)
-/public           - Static assets, PWA icons
+/app                 - Next.js 14 App Router pages
+/app/online/[roomCode] - Dynamic route for online game rooms
+/components          - React components (UI only, no business logic)
+/lib                 - Pure TypeScript modules (game logic, storage, types)
+/lib/multiplayer     - Multiplayer-specific type definitions
+/hooks               - Custom React hooks (matchmaking, multiplayer game)
+/party               - PartyKit server code (separate runtime)
+/public              - Static assets, PWA icons
+/scripts             - Build utilities (icon generation)
 ```
 
 This separation ensures:
