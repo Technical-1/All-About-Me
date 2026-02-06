@@ -155,7 +155,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-08T15:47:40Z"
+      "pushed_at": "2026-02-06T23:31:26Z"
     },
     "languages": [
       "TypeScript",
@@ -163,13 +163,20 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 169662,
+      "TypeScript": 159671,
       "CSS": 5039,
       "JavaScript": 672
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/repolens/preview.png"
+    ],
     "metadata": {
       "featured": true
     }

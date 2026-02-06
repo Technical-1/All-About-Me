@@ -25,7 +25,8 @@ graph TD
 - **POST /api/preview** — Receives content from the CLI
 - Bearer token authentication against `PREVIEW_API_KEY`
 - 5MB payload size limit (checked via `content-length` header)
-- Validates `type` (html/image) and `content` fields at runtime
+- Validates `type` (html/image/markdown) and `content` fields at runtime
+- Converts Markdown to styled HTML via `marked` before storage
 - Stores to Redis with 24-hour TTL
 
 ### Server Component (`src/app/page.tsx`)
@@ -45,7 +46,7 @@ graph TD
 
 ### Claude Skill (`skill/SKILL.md`)
 - Constructs JSON payloads with `jq -n` for safe escaping
-- Handles images (base64 encoding) and HTML files
+- Handles images (base64 encoding), HTML, and Markdown files
 - Reads env vars from `~/.zshrc`
 
 ## Data Flow
@@ -66,3 +67,4 @@ graph TD
 | Preview model | Single key, latest wins | One preview at a time keeps it simple |
 | iframe sandbox | `allow-scripts` only | No `allow-same-origin` prevents XSS on parent |
 | Payload limit | 5MB | Covers most images; base64 adds ~33% overhead |
+| Markdown rendering | Server-side conversion via `marked` | Keeps client unchanged; viewer already handles HTML |
