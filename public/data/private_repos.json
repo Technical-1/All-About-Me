@@ -566,6 +566,43 @@
   },
   {
     "repo": {
+      "name": "MasterCode",
+      "full_name": "Technical-1/MasterCode",
+      "html_url": "https://github.com/Technical-1/MasterCode",
+      "homepage": "https://mastercode-three.vercel.app",
+      "description": "Master code systems: NATO phonetic alphabet, Morse code, Braille, ASL, military acronyms. Spaced repetition, multiple study modes, progress tracking. React + TypeScript PWA.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-06T00:43:26Z"
+    },
+    "languages": [
+      "TypeScript",
+      "Python",
+      "HTML",
+      "JavaScript",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 485912,
+      "Python": 19208,
+      "HTML": 14203,
+      "JavaScript": 11919,
+      "CSS": 1258
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/mastercode/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "MultiAgent",
       "full_name": "Technical-1/MultiAgent",
       "html_url": "https://github.com/Technical-1/MultiAgent",
@@ -603,43 +640,6 @@
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": []
-  },
-  {
-    "repo": {
-      "name": "Nato-Trainer",
-      "full_name": "Technical-1/Nato-Trainer",
-      "html_url": "https://github.com/Technical-1/Nato-Trainer",
-      "homepage": "https://mastercode-three.vercel.app",
-      "description": "Master code systems: NATO phonetic alphabet, Morse code, Braille, ASL, military acronyms. Spaced repetition, multiple study modes, progress tracking. React + TypeScript PWA.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-02-06T00:43:26Z"
-    },
-    "languages": [
-      "TypeScript",
-      "Python",
-      "HTML",
-      "JavaScript",
-      "CSS"
-    ],
-    "language_bytes": {
-      "TypeScript": 485912,
-      "Python": 19208,
-      "HTML": 14203,
-      "JavaScript": 11919,
-      "CSS": 1258
-    },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/nato-trainer/preview.png"
-    ]
   },
   {
     "repo": {
@@ -879,11 +879,11 @@
       "full_name": "Technical-1/Remote-Preview",
       "html_url": "https://github.com/Technical-1/Remote-Preview",
       "homepage": null,
-      "description": null,
+      "description": "CLI-to-mobile preview proxy. Send HTML or images from Claude Code to a live Vercel URL.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T03:01:57Z"
+      "pushed_at": "2026-02-06T06:55:13Z"
     },
     "languages": [
       "TypeScript",
@@ -896,8 +896,12 @@
       "CSS": 504
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1396,7 +1400,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T02:53:09Z"
+      "pushed_at": "2026-02-06T07:16:58Z"
     },
     "languages": [
       "TypeScript",
@@ -1407,7 +1411,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 135433,
+      "TypeScript": 135422,
       "Astro": 85086,
       "HTML": 55649,
       "JavaScript": 18784,
@@ -1729,7 +1733,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-03T04:15:24Z"
+      "pushed_at": "2026-02-06T07:27:23Z"
     },
     "languages": [
       "JavaScript",
@@ -1747,6 +1751,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/neomatrix-framecreator/preview.png"
     ]
   },
   {
