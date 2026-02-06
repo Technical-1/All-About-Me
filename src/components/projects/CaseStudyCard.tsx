@@ -158,7 +158,6 @@ export default function CaseStudyCard({ repo, featured = false }: CaseStudyCardP
               {repo.description || 'No description available.'}
             </p>
           </div>
-        </div>
 
         {/* Last Updated */}
         <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
