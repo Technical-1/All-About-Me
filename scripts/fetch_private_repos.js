@@ -175,33 +175,16 @@ function getRepoSlug(repoName) {
   return repoName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
-async function fetchPreviewImages(repo) {
+async function fetchAndSavePreviewImages(repo) {
   const [owner, repoName] = repo.full_name.split('/');
-  const downloadedFiles = [];
+  const slug = getRepoSlug(repo.name);
+  const screenshotDir = path.join(SCREENSHOTS_DIR, slug);
+  const savedPaths = [];
 
   for (const fileName of PREVIEW_FILES) {
     const content = await fetchBinaryFile(owner, repoName, `.portfolio/${fileName}`);
     if (content) {
-      downloadedFiles.push(fileName);
-    }
-  }
-
-  return downloadedFiles.length > 0 ? downloadedFiles : null;
-}
-
-async function savePreviewImages(repo, previewFiles) {
-  if (!previewFiles || previewFiles.length === 0) return [];
-
-  const [owner, repoName] = repo.full_name.split('/');
-  const slug = getRepoSlug(repo.name);
-  const screenshotDir = path.join(SCREENSHOTS_DIR, slug);
-  fs.mkdirSync(screenshotDir, { recursive: true });
-
-  const savedPaths = [];
-
-  for (const fileName of previewFiles) {
-    const content = await fetchBinaryFile(owner, repoName, `.portfolio/${fileName}`);
-    if (content) {
+      fs.mkdirSync(screenshotDir, { recursive: true });
       const filePath = path.join(screenshotDir, fileName);
       fs.writeFileSync(filePath, content);
       savedPaths.push(`/screenshots/${slug}/${fileName}`);
@@ -257,9 +240,8 @@ async function processRepo(repo) {
     await savePortfolioFiles(repo.name, portfolioData);
   }
 
-  // Fetch preview images from .portfolio/
-  const previewFiles = await fetchPreviewImages(repo);
-  const screenshots = await savePreviewImages(repo, previewFiles);
+  // Fetch and save preview images from .portfolio/
+  const screenshots = await fetchAndSavePreviewImages(repo);
 
   return {
     repo: {
