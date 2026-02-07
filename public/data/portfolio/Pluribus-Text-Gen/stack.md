@@ -22,6 +22,12 @@
 |---------|---------|-------------------|
 | three | ^0.181.2 | Listed in package.json but not currently used in the implementation. Originally considered for 3D rendering but I switched to 2D Canvas for simplicity. |
 
+### Dev Dependencies
+
+| Package | Version | Reason for Choice |
+|---------|---------|-------------------|
+| sharp | ^0.33.5 | Used by `scripts/generate-icons.js` to convert SVG source into PWA icons at multiple resolutions (180px, 192px, 512px). Chosen for its speed and zero-dependency native image processing. |
+
 ### Fonts
 
 | Font | Weight | Source |
@@ -49,6 +55,12 @@ I chose Vercel because:
 - Custom domain: `pluribus-text-gen.vercel.app`
 - SSL: Automatically provisioned by Vercel
 
+### PWA
+
+- **Manifest**: `manifest.webmanifest` with standalone display mode
+- **Icons**: 192px and 512px PNG icons (generated from SVG via sharp)
+- **Apple Support**: `apple-touch-icon` (180px), `apple-mobile-web-app-capable`, black-translucent status bar
+
 ## Development Environment
 
 ### Requirements
@@ -60,9 +72,10 @@ I chose Vercel because:
 
 ```json
 {
-  "dev": "vite",           // Start dev server at localhost:5173
-  "build": "vite build",   // Production build to /dist
-  "preview": "vite preview" // Preview production build locally
+  "dev": "vite",                          // Start dev server at localhost:5173
+  "build": "vite build",                  // Production build to /dist
+  "preview": "vite preview",              // Preview production build locally
+  "generate-icons": "node scripts/generate-icons.js"  // Generate PWA icons from SVG
 }
 ```
 
