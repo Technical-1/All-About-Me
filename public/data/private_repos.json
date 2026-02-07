@@ -1412,7 +1412,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T23:57:39Z"
+      "pushed_at": "2026-02-07T07:23:25Z"
     },
     "languages": [
       "TypeScript",
@@ -1672,7 +1672,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T02:07:26Z"
+      "pushed_at": "2026-02-07T17:58:29Z"
     },
     "languages": [
       "JavaScript",
@@ -1681,7 +1681,7 @@
     ],
     "language_bytes": {
       "JavaScript": 46912,
-      "HTML": 17842,
+      "HTML": 35500,
       "CSS": 8000
     },
     "primary_language": "JavaScript",
@@ -1781,7 +1781,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T00:23:44Z"
+      "pushed_at": "2026-02-07T17:58:55Z"
     },
     "languages": [
       "JavaScript",
@@ -1790,7 +1790,7 @@
     ],
     "language_bytes": {
       "JavaScript": 12751,
-      "HTML": 5164,
+      "HTML": 8312,
       "CSS": 1523
     },
     "primary_language": "JavaScript",
@@ -1978,7 +1978,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T05:07:33Z"
+      "pushed_at": "2026-02-07T17:59:32Z"
     },
     "languages": [
       "Python"
@@ -1987,8 +1987,15 @@
       "Python": 25298
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/technical-1/preview.png"
+    ]
   },
   {
     "repo": {
