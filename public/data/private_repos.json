@@ -1412,7 +1412,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T07:23:25Z"
+      "pushed_at": "2026-02-07T18:11:57Z"
     },
     "languages": [
       "TypeScript",
@@ -1426,7 +1426,7 @@
       "TypeScript": 135422,
       "Astro": 85086,
       "HTML": 55649,
-      "JavaScript": 18784,
+      "JavaScript": 18279,
       "CSS": 10534,
       "Shell": 7015
     },
@@ -1672,7 +1672,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T17:58:29Z"
+      "pushed_at": "2026-02-07T18:05:46Z"
     },
     "languages": [
       "JavaScript",
@@ -1690,6 +1690,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/image-to-ascii-vite/preview.png"
     ]
   },
   {
@@ -1781,7 +1784,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T17:58:55Z"
+      "pushed_at": "2026-02-07T18:05:39Z"
     },
     "languages": [
       "JavaScript",
@@ -1799,6 +1802,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pluribus-text-gen/preview.png"
     ]
   },
   {
