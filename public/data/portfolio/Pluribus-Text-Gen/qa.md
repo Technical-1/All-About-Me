@@ -32,6 +32,9 @@ The visualization adapts to any screen size. On smaller screens, I increase part
 ### 5. Screenshot Export
 A camera button lets users capture the current canvas state as a 1200x630 PNG image, perfectly sized for Open Graph social sharing.
 
+### 6. PWA Support
+The app is installable as a Progressive Web App on both mobile and desktop. A web manifest defines standalone display mode, and icons at multiple resolutions ensure a polished experience when added to a home screen.
+
 ## Technical Highlights
 
 ### Challenge: Performant Particle Rendering
@@ -61,6 +64,12 @@ A camera button lets users capture the current canvas state as a 1200x630 PNG im
 **Problem**: Real wave physics (interference, decay, reflection) would be computationally expensive.
 
 **Solution**: I simplified to a "pull toward crest" model where particles are attracted to the wave radius based on their distance from it. Combined with high friction (0.90), this creates convincing wave-like motion without solving differential equations.
+
+### Challenge: Mobile Keyboard Viewport Shift
+
+**Problem**: On mobile, opening the virtual keyboard resizes the viewport, causing the canvas to shrink and all particles to reinitialize at the wrong size.
+
+**Solution**: I store the full viewport dimensions (`fullWidth`/`fullHeight`) separately and skip updating them when the text input is focused. I also use the `visualViewport` API for more accurate mobile resize events, and reinitialize with correct dimensions on input blur after a short delay to let the viewport restore.
 
 ### Innovative Approach: Pixel-Perfect Text Scanning
 
@@ -107,6 +116,14 @@ The application runs smoothly on modern smartphones and tablets. I've tested on 
 ### Q: How is the screenshot feature implemented?
 
 When clicked, I create an offscreen canvas at 1200x630 pixels (standard OG image size), draw the main canvas scaled to fit, and trigger a download of the resulting PNG. This happens entirely client-side with no server involvement.
+
+### Q: Can I install this as an app on my phone?
+
+Yes! The site is a Progressive Web App. On iOS, tap the Share button and "Add to Home Screen." On Android, Chrome will show an install prompt. The app runs in standalone mode without the browser chrome.
+
+### Q: How are the PWA icons generated?
+
+I wrote a Node script (`scripts/generate-icons.js`) that uses the `sharp` image library to convert the SVG source icon into PNG files at 180px, 192px, and 512px. Run it with `npm run generate-icons`.
 
 ### Q: Why Vite instead of Webpack or other bundlers?
 

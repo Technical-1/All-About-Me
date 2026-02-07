@@ -33,9 +33,20 @@ flowchart TB
         end
     end
 
+        subgraph PWA["PWA Layer"]
+            Manifest["manifest.webmanifest<br/>Installable app"]
+            Icons["PWA Icons<br/>192px + 512px"]
+            Screenshot["Screenshot Export<br/>1200x630 OG image"]
+        end
+    end
+
     subgraph External["External Resources"]
         Font["Google Fonts<br/>Montserrat Black 900"]
         Vercel["Vercel Hosting<br/>Static deployment"]
+    end
+
+    subgraph DevTools["Development Tools"]
+        IconGen["generate-icons.js<br/>Sharp-based icon pipeline"]
     end
 
     HTML --> Canvas
@@ -50,7 +61,11 @@ flowchart TB
     WaveSystem --> AnimLoop
     AnimLoop --> Canvas
     Font -.-> HTML
+    Manifest -.-> HTML
+    Icons -.-> Manifest
+    Screenshot --> Canvas
     Browser --> Vercel
+    IconGen -.-> Icons
 ```
 
 ## Data Flow
@@ -150,3 +165,20 @@ The original Pluribus effect likely uses more sophisticated physics. I simplifie
 - Text particles are immune to wave forces (only have subtle jitter)
 
 This achieves a similar visual effect with much simpler math.
+
+### 8. Mobile Viewport Handling
+
+Mobile keyboards resize the viewport, which would cause the canvas to shrink and reinitialize. I solved this by:
+
+- Storing `fullWidth`/`fullHeight` separately from the live viewport
+- Skipping dimension updates when the text input is focused (keyboard is open)
+- Using the `visualViewport` API for more accurate resize events on mobile
+- Reinitializing with correct dimensions on input blur (keyboard close)
+
+### 9. PWA Support
+
+The app is installable as a Progressive Web App with:
+
+- A `manifest.webmanifest` defining the app name, icons, and standalone display mode
+- Apple-specific meta tags for iOS home screen support
+- Icons at 180px, 192px, and 512px generated from SVG source via a `sharp`-based Node script
