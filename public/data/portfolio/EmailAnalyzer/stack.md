@@ -145,6 +145,16 @@ Provides the icon set for the UI. I chose Lucide over Font Awesome or Material I
 - Tree-shakeable (only used icons are bundled)
 - React-native components (not just icon fonts)
 
+## Web Workers
+
+| Technology | Purpose |
+|------------|---------|
+| Parser Worker | Background thread for parsing large email archives without blocking the UI |
+
+### Why Web Workers
+
+Parsing email archives with tens of thousands of messages can take significant time. Running this in the main thread would freeze the browser. The parser Web Worker (`workers/parserWorker.ts`) handles file reading and parsing in a background thread, communicating progress and results back via message passing.
+
 ## Bundle Considerations
 
 The production bundle is optimized through:
@@ -153,5 +163,6 @@ The production bundle is optimized through:
 - Tree shaking of unused code
 - Minification and compression
 - Dynamic imports for heavy components
+- Web Worker for offloading heavy parsing
 
 The initial bundle focuses on the import/upload experience, with analytics and settings pages loaded on demand.

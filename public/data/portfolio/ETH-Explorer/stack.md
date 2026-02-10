@@ -49,6 +49,13 @@
 
 **Zustand**: Included as a lightweight option if cross-component state becomes necessary. The current architecture handles most state through React Query and local component state.
 
+## Shared Utilities
+
+| Module | Purpose |
+|--------|---------|
+| `src/lib/utils.js` | Caching (localStorage), fetch with timeout, number/price/ETH formatting, address truncation, debounce, mobile detection |
+| `src/lib/ethereumData.js` | Curated static content: timeline events, DeFi protocols, L2 solutions, wallet info, treasury data, NFT info |
+
 ## UI Components
 
 | Technology | Version | Purpose |
@@ -133,6 +140,13 @@ This ensures the UI always has data to display, even during API outages.
 | Space Grotesk | Display headings |
 | JetBrains Mono | Numbers, addresses, code |
 | Inter | Body text |
+
+## SEO & Social Previews
+
+- **Open Graph meta tags**: Title, description, image (`eth-icon.png`) for rich link previews
+- **Twitter Card meta tags**: Large summary card with image for Twitter/X sharing
+- **Theme color**: `#627EEA` (eth-purple) for browser chrome coloring
+- **Assets**: `eth-icon.png` for social previews, `og-image.svg` for Open Graph, `jk-logo.svg` for author branding in footer
 
 ## Limitations I Acknowledge
 

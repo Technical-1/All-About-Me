@@ -22,6 +22,17 @@ graph TB
         Cache[localStorage Cache]
     end
 
+    subgraph "Utilities"
+        Utils[utils.js]
+        FmtHelpers[Formatting & Caching]
+        StaticData[ethereumData.js]
+    end
+
+    subgraph "Store - Configured"
+        AppStore[useAppStore - Zustand + persist]
+        UIStore[useUIStore - Zustand]
+    end
+
     subgraph "External APIs"
         Alchemy[Alchemy API]
         CoinGecko[CoinGecko API]
@@ -43,6 +54,8 @@ graph TB
     UI --> RQ
     RQ --> Hooks
     Hooks --> Cache
+    Hooks --> Utils
+    Utils --> FmtHelpers
     Hooks --> Alchemy
     Hooks --> CoinGecko
     Hooks --> Beacon
@@ -70,6 +83,8 @@ flowchart LR
         useWebSocket[useEthereumWebSocket]
         useTreasury[useTreasuryBalances]
         useNFT[useNFTCollections]
+        useBlocks[useLatestBlocks]
+        useStaking[useStakingCalculator]
     end
 
     subgraph "API Layer"
@@ -119,9 +134,19 @@ I separated the 3D visualization into distinct concerns:
 - **PageBackground**: A fixed full-page particle system that persists across navigation
 - **HeroScene**: The rotating Ethereum logo specific to the homepage
 - **TransactionFlowScene**: Interactive particle visualization that responds to live transaction data
+- **BlockVisualizationScene**: Visual representation of blockchain block data
 - **NetworkScene / StakingScene**: Specialized visualizations for specific pages
 
-Each scene uses `React.memo` and refs to prevent unnecessary re-renders when transaction data updates rapidly.
+Each scene uses `React.memo` and refs to prevent unnecessary re-renders when transaction data updates rapidly. All Canvas components are wrapped in `SceneErrorBoundary` with `SceneLoader` fallbacks.
+
+### 3b. Shared Utility Layer
+
+`src/lib/utils.js` provides cross-cutting utilities used throughout the application:
+
+- **Caching**: `getCached()`, `setCached()`, `clearCached()` — localStorage-based caching with configurable TTLs
+- **Fetch**: `fetchWithTimeout()` — network requests with timeout support
+- **Formatting**: `formatNumber()`, `formatPrice()`, `formatETH()`, `truncateAddress()`, `formatRelativeTime()`
+- **Helpers**: `debounce()`, `isMobile()` for responsive behavior
 
 ### 4. Caching Strategy
 
@@ -133,12 +158,14 @@ I implemented a multi-tier caching system:
 
 ### 5. Component-Based Routing
 
-The navigation uses a hierarchical structure with dropdown menus for grouping related pages:
+The navigation was redesigned to use a dropdown-based hierarchical structure (matching the BTC Explorer format):
 
 - **Home / Live**: Top-level quick access
-- **Learn**: Educational content (History, Technology, Smart Contracts, Layer 2)
-- **Finance**: DeFi-focused pages (Markets, DApps, Staking, NFTs, Treasuries)
+- **Learn** (dropdown): Educational content — History, Technology, Smart Contracts, Layer 2
+- **Finance** (dropdown): DeFi-focused pages — Markets, DApps, Staking, NFTs, Treasuries
 - **Wallets**: Standalone resource page
+
+Desktop uses `navStructure` with `NavDropdown` components supporting keyboard navigation. Mobile uses a separate `mobileNavItems` array displayed in a 2-column grid.
 
 ### 6. Error Boundaries for 3D Content
 
@@ -150,6 +177,6 @@ I kept state management minimal:
 
 - **Local state**: Most UI state (filters, view modes, paused state) lives in component useState
 - **React Query**: All server state flows through TanStack Query
-- **Zustand**: Reserved for any cross-component state that doesn't fit the above (currently unused but configured)
+- **Zustand**: Two stores defined in `src/store/useStore.js` — `useAppStore` (persisted via `zustand/middleware/persist`) for price/gas/network data and user preferences, and `useUIStore` for sidebar/modal/toast state. Currently not imported by any components but fully configured and ready for use.
 
 This avoids the complexity of global state management for what is primarily a read-only educational application.
