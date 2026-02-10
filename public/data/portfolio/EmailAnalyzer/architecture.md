@@ -31,16 +31,28 @@ flowchart TB
         IndexedDB[(IndexedDB<br/>Local Storage)]
     end
 
+    subgraph Workers["Background Processing"]
+        ParserWorker["Parser Worker<br/>(Web Worker)"]
+    end
+
     subgraph Services["Core Services"]
         Threading["Threading<br/>Service"]
         Search["Search<br/>Parser"]
         Export["Backup &<br/>Export"]
         Encryption["Encryption<br/>Service"]
+        CustomRules["Custom Rules<br/>Engine"]
+        SavedSearch["Saved Search<br/>Service"]
+        VCardExport["vCard<br/>Exporter"]
+        AttachmentSvc["Attachment<br/>Service"]
     end
 
-    FileUpload --> |".olm file"| OLM
-    FileUpload --> |".mbox file"| MBOX
-    FileUpload --> |".zip file"| Takeout
+    FileUpload --> |".olm file"| ParserWorker
+    FileUpload --> |".mbox file"| ParserWorker
+    FileUpload --> |".zip file"| ParserWorker
+
+    ParserWorker --> |"Parsed Emails"| OLM
+    ParserWorker --> |"Parsed Emails"| MBOX
+    ParserWorker --> |"Parsed Emails"| Takeout
 
     OLM --> |"Parsed Emails"| AccountDet
     MBOX --> |"Parsed Emails"| AccountDet
@@ -62,6 +74,10 @@ flowchart TB
     Settings --> Export
     Settings --> Encryption
     Export <--> Dexie
+    CustomRules --> EmailList
+    SavedSearch --> SearchBar
+    VCardExport <--> Dexie
+    AttachmentSvc --> EmailList
 ```
 
 ## Data Flow Architecture
@@ -153,6 +169,21 @@ Each email format (OLM, MBOX, Gmail Takeout) has its own dedicated parser. This 
 - Keeps format-specific logic contained
 - Makes it easy to add new formats
 - Allows parallel development of parser improvements
+
+### 8. Web Worker for Parsing
+
+Large email archives are parsed in a dedicated Web Worker (`workers/parserWorker.ts`) to keep the main thread responsive. The worker handles file reading and parsing in the background, sending progress updates and parsed emails back to the UI thread via message passing. This prevents the browser from freezing during imports of large archives.
+
+### 9. Extensible Services Architecture
+
+Beyond the core detection pipeline, the application includes several supporting services:
+
+- **customRulesEngine.ts** — User-defined filtering rules stored in localStorage
+- **savedSearchService.ts** — Persists frequently used search queries
+- **vcardExporter.ts** — Exports contacts in vCard 3.0 format
+- **attachmentService.ts** — Handles attachment type detection and preview capabilities
+- **backupService.ts** — Creates encrypted or unencrypted ZIP backups with selective export
+- **encryptionService.ts** — AES-GCM encryption using Web Crypto API with PBKDF2 key derivation
 
 ## Database Schema Evolution
 

@@ -14,10 +14,10 @@ ETH Explorer is a comprehensive Ethereum blockchain educational platform that I 
 Live transaction feed showing pending transactions via Alchemy WebSocket subscriptions. Users can see transaction types (Transfer, Swap, Mint, Contract, Stake), gas prices, and ETH values as they happen. When the API is unavailable, realistic simulated data maintains the experience.
 
 ### Interactive 3D Visualizations
-Full-page animated particle backgrounds, a rotating 3D Ethereum diamond logo on the homepage, transaction flow visualizations where particles represent live transactions, and specialized scenes for network topology and staking mechanics.
+Full-page animated particle backgrounds, a rotating 3D Ethereum diamond logo on the homepage, transaction flow visualizations where particles represent live transactions, block data visualization scenes, and specialized scenes for network topology and staking mechanics. All 3D scenes are wrapped in error boundaries with graceful fallback loading states.
 
 ### Comprehensive Educational Content
-12 distinct pages covering: live transactions, Ethereum history timeline (40+ events from 2013-2025), NFT marketplace guide with live floor prices, staking calculator with APY comparisons, smart contract development resources, DeFi protocol breakdowns, Layer 2 solutions explained, and deep technology guides.
+12 distinct pages covering: live transactions, Ethereum history timeline (80+ events from 2013-2025), NFT marketplace guide with live floor prices for 15 collections, staking calculator with APY comparisons, smart contract development resources, DeFi protocol breakdowns, Layer 2 solutions explained, wallet comparisons, market analytics, treasury tracking, and deep technology guides.
 
 ### Multi-Source Data Aggregation
 ETH price from CoinGecko with Coinbase fallback. Gas prices from up to 5 different sources (Alchemy, Owlracle, Blocknative, Etherscan, beaconcha.in). NFT floor prices from Alchemy NFT API. Treasury balances for major holders including exchanges, DAOs, and foundations.
@@ -41,12 +41,21 @@ Free-tier APIs have rate limits and occasional downtime. Users shouldn't see bro
 **Solution**: Multi-source cascading fallbacks. For example, gas prices try: Alchemy -> Owlracle -> Blocknative -> Etherscan -> localStorage cache -> static defaults. Each step catches errors and continues to the next.
 
 ### Challenge: Large Data Sets
-Treasury tracking queries balances for 70+ wallet addresses. NFT floor prices require separate API calls for 16 collections.
+Treasury tracking queries balances for 30+ major entities across their wallet addresses. NFT floor prices require separate API calls for 15 collections.
 
 **Solution**: Batch requests where possible (Alchemy supports JSON-RPC batching), aggressive caching (15-minute localStorage persistence for treasury data), and React Query's deduplication to prevent redundant fetches.
 
 ### Innovative Approach: Hybrid Live/Demo Mode
 Rather than failing when no API key is configured, the app seamlessly switches to "Demo Mode" with realistic simulated data. This lets anyone experience the full interface without needing their own Alchemy account.
+
+### Shared Utility Layer
+I built a dedicated utilities module (`src/lib/utils.js`) that provides consistent caching, formatting, and fetch behavior across all hooks. This includes localStorage-based caching with configurable TTLs, number/price/ETH formatting, Ethereum address truncation, and a debounced mobile detection helper.
+
+### Redesigned Navigation
+The navbar was redesigned to use a dropdown-based hierarchical structure with "Learn" and "Finance" categories, keyboard navigation support, and a separate mobile-optimized 2-column grid layout. This matches the design language of my BTC Explorer project for consistency across portfolio pieces.
+
+### Social Preview & SEO
+I added complete Open Graph and Twitter Card meta tags to `index.html`, with dedicated preview images (`eth-icon.png`) so the app displays rich previews when shared on social platforms, iMessage, Slack, and LinkedIn.
 
 ## Frequently Asked Questions
 
@@ -73,6 +82,12 @@ A: The educational content doesn't require user accounts or persistent data. Eve
 
 ### Q: How do you track treasury balances for entities like the US Government?
 A: Some entities publicly disclose wallet addresses (like ETF funds with full transparency). For others like government seizures, I use estimates from blockchain analytics platforms like Arkham Intelligence. These are marked as hardcoded estimates rather than live balances.
+
+### Q: Why did you redesign the navigation with dropdowns?
+A: With 12 pages, a flat nav bar became cluttered. Grouping pages under "Learn" and "Finance" dropdowns keeps the top bar clean while making all pages accessible in one click. The dropdown structure also matches my BTC Explorer project, so both portfolio pieces feel cohesive.
+
+### Q: Why a separate utils.js module?
+A: Multiple hooks needed the same caching logic, number formatting, and fetch behavior. Rather than duplicating code across hooks, I extracted shared utilities into `src/lib/utils.js`. This keeps hooks focused on their data-fetching logic while sharing consistent formatting and caching behavior.
 
 ### Q: Can I fork this for another blockchain?
 A: The architecture is blockchain-agnostic at the UI layer. You'd need to replace the Alchemy API calls with equivalents for your target chain, update the educational content, and adjust the 3D branding. The component structure and data flow patterns would remain largely the same.

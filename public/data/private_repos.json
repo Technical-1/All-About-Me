@@ -256,7 +256,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:42:06Z"
+      "pushed_at": "2026-02-09T18:16:56Z"
     },
     "languages": [
       "TypeScript",
@@ -267,7 +267,7 @@
     "language_bytes": {
       "TypeScript": 637771,
       "CSS": 10164,
-      "HTML": 784,
+      "HTML": 6805,
       "JavaScript": 616
     },
     "primary_language": "TypeScript",
@@ -276,6 +276,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailanalyzer/preview.png"
     ]
   },
   {
@@ -340,17 +343,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:25:54Z"
+      "pushed_at": "2026-02-09T20:03:57Z"
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
       "JavaScript": 417940,
-      "CSS": 8677,
-      "HTML": 1936
+      "HTML": 8864,
+      "CSS": 8677
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -358,6 +361,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/eth-explorer/preview.png"
     ]
   },
   {
@@ -449,6 +455,30 @@
       "Swift": 288309
     },
     "primary_language": "Swift",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "GSA-Auctions",
+      "full_name": "Technical-1/GSA-Auctions",
+      "html_url": "https://github.com/Technical-1/GSA-Auctions",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-09T17:30:06Z"
+    },
+    "languages": [
+      "Python",
+      "Makefile"
+    ],
+    "language_bytes": {
+      "Python": 96001,
+      "Makefile": 585
+    },
+    "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -799,6 +829,38 @@
   },
   {
     "repo": {
+      "name": "QuickPass-v2",
+      "full_name": "Technical-1/QuickPass-v2",
+      "html_url": "https://github.com/Technical-1/QuickPass-v2",
+      "homepage": null,
+      "description": "Desktop password manager built with Tauri v2 + React + Rust. Forked from QuickPass (pure Rust) with a modern UI.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-09T23:14:52Z"
+    },
+    "languages": [
+      "Rust",
+      "TypeScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 216589,
+      "TypeScript": 168643,
+      "CSS": 21789,
+      "HTML": 296
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
       "name": "ReactNative-Expo-Firebase-Boilerplate-v2",
       "full_name": "Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
       "html_url": "https://github.com/Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
@@ -955,7 +1017,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-02T10:07:00Z"
+      "pushed_at": "2026-02-09T16:26:49Z"
     },
     "languages": [
       "TypeScript",
@@ -967,11 +1029,15 @@
       "TypeScript": 715708,
       "CSS": 222073,
       "JavaScript": 209988,
-      "HTML": 2001
+      "HTML": 9317
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1194,7 +1260,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-08T14:49:09Z"
+      "pushed_at": "2026-02-09T23:25:22Z"
     },
     "languages": [
       "TypeScript",
@@ -1203,10 +1269,10 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 197618,
+      "TypeScript": 199630,
       "CSS": 12670,
       "JavaScript": 4668,
-      "HTML": 3327
+      "HTML": 2868
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -1412,7 +1478,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-08T07:30:08Z"
+      "pushed_at": "2026-02-09T07:45:38Z"
     },
     "languages": [
       "TypeScript",
@@ -1604,7 +1670,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-09T05:08:49Z"
+      "pushed_at": "2026-02-10T05:11:01Z"
     },
     "languages": [
       "JavaScript",
@@ -1852,13 +1918,15 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:23:38Z"
+      "pushed_at": "2026-02-10T00:03:20Z"
     },
     "languages": [
-      "Rust"
+      "Rust",
+      "HTML"
     ],
     "language_bytes": {
-      "Rust": 280036
+      "Rust": 280036,
+      "HTML": 12097
     },
     "primary_language": "Rust",
     "has_portfolio": true,
@@ -1866,6 +1934,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/quickpass/preview.png"
     ]
   },
   {
@@ -1984,13 +2055,15 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-09T05:38:49Z"
+      "pushed_at": "2026-02-10T05:47:32Z"
     },
     "languages": [
-      "Python"
+      "Python",
+      "HTML"
     ],
     "language_bytes": {
-      "Python": 25298
+      "Python": 27796,
+      "HTML": 7298
     },
     "primary_language": "Python",
     "has_portfolio": true,

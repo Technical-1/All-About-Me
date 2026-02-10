@@ -36,6 +36,21 @@ Handles archives with tens of thousands of emails by only rendering visible item
 ### Drag-and-Drop Organization
 Enables organizing emails into folders via drag and drop. Includes system folders (Inbox, Archive, Trash) and custom user-created folders.
 
+### Dark Mode
+Toggle between light and dark themes using the built-in theme toggle. Preference is persisted across sessions.
+
+### Mobile-Responsive Navigation
+A slide-out sidebar overlay optimized for mobile devices, with a hamburger menu that slides out navigation without disrupting the content area.
+
+### Custom Filtering Rules
+User-defined email filtering rules (stored in localStorage) let users create automated categorization beyond the built-in detectors.
+
+### Saved Searches
+Frequently used search queries can be saved and reused, avoiding the need to retype complex search syntax.
+
+### Undo Actions
+Destructive actions like deleting or archiving emails show an undo toast notification, giving users a window to reverse the action.
+
 ## Technical Highlights
 
 ### Challenge: Parsing Multiple Email Formats
@@ -74,6 +89,10 @@ The pipeline also enables cross-email analysis like duplicate purchase detection
 ### Innovative Approach: Unified Search Syntax
 
 Instead of separate filter dropdowns, I implemented a Gmail-style search parser that supports complex queries like `from:amazon type:purchase after:2024-01-01`. The parser tokenizes the query and applies filters efficiently against the in-memory dataset.
+
+### Innovative Approach: Web Worker Parsing
+
+Large email archives are parsed in a dedicated Web Worker to keep the main thread responsive. The worker sends progress updates back to the UI via message passing, allowing the progress bar to update smoothly while parsing happens in the background. This prevents the browser from freezing during imports of archives with tens of thousands of emails.
 
 ## FAQ
 
@@ -116,3 +135,11 @@ A: Running ML models in the browser is computationally expensive and would signi
 ### Q: How extensible is the parser architecture for new email formats?
 
 A: Very extensible. Each format has its own parser module that implements a common interface producing normalized Email objects. Adding support for a new format (like EML files or PST archives) would involve creating a new parser module without touching existing code. The detection pipeline automatically processes emails regardless of their source format.
+
+### Q: Does the app work well on mobile devices?
+
+A: Yes. The UI includes a responsive mobile navigation with a slide-out sidebar overlay and touch-friendly tap targets. The layout adapts to smaller screens using Tailwind CSS responsive utilities, and virtual scrolling ensures smooth performance even on mobile devices with less processing power.
+
+### Q: How does the Web Worker improve performance?
+
+A: Parsing large email archives (tens of thousands of emails) can be CPU-intensive. Without a Web Worker, this would freeze the browser tab. The parser Web Worker runs parsing in a background thread, sending progress updates and parsed emails back to the main thread via message passing. This keeps the UI responsive throughout the import process.
