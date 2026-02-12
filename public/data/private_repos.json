@@ -837,7 +837,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-09T23:14:52Z"
+      "pushed_at": "2026-02-11T17:49:23Z"
     },
     "languages": [
       "Rust",
@@ -849,7 +849,7 @@
       "Rust": 216589,
       "TypeScript": 168643,
       "CSS": 21789,
-      "HTML": 296
+      "HTML": 14610
     },
     "primary_language": "Rust",
     "has_portfolio": true,
@@ -1260,23 +1260,30 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-10T21:51:44Z"
+      "pushed_at": "2026-02-11T21:40:15Z"
     },
     "languages": [
       "TypeScript",
       "CSS",
-      "JavaScript",
-      "HTML"
+      "HTML",
+      "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 211226,
+      "TypeScript": 218513,
       "CSS": 12670,
-      "JavaScript": 4694,
-      "HTML": 2978
+      "HTML": 10243,
+      "JavaScript": 4749
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/themed-crossword-gen/preview.png"
+    ]
   },
   {
     "repo": {
@@ -1478,7 +1485,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-10T07:49:48Z"
+      "pushed_at": "2026-02-11T07:44:08Z"
     },
     "languages": [
       "TypeScript",
@@ -1949,7 +1956,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T23:31:26Z"
+      "pushed_at": "2026-02-12T01:40:28Z"
     },
     "languages": [
       "TypeScript",
@@ -1957,8 +1964,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 159671,
-      "CSS": 5039,
+      "TypeScript": 200431,
+      "CSS": 5885,
       "JavaScript": 672
     },
     "primary_language": "TypeScript",
