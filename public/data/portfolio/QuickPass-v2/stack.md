@@ -99,7 +99,7 @@ I chose Tauri v2 over Electron because:
 ### CI/CD (GitHub Actions)
 
 - **Trigger**: Semantic version tags (`v*.*.*`)
-- **Test Job**: `cargo test` on Ubuntu (119 tests)
+- **Test Job**: `cargo test` on Ubuntu (167 tests)
 - **Build Matrix**: Ubuntu 22.04, macOS (ARM + x86), Windows
 - **Artifacts**: Tauri installers (.dmg, .msi, .AppImage, .deb)
 - **Release**: Automatic GitHub Release with all platform installers
