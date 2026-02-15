@@ -226,6 +226,20 @@ sequenceDiagram
 | Path Safety | Input sanitization | Strict vault name validation |
 | Content Security | Block external resources | CSP in index.html |
 | Clipboard | Auto-clear after timeout | Token-based clear approach |
+| IPC Rate Limiting | Password exfiltration prevention | 5 reveals / 10-second sliding window |
+| Input Validation | Resource exhaustion prevention | Length bounds on all string/numeric IPC inputs |
+| USB Fail-Secure | Path traversal prevention | Canonicalization with fail-secure fallback |
+
+## Security Audit History
+
+### Round 1: Security Hardening (20 issues, 2026-02-09)
+Full security hardening pass covering CSP, devtools, timing-safe comparisons, memory zeroization, and Tauri capabilities.
+
+### Round 2: IPC Boundary Audit (7 issues, 2026-02-11)
+Focused audit of all 49 IPC commands. Key fixes: rate limiting on password clipboard copy, USB auth gates, clipboard timeout clamping, pattern length validation, string input length bounds, fail-secure USB canonicalization. Added 48 tests.
+
+### Round 3: Deep Security Audit (21 findings, 2026-02-11)
+4-parallel-agent comprehensive audit covering crypto, IPC, memory safety, and frontend/Tauri config. Findings: 3 critical (derived key zeroization gaps), 5 high (lockout bypass, auto-lock enforcement, VaultEntry clones), 8 medium, 5 low. Core crypto primitives and frontend isolation rated excellent.
 
 ## Limitations
 
@@ -233,4 +247,4 @@ sequenceDiagram
 2. **No Cloud Sync**: Each device maintains its own vaults (USB export provides manual transfer)
 3. **Platform Signing**: macOS/Windows binaries are unsigned, requiring manual trust approval
 4. **Single-User Design**: No multi-user or sharing features
-5. **No Frontend Tests**: Test coverage is backend-only (119 Rust tests)
+5. **No Frontend Tests**: Test coverage is backend-only (167 Rust tests)

@@ -39,13 +39,16 @@ Passwords lingering in memory are attack vectors. I used Rust's `zeroize` crate 
 Most clipboard managers compare content to decide whether to clear. This requires reading the clipboard, potentially exposing data to other apps. Instead, I use a unique token per copy operation — when the timer fires, it clears the clipboard only if the token is still current. This avoids ever reading clipboard contents back.
 
 ### Comprehensive Test Coverage
-119 backend tests across three categories: 71 unit tests covering encryption round-trips, CSV parsing, and validation; 17 command tests verifying the Tauri IPC layer; and 31 integration tests for full workflows including import/export and security features.
+167 backend tests across three categories: 109 unit tests covering encryption round-trips, CSV parsing, validation, and security audit coverage; 17 command tests verifying the Tauri IPC layer; and 41 integration tests for full workflows including import/export, security features, and cross-module security verification.
+
+### Three-Round Security Audit
+The codebase has been through three progressive security audit rounds: initial hardening (20 issues), IPC boundary audit (7 issues with 48 dedicated tests), and a deep 4-agent parallel audit covering crypto, IPC, memory safety, and frontend isolation (21 findings). The deep audit confirmed the core crypto primitives and frontend isolation are excellent, with remaining findings focused on memory lifecycle hardening and defense-in-depth improvements.
 
 ## Development Story
 
 - **Architecture Evolution**: Started as pure Rust (eframe/egui), migrated to Tauri v2 + React for richer UI capabilities
 - **Hardest Part**: Designing the IPC boundary to be both secure (no password leaks) and ergonomic (49 commands with typed wrappers and Zod validation)
-- **Security Hardening**: Completed 20+ hardening measures including CSP, timing-safe comparisons, memory zeroization, and devtools restrictions
+- **Security Hardening**: Three audit rounds covering 48+ issues — initial hardening (CSP, timing-safe comparisons, memory zeroization, devtools), IPC boundary audit (rate limiting, input validation, USB auth), and deep crypto/memory/frontend audit
 - **Lessons Learned**: The IPC boundary between Rust and TypeScript is both the biggest security advantage and the biggest development overhead — no shared type generation means manual synchronization between Rust structs and Zod schemas
 - **Future Plans**: Auto-updater (plugin wired, needs signing keys), browser extension, local network sync
 
@@ -82,4 +85,4 @@ Not automatically — this is intentional to avoid cloud dependencies. USB expor
 It's an entropy collection mechanism. User interaction timing and move sequences feed into password generation, supplementing the system's ChaCha20 RNG. It's optional but adds user-contributed randomness for those who want it.
 
 ### How do I verify the security of this implementation?
-The codebase is open source with clear module separation. Critical security code is isolated in `vault.rs` and `security.rs` for easy auditing. All cryptographic choices, security hardening measures, and architectural decisions are documented.
+The codebase is open source with clear module separation. Critical security code is isolated in `vault.rs` and `security.rs` for easy auditing. All cryptographic choices, security hardening measures, and architectural decisions are documented. The project has undergone three progressive security audit rounds with detailed tracking documents (`SECURITY_HARDENING.md`, `SECURITY_AUDIT_FIXES.md`), covering crypto primitives, IPC boundary security, memory safety, and frontend isolation. 167 backend tests provide regression coverage for all identified issues.
