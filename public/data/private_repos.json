@@ -424,7 +424,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-16T18:13:36Z"
+      "pushed_at": "2026-02-19T04:30:44Z"
     },
     "languages": [
       "TypeScript",
@@ -432,13 +432,17 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 565137,
+      "TypeScript": 539026,
       "Python": 46284,
       "JavaScript": 9237
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -570,7 +574,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-13T16:33:47Z"
+      "pushed_at": "2026-02-19T06:45:25Z"
     },
     "languages": [
       "JavaScript",
@@ -578,13 +582,17 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 149014,
-      "CSS": 3303,
-      "HTML": 2650
+      "JavaScript": 245199,
+      "CSS": 5372,
+      "HTML": 2652
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -741,7 +749,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-08T18:26:06Z"
+      "pushed_at": "2026-02-18T17:21:46Z"
     },
     "languages": [
       "JavaScript",
@@ -754,8 +762,12 @@
       "HTML": 820
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -767,7 +779,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-04-10T17:10:11Z"
+      "pushed_at": "2026-02-18T17:21:34Z"
     },
     "languages": [
       "Swift"
@@ -776,8 +788,12 @@
       "Swift": 85544
     },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1026,30 +1042,30 @@
       "name": "restauranthub",
       "full_name": "Technical-1/restauranthub",
       "html_url": "https://github.com/Technical-1/restauranthub",
-      "homepage": null,
+      "homepage": "https://restauranthub-two.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-06-17T17:13:11Z"
+      "pushed_at": "2026-02-18T22:36:34Z"
     },
     "languages": [
       "JavaScript",
-      "PLpgSQL",
       "CSS",
-      "TypeScript",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 360389,
-      "PLpgSQL": 7862,
-      "CSS": 4603,
-      "TypeScript": 4276,
-      "HTML": 1155
+      "JavaScript": 389988,
+      "CSS": 4604,
+      "HTML": 894
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1254,17 +1270,23 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-12T23:40:40Z"
+      "pushed_at": "2026-02-18T17:03:32Z"
     },
     "languages": [
-      "Swift"
+      "Swift",
+      "HTML"
     ],
     "language_bytes": {
-      "Swift": 256352
+      "Swift": 256352,
+      "HTML": 10007
     },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1339,7 +1361,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-23T20:15:54Z"
+      "pushed_at": "2026-02-18T21:19:20Z"
     },
     "languages": [
       "JavaScript",
@@ -1347,13 +1369,17 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 32577,
-      "TypeScript": 2207,
-      "HTML": 921
+      "JavaScript": 30507,
+      "TypeScript": 11228,
+      "HTML": 6034
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1365,21 +1391,25 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T20:10:20Z"
+      "pushed_at": "2026-02-18T21:28:45Z"
     },
     "languages": [
       "JavaScript",
-      "TypeScript",
-      "HTML"
+      "HTML",
+      "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 18507,
-      "TypeScript": 2207,
-      "HTML": 921
+      "JavaScript": 19447,
+      "HTML": 8559,
+      "TypeScript": 7181
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1535,7 +1565,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-17T07:41:31Z"
+      "pushed_at": "2026-02-18T07:41:36Z"
     },
     "languages": [
       "TypeScript",
@@ -1695,7 +1725,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:24:39Z"
+      "pushed_at": "2026-02-18T21:19:06Z"
     },
     "languages": [
       "Python",
@@ -1727,7 +1757,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T05:00:56Z"
+      "pushed_at": "2026-02-19T05:00:27Z"
     },
     "languages": [
       "JavaScript",
@@ -2112,7 +2142,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T05:25:37Z"
+      "pushed_at": "2026-02-19T05:24:01Z"
     },
     "languages": [
       "Python",
