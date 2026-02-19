@@ -10,6 +10,7 @@ BitcoinTreasuries Proxy is a Cloudflare Worker that scrapes BitcoinTreasuries.ne
 - **Intelligent Fallback System**: Maintains a curated dataset of 100+ entities that supplements or replaces scraped data when the source site is unavailable or changes its structure
 - **Automatic Entity Classification**: Categorizes entities into 12+ categories (mining, exchange, ETF, government, DeFi, software, fintech, etc.) based on name and ticker pattern matching
 - **Edge-Cached JSON API**: Serves filtered, sorted treasury data with 6-hour caching and 24-hour stale-if-error for high availability
+- **Static Asset Serving**: OG preview image and favicons served directly from Cloudflare's edge CDN via static assets binding, with `run_worker_first` routing to protect API endpoints
 
 ## Technical Highlights
 
@@ -33,6 +34,7 @@ The project has 38 automated tests: integration tests verify the full worker lif
 - **Hardest Part**: Getting reliable data extraction from a SvelteKit site that doesn't expose a public API. The HTML structure varies between pages, and the site occasionally changes layout
 - **Lessons Learned**: Always have a fallback data source when scraping; edge cases in HTML parsing are endless
 - **Future Plans**: Could add scheduled cron triggers for background refresh and KV storage for persistent caching across deployments
+- **Recent Addition**: Enabled Cloudflare static assets binding with `run_worker_first` routing pattern to serve OG images and favicons from the edge without Worker invocation
 
 ## Frequently Asked Questions
 
@@ -59,6 +61,9 @@ This Cloudflare Workers flag ensures that the `fetch()` API can only reach publi
 
 ### How is country data normalized?
 Country data comes from flag image URLs in the HTML (e.g., `/countries/united-states`). The `mapCountryCode` function maps these slugs to ISO 2-letter codes using a lookup table of ~45 countries (including New Zealand, South Africa, Switzerland, Argentina, Gibraltar, Seychelles, and others). Unrecognized slugs have their normalized form (letters-only, lowercased) truncated to 2 uppercase characters as a best-effort fallback, falling back to `US` if the slug is empty.
+
+### How are static assets served?
+Static assets (the OG preview image `preview.png` and favicons) are served via Cloudflare's static assets binding. The `public/` directory is uploaded alongside the Worker, and Cloudflare serves matching file paths (`/assets/*`) directly from its edge CDN without invoking the Worker. The `run_worker_first: ["/", "/health"]` configuration ensures API routes always hit the Worker's fetch handler, preventing static files from accidentally shadowing the API. This approach provides zero Worker CPU cost for image requests while keeping API routing explicit and safe.
 
 ### How is the API secured?
 The API uses multiple security layers: CORS whitelisting denies unknown origins instead of falling back to wildcard, preventing unauthorized cross-origin reads. The `type` query parameter is validated against a known set to prevent cache key poisoning. Cache bypass requires a `REFRESH_SECRET` environment variable. Non-GET methods return 405. OPTIONS preflight only responds on valid routes. The `global_fetch_strictly_public` compatibility flag prevents SSRF.

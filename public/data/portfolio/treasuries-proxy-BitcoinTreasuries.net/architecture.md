@@ -11,6 +11,7 @@ flowchart TD
     subgraph Cloudflare Edge
         B[Worker: treasuries-proxy]
         C[(Cache API)]
+        F[Static Assets CDN]
     end
 
     subgraph External
@@ -27,6 +28,8 @@ flowchart TD
     B -->|Cache MISS| D
     D -->|HTML response| B
     B -->|Scrape fails or < 20 results| E
+    A -->|GET /assets/*| F
+    F -->|PNG response| A
     B -->|JSON response| A
     B -->|Store 6h TTL| C
 ```
@@ -73,6 +76,14 @@ flowchart TD
   - Provides data when scraping fails entirely
   - Supplements scraped data with hard-to-scrape entity types (ETFs, governments, DeFi)
 
+### Static Assets (Cloudflare Edge CDN)
+- **Purpose**: Serves OG preview image and favicons directly from the edge without Worker CPU
+- **Location**: `public/assets/` directory, configured in `wrangler.jsonc`
+- **Key responsibilities**:
+  - Serves `preview.png` (OG image) and `favicon-*.png` at `/assets/*` paths
+  - `run_worker_first: ["/", "/health"]` ensures API routes bypass asset lookup
+  - Zero Worker invocation for static file requests
+
 ### Retry & Response Utilities
 - **Purpose**: HTTP resilience and CORS-aware response helpers
 - **Location**: `src/index.js:14-80`
@@ -83,17 +94,18 @@ flowchart TD
 
 ## Data Flow
 
-1. **Request arrives** at the Cloudflare edge; method check rejects non-GET/OPTIONS with 405
-2. **Route check** - OPTIONS returns 204 only on known routes; `/health` returns status; unknown paths return 404; only `/` proceeds
-3. **Input validation** - `type` param validated against `VALID_TYPES` set; `refresh` param checked against `REFRESH_SECRET` env var
-4. **Cache check** - looks for a cached response keyed by validated entity type filter
-5. **On cache miss** - `scrapeHomepage()` fetches and parses the BitcoinTreasuries.net HTML (10s timeout per attempt, 3 retries with status-aware retry logic)
-6. **Fallback merge** - if scraping yields < 20 entities, uses full fallback; otherwise merges missing entities from fallback
-7. **Validation** - filters out garbage entries (no ASCII letters in name, pure-numeric tickers, zero BTC)
-8. **Type filter** - optionally filters by validated `?type=` query parameter
-9. **Sort** - entities sorted by BTC holdings descending
-10. **Cache store** - response cached for 6 hours with 24-hour stale-if-error
-11. **Response** - JSON returned with `x-cache: hit/miss` header
+1. **Request arrives** at the Cloudflare edge; static asset paths (`/assets/*`) are served directly from CDN without invoking the Worker
+2. **For API routes** (`/`, `/health`), `run_worker_first` ensures the Worker handles them; method check rejects non-GET/OPTIONS with 405
+3. **Route check** - OPTIONS returns 204 only on known routes; `/health` returns status; unknown paths return 404; only `/` proceeds
+4. **Input validation** - `type` param validated against `VALID_TYPES` set; `refresh` param checked against `REFRESH_SECRET` env var
+5. **Cache check** - looks for a cached response keyed by validated entity type filter
+6. **On cache miss** - `scrapeHomepage()` fetches and parses the BitcoinTreasuries.net HTML (10s timeout per attempt, 3 retries with status-aware retry logic)
+7. **Fallback merge** - if scraping yields < 20 entities, uses full fallback; otherwise merges missing entities from fallback
+8. **Validation** - filters out garbage entries (no ASCII letters in name, pure-numeric tickers, zero BTC)
+9. **Type filter** - optionally filters by validated `?type=` query parameter
+10. **Sort** - entities sorted by BTC holdings descending
+11. **Cache store** - response cached for 6 hours with 24-hour stale-if-error
+12. **Response** - JSON returned with `x-cache: hit/miss` header
 
 ## External Integrations
 
@@ -102,6 +114,7 @@ flowchart TD
 | BitcoinTreasuries.net | Source data for Bitcoin treasury holdings | N/A (scraped) |
 | Cloudflare Workers | Serverless edge compute runtime | [Workers Docs](https://developers.cloudflare.com/workers/) |
 | Cloudflare Cache API | Edge caching for responses | [Cache API Docs](https://developers.cloudflare.com/workers/runtime-apis/cache/) |
+| Cloudflare Static Assets | Edge CDN serving for OG image and favicons | [Static Assets Docs](https://developers.cloudflare.com/workers/static-assets/) |
 
 ## Key Architectural Decisions
 
@@ -114,6 +127,11 @@ flowchart TD
 - **Context**: Scraping can break if the source site changes its HTML structure
 - **Decision**: Maintain a comprehensive fallback dataset of ~100 entities with known BTC holdings
 - **Rationale**: Ensures the API always returns useful data even when scraping fails, avoiding downstream breakage on BTC Explorer
+
+### Static Assets with Worker-First Routing
+- **Context**: The worker needs to serve both a JSON API and static image assets (OG image, favicons)
+- **Decision**: Use Cloudflare's static assets binding with `run_worker_first: ["/", "/health"]`
+- **Rationale**: Static assets are served directly from the edge CDN with zero Worker CPU cost. The `run_worker_first` array explicitly protects API routes from being shadowed by static files, which is safer than relying on the absence of `index.html`
 
 ### Edge Caching Strategy
 - **Context**: Scraping is slow and the source data changes infrequently
