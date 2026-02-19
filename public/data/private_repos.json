@@ -574,17 +574,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T06:45:25Z"
+      "pushed_at": "2026-02-19T06:56:28Z"
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
       "JavaScript": 245199,
-      "CSS": 5372,
-      "HTML": 2652
+      "HTML": 10081,
+      "CSS": 5372
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1391,7 +1391,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T21:28:45Z"
+      "pushed_at": "2026-02-19T06:55:33Z"
     },
     "languages": [
       "JavaScript",
@@ -1409,6 +1409,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/treasuries-proxy-coingecko/preview.png"
     ]
   },
   {
@@ -1565,7 +1568,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T06:48:42Z"
+      "pushed_at": "2026-02-19T06:49:30Z"
     },
     "languages": [
       "TypeScript",
@@ -1725,19 +1728,23 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T21:19:06Z"
+      "pushed_at": "2026-02-19T06:58:59Z"
     },
     "languages": [
       "Python",
+      "Rust",
+      "TypeScript",
       "JavaScript",
       "CSS",
       "HTML"
     ],
     "language_bytes": {
       "Python": 266049,
-      "JavaScript": 33508,
-      "CSS": 16716,
-      "HTML": 7486
+      "Rust": 165115,
+      "TypeScript": 133526,
+      "JavaScript": 35651,
+      "CSS": 18373,
+      "HTML": 7848
     },
     "primary_language": "Python",
     "has_portfolio": true,
