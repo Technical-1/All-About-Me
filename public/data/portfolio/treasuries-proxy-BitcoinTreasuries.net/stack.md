@@ -7,6 +7,7 @@
 | Language | JavaScript | ES2024 | Worker logic, scraping, data transformation |
 | Runtime | Cloudflare Workers | v4 (compatibility_date: 2025-12-09) | Serverless edge compute platform |
 | Caching | Cloudflare Cache API | Built-in | Edge response caching with TTL and stale-if-error |
+| Static Assets | Cloudflare Static Assets | Built-in | Edge CDN serving for OG image and favicons |
 
 ## Backend
 
@@ -17,7 +18,7 @@
 
 ## Infrastructure
 
-- **Hosting**: Cloudflare Workers (edge-deployed globally)
+- **Hosting**: Cloudflare Workers (edge-deployed globally) with static assets CDN
 - **CI/CD**: Manual via `wrangler deploy`
 - **Monitoring**: Cloudflare Workers observability (enabled in `wrangler.jsonc`)
 
@@ -47,3 +48,5 @@
 | `compatibility_flags` | `global_fetch_strictly_public` | Ensures `fetch()` only reaches public internet (security) |
 | `main` | `src/index.js` | Single-file Worker, no build step needed |
 | `observability.enabled` | `true` | Cloudflare dashboard logging and tracing |
+| `assets.directory` | `./public/` | Serves static files (OG image, favicons) from edge CDN |
+| `assets.run_worker_first` | `["/", "/health"]` | Ensures API routes always hit Worker, not asset lookup |
