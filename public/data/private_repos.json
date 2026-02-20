@@ -31,7 +31,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T12:42:03Z"
+      "pushed_at": "2026-02-19T18:21:03Z"
     },
     "languages": [
       "JavaScript",
@@ -49,6 +49,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/bitcointreasuries-proxy/preview.png"
     ]
   },
   {
@@ -637,7 +640,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T12:52:06Z"
+      "pushed_at": "2026-02-19T22:49:11Z"
     },
     "languages": [
       "JavaScript",
@@ -645,9 +648,9 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 245199,
-      "HTML": 10084,
-      "CSS": 5372
+      "JavaScript": 227886,
+      "HTML": 10104,
+      "CSS": 3162
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -655,6 +658,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/kid-talk-translator/preview.png"
     ]
   },
   {
@@ -812,7 +818,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T17:21:46Z"
+      "pushed_at": "2026-02-20T00:32:38Z"
     },
     "languages": [
       "JavaScript",
@@ -820,9 +826,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 510967,
+      "JavaScript": 532690,
       "CSS": 155803,
-      "HTML": 820
+      "HTML": 8552
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1110,7 +1116,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T22:36:34Z"
+      "pushed_at": "2026-02-19T19:33:49Z"
     },
     "languages": [
       "JavaScript",
@@ -1118,8 +1124,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 389988,
-      "CSS": 4604,
+      "JavaScript": 623932,
+      "CSS": 6436,
       "HTML": 894
     },
     "primary_language": "JavaScript",
@@ -1333,14 +1339,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T17:03:32Z"
+      "pushed_at": "2026-02-20T00:34:02Z"
     },
     "languages": [
       "Swift",
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 256352,
+      "Swift": 290504,
       "HTML": 10007
     },
     "primary_language": "Swift",
@@ -1349,6 +1355,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/snapdragon/preview.png"
     ]
   },
   {
@@ -1568,7 +1577,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T12:44:45Z"
+      "pushed_at": "2026-02-19T18:10:04Z"
     },
     "languages": [
       "TypeScript",
@@ -1579,7 +1588,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 135436,
+      "TypeScript": 135438,
       "Astro": 85086,
       "HTML": 55649,
       "JavaScript": 18279,
@@ -1728,10 +1737,9 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T14:59:28Z"
+      "pushed_at": "2026-02-19T19:26:32Z"
     },
     "languages": [
-      "Python",
       "Rust",
       "TypeScript",
       "JavaScript",
@@ -1739,14 +1747,13 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 266049,
       "Rust": 165906,
       "TypeScript": 133526,
-      "JavaScript": 35651,
-      "CSS": 18373,
-      "HTML": 7848
+      "JavaScript": 2143,
+      "CSS": 1657,
+      "HTML": 362
     },
-    "primary_language": "Python",
+    "primary_language": "Rust",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -1767,7 +1774,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T05:00:27Z"
+      "pushed_at": "2026-02-20T04:53:51Z"
     },
     "languages": [
       "JavaScript",
@@ -2152,7 +2159,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T05:24:01Z"
+      "pushed_at": "2026-02-20T05:18:25Z"
     },
     "languages": [
       "Python",

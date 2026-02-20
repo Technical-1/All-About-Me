@@ -16,12 +16,6 @@ flowchart TD
         DictService --> LocalDict
     end
 
-    subgraph Extension["Chrome Extension"]
-        ContentJS[content.js<br/>Auto-generated dictionary]
-        BgWorker[background.js<br/>Service worker]
-        Styles[styles.css<br/>Tooltip UI]
-    end
-
     subgraph ExternalAPIs["External APIs"]
         UD[Urban Dictionary API]
         KV[(Vercel KV Cache)]
@@ -32,7 +26,6 @@ flowchart TD
         ViteProxy[Vite Dev Proxy]
     end
 
-    SD -->|npm run build:ext| ContentJS
     SD -->|copied at build| LocalDict
 
     DictService -->|production| Vercel
@@ -41,8 +34,6 @@ flowchart TD
     ViteProxy --> UD
     Vercel --> KV
 
-    BgWorker -->|direct fetch| UD
-    ContentJS --> BgWorker
 ```
 
 ## Component Descriptions
@@ -74,14 +65,6 @@ flowchart TD
   - Exports `fakeSlang` array for the Real or Fake quiz mode
   - Exports filter option arrays (`tabs`, `eras`, `origins`, `types`)
 
-### Chrome Extension (background.js + content.js)
-- **Purpose**: Provides on-page slang translation via text selection tooltips
-- **Location**: `chrome-extension/`
-- **Key responsibilities**:
-  - `content.js`: Monitors text selection, checks against embedded dictionary, shows tooltip
-  - `background.js`: Service worker that handles Urban Dictionary API calls for unknown terms
-  - Caches API results in-memory for 24 hours
-
 ## Data Flow
 
 ### Translation Flow (Web App)
@@ -96,14 +79,6 @@ flowchart TD
 2. Local dictionary filtered by search + era/origin/type filters
 3. If no local matches and search > 2 chars, queries Urban Dictionary API
 4. Results shown in two sections: local matches and Urban Dictionary result
-
-### Chrome Extension Flow
-1. User selects text on any webpage
-2. Content script checks selection against embedded dictionary
-3. If found locally, shows tooltip immediately
-4. If not found, sends message to background service worker
-5. Background worker queries Urban Dictionary API, caches result, responds
-6. Content script displays tooltip with definition
 
 ## External Integrations
 
@@ -121,10 +96,10 @@ flowchart TD
 - **Decision**: Keep everything in `App.jsx` rather than splitting into separate route/component files
 - **Rationale**: Reduces file switching overhead for a project of this size; state is shared across tabs (e.g., popular words used in both translate and quiz)
 
-### Shared Dictionary with Build-time Sync
-- **Context**: Both the web app and Chrome extension need the same slang data
-- **Decision**: Single `shared/slangDictionary.js` file synced to both apps via build scripts
-- **Rationale**: Prevents data drift between platforms; single source of truth makes adding terms trivial
+### Shared Dictionary
+- **Context**: Slang data needs to be consistent across the app
+- **Decision**: Single `shared/slangDictionary.js` file as source of truth
+- **Rationale**: Single source of truth makes adding terms trivial
 
 ### Multi-tier Caching Strategy
 - **Context**: Urban Dictionary API has rate limits; need fast responses

@@ -22,12 +22,18 @@ The AI opponent uses a priority-based decision tree rather than simple random pl
 ### Dual Firebase Database Architecture
 I chose to use both Firebase Realtime Database and Cloud Firestore together: RTDB handles the matchmaking queue (optimized for real-time presence detection and low-latency queue operations), while Firestore manages game sessions and player profiles (better for structured queries, offline support, and document-based game state). This hybrid approach gives the best of both worlds.
 
+### Defense-in-Depth Security
+I implemented multi-layer input sanitization: an `InputSanitizer` utility strips HTML tags, filters to a safe character set, collapses whitespace, and enforces a 20-character limit. This runs at both the UI layer (name input views) and the persistence layer (ScoreManager), so no code path can persist unsanitized input. Firebase security rules enforce per-user write restrictions and participant-only game state updates. All 160+ debug print statements were replaced with a `GameLogger` utility that compiles to zero code in release builds using `@autoclosure`.
+
+### Comprehensive Test Suite
+I added 79 unit tests across 4 XCTest suites covering the core game logic (30 tests for rules, special cards, win detection), AI strategy (12 tests for decision-making edge cases), score persistence (18 tests for CRUD and stat calculation), and security (19 tests for sanitization and bounds safety). The value-type Game struct made testing straightforward — each test creates a fresh game state with no shared mutable state.
+
 ## Development Story
 
 - **Timeline**: Started June 2024, Firebase integration added in early 2025
 - **Hardest Part**: Getting online game state synchronization right — converting between local `Game` structs and Firestore documents while handling race conditions when both players initialize simultaneously
-- **Lessons Learned**: Using the same Game struct for both local and online play was the right call — it prevented rule divergence. The host-based initialization pattern (first player in the array initializes) solved the race condition problem cleanly
-- **Future Plans**: Spectator mode, friend system, tournament brackets, Game Center leaderboard integration, chat system
+- **Lessons Learned**: Using the same Game struct for both local and online play was the right call — it prevented rule divergence. The host-based initialization pattern (first player in the array initializes) solved the race condition problem cleanly. Adding tests after the fact validated that all the edge cases (four-of-a-kind, empty deck, face-down blind play) actually work correctly.
+- **Future Plans**: Spectator mode, friend system, tournament brackets, Game Center leaderboard integration, chat system, Cloud Functions for server-side move validation
 
 ## Frequently Asked Questions
 
@@ -50,4 +56,4 @@ Each move converts the local `Game` struct into a `GameStateData` Codable object
 Online state synchronization. The tricky part was ensuring both players see consistent game state when moves happen nearly simultaneously. I solved this with a move sequence counter and a host-based initialization pattern where only the first player creates the initial game state.
 
 ### What would you improve?
-Add a proper test suite (the game logic in `Game.swift` is highly testable as a pure value type). Implement Cloud Functions for server-side move validation to prevent cheating. Add better error recovery for disconnection scenarios. Clean up the debug print statements in production builds.
+Implement Cloud Functions for server-side move validation to prevent cheating. Add better error recovery for disconnection scenarios. Build out spectator mode and a friend system for private matches.
