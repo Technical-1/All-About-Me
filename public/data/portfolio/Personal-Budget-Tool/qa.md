@@ -28,6 +28,7 @@ The AI budget import calls the Anthropic Claude API directly from the browser â€
 
 - **Hardest Part**: Getting the budget period logic right. Edge cases around month boundaries, bills due before the first paycheck, and handling multiple occurrence frequencies (weekly items that span paycheck boundaries) required careful thought. The `isItemInBudgetPeriod` and `expandItemOccurrences` functions went through many iterations.
 - **Lessons Learned**: Starting with localStorage was fine for prototyping but quickly hit limits with structured data. The migration to IndexedDB was worth doing early. Also, CSS custom properties for theming turned out to be much simpler than any CSS-in-JS solution would have been.
+- **Production Hardening**: A comprehensive audit identified 20+ issues across stores, hooks, and components. All were fixed in 10 batched commits covering null guards, Zod import validation, date parsing bugs, RFC 5545 calendar compliance, accessibility (ARIA roles, viewport zoom), error handling, and bundle optimization (lazy-loaded jsPDF). Added Vitest with 79 tests and a GitHub Actions CI pipeline.
 - **Future Plans**: The Goals feature is partially implemented but hidden from navigation â€” it needs more work on the UI and integration with the main budget flow. Notification reminders are wired up but could be more sophisticated.
 
 ## Frequently Asked Questions

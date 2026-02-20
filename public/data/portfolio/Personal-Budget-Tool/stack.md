@@ -59,11 +59,15 @@
   - `eslint-plugin-react-refresh` 0.4.24
 - **Type Hints**: `@types/react` and `@types/react-dom` for JSDoc IDE support (not TypeScript)
 - **Dev Server**: Vite dev server with React Fast Refresh
+- **Testing**: Vitest 4.0.18 with jsdom environment
+  - `@testing-library/react` 16.3.2
+  - `@testing-library/jest-dom` 6.9.1
+  - 79 tests across 4 suites (formatters, schemas, calendar export, budget store)
 
 ## Infrastructure
 
-- **Hosting**: Static files (client-only PWA, no backend)
-- **CI/CD**: None configured
+- **Hosting**: Vercel (static PWA, no backend)
+- **CI/CD**: GitHub Actions — lint, test, build on Node 20 + 22 matrix with npm caching
 - **Monitoring**: None (client-side only)
 
 ## Key Dependencies
@@ -79,3 +83,5 @@
 | `zod` | Schema validation for data import/export |
 | `workbox-window` | PWA service worker lifecycle management |
 | `vite-plugin-pwa` | Automatic service worker generation and manifest |
+| `vitest` | Unit testing framework with Vite-native transforms |
+| `@testing-library/react` | React component testing utilities |

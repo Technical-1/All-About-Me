@@ -5,8 +5,9 @@
 | Category | Technology | Version | Purpose |
 |----------|------------|---------|---------|
 | Language | Swift | 5.9+ | Primary language for all app logic and UI |
-| Framework | SwiftUI | iOS 16+ | Declarative UI framework for all views |
+| Framework | SwiftUI | iOS 17.4+ | Declarative UI framework for all views |
 | Backend | Firebase | Latest | Authentication, real-time sync, matchmaking |
+| Testing | XCTest | Built-in | 79 unit tests (game logic, AI, scores, security) |
 | IDE | Xcode | 15.0+ | Build system and project management |
 
 ## Frontend (iOS App)
@@ -37,7 +38,7 @@
 - **Package Manager**: Swift Package Manager (SPM)
 - **Linting**: Xcode built-in warnings
 - **Formatting**: Xcode default
-- **Testing**: N/A (no test suite yet)
+- **Testing**: XCTest (79 unit tests across 4 suites)
 
 ## Key Dependencies
 
@@ -59,3 +60,13 @@ All Firebase packages are sourced from the official `firebase-ios-sdk` repositor
 | Mechanism | Purpose |
 |-----------|---------|
 | `UserDefaults` | Game results history, recent player names, last used player name |
+
+## Security & Quality
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| Input | `InputSanitizer` | HTML stripping, character filtering, length limiting on player names |
+| Persistence | `ScoreManager` sanitization | Defense-in-depth re-sanitization at storage layer |
+| Firebase | Firestore/RTDB rules | Per-user write restrictions, participant-only game updates |
+| Logging | `GameLogger` with `@autoclosure` | Debug-only logging with zero release overhead |
+| Testing | 4 XCTest suites | GameLogicTests (30), GameAITests (12), ScoreManagerTests (18), SecurityTests (19) |

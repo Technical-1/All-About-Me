@@ -4,7 +4,7 @@
 
 | Category | Technology | Version | Purpose |
 |----------|------------|---------|---------|
-| Language | JavaScript (ES Modules) | ES2022 | Full-stack language for web app and extension |
+| Language | JavaScript (ES Modules) | ES2022 | Full-stack language |
 | Framework | React | ^18.2.0 | UI component library |
 | Build Tool | Vite | ^5.1.4 | Dev server with HMR + production bundler |
 | Styling | Tailwind CSS | ^3.4.1 | Utility-first CSS framework |
@@ -25,13 +25,6 @@
 - **Dev Proxy**: Vite dev server proxy (local development)
 - **External API**: Urban Dictionary API v0 (`/v0/define`, `/v0/random`, `/v0/autocomplete-extra`)
 - **Caching**: Vercel KV (server-side, production), localStorage (client-side, 7-day TTL)
-
-## Chrome Extension
-
-- **Manifest**: Chrome Manifest V3
-- **Architecture**: Content script + Background service worker
-- **Permissions**: `activeTab`, `host_permissions` for Urban Dictionary API
-- **Build**: Custom Node.js script (`build-extension.js`) syncs shared dictionary
 
 ## Infrastructure
 

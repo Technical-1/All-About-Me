@@ -17,11 +17,14 @@ flowchart TD
         G[PlayerNameInputView]
         H[SinglePlayerNameInputView]
         I[FirebaseTestView]
+        U[SharedCardViews<br/>CardView, PileView, etc.]
     end
 
     subgraph Logic["Game Logic Layer"]
         J[Game<br/>Core Rules & AI]
         K[ScoreManager<br/>Stats & Persistence]
+        V[InputSanitizer<br/>Name Validation]
+        W[GameLogger<br/>DEBUG Logging]
     end
 
     subgraph Online["Online Infrastructure"]
@@ -51,9 +54,14 @@ flowchart TD
     B --> I
 
     C --> J
+    C --> U
     D --> L
+    D --> U
     E --> M
     F --> K
+    G --> V
+    H --> V
+    K --> V
 
     L --> J
     L --> N
@@ -118,6 +126,21 @@ flowchart TD
 - **Location**: `SnapDragon/GameScore.swift`
 - **Key responsibilities**: Win/loss tracking, player stats calculation, recent players list, UserDefaults persistence
 
+### SharedCardViews
+- **Purpose**: Shared UI components used by both local and online gameplay views
+- **Location**: `SnapDragon/SharedCardViews.swift`
+- **Key responsibilities**: `CardView`, `CardBackView`, `EmptySlotView`, `SharedPileView`, and `rankString()` helper — extracted to eliminate duplication between ContentView and OnlineGameView
+
+### InputSanitizer
+- **Purpose**: Defense-in-depth player name sanitization
+- **Location**: `SnapDragon/InputSanitizer.swift`
+- **Key responsibilities**: Strip HTML tags, filter to allowed character set (alphanumeric + spaces + basic punctuation), collapse whitespace, enforce 20-char limit. Applied at both UI input and persistence layers.
+
+### GameLogger
+- **Purpose**: Debug-only logging utility gated behind `#if DEBUG`
+- **Location**: `SnapDragon/GameLogger.swift`
+- **Key responsibilities**: Replaces all `print()` calls with `GameLogger.log()` using `@autoclosure` to avoid string interpolation cost in release builds
+
 ### OnlineGameModels
 - **Purpose**: Data models for online multiplayer serialization
 - **Location**: `SnapDragon/OnlineGameModels.swift`
@@ -159,3 +182,13 @@ flowchart TD
 - **Context**: Game state needs to be copied, compared, and serialized frequently
 - **Decision**: `Game`, `Card`, and `Player` are all structs (value types), not classes
 - **Rationale**: Value semantics make state management predictable — each mutation creates a new copy, preventing shared mutable state bugs
+
+### Defense-in-Depth Input Sanitization
+- **Context**: Player names are entered by users and persisted locally and in Firebase
+- **Decision**: Sanitize at both the UI layer (name input views) and the persistence layer (ScoreManager). Firebase security rules enforce per-user write restrictions.
+- **Rationale**: Multi-layer sanitization ensures no code path can persist unsanitized input, even if a future call site bypasses the UI
+
+### Debug-Only Logging
+- **Context**: Production builds contained ~160 print() statements that leaked game state to device logs
+- **Decision**: Replace all print() with `GameLogger.log()` using `@autoclosure` behind `#if DEBUG`
+- **Rationale**: Zero runtime cost in release builds — the `@autoclosure` defers string interpolation entirely when DEBUG is not set
