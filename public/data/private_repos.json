@@ -645,7 +645,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:35:11Z"
+      "pushed_at": "2026-02-21T06:30:31Z"
     },
     "languages": [
       "JavaScript",
@@ -654,7 +654,7 @@
     ],
     "language_bytes": {
       "JavaScript": 223513,
-      "HTML": 11080,
+      "HTML": 11079,
       "CSS": 3038
     },
     "primary_language": "JavaScript",
@@ -1123,7 +1123,7 @@
       "full_name": "Technical-1/restauranthub",
       "html_url": "https://github.com/Technical-1/restauranthub",
       "homepage": "https://restauranthub-two.vercel.app",
-      "description": null,
+      "description": "A production-ready white-label restaurant website template. Firebase-powered with runtime theming, full admin panel, reservations, catering, events, and mobile-first design.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1591,7 +1591,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T03:10:41Z"
+      "pushed_at": "2026-02-21T03:31:31Z"
     },
     "languages": [
       "TypeScript",
@@ -1788,7 +1788,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T04:53:51Z"
+      "pushed_at": "2026-02-21T04:43:42Z"
     },
     "languages": [
       "JavaScript",
@@ -2173,7 +2173,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T05:18:25Z"
+      "pushed_at": "2026-02-21T05:08:04Z"
     },
     "languages": [
       "Python",
