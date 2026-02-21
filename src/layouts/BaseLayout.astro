@@ -38,8 +38,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
   <!-- Canonical URL -->
   <link rel="canonical" href={canonicalURL} />
 
-  <!-- Favicon -->
+  <!-- Favicon & App Icons -->
   <link rel="icon" href="/jk-logo.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
 
   <!-- Fonts - DM Sans, Inter, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
