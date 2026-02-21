@@ -640,7 +640,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T22:49:11Z"
+      "pushed_at": "2026-02-21T02:09:37Z"
     },
     "languages": [
       "JavaScript",
@@ -648,9 +648,9 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 227886,
-      "HTML": 10104,
-      "CSS": 3162
+      "JavaScript": 223275,
+      "HTML": 11181,
+      "CSS": 3038
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -848,13 +848,13 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-18T17:21:34Z"
+      "pushed_at": "2026-02-20T22:03:47Z"
     },
     "languages": [
       "Swift"
     ],
     "language_bytes": {
-      "Swift": 85544
+      "Swift": 77579
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -948,7 +948,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-17T22:00:00Z"
+      "pushed_at": "2026-02-20T23:27:26Z"
     },
     "languages": [
       "Rust",
@@ -957,8 +957,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "Rust": 350951,
-      "TypeScript": 229008,
+      "Rust": 357212,
+      "TypeScript": 228943,
       "CSS": 21571,
       "HTML": 14677
     },
@@ -968,6 +968,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/quickpass-v2/preview.png"
     ]
   },
   {
@@ -1116,7 +1119,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T19:33:49Z"
+      "pushed_at": "2026-02-20T19:20:51Z"
     },
     "languages": [
       "JavaScript",
@@ -1124,8 +1127,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 623932,
-      "CSS": 6436,
+      "JavaScript": 640250,
+      "CSS": 6641,
       "HTML": 894
     },
     "primary_language": "JavaScript",
@@ -1339,7 +1342,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T00:34:02Z"
+      "pushed_at": "2026-02-21T02:04:41Z"
     },
     "languages": [
       "Swift",
@@ -1347,7 +1350,7 @@
     ],
     "language_bytes": {
       "Swift": 290504,
-      "HTML": 10007
+      "HTML": 9087
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -1577,7 +1580,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T18:10:04Z"
+      "pushed_at": "2026-02-20T07:39:17Z"
     },
     "languages": [
       "TypeScript",
