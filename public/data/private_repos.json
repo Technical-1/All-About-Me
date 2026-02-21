@@ -819,7 +819,7 @@
       "full_name": "Technical-1/Personal-Budget-Tool",
       "html_url": "https://github.com/Technical-1/Personal-Budget-Tool",
       "homepage": "https://budget-tracker-kappa-fawn.vercel.app",
-      "description": null,
+      "description": "Paycheck-centric personal budget tracker — a Progressive Web App built with React 19, Zustand, and IndexedDB. Organize expenses around actual pay dates, track spending across payment methods, and export to PDF or calendar.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1353,7 +1353,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T03:07:00Z"
+      "pushed_at": "2026-02-21T03:29:27Z"
     },
     "languages": [
       "Swift",
@@ -1361,7 +1361,7 @@
     ],
     "language_bytes": {
       "Swift": 290504,
-      "HTML": 9160
+      "HTML": 9127
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -1591,7 +1591,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T03:03:20Z"
+      "pushed_at": "2026-02-21T03:10:41Z"
     },
     "languages": [
       "TypeScript",
