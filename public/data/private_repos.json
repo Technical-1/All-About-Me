@@ -490,17 +490,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T04:30:44Z"
+      "pushed_at": "2026-02-21T03:01:52Z"
     },
     "languages": [
       "TypeScript",
       "Python",
-      "JavaScript"
+      "JavaScript",
+      "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 539026,
+      "TypeScript": 542408,
       "Python": 46284,
-      "JavaScript": 9237
+      "JavaScript": 9237,
+      "HTML": 7869
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -508,6 +510,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/flux/preview.png"
     ]
   },
   {
@@ -640,7 +645,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:09:37Z"
+      "pushed_at": "2026-02-21T02:35:11Z"
     },
     "languages": [
       "JavaScript",
@@ -648,8 +653,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 223275,
-      "HTML": 11181,
+      "JavaScript": 223513,
+      "HTML": 11080,
       "CSS": 3038
     },
     "primary_language": "JavaScript",
@@ -818,7 +823,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T00:32:38Z"
+      "pushed_at": "2026-02-21T02:29:51Z"
     },
     "languages": [
       "JavaScript",
@@ -836,6 +841,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/personal-budget-tool/preview.png"
     ]
   },
   {
@@ -1119,17 +1127,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T19:20:51Z"
+      "pushed_at": "2026-02-21T02:44:10Z"
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
       "JavaScript": 640250,
-      "CSS": 6641,
-      "HTML": 894
+      "HTML": 8174,
+      "CSS": 6641
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1342,7 +1350,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:04:41Z"
+      "pushed_at": "2026-02-21T02:26:08Z"
     },
     "languages": [
       "Swift",
@@ -1580,7 +1588,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T07:39:17Z"
+      "pushed_at": "2026-02-21T02:22:51Z"
     },
     "languages": [
       "TypeScript",
@@ -1592,8 +1600,8 @@
     ],
     "language_bytes": {
       "TypeScript": 135438,
-      "Astro": 85086,
-      "HTML": 55649,
+      "Astro": 85257,
+      "HTML": 59128,
       "JavaScript": 18279,
       "CSS": 10534,
       "Shell": 7015
