@@ -1127,7 +1127,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:44:10Z"
+      "pushed_at": "2026-02-21T03:07:14Z"
     },
     "languages": [
       "JavaScript",
@@ -1145,6 +1145,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/restauranthub/preview.png"
     ]
   },
   {
@@ -1350,7 +1353,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:26:08Z"
+      "pushed_at": "2026-02-21T03:07:00Z"
     },
     "languages": [
       "Swift",
@@ -1358,7 +1361,7 @@
     ],
     "language_bytes": {
       "Swift": 290504,
-      "HTML": 9087
+      "HTML": 9160
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -1588,7 +1591,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T02:22:51Z"
+      "pushed_at": "2026-02-21T03:03:20Z"
     },
     "languages": [
       "TypeScript",
