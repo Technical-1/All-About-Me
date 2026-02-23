@@ -485,12 +485,12 @@
       "name": "Flux",
       "full_name": "Technical-1/Flux",
       "html_url": "https://github.com/Technical-1/Flux",
-      "homepage": "https://flux-particle-studio.vercel.app",
+      "homepage": "https://flux-app-eight.vercel.app",
       "description": "Generative particle art studio with ambient soundscapes. React Native + Expo for iOS, Android & Web.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T03:01:52Z"
+      "pushed_at": "2026-02-23T04:54:39Z"
     },
     "languages": [
       "TypeScript",
@@ -499,7 +499,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 542408,
+      "TypeScript": 542207,
       "Python": 46284,
       "JavaScript": 9237,
       "HTML": 7869
@@ -645,7 +645,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T21:08:04Z"
+      "pushed_at": "2026-02-23T04:50:54Z"
     },
     "languages": [
       "JavaScript",
@@ -653,7 +653,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 223513,
+      "JavaScript": 233146,
       "HTML": 11079,
       "CSS": 3038
     },
@@ -856,13 +856,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-20T22:03:47Z"
+      "pushed_at": "2026-02-23T06:51:59Z"
     },
     "languages": [
-      "Swift"
+      "Swift",
+      "HTML"
     ],
     "language_bytes": {
-      "Swift": 77579
+      "Swift": 124390,
+      "HTML": 35671
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -870,6 +872,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pixscan/preview.png"
     ]
   },
   {
@@ -1262,6 +1267,35 @@
   },
   {
     "repo": {
+      "name": "Signature-Studio",
+      "full_name": "Technical-1/Signature-Studio",
+      "html_url": "https://github.com/Technical-1/Signature-Studio",
+      "homepage": "https://signature-studio-nu.vercel.app",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-23T07:15:54Z"
+    },
+    "languages": [
+      "HTML"
+    ],
+    "language_bytes": {
+      "HTML": 87427
+    },
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/signature-studio/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "Simple-Backgammon",
       "full_name": "Technical-1/Simple-Backgammon",
       "html_url": "https://github.com/Technical-1/Simple-Backgammon",
@@ -1591,7 +1625,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T07:23:00Z"
+      "pushed_at": "2026-02-22T07:27:41Z"
     },
     "languages": [
       "TypeScript",
@@ -1751,7 +1785,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-19T19:26:32Z"
+      "pushed_at": "2026-02-23T04:31:53Z"
     },
     "languages": [
       "Rust",
@@ -1761,7 +1795,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "Rust": 165906,
+      "Rust": 183347,
       "TypeScript": 133526,
       "JavaScript": 2143,
       "CSS": 1657,
@@ -1788,7 +1822,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-22T04:56:24Z"
+      "pushed_at": "2026-02-23T05:06:12Z"
     },
     "languages": [
       "JavaScript",
@@ -2173,14 +2207,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-22T05:17:55Z"
+      "pushed_at": "2026-02-23T05:48:41Z"
     },
     "languages": [
       "Python",
       "HTML"
     ],
     "language_bytes": {
-      "Python": 27796,
+      "Python": 28475,
       "HTML": 7298
     },
     "primary_language": "Python",
