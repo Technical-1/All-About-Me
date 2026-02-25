@@ -5,6 +5,7 @@ import Footer from '../components/global/Footer.astro';
 import WebLLMPreloader from '../components/global/WebLLMPreloader.astro';
 import GeometricBackground from '../components/global/GeometricBackground.astro';
 import { ViewTransitions } from 'astro:transitions';
+import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title: string;
@@ -120,6 +121,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://jacobkan
   </main>
 
   <Footer />
+
+  <Analytics />
 
   <!-- WebLLM Preloader - loads model in background for chat page -->
   <WebLLMPreloader />
