@@ -645,7 +645,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-23T08:43:51Z"
+      "pushed_at": "2026-02-24T08:41:30Z"
     },
     "languages": [
       "JavaScript",
@@ -1189,6 +1189,36 @@
   },
   {
     "repo": {
+      "name": "SecondBrain",
+      "full_name": "Technical-1/SecondBrain",
+      "html_url": "https://github.com/Technical-1/SecondBrain",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-25T03:40:06Z"
+    },
+    "languages": [
+      "TypeScript",
+      "Rust",
+      "Shell",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 258855,
+      "Rust": 243813,
+      "Shell": 371,
+      "HTML": 361,
+      "CSS": 23
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "security-doc-analyzer",
       "full_name": "Technical-1/security-doc-analyzer",
       "html_url": "https://github.com/Technical-1/security-doc-analyzer",
@@ -1589,6 +1619,34 @@
   },
   {
     "repo": {
+      "name": "Wishlist",
+      "full_name": "Technical-1/Wishlist",
+      "html_url": "https://github.com/Technical-1/Wishlist",
+      "homepage": "https://wish-list-tan.vercel.app",
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-02-25T03:41:53Z"
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 64877,
+      "CSS": 3152,
+      "HTML": 769,
+      "JavaScript": 616
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "Work-Files",
       "full_name": "Technical-1/Work-Files",
       "html_url": "https://github.com/Technical-1/Work-Files",
@@ -1629,7 +1687,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-23T07:45:28Z"
+      "pushed_at": "2026-02-24T07:41:45Z"
     },
     "languages": [
       "TypeScript",
@@ -1826,7 +1884,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-24T04:59:17Z"
+      "pushed_at": "2026-02-25T05:00:50Z"
     },
     "languages": [
       "JavaScript",
@@ -2211,7 +2269,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-24T05:23:36Z"
+      "pushed_at": "2026-02-25T05:34:54Z"
     },
     "languages": [
       "Python",
