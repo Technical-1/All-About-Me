@@ -546,12 +546,12 @@
       "name": "GimmeThat",
       "full_name": "Technical-1/GimmeThat",
       "html_url": "https://github.com/Technical-1/GimmeThat",
-      "homepage": "https://wish-list-tan.vercel.app",
-      "description": null,
+      "homepage": "https://gimmethat.io/",
+      "description": "A Progressive Web App for curating and sharing wish lists. Paste any product link to auto-scrape details into rich cards, organize into lists, and share with friends and family.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-03T16:01:55Z"
+      "pushed_at": "2026-03-05T17:58:51Z"
     },
     "languages": [
       "TypeScript",
@@ -560,10 +560,10 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 138015,
-      "HTML": 9711,
+      "TypeScript": 199600,
+      "HTML": 9588,
       "CSS": 4751,
-      "JavaScript": 2454
+      "JavaScript": 2561
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -1127,15 +1127,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-17T20:41:45Z"
+      "pushed_at": "2026-03-05T17:16:12Z"
     },
     "languages": [
       "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 82976,
-      "HTML": 19368
+      "JavaScript": 90007,
+      "HTML": 26909
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1362,11 +1362,11 @@
       "full_name": "Technical-1/Signature-Studio",
       "html_url": "https://github.com/Technical-1/Signature-Studio",
       "homepage": "https://signature-studio-nu.vercel.app",
-      "description": null,
+      "description": "Create animated signature SVGs — draw freehand or type with single-stroke calligraphic fonts",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-25T23:01:04Z"
+      "pushed_at": "2026-03-05T16:39:06Z"
     },
     "languages": [
       "HTML",
@@ -1720,7 +1720,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-04T07:30:06Z"
+      "pushed_at": "2026-03-05T07:34:02Z"
     },
     "languages": [
       "TypeScript",
@@ -1917,7 +1917,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-05T04:51:18Z"
+      "pushed_at": "2026-03-06T04:48:11Z"
     },
     "languages": [
       "JavaScript",
@@ -2302,7 +2302,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-05T05:14:59Z"
+      "pushed_at": "2026-03-06T05:12:11Z"
     },
     "languages": [
       "Python",
