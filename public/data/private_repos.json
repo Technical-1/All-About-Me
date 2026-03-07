@@ -490,7 +490,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-03T23:23:00Z"
+      "pushed_at": "2026-03-07T06:06:09Z"
     },
     "languages": [
       "Liquid",
@@ -706,7 +706,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-28T01:57:02Z"
+      "pushed_at": "2026-03-07T07:13:55Z"
     },
     "languages": [
       "JavaScript",
@@ -714,7 +714,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 217461,
+      "JavaScript": 220126,
       "HTML": 11079,
       "CSS": 3038
     },
@@ -1366,19 +1366,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-05T16:39:06Z"
+      "pushed_at": "2026-03-07T02:36:36Z"
     },
     "languages": [
-      "HTML",
       "JavaScript",
+      "HTML",
       "CSS"
     ],
     "language_bytes": {
-      "HTML": 101251,
-      "JavaScript": 101123,
-      "CSS": 15170
+      "JavaScript": 110407,
+      "HTML": 20737,
+      "CSS": 16842
     },
-    "primary_language": "HTML",
+    "primary_language": "JavaScript",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -1720,7 +1720,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-05T07:34:02Z"
+      "pushed_at": "2026-03-06T07:32:00Z"
     },
     "languages": [
       "TypeScript",
@@ -1917,7 +1917,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-06T04:48:11Z"
+      "pushed_at": "2026-03-07T04:27:11Z"
     },
     "languages": [
       "JavaScript",
@@ -2302,7 +2302,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-06T05:12:11Z"
+      "pushed_at": "2026-03-07T05:02:25Z"
     },
     "languages": [
       "Python",
