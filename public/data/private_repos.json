@@ -551,7 +551,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-05T17:58:51Z"
+      "pushed_at": "2026-03-07T19:03:24Z"
     },
     "languages": [
       "TypeScript",
@@ -560,7 +560,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 199600,
+      "TypeScript": 247704,
       "HTML": 9588,
       "CSS": 4751,
       "JavaScript": 2561
@@ -773,20 +773,20 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-25T20:01:19Z"
+      "pushed_at": "2026-03-07T19:42:54Z"
     },
     "languages": [
       "TypeScript",
       "Python",
-      "HTML",
       "JavaScript",
+      "HTML",
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 588631,
+      "TypeScript": 601625,
       "Python": 19208,
-      "HTML": 16101,
-      "JavaScript": 15987,
+      "JavaScript": 16074,
+      "HTML": 15523,
       "CSS": 1258
     },
     "primary_language": "TypeScript",
@@ -1720,7 +1720,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-06T07:32:00Z"
+      "pushed_at": "2026-03-07T07:19:49Z"
     },
     "languages": [
       "TypeScript",
@@ -1917,7 +1917,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-07T04:27:11Z"
+      "pushed_at": "2026-03-08T04:50:22Z"
     },
     "languages": [
       "JavaScript",
@@ -2232,20 +2232,33 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-20T01:28:08Z"
+      "pushed_at": "2026-03-07T23:17:54Z"
     },
     "languages": [
-      "Rust"
+      "Svelte",
+      "Rust",
+      "CSS",
+      "HTML",
+      "TypeScript",
+      "JavaScript"
     ],
     "language_bytes": {
-      "Rust": 63944
+      "Svelte": 81052,
+      "Rust": 45842,
+      "CSS": 12306,
+      "HTML": 10620,
+      "TypeScript": 8034,
+      "JavaScript": 296
     },
-    "primary_language": "Rust",
+    "primary_language": "Svelte",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/rust-dashboard/preview.png"
     ]
   },
   {
@@ -2302,7 +2315,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-07T05:02:25Z"
+      "pushed_at": "2026-03-08T05:12:08Z"
     },
     "languages": [
       "Python",
