@@ -486,9 +486,10 @@ claude
 Here's an example prompt to get started. Notice we're asking Claude Code to use the **frontend-design skill** — this is a special workflow that generates polished, production-ready UI instead of the generic look most AI tools produce:
 
 ```
-Use the /frontend-design skill to create a new React application using
-TanStack Router and TanStack Start. Use pnpm as the package manager.
-Set it up with TypeScript and Tailwind CSS.
+Use the official TanStack create CLI to scaffold a new TanStack Start
+application with the basic template. Use pnpm as the package manager.
+After the project is scaffolded, use the /frontend-design skill to
+build out the app with TypeScript and Tailwind CSS.
 
 The app should have:
 - A homepage with a welcome message and a clean modern design
@@ -505,7 +506,7 @@ scheme with good typography. I want it to look like a real designer made it.
 
 Claude Code will:
 
-1. **Initialize the project** — set up the folder structure, config files, and dependencies
+1. **Scaffold the project** — using TanStack's official CLI (`pnpm create @tanstack/app`) which sets up the recommended project structure
 2. **Install packages with pnpm** — you'll see it running `pnpm install`
 3. **Create all the pages** — homepage, about, contact with routing between them
 4. **Style everything** — using Tailwind CSS for a polished look
