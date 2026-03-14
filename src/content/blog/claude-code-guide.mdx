@@ -7,7 +7,7 @@ tags: ["Web Development", "Claude Code", "Tutorial", "Guide", "Beginner", "TanSt
 
 import TabbedGuide from '../../components/blog/TabbedGuide.tsx';
 
-<TabbedGuide client:load tabs={["Getting Started", "Your First Project", "Skills & Tools", "Real Examples", "Quick Reference"]}>
+<TabbedGuide client:load tabs={["Getting Started", "Skills & Tools", "Your First Project", "Real Examples", "Quick Reference"]}>
 
 <div>
 
@@ -215,6 +215,160 @@ Claude Code works best when you're clear about what you want. Here are some tips
 
 <div>
 
+## Skills & Tools
+
+Claude Code has powerful features that make it much more capable than a basic chatbot. This is where it goes from "helpful assistant" to "AI-powered development partner."
+
+### Installing Skills
+
+Skills don't come built into Claude Code — they're plugins you install. The most powerful collection is called **Superpowers**. Here's how to install it:
+
+1. Open Claude Code in any directory:
+```bash
+claude
+```
+
+2. Tell Claude to install the Superpowers plugin:
+```
+Install the superpowers plugin from claude-plugins-official
+```
+
+Or install it manually by adding it to your Claude Code settings. Once installed, all the skills below become available automatically — Claude Code will use them when appropriate, or you can activate them with slash commands.
+
+You can also find and install other skill packs from the community. Think of it like installing apps on your phone — each one adds new capabilities.
+
+### Slash Commands
+
+Slash commands are shortcuts you type to quickly do common things. Here are the essential ones:
+
+| Command | What It Does |
+|---------|-------------|
+| `/help` | Shows all available commands — your lifeline when you're not sure what's available |
+| `/commit` | Saves your work as a Git commit with an auto-generated descriptive message |
+| `/clear` | Clears the conversation history — useful when starting fresh |
+| `/compact` | Summarizes the conversation so far to free up context space |
+| `/review` | Reviews your code changes for bugs and improvements |
+
+### Key Skills
+
+Skills are pre-built workflows that give Claude Code specialized abilities. Think of them like apps on your phone — each one does something specific really well. You activate them by typing their slash command or by just describing what you want.
+
+Here are the most powerful ones:
+
+#### Brainstorming (`/brainstorming`)
+
+Before you build anything, this skill walks you through a collaborative design process. Instead of Claude Code just guessing what you want, it:
+- Asks you clarifying questions one at a time
+- Proposes 2-3 different approaches with trade-offs
+- Shows you visual mockups in your browser so you can pick layouts and styles
+- Writes a design spec before any code gets written
+
+This is how professionals work — design first, then build. The brainstorming skill makes sure you and Claude Code are on the same page before a single line of code is written.
+
+#### Writing Plans (`/write-plan`)
+
+Once you know *what* to build, this skill creates a detailed step-by-step implementation plan. It breaks the work into small, testable tasks — each one taking just a few minutes. The plan includes:
+- Exact file paths for every file that needs to be created or changed
+- Complete code snippets (not vague instructions)
+- Test cases to verify each step works
+- Git commit points so your progress is saved along the way
+
+Think of it like a recipe — instead of "make a cake," you get "preheat oven to 350°F, mix 2 cups flour with 1 cup sugar..."
+
+#### Systematic Debugging (`/debug`)
+
+When something breaks, this skill prevents the frustrating cycle of random changes and hoping for the best. Instead, it follows a structured approach:
+- Reproduces the bug first (makes sure it can actually see the problem)
+- Forms a hypothesis about what's wrong
+- Tests the hypothesis with targeted changes
+- Verifies the fix doesn't break anything else
+
+This is how experienced developers debug — methodically, not randomly.
+
+#### Frontend Design (`/frontend-design`)
+
+This skill generates polished, production-ready UI components that avoid the generic "AI look." Instead of the same boring templates every AI spits out, you get:
+- Clean interfaces with real design sensibility
+- Thoughtful use of color, spacing, and typography
+- Components that actually look like a human designer made them
+- Responsive layouts that work on all screen sizes
+
+#### Other Notable Skills
+
+- **Test-Driven Development** — Writes tests before code, ensuring everything works correctly from the start
+- **Code Review** — Reviews your code for bugs, security issues, and best practices
+- **Dispatching Parallel Agents** — Splits big tasks across multiple AI workers that run simultaneously, finishing faster
+
+### What Are MCP Servers?
+
+MCP stands for "Model Context Protocol." In plain English, MCP servers are **plugins that connect Claude Code to other services and tools**.
+
+Think of Claude Code as a brain — it can think and write code, but MCP servers give it hands to reach into other systems:
+
+- **GitHub MCP server** — Create pull requests, manage issues, review code, and interact with your repositories without leaving Claude Code
+- **Filesystem MCP server** — Enhanced file management capabilities beyond basic read/write
+- **Database MCP server** — Query and manage databases directly
+- **Slack/Discord MCP servers** — Send messages and interact with team channels
+- **Browser MCP server** — Let Claude Code see and interact with web pages
+
+You don't need to set these up right away — they're there when you're ready to connect Claude Code to your other tools.
+
+### CLAUDE.md Files
+
+A `CLAUDE.md` file is like a set of instructions you leave for Claude Code. When Claude Code opens a project that has a `CLAUDE.md` file, it reads it first to understand your project and preferences. Think of it as a note you leave for your AI assistant so it doesn't have to ask you the same questions every time.
+
+Here's a simple example:
+
+```markdown
+# My Website Project
+
+This is a personal portfolio website built with HTML, CSS, and JavaScript.
+
+## How to run
+Open index.html in a browser, or run `npx serve .`
+
+## Preferences
+- Use modern CSS (flexbox, grid) instead of old techniques
+- Keep the design minimal and clean
+- Always test on mobile sizes
+```
+
+And here's a more advanced one showing the kind of instructions a power user might write:
+
+```markdown
+# Project Rules
+
+## Stack
+- React 19 with TypeScript
+- Tailwind CSS for styling
+- Vitest for testing
+
+## Conventions
+- Always write tests before implementation (TDD)
+- Use the brainstorming skill before building new features
+- Never modify the database schema without asking first
+- Commit after each completed task, not at the end
+
+## How to run
+- Dev server: npm run dev
+- Tests: npm test
+- Build: npm run build
+```
+
+### Permission Modes
+
+Claude Code asks for permission before doing certain things — like running commands or editing files. There are different modes:
+
+- **Default mode** — Claude asks before every action. Safest for beginners. You'll see exactly what it wants to do before it does it.
+- **Auto-accept edits** — Claude can edit files without asking, but still asks before running commands. Good once you trust it with your code.
+- **YOLO mode** — Claude does everything without asking. Only use this if you're comfortable and trust the project context. Great for experienced users who want maximum speed.
+
+As a beginner, stick with the default mode. You'll learn to trust Claude Code's judgment over time, and then you can relax the permissions.
+
+</div>
+
+<div>
+
 ## Building Your First Real Project
 
 Let's walk through building an actual web application from scratch — not just a simple HTML page, but a modern React app with routing, a professional setup, and automatic deployment. By the end, you'll have a live website anyone can visit.
@@ -369,142 +523,6 @@ This is what modern development looks like:
 6. **Iterate** → Go back to step 1
 
 You just went from zero to a deployed web application with professional CI/CD. That's real software engineering — and you did it by typing in English.
-
-</div>
-
-<div>
-
-## Leveling Up With Skills and Tools
-
-Once you're comfortable with the basics, Claude Code has powerful features that make it even more capable. This is where it goes from "helpful chatbot" to "AI-powered development partner."
-
-### Slash Commands
-
-Slash commands are shortcuts you type to quickly do common things. Here are the essential ones:
-
-| Command | What It Does |
-|---------|-------------|
-| `/help` | Shows all available commands — your lifeline when you're not sure what's available |
-| `/commit` | Saves your work as a Git commit with an auto-generated descriptive message |
-| `/clear` | Clears the conversation history — useful when starting fresh |
-| `/compact` | Summarizes the conversation so far to free up context space |
-| `/review` | Reviews your code changes for bugs and improvements |
-
-### What Are Skills?
-
-Skills are pre-built workflows that give Claude Code specialized abilities. Think of them like apps on your phone — each one does something specific really well. You activate them by typing their slash command or by just describing what you want.
-
-Here are some of the most powerful ones:
-
-#### Brainstorming (`/brainstorming`)
-
-Before you build anything, this skill walks you through a collaborative design process. Instead of Claude Code just guessing what you want, it:
-- Asks you clarifying questions one at a time
-- Proposes 2-3 different approaches with trade-offs
-- Shows you visual mockups in your browser so you can pick layouts and styles
-- Writes a design spec before any code gets written
-
-This is how professionals work — design first, then build. The brainstorming skill makes sure you and Claude Code are on the same page before a single line of code is written.
-
-#### Writing Plans (`/write-plan`)
-
-Once you know *what* to build, this skill creates a detailed step-by-step implementation plan. It breaks the work into small, testable tasks — each one taking just a few minutes. The plan includes:
-- Exact file paths for every file that needs to be created or changed
-- Complete code snippets (not vague instructions)
-- Test cases to verify each step works
-- Git commit points so your progress is saved along the way
-
-Think of it like a recipe — instead of "make a cake," you get "preheat oven to 350°F, mix 2 cups flour with 1 cup sugar..."
-
-#### Systematic Debugging (`/debug`)
-
-When something breaks, this skill prevents the frustrating cycle of random changes and hoping for the best. Instead, it follows a structured approach:
-- Reproduces the bug first (makes sure it can actually see the problem)
-- Forms a hypothesis about what's wrong
-- Tests the hypothesis with targeted changes
-- Verifies the fix doesn't break anything else
-
-This is how experienced developers debug — methodically, not randomly.
-
-#### Frontend Design (`/frontend-design`)
-
-This skill generates polished, production-ready UI components that avoid the generic "AI look." Instead of the same boring templates every AI spits out, you get:
-- Clean interfaces with real design sensibility
-- Thoughtful use of color, spacing, and typography
-- Components that actually look like a human designer made them
-- Responsive layouts that work on all screen sizes
-
-#### Other Notable Skills
-
-- **Test-Driven Development** — Writes tests before code, ensuring everything works correctly from the start
-- **Code Review** — Reviews your code for bugs, security issues, and best practices
-- **Dispatching Parallel Agents** — Splits big tasks across multiple AI workers that run simultaneously, finishing faster
-
-### What Are MCP Servers?
-
-MCP stands for "Model Context Protocol." In plain English, MCP servers are **plugins that connect Claude Code to other services and tools**.
-
-Think of Claude Code as a brain — it can think and write code, but MCP servers give it hands to reach into other systems:
-
-- **GitHub MCP server** — Create pull requests, manage issues, review code, and interact with your repositories without leaving Claude Code
-- **Filesystem MCP server** — Enhanced file management capabilities beyond basic read/write
-- **Database MCP server** — Query and manage databases directly
-- **Slack/Discord MCP servers** — Send messages and interact with team channels
-- **Browser MCP server** — Let Claude Code see and interact with web pages
-
-You don't need to set these up right away — they're there when you're ready to connect Claude Code to your other tools.
-
-### CLAUDE.md Files
-
-A `CLAUDE.md` file is like a set of instructions you leave for Claude Code. When Claude Code opens a project that has a `CLAUDE.md` file, it reads it first to understand your project and preferences. Think of it as a note you leave for your AI assistant so it doesn't have to ask you the same questions every time.
-
-Here's a simple example:
-
-```markdown
-# My Website Project
-
-This is a personal portfolio website built with HTML, CSS, and JavaScript.
-
-## How to run
-Open index.html in a browser, or run `npx serve .`
-
-## Preferences
-- Use modern CSS (flexbox, grid) instead of old techniques
-- Keep the design minimal and clean
-- Always test on mobile sizes
-```
-
-And here's a more advanced one showing the kind of instructions a power user might write:
-
-```markdown
-# Project Rules
-
-## Stack
-- React 19 with TypeScript
-- Tailwind CSS for styling
-- Vitest for testing
-
-## Conventions
-- Always write tests before implementation (TDD)
-- Use the brainstorming skill before building new features
-- Never modify the database schema without asking first
-- Commit after each completed task, not at the end
-
-## How to run
-- Dev server: npm run dev
-- Tests: npm test
-- Build: npm run build
-```
-
-### Permission Modes
-
-Claude Code asks for permission before doing certain things — like running commands or editing files. There are different modes:
-
-- **Default mode** — Claude asks before every action. Safest for beginners. You'll see exactly what it wants to do before it does it.
-- **Auto-accept edits** — Claude can edit files without asking, but still asks before running commands. Good once you trust it with your code.
-- **YOLO mode** — Claude does everything without asking. Only use this if you're comfortable and trust the project context. Great for experienced users who want maximum speed.
-
-As a beginner, stick with the default mode. You'll learn to trust Claude Code's judgment over time, and then you can relax the permissions.
 
 </div>
 
