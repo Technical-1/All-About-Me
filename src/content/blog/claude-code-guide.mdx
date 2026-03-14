@@ -1,8 +1,8 @@
 ---
-title: "The Complete Guide to Claude Code"
-description: "Everything you need to go from zero to building real things with AI on your computer. A comprehensive, beginner-friendly guide to Claude Code."
+title: "The Complete Guide to Building & Delivering Web Applications"
+description: "Everything you need to go from zero to building and deploying real applications. A comprehensive, beginner-friendly guide to modern web development with Claude Code."
 pubDate: 2026-03-14
-tags: ["Claude Code", "AI", "Tutorial", "Guide", "Beginner"]
+tags: ["Web Development", "Claude Code", "Tutorial", "Guide", "Beginner", "TanStack", "Vercel", "GitHub"]
 ---
 
 import TabbedGuide from '../../components/blog/TabbedGuide.tsx';
@@ -11,143 +11,171 @@ import TabbedGuide from '../../components/blog/TabbedGuide.tsx';
 
 <div>
 
-## What is Claude Code?
+## What is This Guide?
 
-Claude Code is an AI assistant that lives in your **terminal** — the text-based interface on your computer where you can type commands. Unlike ChatGPT or other AI chatbots you use in a browser, Claude Code works directly on your computer. It can:
+This guide will take you from zero to building and deploying real web applications — even if you've never written a line of code. We'll use **Claude Code**, an AI assistant that lives in your terminal, to do the heavy lifting. You describe what you want in plain English, and it builds it.
 
-- **Read your files** — it sees your project structure, code, documents, everything
-- **Write and edit files** — it creates new files or modifies existing ones
-- **Run commands** — it executes terminal commands and reacts to the results
-- **Build entire projects** — from simple websites to automation scripts
+By the end of this guide, you'll know how to:
 
-Think of it as having a very skilled developer sitting next to you, except you communicate by typing what you want in plain English.
+- **Set up a modern development environment** on your Mac or Windows computer
+- **Build real web applications** with professional tools like React and TanStack
+- **Push your code to GitHub** so it's backed up and shareable
+- **Deploy to the internet** so anyone can visit your site
+- **Use AI-powered workflows** to brainstorm, plan, debug, and ship faster
 
-### What Can You Actually Do With It?
+### How Does Claude Code Fit In?
 
-Here are some real things people use Claude Code for every day:
+Claude Code is your AI development partner. Unlike ChatGPT or other chatbots you use in a browser, Claude Code works directly on your computer. It can read your files, write code, run commands, and build entire projects — all while you describe what you want in plain English.
 
-- "Build me a personal website with a homepage, about page, and contact form"
-- "Organize all the photos in my Downloads folder by date"
-- "Take this spreadsheet and create a summary of the sales data"
-- "Write a script that renames all my files from uppercase to lowercase"
+Think of it as having a very skilled developer sitting next to you.
 
-You describe what you want, and Claude Code figures out how to make it happen.
+---
 
-### What You Need Before Starting
+## Setting Up Your Environment
 
-Before you can use Claude Code, you need to install a few things. Don't worry — we'll walk through each one step by step.
+### Opening Your Terminal
 
-**1. A Terminal** — This is where everything happens.
-- **Mac:** Open the app called "Terminal" (find it in Applications → Utilities, or press `Cmd + Space` and type "Terminal")
-- **Windows:** Use "PowerShell" (search for it in the Start menu)
+This is where everything happens. Your terminal is a text-based interface where you type commands.
 
-**2. Homebrew (Mac only)** — Homebrew is a package manager for Mac. Think of it like an app store for developer tools — it makes installing everything else much easier.
+- **Mac:** Press `Cmd + Space`, type "Terminal", and hit Enter. Or find it in Applications → Utilities.
+- **Windows:** Search for "PowerShell" in the Start menu and open it.
 
-Check if you already have it:
-```bash
-brew --version
-```
+---
 
-If you get "command not found," install it by pasting this into your terminal:
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+### Accounts You'll Need
 
-The script will explain what it's doing and ask for your password. This is normal — it needs permission to install software. Visit [brew.sh](https://brew.sh) for more details.
+These are the same regardless of whether you're on Mac or Windows.
 
-After installation, you may need to add Homebrew to your PATH. The installer will tell you the exact commands — they look something like:
-```bash
-echo >> ~/.zprofile
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
+#### GitHub Account
 
-**3. Git** — Git tracks changes to your files. Claude Code uses it to save your work.
+GitHub is where your code lives online. It's free and essential for saving, sharing, and deploying your projects.
 
-```bash
-# Mac (with Homebrew)
-brew install git
+1. Go to [github.com](https://github.com) and create a free account
+2. Choose a username you're happy with — it becomes part of your profile URL
+3. After signup, you'll want to install the GitHub CLI (see platform-specific sections below) to connect your terminal to your account
 
-# Windows (download installer)
-# Visit https://git-scm.com/downloads/win
-```
+#### Vercel Account
 
-Verify it's installed:
-```bash
-git --version
-```
+Vercel is where you'll deploy your websites so anyone can visit them on the internet — for free.
 
-**4. Node.js** — This is the engine that runs Claude Code. Think of it like how you need a browser to visit websites — you need Node.js to run Claude Code.
+1. Go to [vercel.com](https://vercel.com) and sign up **using your GitHub account** (this links them automatically)
+2. That's it — Vercel will be able to deploy directly from your GitHub repositories
 
-```bash
-# Mac (with Homebrew)
-brew install node
+---
 
-# Windows (download installer)
-# Visit https://nodejs.org — download the LTS version
-```
+### Mac Setup
 
-Verify it's installed:
-```bash
-node --version
-```
+On Mac, we use **Homebrew** to install everything. Homebrew is a package manager — think of it like an app store for developer tools.
 
-You should see a version number like `v22.0.0` or higher.
+#### Homebrew
 
-**5. Python (optional but recommended)** — Some automation scripts and data tasks use Python. It's not required for Claude Code itself, but it opens up more possibilities.
+Install Homebrew by following the instructions at [brew.sh](https://brew.sh). The installer will explain what it's doing and ask for your password — this is normal.
 
-```bash
-# Mac (with Homebrew)
-brew install python
+After installation, follow the instructions the installer prints to add Homebrew to your PATH. You may need to restart your terminal.
 
-# Windows (download installer)
-# Visit https://python.org/downloads
-```
+#### Git
 
-Verify it's installed:
-```bash
-python3 --version
-```
+Git tracks changes to your files. Claude Code uses it to save your work.
 
-**6. An Anthropic Account** — Claude Code is made by Anthropic. You'll need an account with API access.
-- Go to [console.anthropic.com](https://console.anthropic.com) and create an account
-- Navigate to **API Keys** and create a new key
-- Keep this key safe — you'll need it when you first launch Claude Code
+Install via Homebrew: `brew install git` — or download from [git-scm.com](https://git-scm.com/downloads/mac)
 
-### Installing Claude Code
+#### Node.js
 
-Now that you have Node.js, installing Claude Code is one command:
+Node.js is the engine that runs Claude Code. Think of it like how you need a browser to visit websites — you need Node.js to run Claude Code.
+
+Install via Homebrew: `brew install node` — or download from [nodejs.org](https://nodejs.org) (get the LTS version)
+
+#### pnpm
+
+pnpm is a fast, efficient package manager for Node.js projects. It's like npm but faster and uses less disk space.
+
+Install via Homebrew: `brew install pnpm` — or see [pnpm.io/installation](https://pnpm.io/installation)
+
+#### Python (Optional)
+
+Some automation scripts and data tasks use Python. Not required for Claude Code itself, but opens up more possibilities.
+
+Install via Homebrew: `brew install python` — or download from [python.org](https://python.org/downloads)
+
+#### GitHub CLI
+
+The GitHub CLI lets you interact with GitHub directly from your terminal — creating repos, pull requests, and more.
+
+Install via Homebrew: `brew install gh` — or see [cli.github.com](https://cli.github.com)
+
+After installing, run `gh auth login` to connect it to your GitHub account.
+
+#### Vercel CLI
+
+The Vercel CLI lets you deploy projects from your terminal.
+
+Install with npm: `npm install -g vercel` — or see [vercel.com/docs/cli](https://vercel.com/docs/cli)
+
+After installing, run `vercel login` to connect it to your Vercel account.
+
+---
+
+### Windows Setup
+
+On Windows, we use **winget** (built into Windows 11) or **Chocolatey** to install tools. If you're on Windows 10, you may need to install winget first from the [Microsoft Store](https://apps.microsoft.com/detail/9nblggh4nns1).
+
+#### Git
+
+Download and install from [git-scm.com/downloads/win](https://git-scm.com/downloads/win). During installation, accept the default settings.
+
+Or with winget: `winget install Git.Git`
+
+#### Node.js
+
+Download the LTS version from [nodejs.org](https://nodejs.org). Run the installer and accept the defaults.
+
+Or with winget: `winget install OpenJS.NodeJS.LTS`
+
+#### pnpm
+
+See [pnpm.io/installation](https://pnpm.io/installation) for Windows-specific instructions.
+
+Or with npm (after Node.js is installed): `npm install -g pnpm`
+
+#### Python (Optional)
+
+Download from [python.org/downloads](https://python.org/downloads). **Important:** During installation, check the box that says "Add Python to PATH."
+
+Or with winget: `winget install Python.Python.3.12`
+
+#### GitHub CLI
+
+Download from [cli.github.com](https://cli.github.com).
+
+Or with winget: `winget install GitHub.cli`
+
+After installing, run `gh auth login` in PowerShell to connect it to your GitHub account.
+
+#### Vercel CLI
+
+Install with npm (after Node.js is installed): `npm install -g vercel`
+
+See [vercel.com/docs/cli](https://vercel.com/docs/cli) for details.
+
+After installing, run `vercel login` to connect it to your Vercel account.
+
+---
+
+## Installing Claude Code
+
+Once you have Node.js installed, installing Claude Code is one command:
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-The `-g` means "install globally" so you can use it from anywhere on your computer.
+The `-g` means "install globally" so you can use it from anywhere on your computer. Run `claude --version` to verify it's installed.
 
-Verify it's installed:
-```bash
-claude --version
-```
+When you first launch Claude Code, it will ask you to log in. You can use your Google account, or create an [Anthropic account](https://console.anthropic.com) for API access. An API key is only needed if you want to build applications that use Claude's AI capabilities — for everything else in this guide, the standard login works fine.
 
-### Quick Install Summary (Mac)
+---
 
-If you're on a Mac and starting from scratch, here's the entire setup in order:
-
-```bash
-# 1. Install Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# 2. Install everything with Homebrew
-brew install git node python
-
-# 3. Install Claude Code
-npm install -g @anthropic-ai/claude-code
-
-# 4. Launch Claude Code (it will ask for your API key on first run)
-claude
-```
-
-### Your First Conversation
+## Your First Conversation
 
 To start Claude Code, open your terminal and type:
 
@@ -163,7 +191,9 @@ What files are in my current folder?
 
 Claude Code will look at your current directory and tell you what's there. It's that simple — you just talk to it.
 
-### Tips for Talking to Claude Code
+---
+
+## Tips for Talking to Claude Code
 
 Claude Code works best when you're clear about what you want. Here are some tips:
 
@@ -187,111 +217,159 @@ Claude Code works best when you're clear about what you want. Here are some tips
 
 <div>
 
-## Building Your First Website
+## Building Your First Real Project
 
-Let's walk through building a simple personal website from scratch. This is a great first project because you can see results immediately in your browser.
+Let's walk through building an actual web application from scratch — not just a simple HTML page, but a modern React app with routing, a professional setup, and automatic deployment. By the end, you'll have a live website anyone can visit.
 
-### Step 1: Create a Project Folder
+We'll use **TanStack Router** (a modern React framework), **pnpm** (a fast package manager), **GitHub** (to store your code), **GitHub Actions** (to automatically check your code), and **Vercel** (to deploy it to the internet).
 
-First, let's make a folder for your project. In your terminal:
+Don't worry if those names mean nothing to you — Claude Code handles all of it.
 
-```bash
-mkdir my-website
-cd my-website
-```
+### Step 1: Create Your Project
 
-This creates a new folder called `my-website` and moves you into it.
-
-### Step 2: Start Claude Code
+Open your terminal, navigate to where you want your project, and start Claude Code:
 
 ```bash
+mkdir my-app
+cd my-app
 claude
 ```
 
-### Step 3: Tell Claude What You Want
+### Step 2: Tell Claude What to Build
 
-Now, describe the website you want to build. Here's an example prompt:
+Here's an example prompt to get started:
 
 ```
-Build me a simple personal website with:
-- A homepage with my name and a short bio
-- A clean, modern design
-- A navigation bar at the top
-- A section for my hobbies
-- A contact section with my email
-- Make it look professional with nice colors and fonts
+Create a new React application using TanStack Router and TanStack Start.
+Use pnpm as the package manager. Set it up with TypeScript and Tailwind CSS.
 
-Use my name "Alex" for now, I'll change it later.
+The app should have:
+- A homepage with a welcome message and a clean modern design
+- An "About" page with some placeholder text
+- A "Contact" page with a simple contact form
+- A shared navigation bar that highlights the current page
+- A nice footer
+
+Make it look professional — not like a generic template. Use a clean color
+scheme with good typography.
 ```
 
 ### What Happens Next
 
-Claude Code will start working. You'll see it:
+Claude Code will:
 
-1. **Creating files** — it'll make an `index.html` file, a `styles.css` file, maybe a few others
-2. **Writing code** — you'll see HTML, CSS, and possibly JavaScript being written
-3. **Explaining what it's doing** — Claude Code tells you what each file is for
+1. **Initialize the project** — set up the folder structure, config files, and dependencies
+2. **Install packages with pnpm** — you'll see it running `pnpm install`
+3. **Create all the pages** — homepage, about, contact with routing between them
+4. **Style everything** — using Tailwind CSS for a polished look
+5. **Explain what it's doing** — so you can follow along
 
-You don't need to understand the code — just let it work.
+### Step 3: See It Running
 
-### Step 4: See Your Website
-
-Once Claude Code is done, you can open your website in a browser. Ask Claude:
-
-```
-How do I view this website in my browser?
-```
-
-It will likely tell you to open the HTML file directly, or it might set up a simple local server:
-
-```bash
-npx serve .
-```
-
-Then open `http://localhost:3000` in your browser. Your website is live (locally on your computer)!
-
-### Step 5: Make Changes
-
-This is where it gets fun. You can ask for changes in plain English:
+Once Claude Code is done, ask it:
 
 ```
-Can you change the color scheme to use dark blue and white?
+Start the dev server so I can see the app in my browser
+```
+
+It will run something like `pnpm dev` and tell you to open `http://localhost:3000`. You'll see your app running live!
+
+### Step 4: Make It Yours
+
+Now iterate. Ask for changes in plain English:
+
+```
+Change the homepage to have my name "Alex" and a short bio about
+loving hiking and photography. Use a warm color palette.
 ```
 
 ```
-Add a photo gallery section with placeholder images
+Add a dark mode toggle in the navigation bar
 ```
 
 ```
-Make the navigation bar sticky so it stays at the top when I scroll
+Make the contact form actually look like it would send a message —
+add a success animation when you click submit
 ```
 
 ```
-The contact section looks cramped, can you add more spacing?
+Add some page transition animations when navigating between pages
 ```
 
-Each time, Claude Code modifies the files and you can refresh your browser to see the changes.
+### Step 5: Push to GitHub
 
-### Step 6: Keep Iterating
-
-The beauty of Claude Code is that you can keep refining. Some things you might try:
-
-- "Make it responsive so it looks good on mobile"
-- "Add a dark mode toggle"
-- "Can you add smooth scrolling when I click the navigation links?"
-- "Add some subtle animations when the page loads"
-
-Don't worry about "breaking" anything — you can always ask Claude Code to undo changes or try a different approach.
-
-### Saving Your Work
-
-When you're happy with your website, it's good practice to save your work with Git (a version control system). You can ask Claude Code:
+Now let's save your code to GitHub so it's backed up and ready to deploy:
 
 ```
-Set up git for this project and make an initial commit
+Set up git for this project, create a GitHub repository called "my-app",
+and push everything to it. Make the repo public.
 ```
 
-Claude Code will initialize a Git repository and save a snapshot of your work.
+Claude Code will:
+1. Initialize a Git repo
+2. Create the repo on GitHub using the GitHub CLI
+3. Push all your code up
+
+### Step 6: Set Up GitHub Actions
+
+GitHub Actions automatically checks your code every time you push changes — it makes sure nothing is broken. Ask Claude:
+
+```
+Set up GitHub Actions with a workflow that:
+- Runs on every push and pull request
+- Installs dependencies with pnpm
+- Runs the TypeScript type checker
+- Runs the build to make sure it compiles
+- Name the workflow "CI"
+```
+
+Claude Code will create a `.github/workflows/ci.yml` file, commit it, and push. Now every time you make changes, GitHub automatically verifies everything works.
+
+### Step 7: Deploy to Vercel
+
+Let's put your app on the internet so anyone can visit it:
+
+```
+Set up this project for deployment on Vercel. Connect it to the GitHub
+repo and configure it so it automatically deploys when I push to main.
+```
+
+Claude Code will either use the Vercel CLI or walk you through connecting your repo on [vercel.com](https://vercel.com). Within minutes, you'll have a URL like `my-app.vercel.app` that anyone in the world can visit.
+
+### Step 8: Keep Building
+
+Now you have a professional setup — your app automatically:
+- Gets checked by GitHub Actions when you push code
+- Deploys to Vercel when changes land on the main branch
+
+You can keep adding features by just talking to Claude Code:
+
+```
+Add a blog section where I can write posts in markdown files
+```
+
+```
+Add a photo gallery page that displays images in a grid with a lightbox
+```
+
+```
+Make the site fully responsive for mobile devices
+```
+
+Every time you're happy with changes, just type `/commit` to save and push — GitHub Actions will check it, and Vercel will deploy it automatically.
+
+### The Full Loop
+
+This is what modern development looks like:
+
+1. **Describe what you want** → Claude Code builds it
+2. **Preview locally** → See it in your browser at localhost
+3. **Commit and push** → `/commit` saves your work to GitHub
+4. **Automatic checks** → GitHub Actions verifies nothing is broken
+5. **Automatic deploy** → Vercel puts it live on the internet
+6. **Iterate** → Go back to step 1
+
+You just went from zero to a deployed web application with professional CI/CD. That's real software engineering — and you did it by typing in English.
 
 </div>
 
