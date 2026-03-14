@@ -19,7 +19,7 @@ A comprehensive, tabbed blog post within the All-About-Me portfolio site that te
 | `src/components/blog/TabbedGuide.tsx` | React component — horizontal tab switching with sticky bar, URL hash support, mobile scroll |
 | `src/content/blog/claude-code-guide.mdx` | The guide content — MDX file using the tab component |
 
-**How it works:** The MDX file imports `TabbedGuide` and wraps each section's content in tab panels. The component uses React state to toggle which panel is visible. Astro hydrates it as a React island via `client:load`. No new pages, layouts, or config changes needed — everything fits within the existing blog system.
+**How it works:** The MDX file imports `TabbedGuide` and wraps each section's content in tab panels. The component uses React state to toggle which panel is visible. Astro hydrates it as a React island via `client:load`. No new pages, layouts, or config changes needed — everything fits within the existing blog system. The `src/components/blog/` directory will be created as part of the implementation.
 
 **Dependencies:** None new. The project already has `@astrojs/mdx`, `@astrojs/react`, and React 19.
 
@@ -29,29 +29,33 @@ A comprehensive, tabbed blog post within the All-About-Me portfolio site that te
 
 ```tsx
 interface TabbedGuideProps {
-  tabs: string[];        // Tab labels, e.g. ["Getting Started", "Your First Project", ...]
-  children: React.ReactNode;  // Tab panels as children with slot attributes
+  tabs: string[];              // Tab labels, e.g. ["Getting Started", "Your First Project", ...]
+  children: React.ReactNode;   // Tab panels as children — mapped to tabs by index order
 }
 ```
+
+**Slug derivation:** Tab labels are slugified for hash URLs — lowercase, spaces to hyphens, strip non-alphanumeric characters (e.g., "Skills & Tools" becomes `skills-tools`).
+
+**Child-to-tab mapping:** Since this is a React component (not Astro), children are mapped to tabs by index order, not by named slots. Each direct child element corresponds to the tab at the same index.
 
 ### Usage in MDX
 
 ```jsx
 <TabbedGuide client:load tabs={["Getting Started", "Your First Project", "Skills & Tools", "Real Examples", "Quick Reference"]}>
-  <div slot="getting-started">
-    ...markdown/JSX content...
+  <div>
+    ...Getting Started content...
   </div>
-  <div slot="your-first-project">
-    ...
+  <div>
+    ...Your First Project content...
   </div>
-  <div slot="skills-tools">
-    ...
+  <div>
+    ...Skills & Tools content...
   </div>
-  <div slot="real-examples">
-    ...
+  <div>
+    ...Real Examples content...
   </div>
-  <div slot="quick-reference">
-    ...
+  <div>
+    ...Quick Reference content...
   </div>
 </TabbedGuide>
 ```
@@ -61,9 +65,9 @@ interface TabbedGuideProps {
 - **Tab switching:** Only one panel visible at a time, toggled by React state.
 - **Sticky tab bar:** Tabs stick to the top of the viewport when scrolling through content.
 - **URL hash support:** Clicking a tab updates the URL hash (e.g., `#your-first-project`). On page load, if a hash is present, the matching tab opens automatically.
-- **Browser history:** Tab changes push to history so back/forward buttons navigate between tabs.
+- **Browser history:** Tab changes call `history.pushState` with the hash. Component listens for `popstate` events to update the active tab when the user clicks back/forward.
 - **SEO:** All tab content renders in the DOM (hidden with CSS `display: none`), so search engines index everything.
-- **Astro View Transitions:** Component re-hydrates properly when navigating to/from the post.
+- **Astro View Transitions:** Component listens for `astro:after-swap` to re-read the URL hash and set the correct tab after View Transition navigation.
 
 ### Mobile Behavior
 
