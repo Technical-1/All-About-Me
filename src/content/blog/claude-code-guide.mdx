@@ -7,7 +7,7 @@ tags: ["Web Development", "Claude Code", "Tutorial", "Guide", "Beginner", "TanSt
 
 import TabbedGuide from '../../components/blog/TabbedGuide.tsx';
 
-<TabbedGuide client:load tabs={["Getting Started", "Skills & Tools", "Your First Project", "Real Examples", "Quick Reference"]}>
+<TabbedGuide client:load tabs={["Getting Started", "Skills & Tools", "Your First Project", "Real Examples", "Quick Reference", "Terminal Basics"]}>
 
 <div>
 
@@ -797,6 +797,217 @@ You've sent too many requests too quickly. Wait a minute and try again. This is 
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code) — Official docs with detailed guides
 - [Anthropic Console](https://console.anthropic.com) — Manage your API key and usage
 - [Node.js Download](https://nodejs.org) — Install Node.js if you don't have it
+
+</div>
+
+<div>
+
+## Terminal Basics
+
+The terminal can feel intimidating at first, but you really only need a handful of commands to get started. These work on **Mac, Windows (PowerShell), and Linux**.
+
+---
+
+## Navigating Around
+
+### `pwd` — Where Am I?
+
+Prints the full path of the folder you're currently in.
+
+```bash
+pwd
+```
+
+Output: `/Users/alex/Desktop/my-app`
+
+Think of it as asking "what's my current address?"
+
+### `ls` — What's in This Folder?
+
+Lists all the files and folders in your current location.
+
+```bash
+ls
+```
+
+Output:
+```
+index.html  styles.css  images/  README.md
+```
+
+On Mac/Linux you can use `ls -la` to see hidden files and more details. On Windows PowerShell, `ls` works the same way.
+
+### `cd` — Move to a Different Folder
+
+Changes your current directory (folder). This is how you navigate around your computer in the terminal.
+
+```bash
+# Go into a folder
+cd my-app
+
+# Go up one level (back to the parent folder)
+cd ..
+
+# Go up two levels
+cd ../..
+
+# Go to your home folder
+cd ~
+
+# Go to a specific path
+cd ~/Desktop/projects/my-app
+```
+
+**Tip:** You can press `Tab` to autocomplete folder names. Type `cd my-` and press `Tab` — the terminal will fill in `my-app` for you.
+
+### `clear` — Clean Up the Screen
+
+Clears all the text from your terminal. Doesn't delete anything — just gives you a fresh screen.
+
+```bash
+clear
+```
+
+---
+
+## Creating and Managing Files
+
+### `mkdir` — Create a New Folder
+
+Makes a new directory (folder).
+
+```bash
+# Create a single folder
+mkdir my-project
+
+# Create a folder and all parent folders in one go
+mkdir -p projects/websites/my-app
+```
+
+### `touch` — Create a New Empty File
+
+Creates a new empty file (Mac/Linux). On Windows PowerShell, use `New-Item` instead.
+
+```bash
+# Mac/Linux
+touch README.md
+
+# Windows PowerShell
+New-Item README.md
+```
+
+### `rm` — Delete a File
+
+Removes a file. **Be careful — there's no trash can. Deleted files are gone.**
+
+```bash
+# Delete a single file
+rm old-file.txt
+
+# Delete a folder and everything inside it
+rm -rf old-project
+```
+
+> **Warning:** `rm -rf` is powerful and permanent. Double-check what you're deleting before running it. Never run `rm -rf /` — that would try to delete everything on your computer.
+
+### `cp` — Copy a File
+
+Copies a file or folder to a new location.
+
+```bash
+# Copy a file
+cp index.html backup-index.html
+
+# Copy an entire folder
+cp -r my-app my-app-backup
+```
+
+### `mv` — Move or Rename a File
+
+Moves a file to a new location, or renames it.
+
+```bash
+# Rename a file
+mv old-name.txt new-name.txt
+
+# Move a file to a different folder
+mv report.pdf ~/Documents/
+```
+
+---
+
+## Viewing File Contents
+
+### `cat` — Show a File's Contents
+
+Prints the entire contents of a file to your terminal.
+
+```bash
+cat README.md
+```
+
+Good for short files. For longer files, the text will scroll past quickly.
+
+### `head` and `tail` — See the Beginning or End
+
+Shows just the first or last few lines of a file.
+
+```bash
+# First 10 lines
+head package.json
+
+# Last 20 lines
+tail -20 server.log
+```
+
+---
+
+## Useful Combos
+
+Here are some common patterns you'll use regularly:
+
+```bash
+# Create a new project and go into it
+mkdir my-project && cd my-project
+
+# See where you are and what's in the folder
+pwd && ls
+
+# Go back to where your projects live
+cd ~/Desktop/projects
+```
+
+---
+
+## Command Cheat Sheet
+
+| Command | What It Does | Example |
+|---------|-------------|---------|
+| `pwd` | Show current folder path | `pwd` |
+| `ls` | List files in current folder | `ls` |
+| `cd` | Change folder | `cd my-app` |
+| `cd ..` | Go up one folder | `cd ..` |
+| `mkdir` | Create a new folder | `mkdir my-project` |
+| `touch` | Create an empty file | `touch index.html` |
+| `rm` | Delete a file | `rm old.txt` |
+| `cp` | Copy a file | `cp file.txt copy.txt` |
+| `mv` | Move or rename a file | `mv old.txt new.txt` |
+| `cat` | Show file contents | `cat README.md` |
+| `clear` | Clear the terminal screen | `clear` |
+| `Tab` | Autocomplete file/folder names | Type partial name + `Tab` |
+| `Up Arrow` | Recall previous command | Press `↑` |
+
+---
+
+## Don't Worry About Memorizing
+
+You don't need to memorize all of these. The ones you'll use 90% of the time are:
+
+- `cd` — to move between folders
+- `ls` — to see what's in a folder
+- `mkdir` — to create new project folders
+
+For everything else, you can always ask Claude Code: "How do I [thing I want to do] in the terminal?" and it will tell you the exact command.
 
 </div>
 
