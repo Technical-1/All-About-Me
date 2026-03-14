@@ -31,9 +31,7 @@ Think of it as having a very skilled developer sitting next to you.
 
 ---
 
-## Setting Up Your Environment
-
-### Opening Your Terminal
+## Opening Your Terminal
 
 This is where everything happens. Your terminal is a text-based interface where you type commands.
 
@@ -42,11 +40,11 @@ This is where everything happens. Your terminal is a text-based interface where 
 
 ---
 
-### Accounts You'll Need
+## Accounts You'll Need
 
 These are the same regardless of whether you're on Mac or Windows.
 
-#### GitHub Account
+### GitHub Account
 
 GitHub is where your code lives online. It's free and essential for saving, sharing, and deploying your projects.
 
@@ -54,7 +52,7 @@ GitHub is where your code lives online. It's free and essential for saving, shar
 2. Choose a username you're happy with — it becomes part of your profile URL
 3. After signup, you'll want to install the GitHub CLI (see platform-specific sections below) to connect your terminal to your account
 
-#### Vercel Account
+### Vercel Account
 
 Vercel is where you'll deploy your websites so anyone can visit them on the internet — for free.
 
@@ -63,41 +61,41 @@ Vercel is where you'll deploy your websites so anyone can visit them on the inte
 
 ---
 
-### Mac Setup
+## Mac Setup
 
 On Mac, we use **Homebrew** to install everything. Homebrew is a package manager — think of it like an app store for developer tools.
 
-#### Homebrew
+### Homebrew
 
 Install Homebrew by following the instructions at [brew.sh](https://brew.sh). The installer will explain what it's doing and ask for your password — this is normal.
 
 After installation, follow the instructions the installer prints to add Homebrew to your PATH. You may need to restart your terminal.
 
-#### Git
+### Git
 
 Git tracks changes to your files. Claude Code uses it to save your work.
 
 Install via Homebrew: `brew install git` — or download from [git-scm.com](https://git-scm.com/downloads/mac)
 
-#### Node.js
+### Node.js
 
 Node.js is the engine that runs Claude Code. Think of it like how you need a browser to visit websites — you need Node.js to run Claude Code.
 
 Install via Homebrew: `brew install node` — or download from [nodejs.org](https://nodejs.org) (get the LTS version)
 
-#### pnpm
+### pnpm
 
 pnpm is a fast, efficient package manager for Node.js projects. It's like npm but faster and uses less disk space.
 
 Install via Homebrew: `brew install pnpm` — or see [pnpm.io/installation](https://pnpm.io/installation)
 
-#### Python (Optional)
+### Python (Optional)
 
 Some automation scripts and data tasks use Python. Not required for Claude Code itself, but opens up more possibilities.
 
 Install via Homebrew: `brew install python` — or download from [python.org](https://python.org/downloads)
 
-#### GitHub CLI
+### GitHub CLI
 
 The GitHub CLI lets you interact with GitHub directly from your terminal — creating repos, pull requests, and more.
 
@@ -105,7 +103,7 @@ Install via Homebrew: `brew install gh` — or see [cli.github.com](https://cli.
 
 After installing, run `gh auth login` to connect it to your GitHub account.
 
-#### Vercel CLI
+### Vercel CLI
 
 The Vercel CLI lets you deploy projects from your terminal.
 
@@ -115,35 +113,35 @@ After installing, run `vercel login` to connect it to your Vercel account.
 
 ---
 
-### Windows Setup
+## Windows Setup
 
 On Windows, we use **winget** (built into Windows 11) or **Chocolatey** to install tools. If you're on Windows 10, you may need to install winget first from the [Microsoft Store](https://apps.microsoft.com/detail/9nblggh4nns1).
 
-#### Git
+### Git
 
 Download and install from [git-scm.com/downloads/win](https://git-scm.com/downloads/win). During installation, accept the default settings.
 
 Or with winget: `winget install Git.Git`
 
-#### Node.js
+### Node.js
 
 Download the LTS version from [nodejs.org](https://nodejs.org). Run the installer and accept the defaults.
 
 Or with winget: `winget install OpenJS.NodeJS.LTS`
 
-#### pnpm
+### pnpm
 
 See [pnpm.io/installation](https://pnpm.io/installation) for Windows-specific instructions.
 
 Or with npm (after Node.js is installed): `npm install -g pnpm`
 
-#### Python (Optional)
+### Python (Optional)
 
 Download from [python.org/downloads](https://python.org/downloads). **Important:** During installation, check the box that says "Add Python to PATH."
 
 Or with winget: `winget install Python.Python.3.12`
 
-#### GitHub CLI
+### GitHub CLI
 
 Download from [cli.github.com](https://cli.github.com).
 
@@ -151,7 +149,7 @@ Or with winget: `winget install GitHub.cli`
 
 After installing, run `gh auth login` in PowerShell to connect it to your GitHub account.
 
-#### Vercel CLI
+### Vercel CLI
 
 Install with npm (after Node.js is installed): `npm install -g vercel`
 
@@ -237,11 +235,12 @@ claude
 
 ### Step 2: Tell Claude What to Build
 
-Here's an example prompt to get started:
+Here's an example prompt to get started. Notice we're asking Claude Code to use the **frontend-design skill** — this is a special workflow that generates polished, production-ready UI instead of the generic look most AI tools produce:
 
 ```
-Create a new React application using TanStack Router and TanStack Start.
-Use pnpm as the package manager. Set it up with TypeScript and Tailwind CSS.
+Use the /frontend-design skill to create a new React application using
+TanStack Router and TanStack Start. Use pnpm as the package manager.
+Set it up with TypeScript and Tailwind CSS.
 
 The app should have:
 - A homepage with a welcome message and a clean modern design
@@ -251,7 +250,7 @@ The app should have:
 - A nice footer
 
 Make it look professional — not like a generic template. Use a clean color
-scheme with good typography.
+scheme with good typography. I want it to look like a real designer made it.
 ```
 
 ### What Happens Next
