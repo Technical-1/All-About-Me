@@ -165,13 +165,9 @@ After installing, run `vercel login` to connect it to your Vercel account.
 
 ## Installing Claude Code
 
-Once you have Node.js and pnpm installed, installing Claude Code is one command:
+Follow the official installation instructions at [docs.anthropic.com/en/docs/claude-code](https://docs.anthropic.com/en/docs/claude-code). Anthropic provides a single install command on their site that handles everything for you.
 
-```bash
-pnpm add -g @anthropic-ai/claude-code
-```
-
-The `-g` means "install globally" so you can use it from anywhere on your computer. Run `claude --version` to verify it's installed.
+Run `claude --version` to verify it's installed.
 
 When you first launch Claude Code, it will ask you to log in. You can use your Google account, or create an [Anthropic account](https://console.anthropic.com) for API access. An API key is only needed if you want to build applications that use Claude's AI capabilities — for everything else in this guide, the standard login works fine.
 
@@ -729,10 +725,7 @@ Build me a simple recipe organizer. I want to:
 ### Common Error Messages
 
 **"Command not found: claude"**
-Claude Code isn't installed or isn't in your PATH. Try reinstalling:
-```bash
-pnpm add -g @anthropic-ai/claude-code
-```
+Claude Code isn't installed or isn't in your PATH. Try reinstalling using the instructions at [docs.anthropic.com/en/docs/claude-code](https://docs.anthropic.com/en/docs/claude-code).
 
 **"API key not found" or "Authentication error"**
 You need to set up your Anthropic API key. Claude Code will walk you through this on first launch, or you can set it manually:
