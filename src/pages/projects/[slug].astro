@@ -256,7 +256,8 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
 
   <!-- Tab Switching Script -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // astro:page-load fires on initial load AND after View Transition navigations
+    document.addEventListener('astro:page-load', () => {
       const tabBtns = document.querySelectorAll('.tab-btn');
       const tabPanels = document.querySelectorAll('.tab-panel');
 
@@ -428,12 +429,8 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
         }
       }
 
-      // Run on load and on subsequent navigations
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
-      } else {
-        renderMermaidDiagrams();
-      }
+      // Run on initial load and after View Transition navigations
+      document.addEventListener('astro:page-load', renderMermaidDiagrams);
     </script>
   )}
 
