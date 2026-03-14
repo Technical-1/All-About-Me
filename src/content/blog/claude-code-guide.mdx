@@ -418,49 +418,41 @@ Don't worry if those names mean nothing to you — Claude Code handles all of it
 
 ### Define Before You Build
 
-Before you write a single prompt, take 15-30 minutes to write down what you want your app to **do**. Not how it works technically — just what a user would experience. Create a few simple text files in your project folder:
+Before jumping straight into code, it helps to have Claude create definition documents that describe what your app does and how it works. These markdown files act as a blueprint — Claude reads them throughout the project to stay on track, and you can reference them to make sure the app matches your vision.
 
-**`what-it-does.md`** — Describe every feature in plain English. Think about what happens when someone uses your app:
+The good news: **you don't have to write these yourself.** Just describe your idea to Claude and ask it to create them for you. Here's how:
 
-```markdown
-## My App - What It Does
+**Start by describing your idea and ask Claude to create a `what-it-does.md`:**
 
-### Homepage
-- Shows a welcome message with my name
-- Has a navigation bar to get to other pages
-- Looks clean and professional
-
-### About Page
-- Shows a short bio about me
-- Lists my hobbies and interests
-
-### Contact Page
-- Has a form where someone can type their name, email, and message
-- Shows a confirmation when the form is submitted
-- The form should look polished, not like a boring default form
+```
+I want to build a personal website with a homepage, about page, and
+contact page. Before we start building anything, can you create a file
+called what-it-does.md that describes every feature and page in plain
+English? Include what each page shows, what users can interact with,
+and what the overall experience should feel like.
 ```
 
-**`how-it-flows.md`** — Walk through the user journey. What does someone do first? What happens next?
+Claude will create a structured document listing every feature. Review it and tell Claude what to add or change:
 
-```markdown
-## How People Use This App
-
-1. Visitor lands on the homepage
-2. They read the welcome message
-3. They click "About" in the nav to learn more about me
-4. They click "Contact" to send me a message
-5. They fill out the form and click submit
-6. They see a success message
-
-## Things That Should Feel Good
-- Navigation between pages should feel smooth (not jarring)
-- The design should look like a real website, not a school project
-- It should work well on both phones and computers
+```
+That looks good, but I also want a section for my photography hobby
+with a photo gallery. And the contact form should show a nice animation
+when submitted, not just a plain "thank you" message. Update the file.
 ```
 
-**Why does this matter?** When you hand Claude Code a clear description of what your app does, it makes much better decisions about *how* to build it. You don't need to specify databases, frameworks, or architecture — that's Claude's job. Your job is to define what you want the experience to be.
+**Then ask Claude to create a `how-it-flows.md`:**
 
-**Question Claude on the technical choices.** After Claude sets things up, ask:
+```
+Now create a how-it-flows.md that walks through the user journey.
+What does a visitor do first? What pages do they go to? What actions
+can they take? Describe it step by step like you're telling someone
+a story of using the app. Also include what should "feel good" about
+the experience — things like smooth navigation, responsive design, etc.
+```
+
+**Why does this matter?** When Claude has these files in your project, it reads them before making decisions. Instead of guessing what you want, it has a clear reference. If something goes wrong later, you can point back to these files: "This doesn't match what we defined in what-it-does.md."
+
+**Finally, question Claude on the technical choices.** After Claude sets things up, ask:
 
 ```
 Why did you choose these specific tools? Are there cheaper or simpler
@@ -477,7 +469,7 @@ Walk me through the decisions you made and why. I want to understand
 what I'm paying for if this goes to production.
 ```
 
-This is how you learn. You don't need to know what a "framework" is before starting — but by asking Claude to explain its choices, you'll understand more with each project. The markdown files you write become your compass, and Claude handles the map.
+This is how you learn. You don't need to know what a "framework" is before starting — but by asking Claude to explain its choices, you'll understand more with each project. The markdown files become your compass, and Claude handles the map.
 
 ### Step 1: Create Your Project
 
