@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Children, type ReactNode } from 'react';
+import { useState, useEffect, useRef, Children, isValidElement, type ReactNode } from 'react';
 
 function slugify(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
@@ -10,7 +10,8 @@ interface TabbedGuideProps {
 }
 
 export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
-  const childArray = Children.toArray(children);
+  // Filter out whitespace text nodes that MDX creates between <div> elements
+  const childArray = Children.toArray(children).filter(isValidElement);
   const contentRef = useRef<HTMLDivElement>(null);
   const tabBarRef = useRef<HTMLDivElement>(null);
 
