@@ -575,16 +575,52 @@ Claude Code will create a `.github/workflows/ci.yml` file, commit it, and push. 
 
 ### Step 7: Deploy to Vercel
 
-Let's put your app on the internet so anyone can visit it:
+Let's put your app on the internet so anyone can visit it. Ask Claude to walk you through the Vercel setup:
 
 ```
-Set up this project for deployment on Vercel. Connect it to the GitHub
-repo and configure it so it automatically deploys when I push to main.
+Help me deploy this project to Vercel. Walk me through the steps:
+1. Connect Vercel to my GitHub repo
+2. Configure the build settings for a TanStack Start app using pnpm
+3. Set it up so it automatically deploys when I push to main
+Explain each step as we go.
 ```
 
-Claude Code will either use the Vercel CLI or walk you through connecting your repo on [vercel.com](https://vercel.com). Within minutes, you'll have a URL like `my-app.vercel.app` that anyone in the world can visit.
+Claude Code will guide you through the process. Here's what to expect:
 
-### Step 8: Keep Building
+1. **Import your repo** — Go to [vercel.com/new](https://vercel.com/new), select your GitHub repo
+2. **Configure build settings** — Claude will tell you the right settings:
+   - **Framework Preset:** May auto-detect, or you'll set it manually
+   - **Build Command:** Usually `pnpm build`
+   - **Output Directory:** Claude will tell you based on your project setup
+   - **Install Command:** `pnpm install`
+3. **Deploy** — Click deploy and wait a minute or two
+4. **Get your URL** — Vercel gives you a URL like `my-app.vercel.app`
+
+If anything looks wrong after deploying, ask Claude:
+
+```
+The Vercel deployment shows an error. Here's what I see: [paste the error].
+Can you help me fix the build settings?
+```
+
+From now on, every time you push code to GitHub, Vercel automatically redeploys your site with the latest changes.
+
+### Step 8: Save Your Work (Every Time)
+
+This is an important habit: **after every change you're happy with, tell Claude to commit and push.**
+
+```
+Commit everything and push to GitHub
+```
+
+Or just type `/commit` — Claude will write a descriptive commit message, save your work, and push it to GitHub. This:
+- **Backs up your code** so you never lose work
+- **Triggers GitHub Actions** to check everything is working
+- **Triggers Vercel** to deploy the latest version
+
+> **Rule of thumb:** If you'd be upset losing what you just built, commit and push. Do it often — after every feature, fix, or change you like. You can't commit too often.
+
+### Step 9: Keep Building
 
 Now you have a professional setup — your app automatically:
 - Gets checked by GitHub Actions when you push code
@@ -604,7 +640,7 @@ Add a photo gallery page that displays images in a grid with a lightbox
 Make the site fully responsive for mobile devices
 ```
 
-Every time you're happy with changes, just type `/commit` to save and push — GitHub Actions will check it, and Vercel will deploy it automatically.
+After each change, tell Claude to commit and push — your site updates automatically.
 
 ### The Full Loop
 
@@ -612,12 +648,76 @@ This is what modern development looks like:
 
 1. **Describe what you want** → Claude Code builds it
 2. **Preview locally** → See it in your browser at localhost
-3. **Commit and push** → `/commit` saves your work to GitHub
+3. **Commit and push** → Tell Claude to "commit and push to GitHub"
 4. **Automatic checks** → GitHub Actions verifies nothing is broken
 5. **Automatic deploy** → Vercel puts it live on the internet
 6. **Iterate** → Go back to step 1
 
 You just went from zero to a deployed web application with professional CI/CD. That's real software engineering — and you did it by typing in English.
+
+---
+
+### Coming Back to Your Project Later
+
+You closed your terminal. It's the next day. How do you pick up where you left off?
+
+**1. Open your terminal**
+
+- **Mac:** `Cmd + Space`, type "Terminal"
+- **Windows:** Search for "PowerShell"
+
+**2. Navigate to your project folder**
+
+Your project lives where you created it. If you put it on your Desktop:
+
+```bash
+cd ~/Desktop/my-app
+```
+
+Not sure where it is? You can search:
+
+```bash
+# Mac/Linux — find a folder by name
+find ~ -type d -name "my-app" 2>/dev/null
+
+# Or just check common locations
+ls ~/Desktop
+ls ~/Documents
+ls ~/projects
+```
+
+**3. Start Claude Code**
+
+```bash
+claude
+```
+
+Claude Code will read your project files and pick up the context. If you have a `CLAUDE.md` file, it knows exactly what the project is about.
+
+**4. Check the status**
+
+Good first prompts when returning to a project:
+
+```
+What's the current state of this project? Summarize what we have so far.
+```
+
+```
+Run the dev server so I can see where we left off.
+```
+
+```
+Are there any issues or errors in the current code?
+```
+
+**Tip: Keep your projects organized.** Create a folder like `~/projects` or `~/Desktop/projects` and put all your project folders there. That way you always know where to look:
+
+```bash
+cd ~/projects
+ls
+```
+
+You'll see all your projects listed. Just `cd` into the one you want to work on and start Claude Code.
 
 </div>
 
