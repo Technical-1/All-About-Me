@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Children, isValidElement, type ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 
 function slugify(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
@@ -10,10 +10,7 @@ interface TabbedGuideProps {
 }
 
 export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
-  // Filter out whitespace text nodes that MDX creates between <div> elements
-  const childArray = Children.toArray(children).filter(isValidElement);
   const contentRef = useRef<HTMLDivElement>(null);
-  const tabBarRef = useRef<HTMLDivElement>(null);
 
   function getTabIndexFromHash(): number {
     if (typeof window === 'undefined') return 0;
@@ -26,16 +23,45 @@ export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
 
+  // Toggle visibility of tab panels by manipulating DOM directly
+  // because Astro wraps all children in a single <astro-slot> element,
+  // making React's Children API unable to see individual <div> panels.
+  const updatePanelVisibility = useCallback((tabIndex: number) => {
+    if (!contentRef.current) return;
+    // Find direct div children — these are the tab panels from MDX
+    // They may be inside an astro-slot wrapper, so look for divs
+    // that are direct children of the content container or its first child
+    let panels: Element[];
+    const firstChild = contentRef.current.firstElementChild;
+    if (firstChild && (firstChild.tagName === 'ASTRO-SLOT' || firstChild.tagName === 'ASTRO-STATIC-SLOT')) {
+      panels = Array.from(firstChild.children);
+    } else {
+      panels = Array.from(contentRef.current.children);
+    }
+
+    panels.forEach((panel, index) => {
+      if (panel instanceof HTMLElement) {
+        panel.style.display = index === tabIndex ? 'block' : 'none';
+      }
+    });
+  }, []);
+
   useEffect(() => {
     setMounted(true);
-    setActiveTab(getTabIndexFromHash());
+    const initialTab = getTabIndexFromHash();
+    setActiveTab(initialTab);
+    updatePanelVisibility(initialTab);
 
     function handlePopState() {
-      setActiveTab(getTabIndexFromHash());
+      const idx = getTabIndexFromHash();
+      setActiveTab(idx);
+      updatePanelVisibility(idx);
     }
 
     function handleAfterSwap() {
-      setActiveTab(getTabIndexFromHash());
+      const idx = getTabIndexFromHash();
+      setActiveTab(idx);
+      updatePanelVisibility(idx);
     }
 
     window.addEventListener('popstate', handlePopState);
@@ -49,6 +75,7 @@ export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
 
   function switchTab(index: number) {
     setActiveTab(index);
+    updatePanelVisibility(index);
     const slug = slugify(tabs[index]);
     history.pushState(null, '', `#${slug}`);
 
@@ -61,7 +88,6 @@ export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
     <div>
       {/* Tab Bar */}
       <div
-        ref={tabBarRef}
         style={{
           position: 'sticky',
           top: 0,
@@ -121,18 +147,9 @@ export default function TabbedGuide({ tabs, children }: TabbedGuideProps) {
         </div>
       </div>
 
-      {/* Tab Panels */}
+      {/* Tab Panels — rendered as-is, visibility controlled via DOM */}
       <div ref={contentRef}>
-        {childArray.map((child, index) => (
-          <div
-            key={index}
-            style={{
-              display: (!mounted || index === activeTab) ? 'block' : 'none',
-            }}
-          >
-            {child}
-          </div>
-        ))}
+        {children}
       </div>
     </div>
   );
