@@ -113,6 +113,14 @@ Install with pnpm: `pnpm add -g vercel` — or see [vercel.com/docs/cli](https:/
 
 After installing, run `vercel login` to connect it to your Vercel account.
 
+> **Important: PATH setup on Mac**
+>
+> Some tools require you to copy and paste commands into your terminal to add them to your PATH (so your computer knows where to find them). Watch for this with:
+> - **Homebrew** — After installing, the installer prints commands you must copy and paste to add `brew` to your PATH. Don't skip this step.
+> - **pnpm** — After installing, run `pnpm setup` and copy any commands it prints.
+>
+> After any PATH changes, **close and reopen your terminal** for them to take effect. If a command like `brew` or `pnpm` gives you "command not found" after installing, this is almost always the fix.
+
 ---
 
 ## Windows Setup
@@ -160,6 +168,15 @@ Install with pnpm (after Node.js and pnpm are installed): `pnpm add -g vercel`
 See [vercel.com/docs/cli](https://vercel.com/docs/cli) for details.
 
 After installing, run `vercel login` to connect it to your Vercel account.
+
+> **Important: PATH setup on Windows**
+>
+> Some installers need you to take an extra step so your computer can find the tools:
+> - **Python** — During installation, check the box that says **"Add Python to PATH."** If you missed it, re-run the installer and select "Modify."
+> - **pnpm** — After installing, run `pnpm setup` in PowerShell and copy any commands it prints.
+> - **Node.js / Git** — The installers handle PATH automatically, but if you get "command not found," try closing and reopening PowerShell.
+>
+> After any PATH changes, **close and reopen PowerShell** for them to take effect.
 
 ---
 
