@@ -107,7 +107,7 @@ After installing, run `gh auth login` to connect it to your GitHub account.
 
 The Vercel CLI lets you deploy projects from your terminal.
 
-Install with npm: `npm install -g vercel` — or see [vercel.com/docs/cli](https://vercel.com/docs/cli)
+Install with pnpm: `pnpm add -g vercel` — or see [vercel.com/docs/cli](https://vercel.com/docs/cli)
 
 After installing, run `vercel login` to connect it to your Vercel account.
 
@@ -151,7 +151,7 @@ After installing, run `gh auth login` in PowerShell to connect it to your GitHub
 
 ### Vercel CLI
 
-Install with npm (after Node.js is installed): `npm install -g vercel`
+Install with pnpm (after Node.js and pnpm are installed): `pnpm add -g vercel`
 
 See [vercel.com/docs/cli](https://vercel.com/docs/cli) for details.
 
@@ -161,10 +161,10 @@ After installing, run `vercel login` to connect it to your Vercel account.
 
 ## Installing Claude Code
 
-Once you have Node.js installed, installing Claude Code is one command:
+Once you have Node.js and pnpm installed, installing Claude Code is one command:
 
 ```bash
-npm install -g @anthropic-ai/claude-code
+pnpm add -g @anthropic-ai/claude-code
 ```
 
 The `-g` means "install globally" so you can use it from anywhere on your computer. Run `claude --version` to verify it's installed.
@@ -727,7 +727,7 @@ Build me a simple recipe organizer. I want to:
 **"Command not found: claude"**
 Claude Code isn't installed or isn't in your PATH. Try reinstalling:
 ```bash
-npm install -g @anthropic-ai/claude-code
+pnpm add -g @anthropic-ai/claude-code
 ```
 
 **"API key not found" or "Authentication error"**
