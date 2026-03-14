@@ -254,46 +254,36 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
     </div>
   </section>
 
-  <!-- Tab Switching + Mermaid Rendering Script -->
+  <!-- Tab Switching Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const tabBtns = document.querySelectorAll('.tab-btn');
       const tabPanels = document.querySelectorAll('.tab-panel');
 
-      function enableTabs() {
-        tabBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab');
 
-            // Update active tab button
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+          // Update active tab button
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
 
-            // Show corresponding panel
-            tabPanels.forEach(panel => {
-              if (panel.getAttribute('data-panel') === tabId) {
-                panel.classList.remove('hidden');
-              } else {
-                panel.classList.add('hidden');
-              }
-            });
+          // Show corresponding panel
+          tabPanels.forEach(panel => {
+            if (panel.getAttribute('data-panel') === tabId) {
+              panel.classList.remove('hidden');
+            } else {
+              panel.classList.add('hidden');
+            }
           });
         });
-      }
-
-      // Signal that tabs are ready (used by mermaid script to coordinate)
-      window.__tabsReady = enableTabs;
-
-      // If no mermaid script will run, enable tabs immediately
-      if (!document.querySelector('[data-has-mermaid]')) {
-        enableTabs();
-      }
+      });
     });
   </script>
 
   <!-- Mermaid Diagram Rendering -->
   {architectureHtml && (
-    <script data-has-mermaid>
+    <script>
       import mermaid from 'mermaid';
 
       mermaid.initialize({
@@ -336,14 +326,8 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
 
       // Find all mermaid code blocks and render them
       async function renderMermaidDiagrams() {
-        // Wait for DOM to be ready
+        // Small delay to ensure DOM is fully ready
         await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Ensure architecture panel is visible for Mermaid to calculate SVG dimensions
-        const archPanel = document.querySelector('[data-panel="architecture"]');
-        if (archPanel) {
-          archPanel.classList.remove('hidden');
-        }
 
         const codeBlocks = document.querySelectorAll('pre code.language-mermaid, pre code');
 
@@ -441,11 +425,6 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
               console.warn('Failed to render mermaid diagram:', e);
             }
           }
-        }
-
-        // Mermaid is done — now enable tab switching
-        if (window.__tabsReady) {
-          window.__tabsReady();
         }
       }
 
