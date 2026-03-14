@@ -1,0 +1,472 @@
+---
+title: "The Complete Guide to Claude Code"
+description: "Everything you need to go from zero to building real things with AI on your computer. A comprehensive, beginner-friendly guide to Claude Code."
+pubDate: 2026-03-14
+tags: ["Claude Code", "AI", "Tutorial", "Guide", "Beginner"]
+---
+
+import TabbedGuide from '../../components/blog/TabbedGuide.tsx';
+
+<TabbedGuide client:load tabs={["Getting Started", "Your First Project", "Skills & Tools", "Real Examples", "Quick Reference"]}>
+
+<div>
+
+## What is Claude Code?
+
+Claude Code is an AI assistant that lives in your **terminal** — the text-based interface on your computer where you can type commands. Unlike ChatGPT or other AI chatbots you use in a browser, Claude Code works directly on your computer. It can:
+
+- **Read your files** — it sees your project structure, code, documents, everything
+- **Write and edit files** — it creates new files or modifies existing ones
+- **Run commands** — it executes terminal commands and reacts to the results
+- **Build entire projects** — from simple websites to automation scripts
+
+Think of it as having a very skilled developer sitting next to you, except you communicate by typing what you want in plain English.
+
+### What Can You Actually Do With It?
+
+Here are some real things people use Claude Code for every day:
+
+- "Build me a personal website with a homepage, about page, and contact form"
+- "Organize all the photos in my Downloads folder by date"
+- "Take this spreadsheet and create a summary of the sales data"
+- "Write a script that renames all my files from uppercase to lowercase"
+
+You describe what you want, and Claude Code figures out how to make it happen.
+
+### What You Need Before Starting
+
+Before you can use Claude Code, you'll need three things:
+
+**1. Node.js** — This is the engine that runs Claude Code. Think of it like how you need a browser to visit websites — you need Node.js to run Claude Code.
+
+To check if you have it, open your terminal and type:
+```bash
+node --version
+```
+If you see a version number (like `v20.11.0`), you're good. If not, you'll need to install it.
+
+**2. An Anthropic Account** — Claude Code is made by Anthropic. You'll need an account with API access at [console.anthropic.com](https://console.anthropic.com).
+
+**3. A Terminal** — On Mac, this is the app called "Terminal" (find it in Applications → Utilities). On Windows, you can use "Command Prompt" or "PowerShell."
+
+### Installing Claude Code
+
+Once you have Node.js, installing Claude Code is one command:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+That's it. The `-g` means "install globally" so you can use it from anywhere on your computer.
+
+### Your First Conversation
+
+To start Claude Code, open your terminal and type:
+
+```bash
+claude
+```
+
+You'll see a prompt where you can start typing. Try something simple:
+
+```
+What files are in my current folder?
+```
+
+Claude Code will look at your current directory and tell you what's there. It's that simple — you just talk to it.
+
+### Tips for Talking to Claude Code
+
+Claude Code works best when you're clear about what you want. Here are some tips:
+
+**Be specific about what you want:**
+- Instead of "make it look better" → "change the background color to light blue and increase the font size to 18px"
+- Instead of "fix it" → "the button on the homepage isn't clickable, can you fix that?"
+
+**Describe the end result:**
+- "I want a website that has a dark theme with a navigation bar at the top"
+- "Create a script that finds all .jpg files in my Documents folder and copies them to a new folder called Photos"
+
+**It's okay to iterate:**
+- "That looks good, but can you make the header bigger?"
+- "Actually, let's change the color scheme to something warmer"
+
+**You don't need to know code:**
+- Claude Code understands plain English
+- You can say "I don't know what that means" and it will explain
+
+</div>
+
+<div>
+
+## Building Your First Website
+
+Let's walk through building a simple personal website from scratch. This is a great first project because you can see results immediately in your browser.
+
+### Step 1: Create a Project Folder
+
+First, let's make a folder for your project. In your terminal:
+
+```bash
+mkdir my-website
+cd my-website
+```
+
+This creates a new folder called `my-website` and moves you into it.
+
+### Step 2: Start Claude Code
+
+```bash
+claude
+```
+
+### Step 3: Tell Claude What You Want
+
+Now, describe the website you want to build. Here's an example prompt:
+
+```
+Build me a simple personal website with:
+- A homepage with my name and a short bio
+- A clean, modern design
+- A navigation bar at the top
+- A section for my hobbies
+- A contact section with my email
+- Make it look professional with nice colors and fonts
+
+Use my name "Alex" for now, I'll change it later.
+```
+
+### What Happens Next
+
+Claude Code will start working. You'll see it:
+
+1. **Creating files** — it'll make an `index.html` file, a `styles.css` file, maybe a few others
+2. **Writing code** — you'll see HTML, CSS, and possibly JavaScript being written
+3. **Explaining what it's doing** — Claude Code tells you what each file is for
+
+You don't need to understand the code — just let it work.
+
+### Step 4: See Your Website
+
+Once Claude Code is done, you can open your website in a browser. Ask Claude:
+
+```
+How do I view this website in my browser?
+```
+
+It will likely tell you to open the HTML file directly, or it might set up a simple local server:
+
+```bash
+npx serve .
+```
+
+Then open `http://localhost:3000` in your browser. Your website is live (locally on your computer)!
+
+### Step 5: Make Changes
+
+This is where it gets fun. You can ask for changes in plain English:
+
+```
+Can you change the color scheme to use dark blue and white?
+```
+
+```
+Add a photo gallery section with placeholder images
+```
+
+```
+Make the navigation bar sticky so it stays at the top when I scroll
+```
+
+```
+The contact section looks cramped, can you add more spacing?
+```
+
+Each time, Claude Code modifies the files and you can refresh your browser to see the changes.
+
+### Step 6: Keep Iterating
+
+The beauty of Claude Code is that you can keep refining. Some things you might try:
+
+- "Make it responsive so it looks good on mobile"
+- "Add a dark mode toggle"
+- "Can you add smooth scrolling when I click the navigation links?"
+- "Add some subtle animations when the page loads"
+
+Don't worry about "breaking" anything — you can always ask Claude Code to undo changes or try a different approach.
+
+### Saving Your Work
+
+When you're happy with your website, it's good practice to save your work with Git (a version control system). You can ask Claude Code:
+
+```
+Set up git for this project and make an initial commit
+```
+
+Claude Code will initialize a Git repository and save a snapshot of your work.
+
+</div>
+
+<div>
+
+## Leveling Up With Skills and Tools
+
+Once you're comfortable with the basics, Claude Code has powerful features that make it even more capable.
+
+### Slash Commands
+
+Slash commands are shortcuts you can type to quickly do common things. Here are the essential ones:
+
+**`/help`** — Shows all available commands and how to use them. This is your lifeline when you're not sure what's available.
+
+**`/commit`** — Saves your current work as a Git commit. Claude Code will look at what changed and write a descriptive commit message for you.
+
+**`/clear`** — Clears the conversation history. Useful when you want to start fresh or if Claude Code seems confused about your project.
+
+**`/compact`** — Summarizes the conversation so far. Useful for long sessions where you want to free up context space.
+
+### What Are Skills?
+
+Skills are pre-built workflows that give Claude Code specialized abilities. Think of them like apps on your phone — each one does something specific really well.
+
+For example:
+- A **brainstorming** skill helps you design a feature before building it
+- A **debugging** skill helps systematically find and fix bugs
+- A **test writing** skill helps create tests for your code
+
+You activate skills by typing their slash command (like `/commit`) or by just describing what you want — Claude Code will often use the right skill automatically.
+
+### What Are MCP Servers?
+
+MCP stands for "Model Context Protocol." In plain English, MCP servers are **plugins that connect Claude Code to other services and tools**.
+
+For example:
+- A **GitHub MCP server** lets Claude Code create pull requests, manage issues, and interact with your GitHub repositories
+- A **filesystem MCP server** gives Claude enhanced file management capabilities
+- A **database MCP server** lets Claude Code query and manage databases
+
+You don't need to set these up right away — they're there when you need them.
+
+### CLAUDE.md Files
+
+A `CLAUDE.md` file is like a set of instructions you leave for Claude Code. When Claude Code opens a project that has a `CLAUDE.md` file, it reads it first to understand:
+
+- What the project is about
+- What tools or frameworks you're using
+- Any rules or preferences you have (like "always use TypeScript" or "don't modify the database directly")
+- How to run tests or start the development server
+
+Think of it as a note you leave for your AI assistant so it doesn't have to ask you the same questions every time.
+
+Here's a simple example:
+
+```markdown
+# My Website Project
+
+This is a personal portfolio website built with HTML, CSS, and JavaScript.
+
+## How to run
+Open index.html in a browser, or run `npx serve .`
+
+## Preferences
+- Use modern CSS (flexbox, grid) instead of old techniques
+- Keep the design minimal and clean
+- Always test on mobile sizes
+```
+
+### Permission Modes
+
+Claude Code asks for permission before doing certain things — like running commands or editing files. There are different modes:
+
+- **Default mode** — Claude asks before every action. Safest for beginners.
+- **Auto-accept edits** — Claude can edit files without asking, but still asks before running commands.
+- **YOLO mode** — Claude does everything without asking. Only use this if you're comfortable and trust the project context.
+
+As a beginner, stick with the default mode. You'll learn to trust Claude Code's judgment over time, and then you can relax the permissions.
+
+</div>
+
+<div>
+
+## Things You Can Build Right Now
+
+Here are concrete examples you can try. Each one includes exactly what to type and what to expect.
+
+### Build a Landing Page
+
+**What to say:**
+```
+Create a professional landing page for a dog walking business called "Happy Paws."
+Include a hero section with a catchy headline, a services section with pricing
+(30-min walk $20, 60-min walk $35, puppy visits $25), customer testimonials
+(make up 3 realistic ones), and a contact form. Use a warm, friendly color scheme
+with greens and earth tones.
+```
+
+**What happens:** Claude Code creates HTML, CSS, and possibly JavaScript files. You'll get a fully styled, responsive landing page ready to open in your browser.
+
+**What you get:** A professional-looking page you could actually use for a real business.
+
+---
+
+### Automate File Organization
+
+**What to say:**
+```
+Write a script that organizes my Downloads folder. It should:
+- Move all .pdf files into a "Documents" subfolder
+- Move all .jpg and .png files into a "Images" subfolder
+- Move all .mp4 and .mov files into a "Videos" subfolder
+- Create a log file that lists what was moved where
+- Don't move anything if the subfolder already has a file with the same name
+
+Use the ~/Downloads folder on my Mac.
+```
+
+**What happens:** Claude Code writes a shell script or Python script. It will ask before running it so you can review what it does.
+
+**What you get:** A reusable script you can run anytime your Downloads folder gets messy.
+
+---
+
+### Work With Spreadsheet Data
+
+**What to say:**
+```
+I have a CSV file called sales.csv with columns: Date, Product, Quantity, Price.
+Can you:
+1. Read the file and show me a summary (total sales, best selling product, busiest month)
+2. Create a new CSV with monthly totals
+3. Tell me if there are any data issues (missing values, weird numbers)
+```
+
+**What happens:** Claude Code reads your CSV, analyzes the data, creates summary files, and reports any issues — all without you needing to know Python or Excel formulas.
+
+**What you get:** Data insights and a clean summary file, ready to use.
+
+---
+
+### Create a Utility Script
+
+**What to say:**
+```
+Create a script that goes through a folder of photos and renames them based on
+the date they were taken. Use the format YYYY-MM-DD_original-name.jpg.
+If the photo doesn't have date information, put it in a "no-date" subfolder instead.
+```
+
+**What happens:** Claude Code writes a Python script that reads photo metadata (EXIF data) and renames files accordingly.
+
+**What you get:** A script that turns `IMG_4392.jpg` into `2026-01-15_IMG_4392.jpg` — much easier to find photos later.
+
+---
+
+### Build a Simple Tool
+
+**What to say:**
+```
+Build me a simple recipe organizer. I want to:
+- Add recipes with a name, ingredients list, and instructions
+- Save them to a local file so they persist
+- Search my recipes by name or ingredient
+- Make it work from the terminal (no need for a website)
+```
+
+**What happens:** Claude Code builds a command-line tool, probably in Python or Node.js, that manages your recipes in a JSON file.
+
+**What you get:** A personal recipe app you can run anytime from your terminal.
+
+---
+
+### Tips for Getting Good Results
+
+1. **Be specific about inputs and outputs** — "read this file" and "create this file" are clearer than "work with my data"
+2. **Mention edge cases** — "don't overwrite existing files" prevents accidental data loss
+3. **Start small, then expand** — get the basic version working before asking for advanced features
+4. **Give context** — "I'm on a Mac" or "the file uses commas as separators" helps Claude Code make the right choices
+
+</div>
+
+<div>
+
+## Quick Reference
+
+### Essential Commands
+
+| Command | What It Does |
+|---------|-------------|
+| `claude` | Start Claude Code in the current folder |
+| `claude "do something"` | Start with an initial prompt |
+| `/help` | Show all available commands |
+| `/commit` | Save your work as a Git commit |
+| `/clear` | Clear conversation history |
+| `/compact` | Summarize conversation to save context |
+| `Ctrl + C` | Cancel what Claude is currently doing |
+| `Escape` | Exit Claude Code |
+
+### Prompting Cheat Sheet
+
+**Do:**
+- Describe what you want the **end result** to look like
+- Mention specific details (colors, sizes, file names)
+- Say "I don't know" when you're unsure — Claude Code will explain options
+- Iterate — ask for changes one at a time
+- Give context about your setup ("I'm on a Mac", "I'm using Python 3")
+
+**Don't:**
+- Use vague requests like "make it better" without saying how
+- Try to give Claude Code the entire project at once — break it into pieces
+- Worry about using technical language — plain English works great
+- Assume it "remembers" from a previous session — each session starts fresh (unless you have a CLAUDE.md file)
+
+### Common Error Messages
+
+**"Command not found: claude"**
+Claude Code isn't installed or isn't in your PATH. Try reinstalling:
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+**"API key not found" or "Authentication error"**
+You need to set up your Anthropic API key. Claude Code will walk you through this on first launch, or you can set it manually:
+```bash
+export ANTHROPIC_API_KEY=your-key-here
+```
+
+**"EACCES: permission denied"**
+You're trying to access files you don't have permission for. Try adding `sudo` before the command, or change the file permissions.
+
+**"Rate limit exceeded"**
+You've sent too many requests too quickly. Wait a minute and try again. This is normal during heavy usage.
+
+### What to Say When...
+
+| Situation | What to Type |
+|-----------|-------------|
+| You want to start a new project | "Create a new project for [description]" |
+| Something looks wrong | "The [specific thing] doesn't look right. Can you fix it?" |
+| You want to understand something | "Can you explain what [this file/this code] does?" |
+| You want to undo something | "Can you undo the last change you made?" |
+| You're stuck | "I'm trying to [goal] but [problem]. What should I do?" |
+| You want to deploy | "How do I put this website online so other people can see it?" |
+| You want to save progress | "/commit" |
+| Something broke | "Something broke after the last change. Can you figure out what went wrong?" |
+
+### Keyboard Shortcuts
+
+| Shortcut | What It Does |
+|----------|-------------|
+| `Tab` | Accept Claude's suggestion |
+| `Ctrl + C` | Cancel current operation |
+| `Escape` | Exit Claude Code |
+| `Up Arrow` | Recall previous prompt |
+
+### Useful Links
+
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code) — Official docs with detailed guides
+- [Anthropic Console](https://console.anthropic.com) — Manage your API key and usage
+- [Node.js Download](https://nodejs.org) — Install Node.js if you don't have it
+
+</div>
+
+</TabbedGuide>
