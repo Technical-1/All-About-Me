@@ -1746,22 +1746,24 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-13T07:36:32Z"
+      "pushed_at": "2026-03-14T16:15:49Z"
     },
     "languages": [
       "TypeScript",
       "Astro",
       "HTML",
+      "MDX",
       "JavaScript",
       "CSS",
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 135438,
-      "Astro": 85323,
+      "TypeScript": 140605,
+      "Astro": 85315,
       "HTML": 59128,
+      "MDX": 40493,
       "JavaScript": 18279,
-      "CSS": 10534,
+      "CSS": 10581,
       "Shell": 7015
     },
     "primary_language": "TypeScript",
@@ -1943,7 +1945,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-14T04:48:45Z"
+      "pushed_at": "2026-03-15T05:11:55Z"
     },
     "languages": [
       "JavaScript",
@@ -2341,7 +2343,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-14T05:13:00Z"
+      "pushed_at": "2026-03-15T05:38:54Z"
     },
     "languages": [
       "Python",
