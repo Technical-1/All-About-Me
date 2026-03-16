@@ -1,14 +1,14 @@
-# Tech Stack
+# Technology Stack
 
-## Frontend
+## Core Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Next.js** | 15.1.2 | React framework with App Router, server components, and optimized production builds |
-| **React** | 19.0.0 | UI library with concurrent features and improved performance |
-| **TypeScript** | 5.7.2 | Type safety throughout the codebase |
-| **Tailwind CSS** | 3.4.17 | Utility-first styling with custom theme integration |
-| **Framer Motion** | 11.15.0 | Smooth animations for UI transitions and component entrance effects |
+| Category | Technology | Version | Purpose |
+|----------|------------|---------|---------|
+| Language | TypeScript | 5.7.2 | Type safety throughout the codebase |
+| Framework | Next.js | 15.1.2 | React framework with App Router and optimized builds |
+| UI Library | React | 19.0.0 | Concurrent rendering and improved performance |
+| Styling | Tailwind CSS | 3.4.17 | Utility-first styling with custom theme integration |
+| Animation | Framer Motion | 11.15.0 | UI transitions and gesture support |
 
 ### Why These Choices
 
@@ -16,7 +16,7 @@
 
 **TypeScript**: Essential for a simulation with complex data structures. Type safety caught numerous bugs during development, especially around the physics engine's vector math and force calculations.
 
-**Tailwind CSS**: Rapid iteration on UI design. I created a custom theme with CSS variables (`--growth-primary`, `--growth-bg`, etc.) that allows runtime theme switching without CSS regeneration.
+**Tailwind CSS**: Rapid iteration on UI design. I created a custom theme with CSS variables (`--theme-primary`, `--theme-background`, etc.) that allows runtime theme switching without CSS regeneration.
 
 ## State Management
 
@@ -32,11 +32,21 @@ I chose Zustand over Redux for its minimal boilerplate and excellent TypeScript 
 - **themeStore**: Visual theme with localStorage persistence
 - **uiStore**: Transient UI state (panel open/close, dialog visibility)
 
+## Validation & Security
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Zod** | 4.3.6 | Runtime schema validation for all user inputs |
+
+### Validation Strategy
+
+All user-facing inputs (growth settings, render options, shared URL state) pass through Zod schemas before reaching the simulation engine. Color values are sanitized against injection. Content Security Policy headers restrict script execution and support WebAssembly for ffmpeg.
+
 ## Rendering
 
 | Technology | Purpose |
 |------------|---------|
-| **Canvas 2D API** | Primary rendering path - reliable across all browsers |
+| **Canvas 2D API** | Primary rendering path — reliable across all browsers |
 | **WebGL 2.0** | Hardware-accelerated rendering for high node counts |
 
 ### Rendering Strategy
@@ -52,7 +62,7 @@ The Canvas 2D renderer handles all current use cases well. The WebGL renderer is
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **jsPDF** | 3.0.4 | PDF vector export for print-ready output |
+| **jsPDF** | 4.2.0 | PDF vector export for print-ready output |
 | **ffmpeg.wasm** | 0.12.15 | In-browser video encoding for MP4/WebM export |
 | **@ffmpeg/util** | 0.12.2 | Utility functions for ffmpeg.wasm integration |
 
@@ -66,11 +76,19 @@ All heavy export dependencies are dynamically imported only when needed. This ke
 - GIF (frame capture + encoding)
 - MP4/WebM (via ffmpeg.wasm)
 
+## Sharing
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **qrcode** | 1.5.4 | QR code generation for shareable URLs |
+
+State is compressed and encoded into URLs for sharing. QR codes make it easy to share on mobile.
+
 ## PWA Infrastructure
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **next-pwa** | 5.6.0 | Service worker generation and caching strategies |
+| **@ducanh2912/next-pwa** | 10.2.9 | Service worker generation and caching strategies |
 | **IndexedDB** | Browser API | Offline storage for cached creations |
 | **Clipboard API** | Browser API | Direct image copying to clipboard |
 
@@ -88,12 +106,13 @@ I prioritized offline functionality:
 |------------|---------|---------|
 | **Vitest** | 2.1.8 | Fast unit testing with native ESM support |
 | **Playwright** | 1.57.0 | End-to-end and visual regression testing |
-| **Testing Library** | - | React component testing utilities |
+| **Testing Library** | 16.1.0 | React component testing utilities |
 | **JSDOM** | 25.0.1 | DOM simulation for unit tests |
 
 ### Testing Strategy
 
 - **Unit tests**: Core simulation logic (DifferentialGrowth, Vector2D, SpatialHash)
+- **Validation tests**: Zod schema and sanitization coverage
 - **Performance benchmarks**: Ensure spatial hash maintains O(1) lookups
 - **Visual regression**: Playwright captures screenshots for render consistency
 - **Integration tests**: React hooks with Testing Library
@@ -123,7 +142,7 @@ I prioritized offline functionality:
 ### Deployment Pipeline
 
 The project is configured for zero-config Vercel deployment:
-- `next.config.ts` includes PWA configuration
+- `next.config.ts` includes PWA configuration and CSP headers
 - Automatic builds on push to main
 - Preview deployments for pull requests
 - Edge caching for optimal global performance
@@ -134,12 +153,15 @@ The project is configured for zero-config Vercel deployment:
 I use this for parsing font files to generate accurate text outlines. The built-in Canvas `measureText()` provides dimensions but not path data. Opentype.js extracts actual glyph paths which I convert to simulation seed points.
 
 ### Framer Motion
-Handles all UI animations - panel transitions, button hovers, and dialog animations. I chose it over CSS animations for:
+Handles all UI animations — panel transitions, button hovers, and dialog animations. I chose it over CSS animations for:
 - Declarative API that integrates well with React state
 - `AnimatePresence` for exit animations
 - Gesture support for drag interactions
 
-### next-pwa
+### Zod
+Runtime validation for all user inputs and shared state. Schemas define valid ranges for simulation parameters, preventing invalid states from crashing the simulation. This is especially important for URL-encoded shared states where input isn't trusted.
+
+### @ducanh2912/next-pwa
 Generates the service worker and manifest automatically from Next.js configuration. I customized the caching strategy to:
 - Cache-first for static assets
 - Network-first for API routes (none currently, but future-proofed)
