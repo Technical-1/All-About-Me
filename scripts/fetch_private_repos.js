@@ -208,8 +208,11 @@ async function fetchAllRepos(visibility) {
     page += 1;
   }
 
-  // Keep only active, non-fork repos
-  return repos.filter(r => !r.fork && !r.archived);
+  // Repos to exclude from the site (sensitive content)
+  const EXCLUDED_REPOS = ['SAA'];
+
+  // Keep only active, non-fork repos, excluding sensitive ones
+  return repos.filter(r => !r.fork && !r.archived && !EXCLUDED_REPOS.includes(r.name));
 }
 
 async function fetchLanguagesForRepo(repo) {
