@@ -238,16 +238,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-10T02:22:29Z"
+      "pushed_at": "2026-03-16T05:48:23Z"
     },
     "languages": [
       "TypeScript",
+      "HTML",
       "CSS",
       "JavaScript",
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 525351,
+      "TypeScript": 525996,
+      "HTML": 9342,
       "CSS": 3812,
       "JavaScript": 1371,
       "GLSL": 975
@@ -258,6 +260,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/differential-growth/preview.png"
     ]
   },
   {
@@ -486,11 +491,11 @@
       "full_name": "Technical-1/FISH-THEME",
       "html_url": "https://github.com/Technical-1/FISH-THEME",
       "homepage": null,
-      "description": null,
+      "description": "Custom Shopify storefront for FISH Apparel — custom Liquid/JS replacing $700-1,800/yr in paid extensions. Variant image filtering, B2B wholesale system, infinite scroll gallery, shipping progress bar, and more.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-07T06:06:09Z"
+      "pushed_at": "2026-03-16T07:35:10Z"
     },
     "languages": [
       "Liquid",
@@ -762,6 +767,38 @@
       "stack.md",
       "qa.md"
     ]
+  },
+  {
+    "repo": {
+      "name": "Local-Hoster",
+      "full_name": "Technical-1/Local-Hoster",
+      "html_url": "https://github.com/Technical-1/Local-Hoster",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-03-16T07:37:24Z"
+    },
+    "languages": [
+      "Rust",
+      "Svelte",
+      "CSS",
+      "TypeScript",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 17104,
+      "Svelte": 16245,
+      "CSS": 1157,
+      "TypeScript": 551,
+      "JavaScript": 291,
+      "HTML": 286
+    },
+    "primary_language": "Rust",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1720,7 +1757,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-14T16:15:49Z"
+      "pushed_at": "2026-03-16T05:34:16Z"
     },
     "languages": [
       "TypeScript",
@@ -1736,7 +1773,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 18279,
+      "JavaScript": 18432,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -1919,7 +1956,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-15T05:11:55Z"
+      "pushed_at": "2026-03-16T05:23:15Z"
     },
     "languages": [
       "JavaScript",
@@ -2317,7 +2354,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-15T05:38:54Z"
+      "pushed_at": "2026-03-16T05:51:50Z"
     },
     "languages": [
       "Python",

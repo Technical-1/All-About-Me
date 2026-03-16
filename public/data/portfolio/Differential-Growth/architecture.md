@@ -26,6 +26,7 @@ graph TB
         NP[NodePool]
         PM[PhaseManager]
         FFM[ForceFieldManager]
+        LM[LayerManager]
     end
 
     subgraph "Rendering Layer"
@@ -33,12 +34,19 @@ graph TB
         C2D[Canvas2DRenderer]
         WGL[WebGLRenderer]
         RF[RendererFactory]
+        FX[Effects]
     end
 
     subgraph "State Management"
         GS[growthStore]
         TS[themeStore]
         US[uiStore]
+    end
+
+    subgraph "Validation & Security"
+        ZS[Zod Schemas]
+        SAN[Sanitizer]
+        CSP[CSP Headers]
     end
 
     subgraph "Export System"
@@ -50,11 +58,19 @@ graph TB
         BE[BatchExporter]
     end
 
-    subgraph "PWA Features"
+    subgraph "Sharing & Storage"
+        SS[ShareService]
+        UE[URLEncoder]
+        QR[QR Code]
         OS[OfflineStorage]
         CC[CreationCache]
-        CS[ClipboardService]
         SW[Service Worker]
+    end
+
+    subgraph "Observability"
+        AN[Analytics]
+        ER[ErrorReporter]
+        PF[PerformanceMonitor]
     end
 
     TI --> TTP
@@ -73,13 +89,17 @@ graph TB
     DG --> NP
     DG --> PM
     DG --> FFM
+    DG --> LM
 
     DG --> GR
     GR --> RF
     RF --> C2D
     RF --> WGL
+    GR --> FX
 
-    GS --> DG
+    GS --> ZS
+    ZS --> DG
+    SAN --> GR
     TS --> GR
     US --> UI[UI Components]
 
@@ -90,9 +110,16 @@ graph TB
     ES --> VE
     ES --> BE
 
+    DG --> SS
+    SS --> UE
+    SS --> QR
+
     SW --> OS
     OS --> CC
-    CS --> CC
+
+    DG --> AN
+    DG --> ER
+    DG --> PF
 ```
 
 ## Data Flow
@@ -101,22 +128,26 @@ graph TB
 sequenceDiagram
     participant User
     participant Input
+    participant Validation
     participant Processing
     participant Simulation
     participant Renderer
     participant Canvas
 
     User->>Input: Enter text/upload image
-    Input->>Processing: Raw input data
+    Input->>Validation: Raw input data
+    Validation->>Validation: Zod schema validation + sanitization
+    Validation->>Processing: Validated input
     Processing->>Processing: Generate mask & seeds
     Processing->>Simulation: PathData[] + GrowthMask
 
     loop Animation Frame
         Simulation->>Simulation: step()
         Simulation->>Simulation: Apply forces (repulsion, attraction, alignment)
+        Simulation->>Simulation: Apply force fields
         Simulation->>Simulation: Split edges (growth)
         Simulation->>Renderer: render(simulation)
-        Renderer->>Canvas: Draw paths
+        Renderer->>Canvas: Draw paths + effects
     end
 
     User->>Simulation: Export request
@@ -185,16 +216,28 @@ Three stores separate concerns:
 - `themeStore`: Visual theme with persistence
 - `uiStore`: Transient UI state (dialogs, panels)
 
-### 8. PWA Architecture
+### 8. Validation & Security Layer
+
+I added a validation layer using Zod schemas for runtime type checking of all user inputs — growth settings, render options, and encoded state from shared URLs. Color values are sanitized against injection attacks. The app serves Content Security Policy headers that restrict script sources and support WebAssembly (`wasm-unsafe-eval`) for ffmpeg.
+
+### 9. Force Field System
+
+Force fields provide external influences on growth direction. Six field types (attraction, repulsion, vortex, turbulence, directional, gravity) can be placed on the canvas and combined. Each field has configurable strength, radius, and falloff. The `ForceFieldManager` aggregates field forces during each simulation step.
+
+### 10. Layer System
+
+The `LayerManager` supports multiple independent growth layers. Each layer has its own simulation state, visibility, opacity, and blend mode. Layers render in order and can be reordered, locked, or soloed for editing.
+
+### 11. PWA Architecture
 
 The PWA implementation uses:
-- **next-pwa**: Service worker generation and caching
+- **@ducanh2912/next-pwa**: Service worker generation and caching
 - **IndexedDB** (via CreationCache): Stores rendered images and settings
 - **Clipboard API**: Direct image copying without intermediate downloads
 
 Offline support ensures users can continue creating even without internet access.
 
-### 9. Export System Design
+### 12. Export System Design
 
 The export system uses a service-based architecture:
 - **ExportService**: Unified interface for all formats
@@ -202,11 +245,16 @@ The export system uses a service-based architecture:
 - **Progress callbacks**: UI can show export progress for slow operations
 - **Dynamic imports**: Heavy dependencies (jsPDF, ffmpeg.wasm) are loaded only when needed
 
-### 10. Component Composition
+### 13. Sharing & URL Encoding
+
+The `ShareService` encodes simulation state (settings + seed data) into compact URLs. The `URLEncoder` handles compression and Base64 encoding. QR codes are generated via the `qrcode` library for easy mobile sharing.
+
+### 14. Component Composition
 
 The UI follows a composition pattern:
 - **GrowthCanvas**: Owns the canvas element, handles resize, delegates to renderer
 - **ControlPanel**: Groups related simulation controls
-- **Input components**: TextInput, ImageUpload, ShapeSelector are interchangeable
+- **Input components**: TextInput, ImageUpload, ShapeSelector, PatternSelector, BrushPanel are interchangeable
+- **Specialized panels**: ForceFieldPanel, LayerPanel, AnimationPanel, PhaseEditor, RandomizationPanel
 
 This makes it easy to add new input modes or control panels without touching the core simulation code.
