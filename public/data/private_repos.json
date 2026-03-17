@@ -495,17 +495,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-17T15:32:52Z"
+      "pushed_at": "2026-03-17T15:33:49Z"
     },
     "languages": [
       "Liquid",
-      "CSS",
-      "JavaScript"
+      "JavaScript",
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
-      "Liquid": 1571518,
-      "CSS": 407568,
-      "JavaScript": 253603
+      "Liquid": 1597144,
+      "JavaScript": 254789,
+      "HTML": 76534,
+      "CSS": 56951
     },
     "primary_language": "Liquid",
     "has_portfolio": true,
@@ -718,7 +720,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-17T08:46:14Z"
+      "pushed_at": "2026-03-17T15:35:19Z"
     },
     "languages": [
       "JavaScript",
@@ -726,7 +728,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 220126,
+      "JavaScript": 233148,
       "HTML": 11079,
       "CSS": 3038
     },
