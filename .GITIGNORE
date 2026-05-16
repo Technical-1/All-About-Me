@@ -35,6 +35,17 @@ firebase-debug.log
 *.png
 !public/og/*.png
 !public/screenshots/**
+!public/icon-*.png
+!public/apple-touch-icon.png
+!.portfolio/*.png
+!.portfolio/*.gif
 
 # macOS desktop screenshots (files starting with "Screenshot")
 /Screenshot*
+
+# Cloud-sync conflict copies (iCloud/Dropbox/OneDrive create "name 2.ext")
+* [0-9].*
+* [0-9]
+
+# Local Claude / superpowers tooling scratch
+.superpowers/
