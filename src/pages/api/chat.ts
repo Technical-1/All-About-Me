@@ -191,6 +191,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
+    // Normalize the conversation before sending it to the model.
+    // The client prepends a canned UI greeting (an assistant message) that
+    // the model never actually produced. Sending it as real history wastes
+    // tokens and can push the model out of character. Drop any leading
+    // assistant turns so the conversation starts with a genuine user message.
+    const firstUserIndex = body.messages.findIndex(msg => msg.role === 'user');
+    const conversation = body.messages.slice(firstUserIndex);
+
     // Perform RAG search to get relevant context
     const searchResults = await searchContext(lastUserMessage.content);
     const contextString = formatContext(searchResults);
@@ -204,10 +212,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     // Streaming response
     if (shouldStream) {
       const stream = await anthropic.messages.stream({
-        model: 'claude-3-haiku-20240307',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         system: systemPromptWithContext,
-        messages: body.messages.map(msg => ({
+        messages: conversation.map(msg => ({
           role: msg.role,
           content: msg.content,
         })),
@@ -247,10 +255,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     // Non-streaming response (for backwards compatibility)
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       system: systemPromptWithContext,
-      messages: body.messages.map(msg => ({
+      messages: conversation.map(msg => ({
         role: msg.role,
         content: msg.content,
       })),
