@@ -1096,11 +1096,11 @@
       "full_name": "Technical-1/Project-Hub",
       "html_url": "https://github.com/Technical-1/Project-Hub",
       "homepage": null,
-      "description": null,
+      "description": "One command center for every GitHub repo. Your git activity becomes a daily workflow with task management, Claude Code integration, and more.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-14T20:50:48Z"
+      "pushed_at": "2026-05-15T10:02:07Z"
     },
     "languages": [
       "Rust",
@@ -1110,15 +1110,22 @@
       "CSS"
     ],
     "language_bytes": {
-      "Rust": 270125,
-      "TypeScript": 257459,
+      "Rust": 282156,
+      "TypeScript": 269727,
       "JavaScript": 10867,
-      "HTML": 376,
-      "CSS": 265
+      "HTML": 5331,
+      "CSS": 1720
     },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/project-hub/preview.png"
+    ]
   },
   {
     "repo": {
@@ -1864,7 +1871,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-14T09:25:01Z"
+      "pushed_at": "2026-05-15T09:37:54Z"
     },
     "languages": [
       "TypeScript",
@@ -2434,12 +2441,12 @@
       "name": "Snorlax-Tracker",
       "full_name": "Technical-1/Snorlax-Tracker",
       "html_url": "https://github.com/Technical-1/Snorlax-Tracker",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://snorlax-tracker.vercel.app",
+      "description": "Track every Snorlax Pokémon TCG card across every era, language, and variant — live prices, owned tracking, manual image/price overrides, CSV export/import, and a printable checklist.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-15T09:25:23Z"
+      "pushed_at": "2026-05-15T10:06:11Z"
     },
     "languages": [
       "TypeScript",
@@ -2447,11 +2454,18 @@
     ],
     "language_bytes": {
       "TypeScript": 142239,
-      "HTML": 328
+      "HTML": 5399
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/snorlax-tracker/preview.png"
+    ]
   },
   {
     "repo": {
