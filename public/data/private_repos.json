@@ -686,6 +686,30 @@
   },
   {
     "repo": {
+      "name": "Kanfer-D-Toolkit",
+      "full_name": "Technical-1/Kanfer-D-Toolkit",
+      "html_url": "https://github.com/Technical-1/Kanfer-D-Toolkit",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-18T16:35:44Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 17940,
+      "HTML": 2631
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "Kendra-who",
       "full_name": "Technical-1/Kendra-who",
       "html_url": "https://github.com/Technical-1/Kendra-who",
@@ -1076,6 +1100,48 @@
     "screenshots": [
       "/screenshots/project-hub/preview.png"
     ]
+  },
+  {
+    "repo": {
+      "name": "Puppeteer-Packages",
+      "full_name": "Technical-1/Puppeteer-Packages",
+      "html_url": "https://github.com/Technical-1/Puppeteer-Packages",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-18T16:47:01Z"
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Puppeteer-Template",
+      "full_name": "Technical-1/Puppeteer-Template",
+      "html_url": "https://github.com/Technical-1/Puppeteer-Template",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-18T16:38:55Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 17940,
+      "HTML": 2631
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1674,12 +1740,12 @@
       "name": "Video-To-Ascii",
       "full_name": "Technical-1/Video-To-Ascii",
       "html_url": "https://github.com/Technical-1/Video-To-Ascii",
-      "homepage": null,
+      "homepage": "https://video-ascii-converter.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-23T23:15:41Z"
+      "pushed_at": "2026-05-18T23:14:31Z"
     },
     "languages": [
       "JavaScript",
@@ -1687,8 +1753,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 88240,
-      "HTML": 26586,
+      "JavaScript": 95028,
+      "HTML": 29054,
       "CSS": 9806
     },
     "primary_language": "JavaScript",
@@ -1735,7 +1801,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-17T08:56:32Z"
+      "pushed_at": "2026-05-18T10:52:38Z"
     },
     "languages": [
       "TypeScript",
@@ -1934,7 +2000,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-18T07:01:44Z"
+      "pushed_at": "2026-05-19T06:53:56Z"
     },
     "languages": [
       "JavaScript",
@@ -2002,7 +2068,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-07T18:05:46Z"
+      "pushed_at": "2026-05-18T17:32:46Z"
     },
     "languages": [
       "JavaScript",
