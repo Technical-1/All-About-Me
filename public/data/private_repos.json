@@ -1161,11 +1161,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-18T16:47:01Z"
+      "pushed_at": "2026-05-21T00:07:37Z"
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "TypeScript",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 157091,
+      "JavaScript": 469
+    },
+    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1375,11 +1381,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T14:17:09Z"
+      "pushed_at": "2026-05-20T19:52:44Z"
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 22385
+    },
+    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1388,12 +1398,12 @@
       "name": "Remote-Preview",
       "full_name": "Technical-1/Remote-Preview",
       "html_url": "https://github.com/Technical-1/Remote-Preview",
-      "homepage": null,
+      "homepage": "https://happy-preview.vercel.app",
       "description": "CLI-to-mobile preview proxy. Send HTML or images from Claude Code to a live Vercel URL.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T23:52:51Z"
+      "pushed_at": "2026-05-20T19:05:16Z"
     },
     "languages": [
       "TypeScript",
@@ -1402,7 +1412,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 27482,
+      "TypeScript": 29666,
       "HTML": 4669,
       "JavaScript": 630,
       "CSS": 504
@@ -1955,7 +1965,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T10:28:48Z"
+      "pushed_at": "2026-05-20T10:15:45Z"
     },
     "languages": [
       "TypeScript",
@@ -2154,7 +2164,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-20T06:54:45Z"
+      "pushed_at": "2026-05-21T06:59:03Z"
     },
     "languages": [
       "JavaScript",
@@ -2222,7 +2232,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T18:41:32Z"
+      "pushed_at": "2026-05-21T01:48:10Z"
     },
     "languages": [
       "JavaScript",
