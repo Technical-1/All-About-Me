@@ -260,7 +260,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-16T05:48:23Z"
+      "pushed_at": "2026-05-22T07:59:44Z"
     },
     "languages": [
       "TypeScript",
@@ -282,9 +282,6 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/differential-growth/preview.png"
     ]
   },
   {
@@ -323,15 +320,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-06-10T01:56:23Z"
+      "pushed_at": "2026-05-22T08:32:42Z"
     },
     "languages": [
       "JavaScript",
+      "TypeScript",
       "CSS",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 305527,
+      "JavaScript": 362202,
+      "TypeScript": 302516,
       "CSS": 4846,
       "HTML": 772
     },
@@ -462,7 +461,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-14T20:36:39Z"
+      "pushed_at": "2026-05-22T08:18:11Z"
     },
     "languages": [
       "JavaScript",
@@ -470,8 +469,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 417940,
-      "HTML": 11565,
+      "JavaScript": 419878,
+      "HTML": 9208,
       "CSS": 8677
     },
     "primary_language": "JavaScript",
@@ -827,7 +826,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-03T01:35:16Z"
+      "pushed_at": "2026-05-22T05:36:32Z"
     },
     "languages": [
       "JavaScript",
@@ -837,10 +836,10 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 246238,
+      "JavaScript": 290733,
       "Astro": 63935,
-      "HTML": 38982,
-      "CSS": 35485,
+      "HTML": 40729,
+      "CSS": 36430,
       "TypeScript": 3046
     },
     "primary_language": "JavaScript",
@@ -1037,7 +1036,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-23T14:43:18Z"
+      "pushed_at": "2026-05-22T05:29:13Z"
     },
     "languages": [
       "Swift",
@@ -1209,7 +1208,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-04-24T23:30:26Z"
+      "pushed_at": "2026-05-22T08:49:17Z"
     },
     "languages": [
       "Python",
@@ -1223,8 +1222,8 @@
     ],
     "language_bytes": {
       "Python": 4437648,
-      "HTML": 2062254,
-      "JavaScript": 1177432,
+      "HTML": 2121624,
+      "JavaScript": 854087,
       "CSS": 296063,
       "SCSS": 155681,
       "TypeScript": 117023,
@@ -1381,7 +1380,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-20T19:52:44Z"
+      "pushed_at": "2026-05-22T08:46:40Z"
     },
     "languages": [
       "TypeScript"
@@ -1581,7 +1580,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-17T20:00:14Z"
+      "pushed_at": "2026-05-22T08:09:08Z"
     },
     "languages": [
       "TypeScript",
@@ -1591,7 +1590,7 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 5686170,
+      "TypeScript": 5687282,
       "HTML": 932682,
       "CSS": 72471,
       "JavaScript": 54985,
@@ -1611,7 +1610,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-07T02:36:36Z"
+      "pushed_at": "2026-05-22T07:05:15Z"
     },
     "languages": [
       "JavaScript",
@@ -1619,9 +1618,9 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 110407,
+      "JavaScript": 109710,
       "HTML": 20737,
-      "CSS": 16842
+      "CSS": 16841
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1679,7 +1678,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T18:41:58Z"
+      "pushed_at": "2026-05-22T07:03:45Z"
     },
     "languages": [
       "Swift"
@@ -1727,7 +1726,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-21T03:29:27Z"
+      "pushed_at": "2026-05-22T06:27:48Z"
     },
     "languages": [
       "Swift",
@@ -1821,7 +1820,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-17T21:47:55Z"
+      "pushed_at": "2026-05-21T20:41:23Z"
     },
     "languages": [
       "TypeScript",
@@ -1831,7 +1830,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 721423,
+      "TypeScript": 727262,
       "CSS": 310641,
       "Astro": 55022,
       "JavaScript": 43086,
@@ -1877,7 +1876,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-18T23:14:31Z"
+      "pushed_at": "2026-05-21T20:35:47Z"
     },
     "languages": [
       "JavaScript",
@@ -1885,13 +1884,20 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 95028,
-      "HTML": 29054,
-      "CSS": 9806
+      "JavaScript": 86320,
+      "HTML": 11835,
+      "CSS": 10893
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/video-to-ascii/preview.png"
+    ]
   },
   {
     "repo": {
@@ -1965,7 +1971,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-20T10:15:45Z"
+      "pushed_at": "2026-05-21T10:27:47Z"
     },
     "languages": [
       "TypeScript",
@@ -2028,7 +2034,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T06:13:41Z"
+      "pushed_at": "2026-05-22T06:36:48Z"
     },
     "languages": [
       "JavaScript",
@@ -2164,7 +2170,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-21T06:59:03Z"
+      "pushed_at": "2026-05-22T06:54:30Z"
     },
     "languages": [
       "JavaScript",
@@ -2232,7 +2238,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-21T01:48:10Z"
+      "pushed_at": "2026-05-22T07:35:46Z"
     },
     "languages": [
       "JavaScript",
@@ -2479,7 +2485,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-10T01:43:06Z"
+      "pushed_at": "2026-05-22T06:30:18Z"
     },
     "languages": [
       "Svelte",
