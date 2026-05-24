@@ -9,7 +9,7 @@ Image to ASCII Converter is a web application that transforms any image into ASC
 - **Real-Time Conversion**: Adjusting any setting (resolution, brightness, contrast, character set, color mode) updates the ASCII output instantly with a 150ms debounce for smooth interaction
 - **Color Modes**: Four rendering modes — Grayscale (plain text), ANSI 256-color, RGB per-character coloring, and Full RGB with background tinting
 - **Edge Detection**: Optional Sobel filter that emphasizes outlines and contours in the ASCII output
-- **Shareable Links**: One-click sharing generates a unique URL backed by Upstash Redis with a 30-day expiration. The shared view page includes its own export buttons and view counter
+- **Shareable Links**: One-click sharing generates a self-contained URL — the downscaled image and settings are encoded directly into the link's fragment (`#s=…`). No server, no expiry, no third-party storage; the same app regenerates the art in a read-only view mode
 - **Multi-Format Export**: Copy to clipboard, download as TXT, render to PNG (preserving colors), or export as standalone HTML
 - **Quick Presets**: Six one-click presets (Classic, Colored, Blocks, Matrix, High Contrast, Inverted) that configure multiple settings at once
 - **Persistent Settings**: All preferences automatically saved to localStorage and restored on next visit
@@ -17,7 +17,7 @@ Image to ASCII Converter is a web application that transforms any image into ASC
 ## Technical Highlights
 
 ### Sobel Edge Detection
-I implemented a Sobel filter that runs on the downscaled Canvas pixel data. The 3x3 convolution kernels detect horizontal and vertical gradients, and the combined magnitude is added to the original pixel brightness. This creates ASCII art that emphasizes edges and outlines while preserving the overall tonal structure. The filter operates on the already-downscaled image, so performance impact is minimal.
+I implemented a Sobel filter that runs on the downscaled Canvas pixel data. The 3x3 convolution kernels detect horizontal and vertical gradients, and pixels whose combined gradient magnitude exceeds a threshold are replaced with that magnitude (clamped to 255). Non-edge pixels are left untouched, so the original image remains visible underneath while edges appear as crisp bright outlines instead of additive halos. The filter operates on the already-downscaled image, so performance impact is minimal.
 
 ### Dual-Output Pipeline
 The `pixelsToAscii` method generates both plain text and colored HTML in a single pixel-processing loop. Grayscale mode renders with `textContent` (no DOM parsing), while color modes use `innerHTML` with per-character `<span>` elements. This dual output means export functions can immediately use the appropriate format without re-processing.
@@ -28,8 +28,8 @@ The "Fit to Container" feature calculates the optimal font size by dividing avai
 ### Class-Based Architecture
 I refactored the original module-scoped functions into an `ImageAsciiConverter` class. This encapsulates all state (current image, settings, debounce timer) and provides clean separation between image processing, UI management, and export functionality. Settings persist via localStorage with a defaults-merge pattern.
 
-### Serverless Share System
-The share feature uses a minimal serverless function (`api/share.js`) with Upstash Redis. POST creates a new entry with a nanoid-generated key and 30-day TTL; GET retrieves the data and increments a view counter. The shared viewer (`view.html`) is a fully self-contained page with its own auto-fit logic and export buttons.
+### Client-Side URL Share System
+The share feature encodes the downscaled source image plus settings into the URL fragment using a small pure codec (`src/share-codec.js`): base64url of a JSON `{ v, settings, img: data:image/png;base64,… }`. Because it's a fragment, it never reaches any server. Opening the link puts the same SPA into a read-only view mode that re-runs the shared deterministic pipeline (`src/ascii-core.js`) to regenerate identical output. The codec hardens the untrusted-input boundary with a raster-only data-URI allowlist (no SVG), size and structural guards, and an injected `sanitizeSettings` clamp.
 
 ## Development Story
 
@@ -52,10 +52,10 @@ Characters are taller than they are wide, so ASCII art naturally appears stretch
 - **Full RGB**: Like RGB, but also adds a semi-transparent background tint per character for richer output
 
 ### How does sharing work?
-Clicking "Share" sends the ASCII output and current settings to a serverless API. The API stores the data in Upstash Redis with a unique nanoid-generated ID and 30-day expiration. The generated URL points to `view.html?id=xxx`, which fetches and renders the shared art with its own auto-fit sizing and export buttons.
+Clicking "Share" encodes the downscaled image plus your current settings into the URL fragment (`#s=…`) and copies the resulting link to your clipboard. There's no server — the data never leaves the link. Opening that link in another browser puts the same app into a read-only view mode that decodes the fragment and re-runs the conversion pipeline to render byte-identical art, with the same Copy / TXT / PNG / HTML export buttons available.
 
 ### How does edge detection work?
-I implemented a Sobel filter — a classic image processing technique that uses two 3x3 convolution kernels to detect horizontal and vertical brightness gradients. The gradient magnitude is added to the original pixel brightness, which makes edges appear as brighter (more detailed) characters in the ASCII output.
+I implemented a Sobel filter — a classic image processing technique that uses two 3x3 convolution kernels to detect horizontal and vertical brightness gradients. Pixels whose gradient magnitude exceeds a threshold are replaced with that magnitude (clamped to 255), while non-edge pixels are left untouched. This makes edges appear as crisp brighter characters in the ASCII output without washing out the rest of the image.
 
 ### Can I use colored ASCII output?
 Yes! The app supports four color modes. RGB and Full RGB modes produce colored HTML output that preserves in the PNG and HTML exports. The copy-to-clipboard function outputs plain text regardless of color mode, since terminal/text contexts don't support inline colors.
@@ -68,6 +68,12 @@ The converter extracts a single frame from GIFs. Full animation support would re
 
 ### What browsers are supported?
 All modern browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+) are supported. The application uses standard Web APIs (Canvas, Clipboard, localStorage, ES modules) without polyfills.
+
+### Can I use emoji or other multi-byte characters in custom character sets?
+Yes. The character-ramp pipeline iterates with `Array.from`, which is grapheme-aware, so each emoji (or other surrogate-pair glyph) is treated as a single character instead of being split into two broken halves. You can paste a string like `🎨🔥💎` into the custom charset input and the brightness ramp will use one emoji per stop.
+
+### Is the app accessible to screen-reader users?
+Yes — all toolbar buttons have `aria-label` attributes, the ASCII output container has `role="img"` with a descriptive label, and the toast notification element uses `role="status"` with `aria-live="polite"` so status messages like "Image loaded", "Saved as PNG!", and error toasts are announced as they appear.
 
 ### How do I report bugs or suggest features?
 The project is hosted on GitHub. You can open an issue or pull request at [github.com/Technical-1/Image-To-Ascii-Vite](https://github.com/Technical-1/Image-To-Ascii-Vite).
