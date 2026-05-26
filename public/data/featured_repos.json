@@ -114,10 +114,10 @@
   {
     "repo": {
       "name": "AHSR",
-      "full_name": "UF-Senior-Design/AHSR",
-      "html_url": "",
+      "full_name": "Technical-1/AHSR-senior-design-archive",
+      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
       "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.",
+      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM. This archive subtree-merges all 21 sub-repos from the CD1-ARHS team with full git history preserved.",
       "private": true,
       "fork": false,
       "archived": false,
