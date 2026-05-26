@@ -1,6 +1,48 @@
 [
   {
     "repo": {
+      "name": "AHSR-senior-design-archive",
+      "full_name": "Technical-1/AHSR-senior-design-archive",
+      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
+      "homepage": null,
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Subtree-merged with full git history preserved.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-26T06:45:11Z"
+    },
+    "languages": [
+      "C++",
+      "Python",
+      "Makefile",
+      "C",
+      "CMake",
+      "Shell",
+      "PowerShell",
+      "Lua",
+      "TypeScript",
+      "Dockerfile",
+      "Procfile"
+    ],
+    "language_bytes": {
+      "C++": 4992444,
+      "Python": 3432759,
+      "Makefile": 2955801,
+      "C": 1263221,
+      "CMake": 1221775,
+      "Shell": 297312,
+      "PowerShell": 87917,
+      "Lua": 12099,
+      "TypeScript": 6732,
+      "Dockerfile": 1882,
+      "Procfile": 27
+    },
+    "primary_language": "C++",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
       "name": "Ascii-React-Native",
       "full_name": "Technical-1/Ascii-React-Native",
       "html_url": "https://github.com/Technical-1/Ascii-React-Native",
@@ -2079,7 +2121,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T06:31:52Z"
+      "pushed_at": "2026-05-26T06:45:42Z"
     },
     "languages": [
       "TypeScript",
@@ -2095,7 +2137,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 21182,
+      "JavaScript": 21357,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2731,10 +2773,10 @@
   {
     "repo": {
       "name": "AHSR",
-      "full_name": "UF-Senior-Design/AHSR",
-      "html_url": "",
+      "full_name": "Technical-1/AHSR-senior-design-archive",
+      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
       "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM.",
+      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM. This archive subtree-merges all 21 sub-repos from the CD1-ARHS team with full git history preserved.",
       "private": true,
       "fork": false,
       "archived": false,
