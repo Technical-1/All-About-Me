@@ -121,7 +121,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:28:22Z"
+      "pushed_at": "2026-05-26T08:32:53Z"
     },
     "languages": [
       "Python",
@@ -155,6 +155,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ahsr-senior-design-archive/preview.png"
     ],
     "metadata": {
       "role": "Software Lead",
