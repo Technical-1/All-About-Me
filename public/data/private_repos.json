@@ -4,42 +4,51 @@
       "name": "AHSR-senior-design-archive",
       "full_name": "Technical-1/AHSR-senior-design-archive",
       "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
-      "homepage": null,
-      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Subtree-merged with full git history preserved.",
+      "homepage": "",
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T06:45:11Z"
+      "pushed_at": "2026-05-26T07:18:30Z"
     },
     "languages": [
-      "C++",
       "Python",
-      "Makefile",
+      "JSON",
+      "YAML",
       "C",
+      "Text",
       "CMake",
+      "C++",
       "Shell",
+      "Makefile",
       "PowerShell",
-      "Lua",
-      "TypeScript",
-      "Dockerfile",
-      "Procfile"
+      "Markdown"
     ],
     "language_bytes": {
-      "C++": 4992444,
-      "Python": 3432759,
-      "Makefile": 2955801,
-      "C": 1263221,
-      "CMake": 1221775,
-      "Shell": 297312,
-      "PowerShell": 87917,
-      "Lua": 12099,
-      "TypeScript": 6732,
-      "Dockerfile": 1882,
-      "Procfile": 27
+      "Python": 348913,
+      "JSON": 218973,
+      "YAML": 14449,
+      "C": 11319,
+      "Text": 10099,
+      "CMake": 9974,
+      "C++": 8461,
+      "Shell": 3797,
+      "Makefile": 2123,
+      "PowerShell": 1648,
+      "Markdown": 1128
     },
-    "primary_language": "C++",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024",
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -186,6 +195,24 @@
       "HTML": 2888
     },
     "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Claude-Tax-Toolkit",
+      "full_name": "Technical-1/Claude-Tax-Toolkit",
+      "html_url": "https://github.com/Technical-1/Claude-Tax-Toolkit",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-26T07:14:13Z"
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -2121,7 +2148,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T06:45:42Z"
+      "pushed_at": "2026-05-26T07:20:40Z"
     },
     "languages": [
       "TypeScript",
@@ -2137,7 +2164,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 21357,
+      "JavaScript": 22627,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2320,7 +2347,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:43:30Z"
+      "pushed_at": "2026-05-26T06:51:59Z"
     },
     "languages": [
       "JavaScript",
@@ -2749,14 +2776,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:52:45Z"
+      "pushed_at": "2026-05-26T07:20:53Z"
     },
     "languages": [
       "Python",
       "HTML"
     ],
     "language_bytes": {
-      "Python": 45070,
+      "Python": 49211,
       "HTML": 7297
     },
     "primary_language": "Python",
@@ -2768,40 +2795,6 @@
     ],
     "screenshots": [
       "/screenshots/technical-1/preview.png"
-    ]
-  },
-  {
-    "repo": {
-      "name": "AHSR",
-      "full_name": "Technical-1/AHSR-senior-design-archive",
-      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
-      "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM. This archive subtree-merges all 21 sub-repos from the CD1-ARHS team with full git history preserved.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2024-12-15T00:00:00Z"
-    },
-    "languages": [
-      "Python",
-      "C++",
-      "ROS2"
-    ],
-    "language_bytes": {
-      "Python": 50000,
-      "C++": 30000
-    },
-    "primary_language": "Python",
-    "metadata": {
-      "featured": true,
-      "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024"
-    },
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
     ]
   }
 ]

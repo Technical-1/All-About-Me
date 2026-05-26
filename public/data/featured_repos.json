@@ -83,7 +83,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:43:30Z"
+      "pushed_at": "2026-05-26T06:51:59Z"
     },
     "languages": [
       "JavaScript",
@@ -113,37 +113,54 @@
   },
   {
     "repo": {
-      "name": "AHSR",
+      "name": "AHSR-senior-design-archive",
       "full_name": "Technical-1/AHSR-senior-design-archive",
       "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
-      "homepage": null,
-      "description": "Autonomous Hospital Stretcher Robot - Senior Design Project at University of Florida. A 2-year engineering effort to create a self-navigating hospital stretcher using ROS2, computer vision, and SLAM. This archive subtree-merges all 21 sub-repos from the CD1-ARHS team with full git history preserved.",
+      "homepage": "",
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2024-12-15T00:00:00Z"
+      "pushed_at": "2026-05-26T07:18:30Z"
     },
     "languages": [
       "Python",
+      "JSON",
+      "YAML",
+      "C",
+      "Text",
+      "CMake",
       "C++",
-      "ROS2"
+      "Shell",
+      "Makefile",
+      "PowerShell",
+      "Markdown"
     ],
     "language_bytes": {
-      "Python": 50000,
-      "C++": 30000
+      "Python": 348913,
+      "JSON": 218973,
+      "YAML": 14449,
+      "C": 11319,
+      "Text": 10099,
+      "CMake": 9974,
+      "C++": 8461,
+      "Shell": 3797,
+      "Makefile": 2123,
+      "PowerShell": 1648,
+      "Markdown": 1128
     },
     "primary_language": "Python",
-    "metadata": {
-      "featured": true,
-      "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024"
-    },
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024",
+      "featured": true
+    }
   },
   {
     "repo": {
