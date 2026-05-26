@@ -1,83 +1,111 @@
 # Project Q&A
 
-## Project Overview
+## Overview
 
-**Limitimer** is a minimalist, mobile-friendly countdown timer web application designed for speakers, presenters, and anyone who needs a highly visible time-tracking tool. I built it to solve the problem of needing a simple, distraction-free timer that can be seen from across a room, survives accidental page refreshes, and provides clear visual urgency cues as time runs out. The target users are conference speakers, meeting facilitators, teachers, and anyone conducting time-boxed activities who needs an at-a-glance timer display.
+Limitimer Pro is a real-time speaker timer and audience-voting web app for boards, conferences, HOAs, and any meeting that needs a visible countdown and a credible way to take a vote. It replaces dedicated countdown hardware (DSAN Limitimer and similar, typically $900–$2,350) and per-event electronic voting kits (often $18K+) with a browser-based tool that runs on any device in the room. The interesting technical angle is that all room state lives in a Y.js CRDT replicated peer-to-peer through a stateless PartyKit relay — there is no authoritative application server, and clients keep working through brief disconnects via IndexedDB.
 
-## Key Features
+## Problem solved
 
-### 1. Large, Readable Display
-The timer displays in an extremely large font (400px on desktop, 10rem on mobile) making it visible from significant distances. I prioritized readability over aesthetics because the primary use case is glancing at a screen while presenting.
+Speaker timers and meeting voting are well-served at the high end and badly served at the low end. A small board, a community meeting, or a regional conference rarely wants to rent a $20K vote-clicker rig but still needs:
 
-### 2. Color-Coded Urgency System
-The entire page background changes color based on remaining time:
-- **Green**: More than 2 minutes remaining - no rush
-- **Yellow**: Between 1-2 minutes - start wrapping up
-- **Red**: Less than 1 minute - urgent
-- **Black**: Time expired
+- a timer the entire room can see, color-coded by urgency
+- votes that can be opened, closed, and tallied without the chair walking around with a clipboard
+- an auditable log of who started what and when, that a secretary can attach to the minutes
 
-This peripheral-vision-friendly design means users don't need to read numbers to understand time status.
+Limitimer Pro covers that whole stack in one URL.
 
-### 3. Refresh-Resistant Persistence
-I implemented localStorage persistence using absolute timestamps. If you accidentally refresh the page or close and reopen the browser, the timer automatically resumes from where it should be - not where it was when interrupted.
+## Target users
 
-### 4. Optional Audio Alert
-Users can toggle an alarm sound that plays when the timer reaches zero. I included both MP3 and OGG formats for cross-browser compatibility. The checkbox defaults to "enabled" but users can disable it for quiet environments.
+- **Meeting chairs / board secretaries** — need a vote opened, closed, and tallied with a record of the result.
+- **Conference / event hosts** — need a visible speaker timer with named presets (5 min talk, 2 min Q&A, etc.).
+- **Speakers and panelists** — need to glance at a phone or laptop and instantly know "green, fine — yellow, wrap up — red, stop."
+- **Audience members / voting participants** — open a URL, pick an option, see confirmation.
 
-### 5. Mobile-Responsive Design
-The interface adapts to mobile screens with adjusted font sizes and touch-friendly controls. The large display scales appropriately while remaining readable on smaller screens.
+## Key features
 
-### 6. Stop and Reset Functionality
-A dedicated Stop button allows users to cancel an active timer and clear the stored state. This is essential for situations where plans change mid-countdown.
+### Real-time collaborative timer
+Start, pause, resume, and reset are reflected on every connected device within a fraction of a second. Named presets are stored in the room's Y.js document, so the controller's preset list shows up on the speaker's screen too. Color-coded thresholds (green → yellow → red → black) are configurable per timer.
 
-## Technical Highlights
+### Voting with quorum, weighted votes, and proxy
+Create a motion, list 2–10 options, choose anonymous (SHA-256 hashed voter ID) or recorded mode, and set an optional quorum percentage. Participants tap their choice on a phone; the controller sees the tally update live with a quorum indicator.
 
-### Challenge 1: Accurate Timing Across Tab Suspension
-**Problem**: Browsers throttle JavaScript timers in background tabs, causing countdown drift.
+### Audit log with hash chain
+Every meaningful event — room join, timer start/pause/reset, vote opened/closed/cast — is appended to a per-room Y.js array. Each entry's SHA-256 includes the previous entry's hash, so any later edit breaks the chain. Controllers can export the log as CSV for the minutes.
 
-**Solution**: I store the absolute end timestamp rather than decrementing a counter. Each interval tick recalculates from `Date.now()`, ensuring the displayed time is always accurate regardless of how long the tab was inactive.
+### Four role-based views
+The same app serves four screens chosen at join time: **Controller** (full management), **Speaker** (timer + status), **Participant** (cast votes), **Display** (full-screen color-changing timer for a projector or back-of-room TV).
 
-### Challenge 2: Seamless State Recovery
-**Problem**: Users losing their timer to accidental page refreshes during critical moments.
+### Offline-tolerant
+Y.js writes go to IndexedDB first and sync when the WebSocket reconnects. A controller can keep running the timer through a flaky hotel Wi-Fi blip and everyone catches up automatically.
 
-**Solution**: I persist the target timestamp to localStorage immediately when a timer starts. On page load, the `DOMContentLoaded` handler checks for a valid saved timestamp and automatically resumes the countdown if time remains. The experience is seamless - users may not even notice a refresh occurred.
+### Subscription tiers
+Free tier covers timer + anonymous voting + small rooms. Pro / Organization tiers unlock recorded voting, quorum enforcement, CSV export, and larger rooms — gated client-side via `subscription.js#enforceFeature` with Firestore as the trusted source of the user's tier.
 
-### Challenge 3: Cross-Browser Audio Playback
-**Problem**: Audio format support varies across browsers, and autoplay policies can block playback.
+## Technical highlights
 
-**Solution**: I provide both OGG and MP3 sources in the `<audio>` element, letting the browser choose its preferred format. The `play()` call uses `.catch()` to gracefully handle autoplay restrictions without breaking the application.
+### Y.js + PartyKit instead of an application server
+All room state — the timer, the votes, the audit log, the participant list — lives in a single Y.js document per room. The PartyKit handler in `party/index.ts` only broadcasts binary sync frames between connected clients; it never decodes them. This means the relay is stateless and trivially horizontally scalable, and the app works through brief disconnects because IndexedDB (`y-indexeddb`) keeps a local mirror that syncs on reconnect.
 
-### Innovative Approach: Full-Screen Visual Feedback
-Rather than using a small timer widget, I made the entire viewport communicate timer status. This "ambient display" approach means the timer can be useful even in peripheral vision - a yellow background catching your eye is faster than reading "1:30" from across the room.
+### Tamper-evident audit log
+`app/js/audit-logger.js` builds an append-only chain where each entry's SHA-256 includes the previous entry's hash, anchored to a genesis value of `"0"`. A controller (or anyone they email the export to) can re-hash the chain to detect insertion, deletion, or reordering after the fact. It's not on-chain notarization, but it's enough to make "who edited the minutes?" answerable for boards and HOAs.
 
-## Frequently Asked Questions
+### Stripe webhook is the only source of the user's tier
+Firestore rules in `firestore.rules` explicitly block clients from writing the `tier`, `stripeCustomerId`, or `subscriptionStatus` fields on their own user doc. The Stripe webhook in `functions/index.js` is the only thing that updates them, using the Firebase Admin SDK. The client reads the tier once and gates features locally, so toggles and modal opens stay snappy without per-action server checks.
 
-### Q1: Why didn't you use React, Vue, or another framework?
-I intentionally avoided frameworks for this project. A countdown timer doesn't need component state management, virtual DOM diffing, or JSX compilation. The entire application is under 10KB - any framework would add more bytes than the app itself. Vanilla JavaScript gave me direct control over browser APIs and resulted in instant page loads with zero bundle complexity.
+### Anonymous voting via salted hash, not "we promise not to look"
+Anonymous mode stores `hashVote(voteId, deviceId, optionIndex)` in `voteResponses` instead of the raw voter ID. The controller sees the tally update in real time but cannot reverse the hash to attribute a vote, and the audit log records a `VOTE_CAST` event without the voter ID for anonymous votes.
 
-### Q2: How does the timer survive page refreshes?
-When you start a timer, I immediately store the target end timestamp (not the remaining time) in localStorage. On page load, I check if there's a valid saved timestamp that's still in the future. If so, I calculate how much time remains and resume the countdown automatically. This absolute-timestamp approach also handles the case where you close and reopen your browser.
+## Engineering decisions
 
-### Q3: Why did you choose those specific time thresholds for colors?
-I chose 2-minute and 1-minute thresholds based on typical presentation contexts. Two minutes is enough time to reach a natural stopping point. One minute signals urgency without panic. These thresholds work well for 5-30 minute segments common in conferences and meetings. For longer timers, you might want different thresholds, but I optimized for the most common use case.
+### Y.js CRDT with peer-to-peer relay (vs. authoritative server)
+- **Constraint**: A live meeting can't tolerate "the server is down" the way a SaaS dashboard can; the timer has to keep counting.
+- **Options**: Authoritative WebSocket server with replicated state, Firestore real-time, or a Y.js CRDT through a relay.
+- **Choice**: Y.js documents synced via PartyKit, mirrored to IndexedDB locally.
+- **Why**: CRDTs merge conflict-free without arbitration, IndexedDB makes refreshes and short outages invisible to users, and PartyKit lets me serve thousands of simultaneous rooms from a free-tier relay because it never touches application state.
 
-### Q4: Can I run multiple timers simultaneously?
-No, this is intentionally a single-timer application. I considered multi-timer support but decided it would complicate the core use case. The full-screen color feedback only makes sense for one active countdown. If you need multiple timers, you could open multiple browser tabs, though each would have its own display.
+### Vanilla JS in the PWA (vs. React/Vue/Svelte)
+- **Constraint**: The UI is four screens dominated by Y.js observers; users will load this on phones and shared conference-room laptops.
+- **Options**: A SPA framework with state management, or vanilla ES modules.
+- **Choice**: Vanilla JS with Vite for dev/build.
+- **Why**: Y.js observers already are the state management. A framework would add bundle size, ceremony, and reactive abstractions that fight Y.js rather than help it.
 
-### Q5: Does the timer work offline?
-Yes, once the page is loaded, no network connection is required. All logic runs client-side, and localStorage persists locally. The only limitation is the initial page load - you need to fetch the HTML, CSS, JS, and audio files once. A future enhancement could add service workers for true PWA offline support.
+### Tier gating in the client with Firestore as source of truth
+- **Constraint**: Most paid features (recorded voting, quorum, CSV export) need to feel instantaneous; the user must not be able to forge their own tier.
+- **Options**: Re-check entitlements server-side on every gated action, or read the tier once and gate locally.
+- **Choice**: `subscription.js#enforceFeature` does local checks; Firestore rules prevent the client from changing its own tier.
+- **Why**: It keeps the UX fast, the trust boundary is at the Firestore rule, and the worst case of a stale read is that a downgraded user sees one extra feature for the rest of their session.
 
-### Q6: Why is the audio optional?
-Several reasons: some environments require silence (recording studios, certain meetings), some users find audio alerts jarring, and browser autoplay policies can block unexpected audio anyway. Making it opt-in (defaulting to enabled) respects user preferences while providing the functionality for those who want it.
+### Four role-specific screens (vs. one adaptive UI)
+- **Constraint**: A controller, a participant, a speaker, and a back-of-room display want very different layouts; the display screen sits on a TV that nobody touches.
+- **Options**: One responsive UI with role-based hide/show, or four discrete screens.
+- **Choice**: Four screens declared in `app/index.html`, with `main.js#showScreen` switching between them.
+- **Why**: Each role's screen stays small and reviewable, the wrong UI never leaks across roles, and the projector-display screen is reduced to just the giant timer and color background.
 
-### Q7: How accurate is the countdown?
-The countdown is accurate to within 1 second of real elapsed time. I use `setInterval` with a 1000ms interval, but importantly, I calculate remaining time from `Date.now()` on each tick rather than simply decrementing. This means even if JavaScript execution is delayed (due to CPU load or tab throttling), the displayed time catches up immediately.
+## FAQ
 
-### Q8: Can I customize the colors or time thresholds?
-Currently, no - the thresholds are hardcoded. Adding customization would require additional UI for settings and more localStorage values to persist. I prioritized simplicity over configurability. However, the code is open source, so you can fork it and modify the threshold values in `script.js` (lines 26-32 and 98-104) to suit your needs.
+### How does the timer stay in sync across devices?
+The controller writes timer state (`status`, `duration_seconds`, `remaining_seconds`, `color`) into a Y.js map. Every other client observes that map and re-renders. The Y.js update flows through `sync-provider.js` → PartyKit → all other peers in the same room, usually within a few hundred ms.
 
-### Q9: What happens if I set a very long timer (hours)?
-It will work, but the display only shows minutes and seconds. A 2-hour timer would display as "120m 0s" which, while accurate, isn't the most readable format for long durations. I optimized the display for the common case of timers under 60 minutes.
+### What happens if the network drops mid-meeting?
+Each client keeps writing to its local Y.js document, which is mirrored to IndexedDB by `y-indexeddb`. When the WebSocket reconnects, Y.js merges the local and remote changes automatically — CRDT semantics guarantee no conflicts, just a deterministic merge. The user usually only notices a brief "Disconnected" indicator.
 
-### Q10: Is there a way to pause the timer?
-Not currently. I implemented Stop (which cancels the timer) but not Pause (which would freeze and resume). Adding pause would require storing additional state (paused time, pause timestamp) and UI for resume. For the primary presentation-timer use case, pausing is rarely needed - you either run the clock or start over.
+### How does anonymous voting actually work?
+In anonymous mode the client computes `hashVote(voteId, deviceId, optionIndex)` (SHA-256) and writes that hash into `voteResponses` instead of the voter ID. The controller can still count votes by option but cannot map a response back to a participant. The audit log records `VOTE_CAST` without the voter ID for anonymous votes.
+
+### Is the audit log legally binding?
+No — it's tamper-evident, not notarized. The SHA-256 chain means anyone with the exported CSV can verify that the log wasn't edited after the meeting, which is what boards and HOAs usually need for minutes. If you need court-grade evidence, you'd want a notarization service on top.
+
+### How do I run my own instance?
+Clone the repo, `npm install` at the root and in `app/`, fill in `app/.env.local` with your Firebase project's web config, set `VITE_PARTYKIT_HOST` (or default to `localhost:1999`), then `npm run dev` to run the app and PartyKit concurrently. Stripe is optional until you want to enable paid tiers.
+
+### Why both Firebase and PartyKit?
+They solve different problems. Firebase Auth and Firestore handle user identity and the subscription tier (where I need server-trusted state). PartyKit handles the per-room WebSocket fan-out for Y.js sync (where I need fast, stateless broadcast). Trying to do real-time CRDT sync on Firestore alone was painful — too many small writes and no native binary protocol.
+
+### Can a participant join without an account?
+Yes. Participants just open the room URL (`/r/<ROOMCODE>`) and pick a display name. Only the controller needs to be signed in, because that's where billing tier is checked. The participant's device gets its own deviceId and shows up in the Y.js `participants` map.
+
+### What's the room-size limit?
+PartyKit's free tier handles plenty of concurrent connections per room for the meetings I've tested. The Free product tier intentionally caps room size to a small number (e.g., 10) via `room_meta` and the Stripe-tier gates raise that. The technical ceiling is a Y.js + WebSocket fan-out question, not a backend-load one, since the relay never touches the document.
+
+### Where does the alarm sound come from?
+The expired-timer alarm is an HTML5 `<audio>` element with both OGG and MP3 sources for browser compatibility (`main.js#handleTimerExpired`). It's optional and will fail gracefully if the browser blocks autoplay.

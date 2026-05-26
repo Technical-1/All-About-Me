@@ -1,204 +1,98 @@
 # Project Q&A
 
-## Project Overview
+## Overview
 
-The Miami Code Compliance Web Scraper is an automated system I built to extract content from Miami's government website and feed it into an AI knowledge base. The scraper runs weekly, crawling 19 starting URLs (expanding to 22 total pages with child page discovery), converting HTML to structured Markdown, and uploading to AWS S3. From there, AWS Bedrock Knowledge Base indexes the content for use by an AI chatbot that helps citizens navigate code compliance processes.
+The Miami Code Compliance Web Scraper extracts content from Miami's code compliance pages, turns it into Markdown, and feeds an AWS Bedrock Knowledge Base that powers a citizen-facing chatbot. It runs once a week on Fargate, walks 19 starting URLs (expanding to 22 pages via per-URL depth limits), and the interesting parts sit in the JavaScript-aware stealth crawler, the HTML-to-Markdown extractor that survives a CMS-heavy government site, and an S3-loaded config that includes a live kill switch.
 
-### Problem Solved
+## Problem Solved
 
-Miami's Code Compliance department has extensive documentation spread across dozens of web pages covering permits, inspections, business licenses, and enforcement procedures. Citizens often struggle to find the right information or understand complex processes. By extracting this content into an AI-powered chatbot, I made this information instantly accessible through natural language queries rather than manual navigation.
+Miami's Code Compliance documentation is spread across dozens of pages on permits, inspections, business licenses, and enforcement. Citizens have to know where to look, and that's the bottleneck. By pulling the content into a structured Markdown corpus and indexing it in Bedrock, the chatbot can answer plain-language questions and link back to the original source page.
 
-### Target Users
+## Target Users
 
-- **Primary**: City of Miami residents and business owners seeking code compliance information
-- **Secondary**: City staff who can use the chatbot to quickly answer citizen inquiries
-- **Tertiary**: Developers maintaining or extending the scraping infrastructure
+- **City of Miami residents and business owners** — ask the downstream chatbot in plain English instead of navigating a sitemap.
+- **City staff** — get quick answers when fielding inbound questions.
+- **The operator of this pipeline** — gets a one-email-per-week summary of what was scraped and indexed.
 
 ## Key Features
 
-### 1. Intelligent HTML-to-Markdown Conversion
+### Stealth Selenium crawl
+A headless Chromium configured to defeat the common automation tells (`navigator.webdriver` shimmed, `--disable-blink-features=AutomationControlled`, realistic UA/window size, `enable-automation` switch removed). This is what gets the crawler past the site's CloudFlare layer reliably.
 
-I built a custom extraction pipeline that preserves document structure while removing noise. The converter:
-- Maintains heading hierarchy (H1-H6) for proper document structure
-- Preserves lists, tables, and accordion content
-- Removes navigation, footers, CMS artifacts, and duplicate text
-- Adds YAML frontmatter with metadata for RAG attribution
+### HTML to Markdown with YAML frontmatter
+A multi-pass extractor that removes nav/footer/script noise, drops CMS-template fragments (e.g., `"DO NOT REMOVE"` blocks), deduplicates short repeating phrases, and walks the remaining DOM in order to keep headings and lists intact. Output carries `title`, `source_url`, `description`, and `scraped_date` so Bedrock can cite the original page.
 
-### 2. Stealth Browser Automation
+### Per-URL depth control
+Each entry in `start_urls` has its own `max_depth`. Standalone pages stay at depth 0; pages with meaningful children get depth 1. The result is the same ~22 pages every run — predictable for the index.
 
-To handle Miami.gov's bot protection, I implemented advanced stealth techniques:
-- Headless Chrome with automation detection disabled
-- Custom user agent and navigator property overrides
-- Realistic window size and browser fingerprint
-- Configurable delays to avoid rate limiting
+### S3-loaded config with a kill switch
+`scraper_config.json` lives in S3. Adding a URL or changing the delay is a JSON edit. Setting `enabled: false` makes the task log and exit 0 on its next run — no infra change, no redeploy.
 
-### 3. S3-Based Dynamic Configuration
-
-The scraper loads its configuration from S3 at runtime, enabling:
-- Adding/removing URLs without code changes
-- Kill switch for emergency stops
-- Tunable parameters (delay, depth, max pages)
-- No Docker rebuilds for configuration updates
-
-### 4. Per-URL Depth Control
-
-Each starting URL can have its own crawl depth setting:
-- `depth=0`: Scrape only the specified page
-- `depth=1`: Scrape the page plus direct child pages
-- This allows targeted extraction without over-crawling
-
-### 5. Automated Validation
-
-After each run, the system validates results:
-- Checks if minimum page threshold was met
-- Verifies S3 files were updated today
-- Generates validation report for monitoring
-
-### 6. End-to-End Workflow Orchestration
-
-AWS Step Functions coordinates the entire pipeline:
-1. Trigger Fargate scraping task
-2. Wait for completion (5-minute buffer)
-3. Sync Bedrock Knowledge Base
-4. Send email notification with results
+### Step Functions orchestration
+The state machine runs the Fargate task, waits five minutes for S3 consistency, kicks off a Bedrock Knowledge Base ingestion job, and publishes an SNS message with the outcome. Each step can fail and retry independently.
 
 ## Technical Highlights
 
-### Challenge 1: JavaScript-Rendered Content
+### Multi-pass HTML extractor for CMS-heavy pages
+Government CMS pages reuse the same navigation, banner, and template blocks across every URL, and naive `BeautifulSoup.get_text()` produces a wall of duplicated boilerplate. The extractor strips `<script>`, `<style>`, `<nav>`, `<header>`, `<footer>`; filters elements whose text matches known CMS markers (`"DO NOT REMOVE"`, template directives); tracks short phrases already emitted to skip cross-page repeats; and walks remaining nodes in DOM order so heading hierarchy survives. Logic lives in the HTML-to-Markdown path of `standalone_selenium/standalone_miami_scraper_selenium.py`.
 
-**Problem**: Miami.gov uses JavaScript to load content dynamically, including accordion sections that hide important information until clicked.
+### Stealth Chromium configuration
+CloudFlare's bot heuristics pick up on automation flags, missing `chrome.runtime`, and `navigator.webdriver=true`. The crawler sets `--disable-blink-features=AutomationControlled`, removes the `enable-automation` switch, and runs an `execute_script` that defines `navigator.webdriver` as `undefined` and stubs `window.chrome.runtime`. With this configuration the site serves pages normally; without it, several pages return interstitials.
 
-**Solution**: I used Selenium with headless Chrome instead of simple HTTP requests. The browser executes JavaScript and renders the full page before extraction. I also implemented wait conditions to ensure all dynamic content loads before parsing.
+### Per-URL BFS with per-seed depth budgets
+Crawl state is kept in `visited_urls`, a `to_visit` queue, and a `url_depths` dict. When the crawler enqueues a discovered link, it looks up the depth budget of the *seed* that produced it, not a global setting. This keeps the crawl tight: depth-0 seeds never enqueue children, depth-1 seeds enqueue children but those children don't recurse further. The same dispatch loop handles both cases without conditional code paths per seed type.
 
-### Challenge 2: Bot Detection and Rate Limiting
+### S3 config overlay on code defaults
+`Config._apply_config()` starts from in-code defaults, then deep-merges the JSON pulled from `s3://{bucket}/{prefix}config/scraper_config.json`. Missing keys fall through to defaults, so a partial config file (e.g., updating only `delay_seconds`) is safe. The full effective configuration is logged at startup, which makes CloudWatch the ground truth for "what just ran".
 
-**Problem**: The website has CloudFlare protection and bot detection that blocked simple HTTP requests.
+## Engineering Decisions
 
-**Solution**: I implemented a comprehensive stealth configuration:
-```python
-# Disable automation detection
-chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+### Selenium + Chromium versus plain HTTP fetchers
+- **Constraint**: Targets are JavaScript-rendered and CloudFlare-protected. `requests`, `httpx`, and `cloudscraper` either returned partial DOMs or interstitials.
+- **Options**: Pure HTTP with TLS-fingerprint impersonation (`curl_cffi`); a hybrid `cloudscraper` + `requests` path; full Selenium.
+- **Choice**: Selenium with headless Chromium and stealth flags.
+- **Why**: One code path that works on every target page. The container is heavier and the run is slower, but at one execution per week the cost is negligible and the maintenance burden is lower than chasing TLS-fingerprint changes.
 
-# Override navigator properties
-self.driver.execute_script("""
-    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-    window.chrome = {runtime: {}};
-""")
-```
+### ECS Fargate versus AWS Lambda
+- **Constraint**: Chromium-based image + ChromeDriver + Python; a 2–3 minute weekly burst.
+- **Options**: Lambda container image; Fargate task; an always-on EC2 worker.
+- **Choice**: Fargate, 2 vCPU / 4 GB.
+- **Why**: Lambda's 10 GB image and 15-minute caps left no margin for retries with Chromium loaded; EC2 would idle 99% of the time. Fargate bills only for the active minutes and has no relevant timeout.
 
-### Challenge 3: Content Duplication
+### Step Functions versus a monolithic Python script
+- **Constraint**: Three discrete steps with different failure modes — scrape, wait for S3 consistency, trigger Bedrock ingestion — plus a notification.
+- **Options**: Do everything in the same Python process; a small shell wrapper around `aws` CLI calls; Step Functions.
+- **Choice**: Step Functions state machine.
+- **Why**: Built-in `Wait` and `Retry`, free visual run history in the console, and each step can be re-run or swapped without touching the others. The Bedrock ingestion call doesn't block the Fargate task either.
 
-**Problem**: Government sites often have repeated headers, navigation elements, and CMS artifacts that pollute extracted text.
-
-**Solution**: I built a multi-pass extraction pipeline:
-1. Remove script, style, nav, header, footer elements
-2. Filter out CMS keywords ("DO NOT REMOVE", "Template", etc.)
-3. Track seen text to deduplicate short phrases
-4. Process elements in DOM order to maintain structure
-
-### Challenge 4: Container Resource Constraints
-
-**Problem**: Running a full Chrome browser in a container requires significant resources, but Lambda has a 10GB limit and 15-minute timeout.
-
-**Solution**: I chose ECS Fargate with 2 vCPU and 4 GB memory. This provides enough resources for Chrome while only billing for actual execution time (~2-3 minutes weekly). Fargate has no timeout limit, giving flexibility for future expansion.
-
-### Challenge 5: Configuration Without Redeployment
-
-**Problem**: Adding new URLs or changing crawl parameters required rebuilding and deploying the Docker image.
-
-**Solution**: I implemented S3-based configuration loading:
-```python
-def load_config_from_s3(bucket, prefix):
-    s3 = boto3.client('s3')
-    response = s3.get_object(Bucket=bucket, Key=f"{prefix}config/scraper_config.json")
-    return json.loads(response['Body'].read().decode('utf-8'))
-```
-
-Now configuration changes are just JSON edits in S3, taking effect on the next scheduled run.
+### S3-hosted config with a kill switch
+- **Constraint**: URLs and crawl parameters change more often than the code; the operator needs an emergency stop without an ECR push.
+- **Options**: Bake config into the image; env vars on the task definition; Parameter Store; S3 JSON.
+- **Choice**: S3 JSON loaded at task start, with an `enabled` boolean.
+- **Why**: Editing a JSON file is faster than revising a task definition; S3 object versioning is a free audit trail; the kill switch needs no infra change to flip.
 
 ## Frequently Asked Questions
 
-### Q1: Why did you choose ECS Fargate over Lambda?
+### How does the scraper get past CloudFlare on miami.gov?
+By looking like a regular Chromium session. The crawler launches headless Chrome with `--disable-blink-features=AutomationControlled`, removes the `enable-automation` switch, and runs an `execute_script` that hides `navigator.webdriver` and stubs `window.chrome.runtime`. CloudFlare's challenge then resolves normally and the page renders.
 
-I evaluated both options and chose Fargate because:
-- **Container Size**: Lambda's 10GB limit is tight for Chrome + dependencies
-- **Execution Time**: Lambda's 15-minute limit doesn't leave margin for retries
-- **Memory**: Fargate allows up to 30GB; Lambda maxes at 10GB
-- **Cost**: At 4 runs/month of 3 minutes each, Fargate costs ~$0.40/month - comparable to Lambda
+### Why is each starting URL allowed its own depth instead of a global setting?
+Some seeds are leaf pages — only the page itself is useful. Others have a handful of meaningful child pages. A global depth would either miss the children or pull in noise. Per-seed `max_depth` keeps the output set at the same ~22 pages every week, which matters for downstream RAG quality.
 
-### Q2: How does the scraper handle page failures?
+### Can I add or remove URLs without redeploying?
+Yes. Edit `scraper_config.json` in S3 at `{prefix}config/scraper_config.json`. The next scheduled run picks up the change. Same path for tuning `max_pages`, `delay_seconds`, or flipping the `enabled` kill switch.
 
-Currently, failed pages are logged and skipped. The scraper continues to the next URL. Failed pages are recorded in the JSON results file and included in the SNS notification. I chose this approach over aggressive retries to avoid IP blocking and keep execution time predictable.
+### What happens to pages that fail mid-run?
+They're logged, recorded in the JSON run summary, and the crawler moves on. The choice is deliberate: aggressive retries on a CloudFlare-protected site invite IP blocks, and the next weekly run will pick them up if the failure was transient. The SNS email surfaces any drop below the validation threshold.
 
-### Q3: Why Markdown instead of raw HTML or JSON?
+### Why Markdown output instead of raw HTML or JSON?
+Bedrock's chunker handles Markdown well — headings become section boundaries, lists stay grouped — and the YAML frontmatter gives the chatbot a clean `source_url` for citations. Raw HTML wastes tokens on tags; JSON loses the document structure that makes retrieval coherent.
 
-Markdown provides the best balance for RAG applications:
-- **Structure Preservation**: Headers, lists, and tables maintain document hierarchy
-- **Noise Reduction**: No HTML tags, scripts, or styling polluting the text
-- **LLM Optimization**: Language models understand Markdown structure better than raw HTML
-- **Human Readable**: Easy to inspect and debug extracted content
+### How does Bedrock ingestion stay in sync with the scrape?
+Step Functions doesn't trigger the ingestion job until five minutes after the Fargate task finishes (an S3 consistency buffer), then calls `StartIngestionJob` against the Knowledge Base data source. The ingestion job itself is asynchronous; the state machine reports its job id in the SNS email so the operator can confirm it completed.
 
-### Q4: How do you ensure the scraper doesn't miss content?
+### Why weekly instead of nightly?
+Government documentation changes on the order of months, not days. Weekly keeps content fresh enough for the chatbot, keeps the cost at roughly fifty cents a month, and keeps the request rate to miami.gov polite. EventBridge can move the schedule without code changes if that ever needs to flip.
 
-I implemented several safeguards:
-- **Validation Thresholds**: Alert if fewer than 20 pages extracted
-- **S3 Freshness Check**: Verify all files updated today
-- **SNS Notifications**: Email summary after each run
-- **CloudWatch Logs**: Full execution logs for debugging
-
-### Q5: What happens if the scraper is disabled?
-
-The S3 configuration has an `enabled` flag. When set to `false`:
-1. Scraper starts normally
-2. Loads configuration from S3
-3. Sees `enabled: false`
-4. Logs a message and exits gracefully (exit code 0)
-5. No scraping occurs, but no error is raised
-
-This allows quick stops without infrastructure changes.
-
-### Q6: How do you handle website structure changes?
-
-The extraction is content-based rather than selector-based, making it resilient to minor layout changes. However, significant restructuring would require code updates. I monitor:
-- Page count changes (threshold alerts)
-- Extraction rate drops
-- Error spikes in CloudWatch
-
-### Q7: Why weekly instead of daily scraping?
-
-Government content changes infrequently. Weekly runs balance:
-- **Freshness**: Content updates within a week
-- **Cost**: Only ~$0.10/run
-- **Rate Limiting**: Minimizes risk of IP blocking
-- **Resource Usage**: Reduces S3 operations and Bedrock sync costs
-
-The schedule can be changed via EventBridge without code changes.
-
-### Q8: How does the Bedrock Knowledge Base integration work?
-
-After scraping completes:
-1. Step Functions waits 5 minutes (ensures S3 consistency)
-2. Triggers Bedrock ingestion job via API
-3. Bedrock reads Markdown files from S3
-4. Content is chunked and embedded for vector search
-5. Chatbot queries the knowledge base for relevant content
-
-### Q9: What security measures are in place?
-
-- **Non-Root Container**: Runs as unprivileged user (UID 1000)
-- **IAM Least Privilege**: Task role only accesses specific S3 paths
-- **No Hardcoded Secrets**: Credentials via IAM roles, not env vars
-- **Private S3 Bucket**: Not publicly accessible
-- **VPC Isolation**: Fargate runs in private subnets
-
-### Q10: How would you scale this for more URLs?
-
-For significant scale increases, I would:
-1. **Parallelize**: Run multiple Fargate tasks, each handling a subset of URLs
-2. **Queue-Based**: Use SQS to distribute URLs across workers
-3. **Caching**: Add DynamoDB to track page versions, only refetch changes
-4. **Rate Limiting**: Implement distributed rate limiting across workers
-5. **Retry Queue**: DLQ for failed pages with exponential backoff
-
-The current single-task architecture handles ~200 pages comfortably within 5 minutes.
+### How would scaling to many more URLs look?
+The current single-task architecture handles around 200 pages comfortably inside one run. Past that point the natural shape is to split the URL list across parallel Fargate tasks (one queue, multiple workers) and add a small DynamoDB table to track content hashes so only changed pages are re-extracted. None of that is needed today.

@@ -1,6 +1,6 @@
 # Project Q&A
 
-## Project Overview
+## Overview
 
 Email Archive Explorer is a privacy-first web application that lets users analyze their email archives entirely in the browser. It parses exports from Outlook (.olm), Gmail/Thunderbird (.mbox), and Gmail Takeout (.zip), automatically detecting account signups, purchases, subscriptions, and newsletters. The application stores all data locally in IndexedDB, ensuring no email content ever leaves the user's device. It's designed for anyone who wants to understand their digital footprint, audit their online accounts, track spending from receipts, or manage newsletter subscriptions.
 
@@ -53,93 +53,78 @@ Destructive actions like deleting or archiving emails show an undo toast notific
 
 ## Technical Highlights
 
-### Challenge: Parsing Multiple Email Formats
+### Parsing three email formats through a common interface
 
-Each email format (OLM, MBOX, Gmail Takeout) has different structures and quirks. OLM files are ZIP archives containing XML files with Outlook-specific element names. MBOX files are plain text with header-based message separation. Gmail Takeout wraps MBOX in a ZIP with specific folder structures.
+OLM files are ZIP archives containing Outlook-flavored XML. MBOX files are plain text with header-based message separation. Gmail Takeout wraps MBOX in a ZIP with its own folder layout. Each parser lives in its own module under `web/src/services/parsers/` and emits a normalized `Email` object so the rest of the app stays format-agnostic. Format-specific edge cases (malformed headers, missing fields) log warnings rather than aborting the import.
 
-I solved this by creating isolated parser modules for each format, each implementing a common interface that produces normalized Email objects. The parsers handle format-specific edge cases (like malformed headers or missing fields) gracefully, logging warnings rather than failing entirely.
+### Detection pipeline runs during import, not on-demand
 
-### Challenge: Performance with Large Archives
+Account, purchase, subscription, and newsletter detection all run inside the parser worker as each email is ingested. Front-loading the work into the moment users already expect waiting (the import progress bar) makes every subsequent navigation instant, and enables cross-email passes like duplicate-purchase detection and subscription grouping that would be awkward to do per-view.
 
-Email archives can contain tens of thousands of messages. Loading all this data and rendering it in the DOM would freeze the browser.
+### Gmail-style search syntax over an in-memory index
 
-I addressed this through multiple strategies:
-- **Bulk database operations**: Batch inserts during import instead of individual writes
-- **In-memory caching**: The Zustand store holds all data after initial load for instant access
-- **Virtual scrolling**: TanStack Virtual renders only visible rows
-- **Lazy loading**: Email bodies are loaded on-demand when viewing individual messages
-- **Pre-computed threading**: Threads are built once during initialization, not on each view
+Rather than a wall of filter dropdowns, the search bar accepts queries like `from:amazon type:purchase after:2024-01-01`. The tokenizer in `web/src/services/searchParser.ts` resolves operators against the Zustand store, which holds the full dataset in memory after first load — results update on every keystroke without hitting IndexedDB.
 
-### Challenge: Privacy-First Architecture
+### HTML email rendering with DOMPurify
 
-Users are understandably hesitant to upload personal emails to any server. Making the app trustworthy required a fundamentally different architecture.
+Email HTML is hostile by default — scripts, tracking pixels, JavaScript URLs, exfiltration via `<form>`. Every rendered body passes through DOMPurify with a tightened allow-list before reaching the DOM, so a malicious archive can't escape the iframe-less viewer.
 
-I built everything to run client-side:
-- Parsing happens in the browser using JSZip and DOMParser
-- Storage uses IndexedDB, which browsers sandbox per-origin
-- There's no backend server at all - it's deployed as static files
-- The only network requests are for loading the app itself
+## Engineering Decisions
 
-### Innovative Approach: Detection Pipeline
+### Storage: IndexedDB via Dexie
+- **Constraint**: Need persistent local storage for tens of thousands of emails, including attachments, without server round-trips.
+- **Options**: localStorage, raw IndexedDB, OPFS, server-backed Postgres.
+- **Choice**: IndexedDB with Dexie.js as the wrapper.
+- **Why**: localStorage tops out at ~10MB and is synchronous, so it would freeze the UI on import. Raw IndexedDB's callback API is painful to write against. OPFS isn't available everywhere yet. Dexie gives Promise-based access, compound indexes, schema versioning, and bulk inserts — all of which the import path leans on.
 
-Rather than analyzing emails on-demand, I run all detectors (accounts, purchases, subscriptions, newsletters) during the import phase. This front-loads computation when users expect waiting, making subsequent browsing instant.
+### State: Zustand instead of Redux or Context
+- **Constraint**: A single, denormalized cache of emails/accounts/purchases needs to feed many list and chart views without re-rendering them all on every change.
+- **Options**: Redux Toolkit, React Context, Zustand, Jotai.
+- **Choice**: Zustand.
+- **Why**: No provider wrapper, no action/reducer ceremony, and its selector model only re-renders subscribers whose slice actually changed. Redux's tooling wasn't worth the boilerplate for a single-user offline app.
 
-The pipeline also enables cross-email analysis like duplicate purchase detection and subscription grouping that wouldn't be possible with per-email analysis.
+### No backend at all
+- **Constraint**: Users won't upload personal email to a stranger's server, and I don't want to host or be subpoenaed for one.
+- **Options**: Node API with encrypted-at-rest storage, serverless functions for detection only, fully client-side.
+- **Choice**: Fully client-side static deployment.
+- **Why**: Trust is the product. There's nothing on the network to leak, no GDPR boundary to manage, and hosting is a static bundle on Vercel's free tier. The cost is losing server-side search and shared accounts, both of which I judged out of scope.
 
-### Innovative Approach: Unified Search Syntax
+### Web Worker for parsing
+- **Constraint**: Parsing a multi-gigabyte mbox blocks the main thread for tens of seconds, freezing the import UI and progress bar.
+- **Options**: Chunked parsing on the main thread via `setTimeout` yields, a Web Worker, WebAssembly.
+- **Choice**: Dedicated Web Worker (`web/src/workers/parserWorker.ts`).
+- **Why**: Workers give a true second thread with clean message-passing semantics — progress events flow back at full rate, and the UI stays at 60fps. `setTimeout` yielding works but is fiddly and bursts the event loop; WASM was overkill since the bottleneck is JS string processing, not crypto.
 
-Instead of separate filter dropdowns, I implemented a Gmail-style search parser that supports complex queries like `from:amazon type:purchase after:2024-01-01`. The parser tokenizes the query and applies filters efficiently against the in-memory dataset.
+## Frequently Asked Questions
 
-### Innovative Approach: Web Worker Parsing
+### How accurate is the account and purchase detection?
 
-Large email archives are parsed in a dedicated Web Worker to keep the main thread responsive. The worker sends progress updates back to the UI via message passing, allowing the progress bar to update smoothly while parsing happens in the background. This prevents the browser from freezing during imports of archives with tens of thousands of emails.
+Pattern matching with per-service rules. For known senders (Netflix, Amazon, GitHub, and ~100 others) accuracy is high because the detector keys off specific sender domains and subject templates. For unknown services it falls back to generic signup/receipt heuristics, which occasionally miss unconventional formats. The defaults favor precision over recall — I'd rather miss a purchase than show a phantom one in the spending chart.
 
-## FAQ
+### How does threading work without server-side message IDs?
 
-### Q: Why did you build this as a client-side application instead of using a backend?
+Two-tier. First pass looks for explicit `Thread-Topic` / `References` / `In-Reply-To` headers, which well-behaved clients include. Second pass normalizes subjects (strips `Re:`, `Fwd:`, locale prefixes, list tags) and groups remaining messages by the cleaned subject plus participant set. Not perfect — long-running threads that drift subjects will fragment — but it covers the common case for export-only data.
 
-A: Privacy was the top priority. People are rightly hesitant to upload their personal emails to any server. By running everything in the browser and storing data in IndexedDB, users can trust that their emails never leave their device. This also eliminates hosting costs and GDPR compliance concerns.
+### Can I export everything back out?
 
-### Q: How does the application handle very large email archives?
+Yes. The backup page emits a single JSON archive containing emails, detected accounts, purchases, subscriptions, newsletters, contacts, and folder structure. Optionally encrypted with a passphrase via AES-GCM + PBKDF2 (Web Crypto). The same page can restore from a backup or wipe IndexedDB entirely.
 
-A: I implemented several optimization strategies: bulk database operations during import, virtual scrolling that only renders visible rows, pre-computed email threading, and lazy loading of email bodies. These techniques let the app handle archives with tens of thousands of emails while maintaining smooth performance.
+### What happens if I open the same archive twice?
 
-### Q: Why did you choose Zustand over Redux for state management?
+The importer hashes each email's `Message-ID` + date + sender on insert. Re-importing a file you've already loaded is a no-op for duplicates; only new messages are added. This makes "import last month's incremental export" safe.
 
-A: Zustand offers a much simpler API with less boilerplate while providing the same capabilities. It doesn't require Provider wrappers, has excellent TypeScript support, and its built-in selector system prevents unnecessary re-renders. For this project's needs, Redux's additional complexity wasn't justified.
+### Why no AI categorization?
 
-### Q: How accurate is the account and purchase detection?
+In-browser LLMs would inflate the bundle by tens of MB and ship slow inference to every user, most of whom just want to see their spending. The deterministic rule pipeline is fast, debuggable, and easy to extend with a new sender pattern. If categorization ever needs fuzzier matching I'd add a local WebAssembly model behind an opt-in toggle rather than send email content to a hosted API.
 
-A: The detection uses pattern matching with confidence thresholds. For known services (Netflix, Amazon, GitHub, etc.), accuracy is very high because I match against specific sender domains and subject patterns. For unknown services, I rely on common signup/receipt email patterns which may occasionally miss unconventional formats. I prioritized precision over recall to avoid false positives.
+### How big an archive can it handle?
 
-### Q: Can users export their analyzed data?
+Tested up to ~50,000 messages and ~2GB of attachments on a mid-range laptop. The bottleneck is import time (a few minutes for 50k), not steady-state browsing — once the Zustand store is populated, list scroll and search stay smooth thanks to TanStack Virtual.
 
-A: Yes, the backup page allows exporting all data as JSON. This includes emails, detected accounts, purchases, subscriptions, newsletters, and contacts. Users can also clear all data and re-import if needed.
+### Adding a new export format — what's involved?
 
-### Q: Why IndexedDB instead of a simpler storage solution?
+Add a parser module under `web/src/services/parsers/` that implements the parser interface (returns an async iterable of normalized `Email` objects), then register it in the file-type dispatch in `parserWorker.ts`. The detection pipeline and UI are format-agnostic, so nothing downstream changes. EML and PST would be the natural next additions.
 
-A: LocalStorage has a 5-10MB limit and is synchronous, which would freeze the UI during operations. IndexedDB supports asynchronous operations, can store hundreds of megabytes, and allows complex queries through indexes. Dexie.js provides a clean Promise-based wrapper around IndexedDB's callback-heavy API.
+### Is HTML email rendered safely?
 
-### Q: How does email threading work without server-side processing?
-
-A: Threading uses a two-tier approach. First, I look for explicit thread IDs in email headers (which well-behaved email clients include). For emails without thread IDs, I fall back to normalized subject matching - stripping prefixes like "Re:", "Fwd:", etc. and grouping emails with matching base subjects. This handles most common threading scenarios.
-
-### Q: What security measures protect against malicious email content?
-
-A: All HTML email content is sanitized using DOMPurify before rendering. This removes potentially dangerous elements like scripts, iframes, and event handlers while preserving safe formatting. Attachments are stored as base64 data but aren't automatically executed.
-
-### Q: Why didn't you use AI/ML for better categorization?
-
-A: Running ML models in the browser is computationally expensive and would significantly increase bundle size. The pattern-matching approach provides good accuracy for the defined use cases without these tradeoffs. If I were to add AI features, I'd likely offer them as an opt-in feature that processes data locally using WebAssembly-based models.
-
-### Q: How extensible is the parser architecture for new email formats?
-
-A: Very extensible. Each format has its own parser module that implements a common interface producing normalized Email objects. Adding support for a new format (like EML files or PST archives) would involve creating a new parser module without touching existing code. The detection pipeline automatically processes emails regardless of their source format.
-
-### Q: Does the app work well on mobile devices?
-
-A: Yes. The UI includes a responsive mobile navigation with a slide-out sidebar overlay and touch-friendly tap targets. The layout adapts to smaller screens using Tailwind CSS responsive utilities, and virtual scrolling ensures smooth performance even on mobile devices with less processing power.
-
-### Q: How does the Web Worker improve performance?
-
-A: Parsing large email archives (tens of thousands of emails) can be CPU-intensive. Without a Web Worker, this would freeze the browser tab. The parser Web Worker runs parsing in a background thread, sending progress updates and parsed emails back to the main thread via message passing. This keeps the UI responsive throughout the import process.
+Yes. Every HTML body goes through DOMPurify with a strict allow-list before insertion, stripping scripts, iframes, event handlers, and JavaScript URLs. Remote images load only after an explicit user click per-message, so tracking pixels don't fire on archive browse.

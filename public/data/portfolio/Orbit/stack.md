@@ -40,12 +40,12 @@
 | `messages` | stdio via `uvx` | `mac-messages-mcp` (PyPI) | Read messages, search, find contact, list chats |
 | `memory` | stdio via `npx` | `@modelcontextprotocol/server-memory` (npm) | Knowledge graph store — entities, relations, observations |
 
-Both registered in `.mcp.json` at project scope; Claude Code auto-loads them when started in this directory.
+Both registered in `.mcp.json` at project scope; an MCP-capable LLM client auto-loads them when started in this directory.
 
 ## Desktop Wrapper (optional)
 
 - **Framework**: Electron ^42.2
-- **Architecture**: `electron/main.js` spawns Next as a child process on port 3737, waits for the URL to respond, opens a `BrowserWindow`. `electron/preload.js` exposes an IPC bridge for the in-app Refresh button to invoke `claude` headlessly against `prompts/update.md` + `prompts/sentiment.md`.
+- **Architecture**: `electron/main.js` spawns Next as a child process on port 3737, waits for the URL to respond, opens a `BrowserWindow`. `electron/preload.js` exposes an IPC bridge for the in-app Refresh button to invoke the local LLM client headlessly against `prompts/update.md` + `prompts/sentiment.md`.
 
 ## Infrastructure
 

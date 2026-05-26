@@ -65,6 +65,32 @@ The canvas is sized at `width * devicePixelRatio` internally but displayed at CS
 ### Input Validation & Security
 All user inputs pass through Zod schemas for runtime type checking. Color values are sanitized against injection. Content Security Policy headers protect against XSS while supporting WebAssembly for ffmpeg. Error stack traces are stripped from analytics metadata in production.
 
+## Engineering Decisions
+
+### Standalone simulation class vs. React-embedded state
+- **Constraint**: The simulation runs at 60 FPS with thousands of mutable nodes; React re-render cycles cannot keep up.
+- **Options**: Drive state through `useState`/`useReducer`, use React refs end-to-end, or extract a pure TypeScript class.
+- **Choice**: `DifferentialGrowth` is a standalone class in `src/lib/DifferentialGrowth.ts`. A thin `useGrowthSimulation` hook bridges it to React.
+- **Why**: The engine keeps mutable state without violating React invariants, can be unit-tested in isolation, and is portable to a Web Worker or CLI later.
+
+### Zustand over Redux or Context
+- **Constraint**: Three concerns to manage (simulation params, theme, transient UI) without provider-tree re-render storms.
+- **Options**: Redux Toolkit, React Context with reducers, Jotai/Recoil, Zustand.
+- **Choice**: Three Zustand stores: `growthStore`, `themeStore` (persisted), `uiStore`.
+- **Why**: Selector-based subscriptions avoid context re-render thrash, the API stays minimal, and the persistence middleware handles theme storage without extra wiring.
+
+### Canvas 2D primary with WebGL fallback path, not the other way around
+- **Constraint**: Reliable rendering across all target browsers and devices, with a future path to GPU-accelerated rendering at very high node counts.
+- **Options**: WebGL-only, Canvas 2D-only, or an `IRenderer` abstraction with both.
+- **Choice**: `IRenderer` interface with Canvas 2D as the default and WebGL 2.0 as an opt-in path; `RendererFactory` picks based on capability.
+- **Why**: Canvas 2D handles the current node-count ceiling at 60 FPS, has zero compatibility risk, and the abstraction lets the WebGL renderer mature without changing call sites.
+
+### URL state encoding for sharing instead of a backend
+- **Constraint**: Users want to share their compositions, but the project is a static PWA with no server.
+- **Options**: Stand up a backend with database storage, use a third-party paste service, or encode state in the URL.
+- **Choice**: `ShareService` compresses settings and seed data into a Base64 URL fragment, with `qrcode` for mobile handoff.
+- **Why**: Zero infrastructure, zero privacy concerns, the whole product stays deployable on a static host, and the QR path makes mobile sharing trivial.
+
 ## Frequently Asked Questions
 
 ### Q: How does differential growth work?

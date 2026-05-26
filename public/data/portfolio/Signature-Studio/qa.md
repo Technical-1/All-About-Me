@@ -30,13 +30,31 @@ I built a custom SVG-to-Lottie converter that tokenizes SVG path commands (M/L/C
 ### Stroke Processing Pipeline
 Raw drawn points go through a multi-stage pipeline: two-pass moving average smoothing (windows of 5 and 3) to remove hand tremor, Ramer-Douglas-Peucker simplification (tolerance 2.8) to reduce point count, then Catmull-Rom spline interpolation converted to SVG cubic Bezier curves for smooth output.
 
-## Development Story
+## Engineering Decisions
 
-- **Origin**: I found Kian Bazza's animated signature React component and wanted a way to generate it with any signature, not just hardcoded paths.
-- **Evolution**: Started as a single `index.html` file with zero dependencies. As features grew (upload/trace mode, Lottie export, GIF generation), I migrated to Vite with modular JS files and npm dependencies.
-- **Hardest Part**: Getting the freehand drawing to feel natural. I went through many iterations on the input system — including Pointer Lock API for trackpad drawing — before settling on the simple movement-based approach with spacebar toggle and lift timeout.
-- **Lessons Learned**: Sometimes the simplest approach wins. The trackpad-specific Pointer Lock implementation was complex and brittle; removing it in favor of basic pointermove with a pause toggle was both simpler code and better UX.
-- **Future Plans**: Potentially add stroke width customization per-stroke, color selection, and more export format options.
+### Movement-based input vs. click-and-drag
+- **Constraint**: Mouse-button-down drawing felt unnatural for signatures — real pens don't require holding a clicker.
+- **Options**: Pointer Lock API (trackpad-native), traditional pointerdown/pointerup, or movement-triggered strokes with a spacebar gate.
+- **Choice**: `pointermove` auto-starts strokes when unpaused, 150ms idle timeout ends them, spacebar toggles the gate.
+- **Why**: Pointer Lock worked but was brittle across browsers and confusing for users. The pause-gate approach is simpler code, works across mouse/trackpad/pen uniformly, and prevents accidental drawing when the page loads.
+
+### Hershey single-stroke fonts vs. outline fonts
+- **Constraint**: Type mode needed fonts that animate as pen strokes, not filled shapes.
+- **Options**: Convert TTF outlines to centerline paths at runtime (complex, slow), use SVG fonts (limited availability), or embed Hershey vector fonts.
+- **Choice**: Embed 7 Hershey font families directly as JS modules keyed by ASCII code.
+- **Why**: Hershey fonts are already single-stroke `M`/`L` paths — exactly what stroke-dashoffset animation needs. No conversion math, no runtime cost, and the 1960s engineering pedigree fits the signature aesthetic.
+
+### Custom SVG-to-Lottie converter vs. existing tooling
+- **Constraint**: Wanted Lottie export with per-stroke drawing animation, but mainstream SVG→Lottie tools either skip stroke animation or produce filled-shape Lotties.
+- **Options**: bodymovin (After Effects plugin, manual workflow), lottie-web wrapper, or write a focused converter.
+- **Choice**: ~200 lines of custom code in `src/lottie.js` that tokenizes path commands and emits Trim Path animators.
+- **Why**: The scope is narrow — only M/L/C commands and Trim Path animation — so a focused converter is shorter than configuring a general-purpose one, and the output is predictable.
+
+### Vite migration from single-file HTML
+- **Constraint**: Adding gif.js and the trace mode pushed the project past what a single `index.html` could manage cleanly.
+- **Options**: Stay on single-file with `<script type="module">` and CDN imports, or migrate to Vite.
+- **Choice**: Vite with `src/` as root, modular JS files, npm-managed dependencies.
+- **Why**: HMR speeds up iteration on animation timing, and tree-shaken production builds keep the static bundle small.
 
 ## Frequently Asked Questions
 
@@ -62,4 +80,4 @@ The generated component uses `motion/react` (Framer Motion) for `pathLength` ani
 The app uses gif.js to render each animation frame to an offscreen canvas, capturing the progressive stroke-dashoffset reveal. Frames are assembled client-side into an animated GIF — no server involved.
 
 ### Why did you migrate from a single HTML file to Vite?
-The app grew to need npm packages (fit-curve for Bezier fitting, gif.js for GIF export) and the single file became hard to maintain. Vite provides fast HMR during development and optimized production builds. The original `index.html` is preserved as a reference.
+The app grew to need npm packages (gif.js for GIF export) plus a real test setup (Vitest + happy-dom), and the single file became hard to maintain. Vite provides fast HMR during development and optimized production builds.

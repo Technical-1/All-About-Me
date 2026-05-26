@@ -41,7 +41,7 @@
 
 ## AI Integration
 
-- **Provider**: Anthropic Claude API (claude-sonnet-4-20250514)
+- **Provider**: Anthropic Claude API (Claude Sonnet 4)
 - **Method**: Direct browser fetch with user-provided API key
 - **Feature**: Image-to-budget parsing (handwritten or printed budget sheets)
 

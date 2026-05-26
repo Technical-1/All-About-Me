@@ -26,11 +26,31 @@ The entire Worker has no runtime dependencies — it uses only built-in Web APIs
 ### Defensive Error Handling
 Every endpoint handles upstream failures gracefully — the MSTR proxies stream response bodies directly (no buffering) with pinned `content-type: application/json` headers (preventing upstream header injection), the HTML scraper guards against malformed `__NEXT_DATA__` JSON and validates `buildId` with a regex before constructing URLs, the API path uses nullish coalescing (`??`) throughout to preserve legitimate zero values, and empty company lists are rejected rather than cached for 12 hours. Cache clones are created at each use site rather than shared, preventing stream consumption bugs.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Dealing with CoinGecko's anti-scraping measures and rate limiting. The HTML structure changes periodically when they update their Next.js build, requiring the fallback strategy.
-- **Lessons Learned**: Edge caching with stale-if-error is essential for any proxy that depends on rate-limited upstream APIs. Building in fallback layers from the start saved significant debugging later.
-- **Future Plans**: Potentially expand to Ethereum treasury data and add more granular caching strategies.
+### HTML scraping as the primary data source (API as fallback)
+- **Constraint**: The CoinGecko free API returns a partial subset of treasury-holding companies, but btcexplorer.io needs the full ~150-company list. The public HTML page contains all of them.
+- **Options**: (a) Pay for a CoinGecko Pro API key for the full dataset, (b) scrape the HTML page and parse `__NEXT_DATA__`, (c) hand-maintain the company list.
+- **Choice**: Scrape the HTML page first, then try the build-specific Next.js JSON endpoint, then fall back to the public API.
+- **Why**: Scraping gets the full dataset for free, and the layered fallback means a single upstream change can't take the endpoint down. A Pro key is still supported via `COINGECKO_API_KEY` if cost stops mattering later.
+
+### Static category map instead of dynamic classification
+- **Constraint**: CoinGecko doesn't expose industry categories or country codes for treasury holders, but the frontend filters by both.
+- **Options**: Call an external classification API per company, run a classification model, or hand-curate a static map.
+- **Choice**: A static `CATEGORY_MAP` of 150+ tickers/names → category + country, built once at module load via an IIFE.
+- **Why**: Company industries are stable (a mining co. stays a mining co.), classification is deterministic and free, and there's no per-request latency or external dependency to monitor.
+
+### Authenticated cache bypass (`?refresh=1&secret=`)
+- **Constraint**: An open `?refresh=1` parameter could be hammered to force continuous upstream scraping, tripping CoinGecko's rate limits and breaking the whole site.
+- **Options**: No bypass at all, IP allowlist, signed token, or a shared secret env var.
+- **Choice**: Gate bypass behind a `REFRESH_SECRET` env var; unauthenticated `?refresh=1` is silently ignored and served from cache.
+- **Why**: Shared-secret check is one comparison and zero dependencies. Silent ignore (rather than 401) means probes look identical to normal traffic.
+
+### Refusing to cache empty results
+- **Constraint**: If CoinGecko changes their page structure, scraping can return an empty company list. Caching that for 12 hours would silently blank btcexplorer.io's main view.
+- **Options**: Cache whatever comes back, return stale-on-empty without caching, or 502 on empty.
+- **Choice**: Treat empty enriched lists as a failure — serve stale cache if available, otherwise return 502 — and never write empty data into the cache.
+- **Why**: A noisy failure is recoverable; a silent 12-hour blank page is not.
 
 ## Frequently Asked Questions
 

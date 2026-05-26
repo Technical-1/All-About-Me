@@ -27,12 +27,31 @@ I built a custom `SheetContentWrapper` component that renders both peek and expa
 ### SVG Thumbnail Consistency
 Saved creations include a static SVG thumbnail generated with the exact same Fibonacci distribution algorithm as the live visualization. The same math runs in three places (live render, thumbnail generator, card preview), ensuring what users see in their gallery matches what they created.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Built incrementally over multiple development sessions
-- **Hardest Part**: Getting the audio system to work consistently across all three platforms. Web Audio API is powerful but completely different from expo-audio. The amplitude simulation on native was a pragmatic compromise — real FFT analysis would require a native module
-- **Lessons Learned**: SVG rendering scales surprisingly well for particle systems (up to ~1200 particles at 60fps). Three.js was my first approach but the GL context differences across platforms caused too many issues — SVG with Reanimated was simpler and more reliable. The unused Three.js dependencies in `package.json` are a reminder of that pivot
-- **Future Plans**: Real FFT analysis on native via a custom native module, WebGL renderer option for higher particle counts on web, sound recording integration (the recording API is built but not yet exposed in the UI), and Apple Watch companion for soundscape control
+### SVG rendering over WebGL/Three.js
+- **Constraint**: Particles needed to render consistently across iOS, Android, and web — including older Android devices and varied web browsers — at 60fps
+- **Options**: `@react-three/fiber` + Three.js for WebGL rendering, raw Skia via `@shopify/react-native-skia`, or React Native SVG
+- **Choice**: React Native SVG with Reanimated driving rotation on the UI thread
+- **Why**: WebGL had inconsistent GL context behavior across the target platforms during prototyping. SVG renders identically everywhere, the bundle stays smaller, and ~1200 particles still hit 60fps — well above the visual budget. The ceiling is lower than WebGL could reach, but the visual quality inside that range is strong enough that the simpler renderer wins.
+
+### Amplitude simulation on native instead of a native FFT module
+- **Constraint**: The native audio stack (`expo-audio`) exposes file playback but no real-time frequency analysis, while the visualization needs bass/mid/treble values to drive reactivity
+- **Options**: Write a custom native module wrapping `AVAudioEngine` / Android `Visualizer`, ship without reactivity on native, or estimate amplitude from sound metadata
+- **Choice**: Per-category amplitude estimation with exponential smoothing, sharing the same downstream pipeline as the web FFT path
+- **Why**: A native module would have meant ejecting from the managed Expo workflow and maintaining iOS + Android implementations. The estimated signal is good enough to drive visually convincing reactivity, and the abstraction keeps a single `useAudio()` consumer API. The trade-off is documented and easy to swap later if a native module ships.
+
+### `flux_` AsyncStorage key namespacing with prefix-filtered import
+- **Constraint**: Bulk export/import has to be safe — restoring a backup must not stomp on other storage, and a third-party library writing to AsyncStorage must not poison Flux state
+- **Options**: A single JSON blob under one key, separate storage buckets per data type, or namespaced keys with prefix filtering
+- **Choice**: Every key prefixed with `flux_`; import filters on the prefix before writing
+- **Why**: Per-type buckets multiplied the surface area for migrations. A single blob made partial reads expensive. Prefix filtering keeps reads cheap, lets export/import operate as a bulk scan, and makes "reset Flux data" a one-line operation that won't touch anything else on device.
+
+### Dual content layers in bottom sheets instead of conditional rendering
+- **Constraint**: Sheets need to show different content at peek vs expanded snap points without flash or pop artifacts when the user drags across the boundary
+- **Options**: Swap children on snap-point change, render only the current snap's content, or render both layers and cross-fade
+- **Choice**: A `SheetContentWrapper` that renders peek and expanded content as overlapping absolutely-positioned layers, cross-fading via Reanimated `useSharedValue` interpolation on `animatedIndex`
+- **Why**: Conditional rendering caused visible mount/unmount jank mid-drag. Rendering both layers keeps the UI thread free of layout work during the gesture; only opacity changes, which Reanimated can drive on the UI thread. The cost is double the JSX in memory per sheet, which is negligible at this app size.
 
 ## Frequently Asked Questions
 

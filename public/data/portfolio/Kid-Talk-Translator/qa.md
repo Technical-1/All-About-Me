@@ -1,66 +1,93 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-Kid Talk Translator Pro is a web application that helps adults decode Gen Alpha and Gen Z slang. It combines a curated local dictionary of 90+ slang terms with Claude AI-powered contextual analysis and live Urban Dictionary integration, offering smart decoding, a browsable dictionary, and community-submitted terms with real-time voting.
+Kid Talk Translator Pro is a web app that helps adults decode Gen Alpha and Gen Z slang. It combines a curated local dictionary of 90+ terms with LLM-backed contextual analysis (Anthropic Claude Haiku 4.5) and live Urban Dictionary lookups, exposing smart decoding, a browsable dictionary, and community-submitted terms with real-time voting.
+
+## Problem Solved
+
+Modern youth slang turns over fast and is contextual — a single term can flip meaning between TikTok, gaming, and ironic use. A static dictionary goes stale within months; an LLM-only answer is plausible but unverifiable. This app pairs a curated source of truth with on-demand model analysis so parents, teachers, and grandparents get a fast, authoritative read on what a phrase actually means in context.
+
+## Target Users
+
+- **Parents and grandparents** — paste a message from a kid and get an instant, plain-English breakdown
+- **Teachers and youth workers** — quick reference for terms that show up in classrooms and DMs
+- **Curious adults** — browse by era/origin to keep up with how language is evolving
 
 ## Key Features
 
-- **Smart Decode**: Detects whether input is a single term, sentence, or multi-line conversation, then highlights slang inline with clickable definitions — all powered by both a curated dictionary and Claude AI running in parallel
-- **Live Urban Dictionary Integration**: Real-time lookups for terms not in the curated dictionary, plus trending word feeds
-- **Community Submissions**: Users sign in with Google or Apple, submit new slang terms, and upvote/downvote submissions with real-time Firestore sync
-- **Dark Mode**: Toggle between light and dark themes, persisted to localStorage and respecting OS preference
-- **PWA**: Installable progressive web app for mobile/desktop use with offline access to the local dictionary
-- **Rich Metadata**: Every local term includes definition, example usage, wrong usage warnings, era, origin platform, type classification, and pronunciation guide
+- **Smart Decode** — Detects whether input is a single term, sentence, or multi-line conversation, then highlights slang inline with clickable definitions, drawing on both the local dictionary and an LLM running in parallel
+- **Live Urban Dictionary Integration** — Real-time lookups for terms not in the curated dictionary, plus trending word feeds
+- **Community Submissions** — Users sign in with Google or Apple, submit new slang terms, and upvote/downvote submissions with real-time Firestore sync
+- **Dark Mode** — Light/dark toggle persisted to localStorage and honouring OS preference
+- **PWA** — Installable progressive web app with offline access to the local dictionary
+- **Rich Metadata** — Every local term carries definition, example usage, wrong-usage warnings, era, origin platform, type classification, and pronunciation guide
 
 ## Technical Highlights
 
 ### Dual Translation Engine
-I built a system that runs two translation engines in parallel for every decode request. The local dictionary provides instant, curated results (sorted by term length to catch multi-word phrases first), while Claude AI analyzes the same input to provide cultural context, nuances, and deeper explanations. Dictionary results appear immediately; AI insights follow shortly after. This gives users both speed and depth.
+Every decode request fans out to two engines in parallel. The local dictionary (sorted by term length so multi-word phrases match before their constituent words) returns instantly with curated entries; an LLM call returns shortly after with cultural context and tone notes. The UI renders dictionary hits immediately and slots the AI commentary in when it arrives, so latency never blocks the primary answer. See `webapp/src/hooks/useTranslation.js` and `webapp/src/hooks/useAiTranslation.js`.
 
 ### Feature-Scoped Architecture
-The app started as a single `App.jsx` file but evolved into a clean feature-scoped architecture with 19 components organized into Decode/, Browse/, Community/, and Layout/ directories. Business logic lives in 4 custom hooks (`useTranslation`, `useAiTranslation`, `useDictionary`, `useCommunity`), keeping components focused on rendering. App.jsx is now a thin ~40-line shell.
+`App.jsx` is a ~40-line shell. Each tab (Decode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks (`useTranslation`, `useAiTranslation`, `useDictionary`, `useCommunity`). This keeps render code thin and concentrates the testable behaviour in the hooks layer.
 
 ### Community Voting with Firestore Transactions
-I implemented a voting system using Firestore transactions to ensure atomicity. Each vote updates both the individual vote document and the submission's aggregate counters (upvotes, downvotes, netScore) in a single transaction, preventing race conditions. The system also enforces a daily submission limit of 5 per user and deduplicates terms case-insensitively.
+Voting writes both the per-user vote doc and the submission's aggregate counters (`upvotes`, `downvotes`, `netScore`) inside a single Firestore transaction, so concurrent votes can't desync the totals. Submissions are deduplicated case-insensitively, filtered through a content blacklist, and rate-limited to 5/day per user. See `webapp/src/services/communityService.js`.
 
-### Multi-tier Caching Strategy
-I implemented a four-layer caching system to handle API rate limits and costs. Vercel KV provides server-side caching in production. On the client, an in-memory Map caches lookups for the session, localStorage persists popular words for 7 days and AI translations in a 20-entry LRU cache. This means the app stays responsive even if APIs are slow or unavailable.
+### Four-Layer Caching
+Vercel KV caches LLM and Urban Dictionary responses server-side in production. On the client, an in-memory `Map` covers the current session, a 20-entry LRU in `localStorage` persists AI translations across reloads, and a separate 7-day `localStorage` bucket holds popular-word lookups. Any layer can be missing and the next one absorbs the load.
 
-### Shared Dictionary Architecture
-I created a single `shared/slangDictionary.js` file that serves as the canonical source of truth for all 90+ slang terms. This makes adding new terms trivial — edit one file and the web app picks it up automatically.
+### Shared Dictionary as Single Source of Truth
+`shared/slangDictionary.js` is the canonical store; the web app reads a copy synced into `webapp/src/data/` at build time. Adding a term means editing one file — no schema migration, no rebuild plumbing.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Building the dual translation engine — getting dictionary lookup and Claude AI to work in parallel with graceful fallbacks, while handling the different response shapes and caching strategies for each
-- **Lessons Learned**: Feature-scoped component architecture with custom hooks scales much better than a monolithic file. The refactor from single-file to 19 components was well worth it — each feature is now independently testable and maintainable
-- **Future Plans**: The dictionary now grows automatically via two daily GitHub Actions pipelines — one ingests trending Urban Dictionary terms (70%+ approval, 100+ votes) and the other merges community-approved submissions (25+ net upvotes). Both open PRs for human review before merging
+### Dictionary + LLM instead of LLM-only
+- **Constraint**: Answers need to be both fast and trustworthy; an LLM-only design is neither (cold latency on every miss, and no way to vouch for the definition)
+- **Options**: LLM-only with caching; dictionary-only with crowdsourced updates; hybrid
+- **Choice**: Hybrid — curated dictionary fronts the LLM, both run in parallel on decode
+- **Why**: The dictionary covers the common case in <50ms with verified definitions; the LLM handles the long tail and adds cultural nuance. Users never wait on the model to see *something*.
+
+### Firestore transactions for voting (vs. Cloud Functions)
+- **Constraint**: Vote totals must stay consistent under concurrent writes; a Cloud Functions trigger would add cold-start latency and another moving part
+- **Options**: Client-side increments (race-prone); Cloud Functions trigger; client-side Firestore transaction
+- **Choice**: Client-side transaction that reads the vote doc, computes the delta, and writes both the vote and the counters atomically
+- **Why**: Keeps the deploy surface to one (the web app) and gives strong consistency without a serverless cold-start in the voting path.
+
+### Vite proxy for dev, Vercel functions for prod
+- **Constraint**: Urban Dictionary blocks CORS from localhost, and the Anthropic API key can't ship to the browser
+- **Options**: Run a separate Express dev server; lean on Vite's proxy in dev and Vercel functions in prod; deploy to two platforms
+- **Choice**: Same fetch URLs (`/api/...`) work in both — Vite's `server.proxy` forwards in dev, Vercel's filesystem-routed functions answer in prod
+- **Why**: One client codebase, one set of fetch calls, secrets stay server-side, no extra dev dependencies.
+
+### Automated dictionary growth via PRs (vs. direct writes)
+- **Constraint**: The dictionary should grow from two upstream signals (Urban Dictionary trending, community votes) without letting unreviewed content into production
+- **Options**: Auto-merge on threshold; admin dashboard for review; PR-based review
+- **Choice**: Two daily GitHub Actions ingest, filter (UD: 70%+ thumbs-up AND 100+ votes; community: 25+ net upvotes), and open PRs against `shared/slangDictionary.js`
+- **Why**: GitHub already has a great review UI, and PR-based flow forces a human to eyeball new terms. Scripts use `JSON.stringify()` for all external content, atomic temp-file writes, and `--body-file` to keep shell injection out of PR bodies.
 
 ## Frequently Asked Questions
 
-### How does the smart decode feature work?
-The decoder first classifies your input using `detectInputType` — is it a single term, a sentence, or a multi-line conversation? For conversations, it processes each line separately, wrapping detected slang in brackets for inline annotation. For terms/sentences, it checks the local dictionary (90+ curated terms sorted by length to catch multi-word phrases) and then Urban Dictionary. Simultaneously, it sends the input to Claude AI for contextual analysis. Results appear in a two-column layout: highlighted text with definitions on the left, AI insight on the right.
+### How does smart decode classify a single word vs. a conversation?
+`detectInputType` looks for line breaks, sentence-ending punctuation, and word counts. Conversations get processed line-by-line so each utterance's slang is annotated inline with brackets; single terms and short sentences hit the term-matching path that sorts the dictionary by term length (longest first) before scanning, so "no cap" matches before "no" does.
 
-### Why use both a local dictionary and Claude AI?
-The local dictionary provides high-quality, curated definitions with proper context (examples, wrong usage warnings, pronunciation). Claude AI extends this with cultural nuance, tone analysis, and explanations that a static dictionary can't provide. Running both in parallel gives users instant results plus deeper understanding.
+### Why both Urban Dictionary and a curated dictionary?
+The curated 90+ entries have vetted definitions, examples, wrong-usage warnings, and pronunciation. Urban Dictionary fills the long tail but ranges from gold to garbage, so it's used as a fallback for unmatched terms and as a feed for the trending row — never as the primary source.
 
-### How does the community submission system work?
-Users authenticate with Google or Apple via Firebase. They can submit up to 5 new slang terms per day, which are checked for duplicates (case-insensitive) and filtered through a blacklist. Other users can upvote or downvote submissions, with votes processed as Firestore transactions to keep counters consistent. The submission feed updates in real-time via Firestore's `onSnapshot`.
+### How are abusive or spammy community submissions handled?
+Three layers: a client-side blacklist in `webapp/src/utils/blacklist.js` rejects obvious profanity and slurs at submit time; a 5/day per-user rate limit slows down spam; and the merge pipeline only promotes submissions with 25+ net upvotes, so anything not endorsed by the community never reaches the dictionary.
 
-### How is the app deployed?
-The web app deploys to Vercel with the root directory set to `webapp/`. Vite builds to `dist/`, and Vercel handles both static hosting and serverless functions for the API proxies (Urban Dictionary and Claude AI). Security headers (XSS protection, frame denial, content-type sniffing prevention) are configured in `vercel.json`. GitHub Actions runs lint, test, and build on every push/PR.
-
-### How does dark mode work?
-Dark mode uses Tailwind's `darkMode: 'class'` strategy. A `ThemeContext` provider manages the state — on first visit it respects the user's OS `prefers-color-scheme` setting; after that, the preference is persisted to localStorage. The toggle adds/removes the `dark` class on the `<html>` element, and all components use Tailwind's `dark:` variant for their styles.
+### What model powers the AI insight panel?
+Anthropic Claude Haiku 4.5, called via `@anthropic-ai/sdk` from a Vercel serverless function (`webapp/api/ai-translate.js`). Haiku was chosen for cost and latency — slang explanations don't need a frontier model, and the cached prompts amortise across users.
 
 ### Does the app work offline?
-Partially. The PWA service worker (via vite-plugin-pwa) caches the app shell and assets, so the local dictionary with 90+ terms works fully offline. Urban Dictionary features (trending words, API lookups), Claude AI insights, and community features require an internet connection.
+Partially. The PWA service worker (`vite-plugin-pwa`) caches the app shell and bundles the local dictionary, so all 90+ curated terms work offline. Urban Dictionary lookups, AI insight, trending feeds, and community features all require connectivity.
 
-### How does the automated dictionary growth work?
-Two daily GitHub Actions workflows keep the dictionary growing. The **UD trending ingestion** pipeline fetches autocomplete suggestions from 30 prefix seeds, looks up definitions, filters for quality (70%+ thumbs-up ratio AND 100+ total votes), deduplicates against existing terms, and opens a PR. The **community merge** pipeline pulls Firestore submissions with 25+ net upvotes and does the same. Both use `JSON.stringify()` for all external content to prevent code injection, atomic writes to prevent file corruption, and `--body-file` to prevent shell injection in PR bodies.
+### How is dark mode implemented?
+Tailwind's `darkMode: 'class'` strategy. `ThemeContext` reads OS `prefers-color-scheme` on first load, persists subsequent toggles to localStorage, and adds/removes the `dark` class on `<html>`. Every component uses `dark:` variants.
 
-### How do I add a new slang term manually?
-Edit `shared/slangDictionary.js` and add an entry with definition, example, wrongUsage, era, origin, type, and pronunciation. The web app picks up changes automatically on next build.
+### How do I add a slang term manually?
+Edit `shared/slangDictionary.js` with `definition`, `example`, `wrongUsage`, `era`, `origin`, `type`, and `pronunciation`. The next build syncs it into `webapp/src/data/` and the web app picks it up.
 
-### What testing is in place?
-The project has 57 tests across 12 test files using Vitest and React Testing Library. Tests cover components (Header, TabBar, FilterBar, TermCard), hooks (useAiTranslation), services (dictionaryService), contexts (ThemeContext, AuthContext), utilities (speak, blacklist, detectInputType), and data validation (slangDictionary). GitHub Actions runs the full suite on every push and PR.
+### What's the test setup?
+57 tests across 12 files using Vitest and React Testing Library — covering layout components, the hooks layer (notably `useAiTranslation`), the dictionary service, the auth/theme contexts, and the utilities (speak, blacklist, detectInputType). GitHub Actions runs the full suite on every push and PR.

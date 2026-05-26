@@ -1,53 +1,104 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-Tela Restaurant's website is a full-stack React application I built for a Honduran restaurant in Gainesville, FL. It serves as the restaurant's primary digital presence — customers can browse the menu, request catering, contact the restaurant, and place online orders via Toast Tab. The admin panel lets restaurant staff manage inquiries and menu items through a protected dashboard backed by Supabase.
+RestaurantHub is a multi-tenant restaurant website template I built on React and Firebase. A single deployment serves many restaurants — each one maps to a subdomain (`tela.restauranthub.com`), pulls its own settings, menu overrides, translations, reservations, and reviews from Firestore, and renders with its own theme via runtime CSS variables. The first tenant is Tela, a Honduran restaurant in Gainesville, FL.
+
+## Problem Solved
+
+Most restaurant websites are one-off builds: every location gets its own codebase, its own deploy, and its own slow update cycle when the menu changes. RestaurantHub treats a restaurant as data, not code — a new location is a Firestore document and a DNS record, not a fork. Owners get a real back office (menu, reservations, events, reviews, newsletter, QR codes, analytics) without me building bespoke software per restaurant.
+
+## Target Users
+
+- **Restaurant owners** — Manage menu, reservations, events, contact inquiries, reviews, newsletter subscribers, and QR-code campaigns from a single admin panel
+- **Restaurant customers** — Browse the menu (with dietary filters and translations), request a reservation, RSVP to events, contact the restaurant, and click through to online ordering
+- **Me, when onboarding a new restaurant** — Seed a fresh tenant from a template, pick a theme preset, point a subdomain, ship
 
 ## Key Features
 
-- **Interactive Menu**: Customers can search, filter by dietary restrictions (vegetarian, vegan, gluten-free, spicy), browse by category, and expand items for full details including ingredients, allergens, and prep time — all data-driven from Supabase
-- **Catering Wizard**: A 3-step guided flow (service selection → menu customization → event details) with real-time cost estimation and a sticky summary sidebar
-- **Admin Dashboard**: Protected panel for managing contact inquiries with search, status/priority filters, bulk actions, response composer, and data export
-- **Contact System**: Modal-based contact form that persists inquiries to Supabase and triggers email notifications to the restaurant via a Supabase Edge Function + Resend API
-- **Brand Storytelling**: "Our Story" page with a timeline of the founders' journey from Honduras to Gainesville, their values, and signature dishes
+### Subdomain-routed multi-tenancy
+`src/lib/locationResolver.js` reads the hostname and returns a `locationId`. The provider loads brand defaults plus that location's overrides and merges them. The same React bundle serves every tenant.
+
+### Brand-default + per-location settings merge
+Two Firestore documents per tenant: `settings/config` for cross-tenant defaults, `locations/{id}/settings/config` for the tenant's overrides. Merged one level deep so a location can override theme, contact info, or feature flags without copying the full config.
+
+### Runtime theming via CSS variables
+Five preset palettes plus custom overrides. `applyTheme()` writes colors to CSS custom properties on `:root`; Tailwind classes reference those variables. Theme changes from the admin panel are instant — no rebuild, no per-tenant bundle.
+
+### Demo mode for previews
+Appending `?demo=tela` swaps every Firestore call for in-memory fixtures from `src/data/demoTela.js`. The whole site renders without a Firebase project — useful for screenshots, sales demos, and styling work.
+
+### Admin back office
+Protected dashboards for menu, contact inquiries, reservations, events, reviews, newsletter, QR codes, and analytics — all backed by `AuthenticationGuard` on the client and `isActiveAdmin()` / `isAdminForLocation()` in Firestore rules.
+
+### Cloud Function automations
+`onContactInquiryCreated` sends transactional email via Resend when a contact form is submitted. `syncGoogleReviews` (scheduled + callable) pulls reviews from the Google Places API for each configured location. Newsletter unsubscribe links use HMAC-signed tokens.
 
 ## Technical Highlights
 
-### Centralized Data Layer with SupabaseContext
-I built a single React Context that wraps all Supabase operations — auth, menu queries, catering submissions, contact inquiries, and company settings. Every page consumes this context rather than initializing its own Supabase calls. This keeps the codebase DRY and ensures consistent error handling through a shared `handleApiError` utility.
+### Subdomain resolver that gracefully degrades
+`src/lib/locationResolver.js` validates the subdomain against `^[a-z0-9-]{1,64}$` and falls back to a `?location=` query param on localhost. `www` and bare apex domains return `null`, which renders the cross-tenant landing page instead of crashing. Every Firestore query downstream is keyed off the resolved `locationId`, so the whole multi-tenant story is anchored in one function.
 
-### Row-Level Security as the Authorization Layer
-Rather than building middleware auth, I implemented Postgres RLS policies on every table. Public users can read active menu items and company settings without authentication, while admin operations require the `is_admin()` SQL function to verify the user exists in the `admin_users` table. This means security is enforced at the database level regardless of what the frontend does.
+### Settings merge that keeps tenant config minimal
+`FirebaseContext` keeps `brandSettings` and `locationSettings` separate, then computes `effectiveSettings` with a one-level-deep merge. Object values (e.g. `branding.theme`, `contact`) merge field-by-field; primitives and arrays replace. The result: a location override only needs to specify the keys that differ from the brand default.
 
-### Custom Brand Design System
-The TailwindCSS config encodes the full Tela brand: forest green primary, gold accents, warm off-white backgrounds, Playfair Display headings, and custom warm-toned shadows. This creates a consistent, premium feel across all pages without relying on a component library.
+### Menu overrides via lookup-map merge
+`mergeMenuWithOverrides` builds a `Map` from the per-location overrides and produces a new menu array where any item with an override is shallow-merged with it. This lets a tenant change price or availability for one base item without forking the whole menu.
 
-## Development Story
+### Firestore-driven i18n
+On location load, `FirebaseProvider` checks `data.languages.available`, fetches each non-English translation document from `locations/{id}/translations/{lang}`, and registers it with i18next at runtime. New languages do not require a code change — only a Firestore document.
 
-- **Hardest Part**: Designing the catering wizard to handle the multi-step flow with interdependent state (service selection affects menu options, which affect pricing) while keeping the UI intuitive on mobile
-- **Lessons Learned**: Supabase RLS is extremely powerful for this kind of app — the public/admin split maps perfectly to RLS policies, and it eliminated a whole class of security concerns
-- **Future Plans**: Connect the catering request form to actually submit to Supabase (currently simulated), add menu management CRUD in the admin panel, and integrate Instagram API for the live feed section
+## Engineering Decisions
+
+### Multi-tenant in one codebase vs per-restaurant deploys
+- **Constraint**: I wanted to serve multiple restaurants without forking or maintaining N codebases
+- **Options**: Per-tenant Git branches, a monorepo with per-tenant configs at build time, or runtime tenant resolution
+- **Choice**: Runtime resolution via subdomain → Firestore documents
+- **Why**: Adding a tenant is a DNS record plus a Firestore document. No rebuild, no redeploy, no merge conflicts when I touch shared code. The trade-off is one bundle has to be flexible enough for every tenant; the brand+override merge pattern keeps that manageable.
+
+### Firebase vs a custom Node/Postgres backend
+- **Constraint**: One developer, multiple tenants, real-time-ish admin tools, and a need for transactional email and scheduled reviews sync
+- **Options**: Express on Render with Postgres + Stripe-style migrations; Supabase; Firebase
+- **Choice**: Firebase
+- **Why**: Auth, Firestore, Functions, Storage, and Analytics in one project. Functions v2 has the trigger primitives I need (`onDocumentCreated`, `onSchedule`, `onCall`). Free tier comfortably covers low-volume restaurant sites. Trade-off: query model is more rigid than SQL, so per-location filtering is enforced by structure (subcollections) rather than joins.
+
+### Runtime CSS variables vs Tailwind theme rebuilds
+- **Constraint**: Each tenant needs its own brand colors but I want one shared CSS bundle
+- **Options**: Build Tailwind per tenant, inline a `<style>` per tenant, or use CSS custom properties referenced from Tailwind utilities
+- **Choice**: CSS custom properties + `applyTheme()`
+- **Why**: Switching themes is instant from the admin panel, the CSS bundle stays small, and Tailwind utilities work normally. Cost is that arbitrary value composition (e.g., `text-[var(--primary)]/50`) needs care, but the preset palette covers 95% of the use cases.
+
+### Firestore rules as the security boundary
+- **Constraint**: Public pages need to read menus and settings; admin operations must be locked down, and admins can be scoped to a single location
+- **Options**: Trust the client + `AuthenticationGuard`, route everything through Cloud Functions with a custom auth layer, or push authorization into Firestore rules
+- **Choice**: Firestore rules with `isActiveAdmin()` and `isAdminForLocation()` helpers
+- **Why**: Authorization is enforced at the database, not the client. The guard component is UX only. Per-location scoping is a single field on `adminUsers`, which keeps rule expressions readable.
 
 ## Frequently Asked Questions
 
-### How does the menu system work?
-Menu data is stored in two Supabase tables: `menu_categories` (with name, slug, icon, sort order) and `menu_items` (with name, price, description, dietary info, ingredients, allergens). The `MenuPage` component fetches both via `SupabaseContext`, then applies client-side filtering by category, search query, and dietary tags. Items expand inline to show full details.
+### How does a new restaurant get added?
+Three steps: create a `locations/{id}` document with settings and overrides, point a subdomain at the deployment (Firebase Hosting or Vercel), and create an `adminUsers` entry granting that location to the restaurant owner. No code change required.
 
-### Why Supabase instead of a custom backend?
-Supabase provides everything this project needs out of the box — PostgreSQL with RLS, built-in auth, edge functions for serverless logic, and a generous free tier. Building a custom Express/Node backend would have added deployment complexity without providing additional value for this use case.
+### How does the subdomain resolver work on localhost?
+`locationResolver.js` checks the hostname. On `localhost` or `127.0.0.1`, it falls back to the `?location=` query parameter so I can preview any tenant locally (`localhost:4028?location=tela`). On a production hostname with at least three labels, it returns the first label after stripping `www`.
 
-### How does the admin authentication work?
-Admins sign in with email/password via Supabase Auth. After authentication, `SupabaseContext.checkAdminStatus()` queries the `admin_users` table to verify the authenticated user has an active admin record. The `AuthenticationGuard` component wraps protected routes and redirects non-admins. All admin API calls are additionally protected by RLS policies at the database level.
+### Can a location override individual menu items without copying the whole menu?
+Yes — that is the point of the override merge. `menuItems` holds the base catalog; `locations/{id}/menuItemOverrides` holds per-location patches keyed by item id. `mergeMenuWithOverrides` shallow-merges only the items that have an override, so a tenant can change one price or hide one item without duplicating the rest.
 
-### How are contact form emails sent?
-When a user submits the contact form, the data is inserted into the `contact_inquiries` table. A Supabase Edge Function (`send-contact-email`) receives the form data, formats it into HTML/text email content, and sends it to the restaurant via the Resend API. The edge function runs server-side on Deno, keeping the Resend API key secure.
+### How do translations work?
+Default English strings ship in `src/data/translations/en.json`. Per-location translations live as documents at `locations/{id}/translations/{lang}` (e.g. `es`). On location load, the provider reads `settings.languages.available` and registers each non-English translation document with i18next.
 
-### Why Toast Tab for ordering instead of building it in?
-Toast Tab is the restaurant's existing POS system, so integrating with their hosted ordering page ensures orders flow directly into their kitchen workflow. Building custom ordering would mean duplicating POS functionality, handling payments, and maintaining order state — all problems Toast Tab already solves.
+### How are contact form emails actually sent?
+The browser writes a document to `contactInquiries`. A v2 Firestore trigger (`onContactInquiryCreated` in `functions/index.js`) fires server-side, reads the restaurant name and recipient from `settings/config`, formats an HTML email, and sends it via Resend. Success or failure is written back onto the inquiry document.
 
-### What was the most challenging part?
-The catering page's multi-step wizard was the most complex feature. Each step depends on the previous one (you can't select menu items without a service, can't submit without menu items), and the sidebar needs to show a live summary with cost estimates. Managing this interdependent state while keeping the UI responsive on mobile required careful component decomposition.
+### Where do the Google reviews come from?
+A location stores a `googlePlacesId` in `settings.features`. A scheduled Cloud Function calls the Google Places API for each configured location and writes the reviews into Firestore. Admins can also trigger an ad-hoc sync from the Reviews Management dashboard via a callable function.
 
-### What would I improve?
-I'd add real-time admin notifications when new inquiries arrive (Supabase Realtime subscriptions), build out the menu management admin page for full CRUD, connect the Instagram feed to the actual API instead of static content, and add image upload capability for menu items via Supabase Storage.
+### Why a separate "Demo mode" with in-memory data?
+Demo mode (`?demo=tela`) lets the site render without any Firebase project — useful for screenshots, share links, and styling work. `useDemoMode` switches the data source from Firestore to fixtures in `src/data/demoTela.js`. The visible UI is identical.
+
+### Is the online ordering custom-built?
+No — the "Order Now" button links out to Toast Tab, the restaurant's existing POS-integrated ordering page. Building custom ordering would duplicate POS, payments, and kitchen workflow integration that Toast already solves.
+
+### How is admin access scoped per location?
+`adminUsers/{uid}` has a `role` (`super` or `admin`) and a `locationIds` array. Firestore rules use `isAdminForLocation(locationId)` for per-location collections — super admins pass everywhere, regular admins only pass if the location id is in their array.

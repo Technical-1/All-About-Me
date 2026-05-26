@@ -23,7 +23,7 @@
 
 - **Runtime**: Vercel Serverless Functions (production API proxy)
 - **Dev Proxy**: Vite dev server proxy (local development)
-- **AI API**: Claude (Anthropic SDK `@anthropic-ai/sdk ^0.77.0`) via `/api/ai-translate` serverless function
+- **AI API**: Anthropic Claude Haiku 4.5 (`@anthropic-ai/sdk ^0.77.0`) via `/api/ai-translate` serverless function
 - **External API**: Urban Dictionary API v0 (`/v0/define`, `/v0/autocomplete-extra`, `/v0/autocomplete`)
 - **Caching**: Vercel KV (server-side, production), localStorage (client-side, 7-day TTL for popular words, 20-entry LRU for AI results)
 - **Auth**: Firebase Auth (Google sign-in + Apple sign-in via OAuth popup)
@@ -51,7 +51,7 @@
 | Package | Purpose |
 |---------|---------|
 | `react` / `react-dom` | UI component library and DOM renderer |
-| `@anthropic-ai/sdk` | Claude AI API client for contextual slang analysis |
+| `@anthropic-ai/sdk` | Anthropic API client for contextual slang analysis |
 | `firebase` | Authentication (Google + Apple) and Firestore database |
 | `@sentry/react` | Production error tracking and performance monitoring |
 | `@vercel/kv` | Server-side key-value cache for API responses |

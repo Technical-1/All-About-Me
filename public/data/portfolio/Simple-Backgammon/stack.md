@@ -8,10 +8,10 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 
 ### Framework
 
-- **Next.js 14.2.35** - React framework with App Router
-  - I chose Next.js for its excellent developer experience and built-in optimizations
+- **Next.js 15.5.12** - React framework with App Router
   - App Router provides file-based routing and React Server Components support
   - Built-in image optimization and code splitting
+  - Minimal config needed compared to a hand-rolled Webpack/Vite setup
 
 ### UI Library
 
@@ -96,13 +96,14 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 
 - **npm** - Package management
 - **ESLint 8** - Code linting with Next.js config
+- **Vitest 4** - Unit tests for game logic in `lib/`
 - **Sharp 0.34.5** - Image processing for build
 
 ## Key Dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| next | 14.2.35 | React framework |
+| next | ^15.5.12 | React framework |
 | react | ^18 | UI library |
 | react-dom | ^18 | React DOM renderer |
 | three | ^0.182.0 | 3D graphics library |
@@ -111,7 +112,8 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 | partysocket | ^1.1.10 | WebSocket client with React hooks |
 | typescript | ^5 | Type checking |
 | eslint | ^8 | Linting |
-| eslint-config-next | 14.2.35 | Next.js ESLint rules |
+| eslint-config-next | ^15.5.12 | Next.js ESLint rules |
+| vitest | ^4.0.18 | Unit testing for game logic |
 | sharp | ^0.34.5 | Image optimization |
 
 ## Why These Choices

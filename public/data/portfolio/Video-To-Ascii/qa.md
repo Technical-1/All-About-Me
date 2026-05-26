@@ -47,38 +47,64 @@ the paint loop, then "Encoding GIF… Y%" from gif.js's `progress` event. A
 sticky toast reflects the current state. Without this feedback, long
 exports look indistinguishable from a hang.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Built iteratively. A 2026-05-18 audit (`AUDIT.md`)
-  catalogued ~30 findings — security gaps in an older Share feature, broken
-  UI features, correctness bugs, and project hygiene gaps. Most of the work
-  since has been working through that prioritized list, then trimming
-  features (Share, TXT export, CI) that weren't earning their complexity.
-- **Hardest part**: The original codebase had a Share feature with a stored
-  XSS vector — the server accepted arbitrary HTML and the viewer injected
-  it directly into the DOM. Rewriting it to persist only structured
-  `{ text, colors }` and rebuild output with safe DOM APIs (capability-URL
-  share IDs, rgb/hex color allowlist on both ends) was the largest single
-  refactor. The feature was later removed entirely when the free-tier KV
-  quota became impractical, but the hardening work and the discipline of
-  treating an unauthenticated write endpoint as a hostile surface stayed
-  with me.
-- **Lessons learned**:
-  - "Structured data over HTML strings" is the cheapest way to make a class
-    of XSS bugs impossible by construction.
-  - Adaptive FPS beats fixed FPS for anything that has to keep up with media.
-  - Long-running browser operations need *visible* progress, not just
-    `await`; otherwise users assume the tab has hung and reload.
-  - Features without a free, durable hosting story don't survive long.
-  - Any UI element that needs to persist over a container has to live as a
-    *sibling* of the container in a positioned wrapper — never as a child.
-    Containers whose contents are rewritten will erase their own children
-    every frame.
-- **Future plans**:
-  - Address remaining minor findings in `AUDIT.md` (charset-custom restore
-    ordering, error handler reading the wrong field on media error events).
-  - A proper test suite for the modules — right now only the pure helpers
-    are unit-tested.
+### Vanilla ES modules, no framework
+- **Constraint**: A render loop that touches the DOM every frame at up to
+  60 fps, with a small fixed surface of controls.
+- **Options**: React/Preact for ergonomics; Svelte for compile-time updates;
+  plain modules.
+- **Choice**: Plain modules.
+- **Why**: A reconciler between me and the render path adds bundle weight and
+  one more layer to debug when a frame glitches. With one render function I
+  know exactly what hits the DOM each tick.
+
+### Adaptive frame rate over fixed 60 fps
+- **Constraint**: The pipeline (decode → downscale → Sobel → character map →
+  DOM write) is not free on modest hardware. A fixed 60 fps target lags
+  badly; audio drifts and the browser jank-warns.
+- **Options**: Hard 60; hard 30; user-pickable FPS; adaptive.
+- **Choice**: Adaptive FPS in `videoController` — floor 10, ceiling 60, ±5
+  step based on measured frame time.
+- **Why**: A smooth 30 reads better than a stuttery 60, and the same build
+  works on a Pi-class device and a current laptop without me picking a
+  preset per machine.
+
+### Structured `{ text, colors }` frames, not HTML strings
+- **Constraint**: Recording stores playback for replay/export. An earlier
+  Share feature also persisted frames to a backend, where treating the
+  payload as HTML created a stored-XSS path.
+- **Options**: Serialize the rendered `innerHTML` (cheap, unsafe); serialize
+  per-cell text + colors (more code, but the receiver rebuilds the DOM with
+  safe APIs and a color allowlist).
+- **Choice**: Structured frames everywhere — `{ text, html, colors }` in
+  memory, `{ text, colors }` for persistence.
+- **Why**: Even after the Share feature was retired, the export paths
+  (JSON, HTML player, GIF) all consume the structured form. No code path
+  trusts an HTML blob.
+
+### Hard 1,800-frame recording cap + GIF sub-sample to 120
+- **Constraint**: Auto-recording runs the whole video by default. Each frame
+  carries a `width × height` colors array; a long video at 30 fps OOMs the
+  tab. GIF-encoding the full buffer at retina text size takes minutes.
+- **Options**: No cap; user-set cap; fixed cap with sub-sampling at export.
+- **Choice**: Fixed 1,800-frame ceiling in `ExportManager` (auto-stops on
+  hit), and GIF export samples down to ≤120 frames before encoding.
+- **Why**: Predictable memory and predictable export latency without making
+  the user reason about buffer sizing.
+
+### FPS overlay as a sibling, not a child, of the output element
+- **Constraint**: `#ascii-output.innerHTML` is rewritten every frame, so any
+  child element is detached on the first render. A previous fix using
+  `position: fixed` on `document.body` collided with the toolbar/playback bar.
+- **Options**: Body-fixed badge; child of `#ascii-output`; wrapper-relative
+  sibling.
+- **Choice**: An `.ascii-stage` wrapper (`position: relative`) around
+  `#ascii-output`, with the badge appended as a sibling
+  (`position: absolute`).
+- **Why**: The stage isn't touched by the render loop, so the badge
+  persists; and because it isn't a descendant of the output, it never
+  pollutes `textContent` reads in the screenshot fallback path.
 
 ## Frequently Asked Questions
 
@@ -124,8 +150,24 @@ For a solo project where I run `npm run lint` and `npm test` locally before
 pushing, the marginal value of automated CI was low. The lint + test infra
 exists; only the workflow file was scoped out.
 
-### What would I improve?
-A proper test suite for the modules — right now only the pure helpers are
-unit-tested. After that, the remaining minor findings in `AUDIT.md`
-(charset-custom restore ordering, error handler reading the wrong field on
-media error events).
+### Why is there both an HTML export and a JSON export?
+The JSON export is the raw structured frame buffer (`text` + per-cell
+`colors`). It's the canonical format the rest of the project consumes and is
+useful for re-rendering elsewhere. The HTML export is a self-contained
+single-file player that bundles the frames and a small replay script —
+useful for sending someone a link without asking them to run a tool. They
+have different audiences: JSON for programmatic reuse, HTML for "open and
+press play."
+
+### How accurate is the GIF compared to the live render?
+Close, but not pixel-identical. The GIF draws each character cell onto a
+canvas in the recorded color rather than rendering monospace HTML, so font
+metrics differ slightly from the live `<pre>` rendering. The sampling step
+(≤120 frames) also drops timing fidelity for videos longer than ~4s at
+30 fps. The trade-off is intentional — encoding every frame at full text
+size would take minutes for short videos and is rarely what's wanted.
+
+### Can I run this offline?
+Yes — after the first load there's no network dependency. Everything from
+decoding to rendering to GIF encoding happens in the tab. Settings persist
+in `localStorage` so reloads keep your preset.

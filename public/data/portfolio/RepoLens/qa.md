@@ -56,6 +56,32 @@ To minimize latency, I fetch repository info, languages, commits, code frequency
 ### SEO & Static Image Optimization
 I replaced the dynamically generated OG image, favicon, and Apple icon (which used edge `ImageResponse` to produce the same image on every request) with pre-rendered static PNGs. This eliminates unnecessary edge compute. I also added `robots.txt`, `sitemap.xml`, JSON-LD structured data (WebApplication + per-page WebPage), and per-page `generateMetadata()` for dynamic repo routes — which required splitting the repo page into a server component (for metadata) and a client component (for the interactive UI).
 
+## Engineering Decisions
+
+### GraphQL for commits, REST for everything else
+- **Constraint**: Unauthenticated users only get 60 GitHub requests/hour, and the old commit-detail loop burned 51 calls per analysis.
+- **Options**: All-REST (simple but expensive), all-GraphQL (one query but requires schema work for every endpoint), or hybrid.
+- **Choice**: Hybrid — GraphQL only for commit history, REST (via Octokit) for repo info, languages, contributors, and code frequency.
+- **Why**: Commit detail was the dominant cost. Moving that one path to GraphQL cut API consumption ~98% per analysis while keeping the rest of the codebase on the well-typed Octokit client. GraphQL falls back to REST if it fails, so reliability is preserved.
+
+### No database, JWT-only auth
+- **Constraint**: I wanted users to access private repos via OAuth without taking on user-data liability.
+- **Options**: Persist tokens in Postgres/Redis, store them in encrypted cookies, or keep them in signed JWTs only.
+- **Choice**: NextAuth v5 with JWT sessions — tokens live in the signed JWT, never written to a database.
+- **Why**: No database means no breach surface for stolen tokens, no GDPR concerns, no infra to run. Users revoke access through GitHub. The trade-off is no cross-device session state, which doesn't matter for this product.
+
+### Static OG/favicon over dynamic `ImageResponse`
+- **Constraint**: The original `icon.tsx`, `apple-icon.tsx`, and `opengraph-image.tsx` regenerated identical images on every cold start via Satori.
+- **Options**: Keep dynamic generation (no maintenance, costs edge compute), bake static PNGs (cheaper, requires manual regeneration on rebrand), or pre-render at build time.
+- **Choice**: Static PNGs in `public/` for OG, favicon, and Apple icon. Kept dynamic generation only for the per-repo embed widgets where the image actually varies.
+- **Why**: The brand image never changes; running Satori on every request was waste. Embed widgets do vary per repo, so dynamic generation stays there — cached at the edge for 1 hour to amortize the cost.
+
+### Server/client split on the repo page
+- **Constraint**: Dynamic `/repo/[owner]/[name]` routes needed per-page `generateMetadata()` (server-only) plus interactive charts (client-only).
+- **Options**: Make the whole page a client component and lose dynamic OG/SEO, or split it.
+- **Choice**: `page.tsx` is a server component that exports `generateMetadata()` and JSON-LD, then renders `RepoPageClient.tsx` for the interactive UI.
+- **Why**: Search engines and social cards see real titles and descriptions per repository; users still get the client-side fetching and chart interactions. The split is mechanical and low-cost.
+
 ## Frequently Asked Questions
 
 ### Q: Why do some repositories show "Statistics unavailable"?

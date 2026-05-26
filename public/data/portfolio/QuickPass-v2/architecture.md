@@ -230,16 +230,22 @@ sequenceDiagram
 | Input Validation | Resource exhaustion prevention | Length bounds on all string/numeric IPC inputs |
 | USB Fail-Secure | Path traversal prevention | Canonicalization with fail-secure fallback |
 
-## Security Audit History
+## Defense-in-Depth Layers
 
-### Round 1: Security Hardening (20 issues, 2026-02-09)
-Full security hardening pass covering CSP, devtools, timing-safe comparisons, memory zeroization, and Tauri capabilities.
+The security posture is built from independent layers, each of which has to fail before user data is exposed:
 
-### Round 2: IPC Boundary Audit (7 issues, 2026-02-11)
-Focused audit of all 49 IPC commands. Key fixes: rate limiting on password clipboard copy, USB auth gates, clipboard timeout clamping, pattern length validation, string input length bounds, fail-secure USB canonicalization. Added 48 tests.
-
-### Round 3: Deep Security Audit (21 findings, 2026-02-11)
-4-parallel-agent comprehensive audit covering crypto, IPC, memory safety, and frontend/Tauri config. Findings: 3 critical (derived key zeroization gaps), 5 high (lockout bypass, auto-lock enforcement, VaultEntry clones), 8 medium, 5 low. Core crypto primitives and frontend isolation rated excellent.
+| Layer | What it stops |
+|-------|----------------|
+| OS-level data directory + atomic writes | Partial-write corruption and unauthorized peer-process reads of vault files |
+| Argon2id (19–64 MiB, memory-hard) | Offline GPU/ASIC brute-force of master password or pattern |
+| Dual-key envelope encryption of the vault key | Cross-credential leakage — knowing the password tells you nothing about the pattern-encrypted copy |
+| AES-256-GCM authenticated encryption | Ciphertext tampering and confidentiality breaches |
+| `zeroize` on `Drop` for session state | Recoverable plaintext in process memory after lock or exit |
+| `subtle` constant-time comparisons | Timing side channels on hash and TOTP verification |
+| Strict CSP + capability-restricted webview | Webview-side resource loading or unauthorized command invocation |
+| Masked DTOs across the IPC layer | Bulk password exfiltration from a compromised frontend |
+| Per-command rate limiting and length bounds | Resource exhaustion and brute-force reveal of stored passwords |
+| Progressive lockouts with eventual vault deletion | Online brute force against a live vault file |
 
 ## Limitations
 
