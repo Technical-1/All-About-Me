@@ -267,6 +267,60 @@ async function processRepo(repo) {
   };
 }
 
+/**
+ * Remove portfolio directories that don't correspond to any active repo or
+ * manual entry. Catches stale snapshots from renamed, archived, or deleted
+ * repos (e.g. `Nato-Trainer` lingering after the repo was renamed to
+ * `MasterCode`). Operates on PORTFOLIO_DIR only — screenshots are pruned
+ * separately because they can contain hand-curated content.
+ */
+function pruneOrphanPortfolioDirs(activeRepoNames) {
+  if (!fs.existsSync(PORTFOLIO_DIR)) return;
+
+  let pruned = 0;
+  for (const entry of fs.readdirSync(PORTFOLIO_DIR, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (activeRepoNames.has(entry.name)) continue;
+
+    const dirPath = path.join(PORTFOLIO_DIR, entry.name);
+    fs.rmSync(dirPath, { recursive: true, force: true });
+    console.log(`  Pruned orphan portfolio dir: ${entry.name}`);
+    pruned++;
+  }
+
+  if (pruned === 0) {
+    console.log('  No orphan portfolio dirs found.');
+  } else {
+    console.log(`  Pruned ${pruned} orphan portfolio dir(s).`);
+  }
+}
+
+/**
+ * Remove screenshot directories whose slug doesn't match any active repo
+ * or manual entry. Uses the same slug function (`getRepoSlug`) the sync
+ * step uses, so the active set is a direct comparison.
+ */
+function pruneOrphanScreenshotDirs(activeSlugs) {
+  if (!fs.existsSync(SCREENSHOTS_DIR)) return;
+
+  let pruned = 0;
+  for (const entry of fs.readdirSync(SCREENSHOTS_DIR, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (activeSlugs.has(entry.name)) continue;
+
+    const dirPath = path.join(SCREENSHOTS_DIR, entry.name);
+    fs.rmSync(dirPath, { recursive: true, force: true });
+    console.log(`  Pruned orphan screenshot dir: ${entry.name}`);
+    pruned++;
+  }
+
+  if (pruned === 0) {
+    console.log('  No orphan screenshot dirs found.');
+  } else {
+    console.log(`  Pruned ${pruned} orphan screenshot dir(s).`);
+  }
+}
+
 async function main() {
   // Fetch both private and public repos
   console.log('Fetching private repos…');
@@ -323,6 +377,26 @@ async function main() {
     });
     console.log(`Added manual repo: ${manualRepo.repo.name}`);
   }
+
+  // Build the active set of names/slugs, then prune stale directories.
+  // Portfolio pruning is strict: a dir is kept only if its repo had portfolio
+  // content this run (so dirs for repos that removed `.portfolio/` also get
+  // cleaned). Screenshot pruning is lax: any known repo's slug is kept, since
+  // screenshots can be hand-curated. Manual repos are kept unconditionally.
+  const activePortfolioNames = new Set();
+  const activeSlugs = new Set();
+  for (const e of enriched) {
+    if (e.has_portfolio) activePortfolioNames.add(e.repo.name);
+    activeSlugs.add(getRepoSlug(e.repo.name));
+  }
+  for (const m of MANUAL_REPOS) {
+    activePortfolioNames.add(m.repo.name);
+    activeSlugs.add(getRepoSlug(m.repo.name));
+  }
+
+  console.log('\nPruning orphan directories...');
+  pruneOrphanPortfolioDirs(activePortfolioNames);
+  pruneOrphanScreenshotDirs(activeSlugs);
 
   // Separate featured repos from all repos
   const featuredRepos = [];
