@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T07:18:30Z"
+      "pushed_at": "2026-05-26T08:28:22Z"
     },
     "languages": [
       "Python",
@@ -49,6 +49,24 @@
       "duration": "Jan 2023 - Dec 2024",
       "featured": true
     }
+  },
+  {
+    "repo": {
+      "name": "ai-talent-platform",
+      "full_name": "Technical-1/ai-talent-platform",
+      "html_url": "https://github.com/Technical-1/ai-talent-platform",
+      "homepage": null,
+      "description": "Research notes for an AI-driven talent platform",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-26T07:53:21Z"
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1292,14 +1310,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-21T00:07:37Z"
+      "pushed_at": "2026-05-26T08:23:48Z"
     },
     "languages": [
       "TypeScript",
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 157091,
+      "TypeScript": 156054,
       "JavaScript": 469
     },
     "primary_language": "TypeScript",
@@ -1316,7 +1334,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-18T16:38:55Z"
+      "pushed_at": "2026-05-26T08:23:43Z"
     },
     "languages": [
       "JavaScript",
@@ -1508,7 +1526,7 @@
       "full_name": "Technical-1/Redis-Upstasher",
       "html_url": "https://github.com/Technical-1/Redis-Upstasher",
       "homepage": null,
-      "description": null,
+      "description": "Keep free-tier Upstash Redis databases (Vercel Marketplace) alive forever. A GitHub Actions cron pings every DB every 3 days to reset the 14-day inactivity timer, and commits a status log that doubles as the activity signal preventing Actions itself from auto-suspending.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1569,6 +1587,32 @@
     "screenshots": [
       "/screenshots/remote-preview/preview.png"
     ]
+  },
+  {
+    "repo": {
+      "name": "RepoGuard",
+      "full_name": "Technical-1/RepoGuard",
+      "html_url": "https://github.com/Technical-1/RepoGuard",
+      "homepage": null,
+      "description": "Browser extension to scan GitHub repositories for malware patterns",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-26T08:05:03Z"
+    },
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 85150,
+      "CSS": 9775,
+      "HTML": 2663
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1932,7 +1976,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:21:09Z"
+      "pushed_at": "2026-05-26T08:24:41Z"
     },
     "languages": [
       "Liquid",
@@ -1940,9 +1984,9 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "Liquid": 953809,
-      "CSS": 378884,
-      "JavaScript": 189536
+      "Liquid": 962445,
+      "CSS": 382602,
+      "JavaScript": 193984
     },
     "primary_language": "Liquid",
     "has_portfolio": true,
@@ -2148,7 +2192,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T07:20:40Z"
+      "pushed_at": "2026-05-26T07:22:24Z"
     },
     "languages": [
       "TypeScript",
@@ -2776,15 +2820,15 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T07:20:53Z"
+      "pushed_at": "2026-05-26T08:06:13Z"
     },
     "languages": [
       "Python",
       "HTML"
     ],
     "language_bytes": {
-      "Python": 49211,
-      "HTML": 7297
+      "Python": 52069,
+      "HTML": 7295
     },
     "primary_language": "Python",
     "has_portfolio": true,
