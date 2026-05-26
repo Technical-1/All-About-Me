@@ -98,7 +98,7 @@ flowchart TD
 ## Key Architectural Decisions
 
 ### Migration from Single-File to Vite
-- **Context**: The app grew beyond what a single HTML file could comfortably maintain, and new features required npm dependencies (fit-curve, gif.js)
+- **Context**: The app grew beyond what a single HTML file could comfortably maintain, and new features required npm dependencies (gif.js, plus dev tooling like Vitest)
 - **Decision**: Migrated to Vite with `src/` directory containing modular JS, CSS, and HTML files
 - **Rationale**: Vite provides fast HMR for development, handles npm imports, and produces optimized builds. The original `index.html` is preserved as a reference.
 

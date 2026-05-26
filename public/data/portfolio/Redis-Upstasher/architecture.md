@@ -12,7 +12,7 @@ flowchart TD
     subgraph Workflow [keepalive.yml]
         Checkout[actions/checkout@v6]
         SetupNode[actions/setup-node@v6<br/>node-version: 24]
-        Test[npm test<br/>41 tests]
+        Test[npm test<br/>full suite]
         Run[node src/cli.ts]
         Commit[git add state/status.json<br/>git commit + push]
     end

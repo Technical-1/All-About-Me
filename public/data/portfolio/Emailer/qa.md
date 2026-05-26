@@ -49,6 +49,32 @@ Emails arrive in various encodings (base64, quoted-printable, plain UTF-8, ISO-8
 ### Innovative Approach: Template-Based Code Detection
 Rather than a single regex for all verification codes, I designed a template system where each provider (Google, Microsoft, etc.) has its own detection configuration including sender patterns, subject patterns, code regex patterns, and expected code lengths. This reduces false positives and allows provider-specific optimizations.
 
+## Engineering Decisions
+
+### IMAP over per-provider APIs
+- **Constraint**: I wanted the same client to talk to Gmail, Outlook, Yahoo, and self-hosted servers without three separate implementations.
+- **Options**: Gmail REST API + Microsoft Graph + Yahoo Mail API (three integrations, three auth flows, three message models), or a single IMAP layer.
+- **Choice**: IMAP via `SwiftMail`, with OAuth2/XOAUTH2 for the major providers and basic auth as a fallback.
+- **Why**: One protocol and one message model means one body-decoder, one folder model, and one set of caching rules. The cost is being on IMAP's serial-connection semantics, which I addressed with the operation lock in `MailSession.swift`.
+
+### Template-driven code extraction over one mega-regex
+- **Constraint**: Verification emails vary wildly by provider, and a generic `\d{6}` match produces too many false positives (order numbers, tracking IDs, dates).
+- **Options**: A single tuned regex applied to every message, or per-provider templates with sender/subject filters layered on top of code patterns.
+- **Choice**: `VerificationTemplate.swift` defines provider templates (Google, Microsoft, Apple, Amazon, Facebook, Twitter, Discord, generic) checked in priority order.
+- **Why**: Specific templates run first, so a Google recovery email is matched by the Google template instead of falling through to the generic pattern. Adding a new provider is a data change, not a code change.
+
+### Custom Keychain wrapper instead of a third-party library
+- **Constraint**: OAuth refresh tokens grant long-lived mailbox access. I wanted minimal third-party surface area for the code that touches them.
+- **Options**: Pull in a popular Swift keychain wrapper, or write a small wrapper on top of `Security.framework` directly.
+- **Choice**: `KeychainManager.swift` calls `SecItemAdd`/`SecItemCopyMatching` directly with the access flags I want.
+- **Why**: The wrapper is under 150 lines, has no dependencies, and makes the access-control settings explicit at the call site instead of hidden behind a library's defaults.
+
+### Single shared `MailSession` instead of per-view view-models
+- **Constraint**: Inbox, Recent, and the two verification views all read from the same IMAP connection and need to react to login state, refresh ticks, and cache invalidation together.
+- **Options**: Per-view `ObservableObject` view-models with a separate networking layer, or one shared `@EnvironmentObject` that owns the connection and publishes message arrays.
+- **Choice**: One `MailSession` `@MainActor ObservableObject` injected via `@EnvironmentObject`.
+- **Why**: Avoids duplicated cache state and connection bookkeeping across views. The trade-off is that adding multi-account support later means decomposing this object — acceptable for a single-account app.
+
 ## FAQ
 
 ### 1. Why did you build this instead of using the Gmail API directly?
@@ -87,6 +113,6 @@ I acknowledge this as a gap. IMAP operations require a real server connection, a
 
 The architecture could translate, but the implementation would need to be rewritten. The IMAP and OAuth logic would be similar (likely using JavaMail), but the UI would use Jetpack Compose or standard Android Views. The core concepts - template-based detection, token management, serial IMAP operations - would all apply.
 
-### 10. What would you do differently if starting over?
+### 10. How does the app handle the 15-second auto-refresh without hammering the IMAP server?
 
-I would design for multiple account support from the start. Adding it now would require significant refactoring of the `MailSession` singleton pattern. I would also add at least basic unit tests for the verification code extraction logic, which does not require network access to test.
+The verification views run a 15-second timer, but each refresh goes through the same serial IMAP lock as everything else, and the header cache in `MailSession.swift` is valid for 30 seconds. So a refresh that fires while another fetch is mid-flight queues behind it, and a refresh whose underlying data is still fresh returns from cache without a network round-trip. In practice the server only sees a fetch every ~30 seconds even though the UI ticks twice as often.

@@ -21,17 +21,37 @@ I used MLC AI's WebLLM library to run quantized LLMs directly in the browser via
 ### Building a Local RAG System
 The RAG implementation uses HuggingFace's Transformers.js to generate embeddings locally. Documents are split into 500-character chunks with 100-character overlap to maintain context at chunk boundaries. The vector index lives in IndexedDB alongside the documents. When a new resume is analyzed, the system performs cosine similarity search against all stored chunks, and results above 0.6 similarity are injected as context into the AI prompts. I implemented retry logic with exponential backoff for model loading since HuggingFace CDN can be unreliable.
 
-### Micro-Prompt Engineering for Small Models
-Local models (0.5B-7B parameters) produce much better output with focused, constrained prompts than with large context windows. I designed a micro-prompt architecture that splits resumes by detected headers into ~400-char chunks, then runs three focused prompts per section: score (0-100), feedback (one specific improvement), and keyword extraction. This approach yields 3-5 second responses per chunk versus 45-60 seconds for a full resume, with significantly higher output quality. I also learned that certain sections (Skills, Certifications, Education) need to be "passed through" unchanged because small models consistently hallucinate additional skills or mangle structured formatting.
+### Micro-Prompt Architecture for Small Models
+Small local models (0.5B-7B parameters) handle short, single-purpose prompts far more reliably than a single large prompt covering the whole resume. The orchestrator in `src/services/promptOrchestrator.ts` splits the resume by detected section headers into ~400-char chunks and runs three narrow prompts per section: score (0-100), one-line feedback, and keyword extraction. The result is 3-5 second responses per chunk instead of 45-60 seconds for a full-resume prompt, with output that stays on task. Structured sections (Skills, Certifications, Education, Contact) are routed through a passthrough path because small models tend to hallucinate items or mangle formatting in those areas; only Experience, Summary, Projects, and Awards are passed to the LLM for rewriting.
 
 ### Cross-Store State Architecture
 I chose Zustand over Redux for state management because the store-per-domain pattern maps naturally to this app's architecture: AI model lifecycle, app settings, user profile, and learning data are genuinely independent concerns. The interesting design decision was selective persistence — only settings go to localStorage, while session data (resume content, job descriptions) is deliberately ephemeral for privacy. Stores communicate via `getState()` for synchronous cross-store reads, which keeps them decoupled without needing a global event bus.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting AI output quality consistent with small local models. The micro-prompt architecture and passthrough section patterns emerged from extensive testing where full-resume prompts produced unreliable results. Anti-hallucination rules (never invent metrics, never add skills not in original) had to be embedded directly into every prompt template.
-- **Lessons Learned**: WebGPU browser support is still limited — Safari doesn't support it at all, and Firefox requires a flag. The app needed a complete deterministic fallback path for users without WebGPU. Also learned that IndexedDB has quirks with large blob storage that required careful error handling and database recreation on corruption.
-- **Future Plans**: Add more career modes, improve the learning system with more sophisticated pattern matching, and expand browser support as WebGPU adoption grows.
+### Browser-only inference vs. server-side API
+- **Constraint**: Resume content is sensitive personal data; the differentiator is "your data never leaves your device"
+- **Options**: Hosted LLM API (OpenAI, Anthropic), self-hosted inference server, on-device via WebGPU
+- **Choice**: WebLLM running quantized models on WebGPU, with a deterministic keyword/scoring fallback for unsupported browsers
+- **Why**: Eliminates the network boundary entirely, removes recurring API costs, and lets the app run offline after the first model download. The trade-off is a 350MB-4GB one-time download and no Safari support.
+
+### Micro-prompts vs. single full-resume prompt
+- **Constraint**: Small local models (0.5B-7B) degrade sharply on long context and produce inconsistent, often hallucinated output when asked to evaluate a whole resume at once
+- **Options**: One large prompt with the full resume; per-section micro-prompts; multi-turn conversational refinement
+- **Choice**: Per-section micro-prompts (score, feedback, keywords) on ~400-char chunks
+- **Why**: Brings each response under 5 seconds and keeps outputs grounded in the chunk in front of the model. The orchestrator aggregates section results into the overall analysis.
+
+### Passthrough sections for structured content
+- **Constraint**: AI rewrites of Skills, Certifications, Education, and Contact sections introduced incorrect skills, fabricated certifications, and mangled dates
+- **Options**: Tune prompts harder, switch to a larger model, or skip AI for these sections
+- **Choice**: Route structured sections through a passthrough path; only Experience, Summary, Projects, and Awards go through LLM rewriting
+- **Why**: AI adds no value in sections that are essentially lists of facts; preserving them verbatim protects data integrity.
+
+### Custom IndexedDB vector store vs. external vector DB
+- **Constraint**: The RAG layer needs to run entirely client-side; no server is available to host a vector database
+- **Options**: WebAssembly SQLite + vector extension, in-memory vectors, custom IndexedDB store
+- **Choice**: Float32Array vectors stored in IndexedDB via Dexie, with brute-force cosine similarity
+- **Why**: Expected per-user volume is hundreds (not millions) of chunks, so a linear scan is fast enough and avoids pulling in a heavier dependency.
 
 ## Frequently Asked Questions
 

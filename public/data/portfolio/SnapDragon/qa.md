@@ -28,12 +28,31 @@ I implemented multi-layer input sanitization: an `InputSanitizer` utility strips
 ### Comprehensive Test Suite
 I added 79 unit tests across 4 XCTest suites covering the core game logic (30 tests for rules, special cards, win detection), AI strategy (12 tests for decision-making edge cases), score persistence (18 tests for CRUD and stat calculation), and security (19 tests for sanitization and bounds safety). The value-type Game struct made testing straightforward — each test creates a fresh game state with no shared mutable state.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Started June 2024, Firebase integration added in early 2025
-- **Hardest Part**: Getting online game state synchronization right — converting between local `Game` structs and Firestore documents while handling race conditions when both players initialize simultaneously
-- **Lessons Learned**: Using the same Game struct for both local and online play was the right call — it prevented rule divergence. The host-based initialization pattern (first player in the array initializes) solved the race condition problem cleanly. Adding tests after the fact validated that all the edge cases (four-of-a-kind, empty deck, face-down blind play) actually work correctly.
-- **Future Plans**: Spectator mode, friend system, tournament brackets, Game Center leaderboard integration, chat system, Cloud Functions for server-side move validation
+### Single Game struct for local, AI, and online play
+- **Constraint**: Online matches must follow identical rules to local play — any divergence would mean players see different outcomes for the same move.
+- **Options**: (1) Separate engines per mode with shared rule tables, (2) Server-authoritative game logic via Cloud Functions, (3) One value-type `Game` struct used everywhere with a Codable bridge for transport.
+- **Choice**: Option 3 — one `Game` struct, with `GameStateData` as the Firestore-friendly Codable mirror.
+- **Why**: Eliminates rule drift by construction. The value-type semantics make state copying for serialization trivial, and the same XCTest cases that cover local play cover online play.
+
+### Realtime Database for matchmaking, Firestore for game state
+- **Constraint**: Matchmaking needs sub-second presence/queue updates; game sessions need structured queries and reliable per-document updates.
+- **Options**: (1) All Firestore, (2) All Realtime Database, (3) Split by access pattern.
+- **Choice**: Split — RTDB owns the matchmaking queue, Firestore owns sessions and profiles.
+- **Why**: RTDB's flat tree and presence semantics fit the queue model; Firestore's snapshot listeners and document model fit move-by-move game updates. Each database stays in its strength zone.
+
+### Host-based initialization for online games
+- **Constraint**: Both clients see the new session document almost simultaneously and would race to deal cards, leading to mismatched hands.
+- **Options**: (1) Server-authored initial state via Cloud Functions, (2) Lock-based coordination, (3) Designate the first player in the `players` array as the deck dealer.
+- **Choice**: Option 3 — the first player in the array initializes the deck and writes the starting state.
+- **Why**: Zero server cost, deterministic resolution, and the rule is obvious from reading any client. The second client simply waits for the initial `GameStateData` snapshot.
+
+### Defense-in-depth name sanitization
+- **Constraint**: Player names are written to both local UserDefaults and shared Firebase documents. A single missed sanitization path could persist HTML or oversized payloads.
+- **Options**: (1) Sanitize only at the UI layer, (2) Sanitize only at the persistence layer, (3) Sanitize at both, with Firebase rules as a third barrier.
+- **Choice**: Option 3 — `InputSanitizer` runs in the name input views and again inside `ScoreManager`, with Firestore/RTDB rules enforcing per-user write scope.
+- **Why**: Future call sites that bypass the UI still get sanitized before they hit storage, and a compromised client still can't write outside its user namespace.
 
 ## Frequently Asked Questions
 
@@ -52,8 +71,14 @@ When a player searches for a match, their profile (skill level, preferred game s
 ### How is game state synced in online mode?
 Each move converts the local `Game` struct into a `GameStateData` Codable object, which is written to Firestore. The opponent's client has a snapshot listener that fires on every change, parses the `GameStateData`, and reconstructs the `Game` struct locally. The host player (first in the players array) handles initialization to prevent race conditions.
 
-### What was the most challenging part?
-Online state synchronization. The tricky part was ensuring both players see consistent game state when moves happen nearly simultaneously. I solved this with a move sequence counter and a host-based initialization pattern where only the first player creates the initial game state.
+### What happens if a player disconnects mid-game?
+The Firestore snapshot listener on the remaining client surfaces the stale state, and the session document carries a `lastUpdated` timestamp the UI uses to flag a disconnection. The game is not auto-resolved — the disconnected player can reopen the app and resume from the last persisted `GameStateData`.
 
-### What would you improve?
-Implement Cloud Functions for server-side move validation to prevent cheating. Add better error recovery for disconnection scenarios. Build out spectator mode and a friend system for private matches.
+### Can the AI cheat by peeking at hidden cards?
+No. The AI runs against the same `Game` struct a human plays against, and its decision tree only reads from publicly visible state: the top of the pile, its own hand, and counts of opponent cards. Face-down cards remain face-down for the AI just like they do for the user.
+
+### Why anonymous authentication instead of accounts?
+Online play needs a stable user identity, but the game has no social graph yet. Firebase Anonymous Auth gives every install a persistent UID without forcing email/password or social login flows, which would add friction for what is still a casual card game.
+
+### Why is the Game model a struct instead of a class?
+Every move is a state transition I want to be auditable and serializable. With a struct, mutating a `Game` produces a new value I can compare to the previous one, write to Firestore, and pass through SwiftUI's diffing without worrying about shared references. Classes would let two views accidentally mutate the same instance — exactly the bug class I wanted to design out.

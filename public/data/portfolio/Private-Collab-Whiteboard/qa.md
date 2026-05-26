@@ -31,11 +31,31 @@ The drawing system maintains a virtual world coordinate system separate from scr
 ### Access Token System with Tamper Detection
 Share links encode both the password and permission level (edit/view) into a signed token in the URL hash. The token includes a simple signature (`base64(password + role + salt)`) that prevents casual tampering — changing "view" to "edit" in the URL invalidates the signature. Legacy plain-password URLs are still supported for backward compatibility.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting the sync timing right. The default board ("default" Y.Array) was being created before IndexedDB finished loading, causing duplicate boards. I solved this by awaiting both IndexedDB sync and a network sync timeout before creating the default board.
-- **Lessons Learned**: WebRTC (the original transport) has serious NAT traversal issues. Switching to PartyKit's WebSocket relay made connections far more reliable while keeping the same privacy model — the server is still just a relay.
-- **Future Plans**: Shape grouping, image/file embedding, presentation mode with slide-by-slide boards, and mobile-optimized touch gestures.
+### Transport: WebSocket relay over peer-to-peer WebRTC
+- **Constraint**: Needed reliable real-time sync across arbitrary networks (corporate firewalls, mobile carriers, double-NAT home routers) while keeping the server out of the trust boundary.
+- **Options**: `y-webrtc` peer-to-peer mesh, a self-hosted Y.js WebSocket server, or PartyKit's Cloudflare-Workers relay.
+- **Choice**: PartyKit relay (`party/index.ts`) with all payloads encrypted client-side.
+- **Why**: WebRTC's NAT traversal failed too often in practice. A broadcast relay is simpler and reaches everywhere a WebSocket reaches, and because messages are AES-256-GCM encrypted before they leave the browser, the relay never sees plaintext — the privacy model survives the migration.
+
+### Default-board creation only after sync settles
+- **Constraint**: Opening a fresh tab against an existing room kept producing a duplicate "default" board because both the IndexedDB load and the network sync would each see an empty `boards` map.
+- **Options**: Lock board creation to the room owner, write a deduplicating merge in the CRDT, or block creation until persistence and network sync had a chance to populate state.
+- **Choice**: Await IndexedDB sync, then wait up to a short network-sync timeout in `yjs-setup.js` before creating the default board.
+- **Why**: It's a one-line gate that solves the race without inventing roles or hand-rolling CRDT reconciliation, and it degrades cleanly when the user is fully offline (the timeout fires and creation proceeds).
+
+### Multi-page Vite build over an SPA shell
+- **Constraint**: Three pages with very different payloads — a marketing landing page, a board-history list, and the heavy whiteboard runtime (Y.js + canvas engine + crypto).
+- **Options**: Single-page app with a router and code-splitting, or Vite's MPA mode with one HTML entry per page.
+- **Choice**: MPA — `index.html`, `boards.html`, `room.html` each ship their own bundle, with Vercel rewrites mapping `/room/:id` to `room.html`.
+- **Why**: The landing page loads in a couple of KB without dragging in Y.js, and there is no shared client-side state worth preserving across navigations. Routing collapses into a static rewrite rule.
+
+### Signed access tokens in the URL fragment
+- **Constraint**: View-only links had to be tamper-resistant without introducing accounts or a server-side auth check (the server is intentionally dumb).
+- **Options**: Server-issued JWTs, separate "view" and "edit" room IDs, or signing the role into the share link itself.
+- **Choice**: Encode `{password, role, signature}` into the URL hash and verify the signature in `room-manager.js` before unlocking edit operations.
+- **Why**: Fragments never hit the relay, the signature stops casual users from flipping `view` to `edit`, and the model stays accountless. Legacy plain-password links still work for backward compatibility.
 
 ## Frequently Asked Questions
 

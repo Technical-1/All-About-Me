@@ -26,12 +26,31 @@ I built a thumbnail system using Firebase's Resize Images extension that auto-ge
 ### Stripe Integration with Graceful Degradation
 The billing system handles subscription lifecycle through Stripe webhooks. Rather than hard-locking users immediately on payment failure, I implemented a `useSubscription()` hook that derives access levels with a 7-day grace period after cancellation, allowing users to continue reading their data while resolving billing issues.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Built incrementally over several months, starting as a Valentine's Day gift and evolving into a full SaaS product
-- **Hardest Part**: Getting multi-tenant data isolation right. The initial single-tenant architecture required a careful migration to add `coupleId` scoping to every collection, query, and security rule without breaking existing data.
-- **Lessons Learned**: Test security rules with malicious intent, not just happy paths. The security audit revealed that Firestore update rules need to check both `resource.data` (before) and `request.resource.data` (after) to prevent field mutation attacks.
-- **Future Plans**: Expanding the platform to support more couples as a SaaS product, adding more theme presets, and building out the social features between couples.
+### Multi-tenancy via Custom Claims (not Subcollections)
+- **Constraint**: Needed complete data isolation between couples with rules that are auditable at a glance
+- **Options**: Per-couple subcollections nested under a parent doc, or top-level collections filtered by a `coupleId` field
+- **Choice**: Top-level collections + `coupleId` custom claim on the auth token
+- **Why**: Flat collections keep queries simple and let security rules check `request.auth.token.coupleId == resource.data.coupleId` uniformly. Subcollections would have required path-based rules and made cross-feature queries (e.g., timeline aggregating photos + events) painful.
+
+### Astro Static Landing + React-Only App
+- **Constraint**: One public marketing page needs to be fast and SEO-indexable, while the authed app needs full SPA interactivity
+- **Options**: Pure React SPA with SSR, Next.js with mixed rendering, or Astro islands
+- **Choice**: Astro for routing and the static landing page, with the entire authed surface mounted as `client:only="react"` and using React Router internally
+- **Why**: The landing page ships zero React JavaScript, which keeps marketing-page LCP low. The app side keeps a familiar SPA model so feature pages don't have to reason about hydration boundaries.
+
+### Stripe Grace Period vs. Hard Lockout
+- **Constraint**: Couples shouldn't lose access to shared memories the moment a card expires
+- **Options**: Lock immediately on `past_due`, or allow a read-only grace window
+- **Choice**: 7-day read-only grace period derived in `useSubscription()` from `subscriptionStatus` and `subscriptionEndDate`
+- **Why**: Card failures are usually transient. A grace window preserves trust while still gating writes until billing recovers.
+
+### Blocking Theme Script Over CSS-Variable React Hook
+- **Constraint**: Applying theme colors in a React `useEffect` caused a visible flash of default colors on every page load
+- **Options**: Server-side rendering of the theme, system-default fallback colors, or a synchronous head script reading from localStorage
+- **Choice**: Cache computed theme values in localStorage and apply them via a blocking inline `<script>` in `<head>` before first paint
+- **Why**: Returning users (the common case) get zero color flash. First-time visitors still see one flash, but the cost-to-benefit on the simpler approach wins.
 
 ## Frequently Asked Questions
 

@@ -33,11 +33,31 @@ The dashboard shows each list as a card section with items rendered as compact `
 ### Tailwind CSS v4 CSS-Native Configuration
 Instead of a JavaScript config file, the entire theme (colors, fonts, animations) is defined using `@theme` in `src/index.css`. This is Tailwind v4's new approach — the theme lives in CSS, not in `tailwind.config.ts`.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting the link scraping to work reliably across different e-commerce sites — every site structures its metadata differently, and some render entirely client-side, which led to adding the Puppeteer fallback
-- **Lessons Learned**: Server-side scraping is essential (CORS blocks client-side fetching), JSON-LD is by far the best metadata source when available, and retries with backoff are critical for flaky product sites
-- **Future Plans**: Browser extension for one-click adding, price history tracking, drag-and-drop reordering, email notifications for price drops
+### Server-side scraping with Puppeteer fallback
+- **Constraint**: Product pages span static HTML, JS-rendered SPAs, and aggressive bot protection — and the browser can't fetch arbitrary domains due to CORS
+- **Options**: Client-side scraping (blocked by CORS), a paid scraping API (cost + lock-in), or a self-hosted Cloud Function with cascading parsers
+- **Choice**: A Cloud Function that tries Cheerio first (JSON-LD → OG → Twitter → meta → CSS price selectors → hostname), then falls back to Puppeteer headless Chrome only when Cheerio can't pull a title
+- **Why**: Cheerio handles ~90% of pages in <500ms with minimal cold-start cost; Puppeteer's slow startup is only paid for the JS-rendered minority. Fetches use retries with exponential backoff and specific handling for 403/404/429/5xx so flaky retailer sites don't break the UX
+
+### Items as a Firestore subcollection
+- **Constraint**: Items always belong to exactly one wishlist; the security rules need to keep shared viewers out of items they shouldn't see
+- **Options**: Top-level `items` collection with a `wishlistId` field, or a `wishlists/{id}/items` subcollection
+- **Choice**: Subcollection
+- **Why**: Security rules can inherit the parent's `isPublic` and ownership state in one match block, queries are naturally scoped, and bulk operations like `refreshAllItems` iterate parents then children without extra indexes
+
+### Field-level Firestore rules for the gift surprise
+- **Constraint**: Shared viewers must be able to mark an item as claimed without being able to edit titles, prices, or anyone else's claim
+- **Options**: Trust the client, route all writes through a Cloud Function, or use field-level diff rules
+- **Choice**: Firestore rules using `request.resource.data.diff(resource.data).affectedKeys().hasOnly([...])` to limit shared writes to claim fields only
+- **Why**: Keeps the write path direct (no extra function hop, no cold start), enforces invariants at the data layer where they can't be bypassed by a malicious client, and avoids the cost of a callable function for what is otherwise a single document write
+
+### Tailwind v4 CSS-native theme
+- **Constraint**: Wanted a single source of truth for design tokens (fonts, colors, animations) without a JS config that drifts from CSS
+- **Options**: Classic `tailwind.config.ts`, CSS variables alongside a JS config, or Tailwind v4's `@theme` block
+- **Choice**: Tailwind v4 with the entire theme defined via `@theme` in `src/index.css`
+- **Why**: One file owns the design system, tokens are available as CSS variables for non-Tailwind contexts, and there's no build-time JS layer to debug when a token isn't applying
 
 ## Frequently Asked Questions
 
@@ -62,5 +82,8 @@ A wishlist app is something you pull up while browsing on your phone. PWA suppor
 ### How does item refresh work?
 Individual items can be re-scraped by clicking the refresh button on a WishCard. The `useRefreshItem` hook calls the same `scrapeUrl` Cloud Function and writes only the fields that changed via `updateItemMetadata`. There's also a `refreshAllItems` Cloud Function that processes all items across a user's wishlists in batches of 10 to avoid overwhelming external sites.
 
-### What would I improve?
-A browser extension for one-click adding from any product page, price history charts with drop alerts, collaborative lists where multiple people can add items, and drag-and-drop reordering for priority management.
+### Why does the shared view hide claim details from the list owner by default?
+The whole point of a wishlist is the surprise. The owner can see *that* an item is claimed (so it doesn't get bought twice), but the claimer's identity, anonymity flag, and note live in fields the owner's default view doesn't surface — they're available, just not in the face of someone who'd rather not know who's getting what.
+
+### How does the app deal with retailer sites that block scrapers?
+The Cloud Function sets a browser-like User-Agent and retries up to 3 times with exponential backoff. Specific status codes are handled distinctly: 429 (rate limit) backs off longer, 403 retries with the Puppeteer fallback in case the block is JS-based, and 404 fails fast without retrying. If everything fails, the user can still add the item manually with whatever info they have.

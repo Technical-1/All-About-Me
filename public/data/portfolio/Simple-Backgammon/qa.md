@@ -40,25 +40,47 @@ The interface adapts smoothly from desktop to mobile. Touch interactions work na
 
 ## Technical Highlights
 
-### Challenge: Real-Time Synchronization
+### Server-authoritative multiplayer
 
-The main challenge with online multiplayer was ensuring game state consistency between players. I solved this by making the server authoritative - all game logic runs server-side, and clients only send intents (roll dice, make move). The server validates every action and broadcasts the resulting state. This prevents cheating and ensures both players always see the same board.
+Online play needs to be cheat-proof and consistent across both clients. The PartyKit server in `party/backgammon.ts` owns the full game state — clients only send intents (`ROLL_DICE`, `MAKE_MOVE`) and the server validates each one against the rules, advances state, and broadcasts the result. There is no way for a client to fabricate a move because the server recomputes legality every time.
 
-### Challenge: Canvas Click Detection
+### Immutable game state with cheap undo
 
-Determining which point was clicked on the board required careful coordinate math. I divided the board into regions (top/bottom halves, quadrants, bear-off areas) and calculated point indices based on click position relative to those regions. The click handler maps pixel coordinates to game coordinates accounting for the bar, variable canvas size, and point orientation.
+`lib/game.ts` and `lib/moves.ts` treat the board as a value: `makeMove()` returns a new state object instead of mutating in place. Undo is then trivially a history stack of those snapshots, popped on demand. The same property makes multiplayer rollback and AI lookahead straightforward — the Hard AI in `lib/ai.ts` simulates candidate moves against snapshots without worrying about restoring state.
 
-### Innovative: Functional Game State
+### Canvas-based board with hit-test math
 
-I implemented the game logic using functional patterns. The `makeMove()` function returns a new state object rather than mutating the existing one. This made implementing undo trivial - I simply push state snapshots to a history array and pop them on undo. It also simplified the multiplayer sync since state updates are immutable.
+The board renders to a single `<canvas>` element for 60fps animation without DOM thrashing. Click detection maps pixel coordinates back to point indices by partitioning the canvas into the bar, the four quadrants, and the two bear-off areas, then computing index offsets per region. This avoids per-element event listeners and keeps the rendering loop fast on mobile.
 
-### Innovative: Server-Side Logic Duplication
+### Bearing-off rules with overshoot handling
 
-Rather than sharing code between client and PartyKit server (which proved problematic with bundling), I duplicated the game logic. The server-side version in `party/backgammon.ts` implements the same rules as `lib/game.ts`. This ensures the server can fully validate moves and prevents any client-side tampering.
+Bearing off has subtle constraints: all 15 checkers must be in the home board, an exact die match bears that point, and a larger die can only bear off the furthest-back checker. `canBearOff()` and the bear-off paths in `calculateAvailableMoves()` encode these rules explicitly so the same logic governs both AI play and online move validation.
 
-### Challenge: Bearing Off Rules
+## Engineering Decisions
 
-Backgammon's bearing off rules have subtle edge cases. You can only bear off when all pieces are in your home board. You can use a higher die to bear off if no exact match exists, but only for the furthest-back piece. I implemented these rules carefully with helper functions like `canBearOff()` and special handling in `calculateAvailableMoves()`.
+### Server authority vs. client-trusted multiplayer
+- **Constraint**: Online play must be tamper-proof and stay in sync across two browsers and a possible reconnect.
+- **Options**: Trust the client and broadcast state; have the server validate but share code with the client; full server authority with duplicated logic.
+- **Choice**: Full server authority. `party/backgammon.ts` re-implements the rules and is the single source of truth.
+- **Why**: PartyKit runs on Cloudflare Workers with bundling constraints that made sharing the `lib/` modules awkward. Duplicating ~200 lines of logic was cheaper than fighting the build, and it removes any possibility of a client desync mattering.
+
+### Canvas vs. SVG/DOM for the board
+- **Constraint**: Smooth piece animations on mobile, with a board that scales to the viewport.
+- **Options**: One `<div>` per point and checker (DOM), an SVG scene graph, a single canvas.
+- **Choice**: Canvas with manual hit-testing.
+- **Why**: 28 points × up to 15 checkers each is enough nodes that DOM layout starts to cost on phones. Canvas gives pixel-perfect control and a single redraw per frame. The trade-off is no screen-reader support, which I would address with an ARIA live region for move announcements if I shipped this beyond a hobby project.
+
+### PartyKit vs. Socket.io or Firebase Realtime DB
+- **Constraint**: Real-time rooms, durable across short disconnects, with no separate DB to operate.
+- **Options**: Self-hosted Socket.io on a VM; Firebase Realtime DB; PartyKit on Cloudflare.
+- **Choice**: PartyKit.
+- **Why**: Durable Objects give me per-room persistence for free, the edge runtime keeps latency low, and there is no separate backend to deploy. Socket.io would have needed a server I have to babysit; Firebase couples me to a heavier SDK and a different mental model than message-passing.
+
+### Hand-rolled AI vs. an MCTS/neural engine
+- **Constraint**: Three difficulty tiers, runnable in the browser with no network round-trip.
+- **Options**: Random/heuristic/lookahead in TypeScript; bundle a small WASM engine; call out to a server-side bot.
+- **Choice**: Three TypeScript strategies in `lib/ai.ts` — random for Easy, single-ply heuristic scoring for Medium, shallow lookahead for Hard.
+- **Why**: A self-contained AI keeps the game offline-capable, avoids any server cost, and is good enough to teach beginners and challenge casual players. A real backgammon engine would be a much larger project than the rest of the app combined.
 
 ## Frequently Asked Questions
 
@@ -98,6 +120,6 @@ Not currently. The classic green board with brown/tan points is hardcoded. Addin
 
 PartyKit servers run in a Cloudflare Workers environment with specific bundling constraints. Sharing TypeScript modules between the Next.js frontend and PartyKit proved problematic. Duplicating the ~200 lines of game logic was simpler and ensures the server can authoritatively validate all moves.
 
-### How do I report a bug?
+### How does the matchmaking queue avoid pairing the same player against themselves on a flaky connection?
 
-The project is open source on GitHub. Please open an issue describing the bug, including steps to reproduce it, what you expected to happen, and what actually happened. Screenshots or browser console errors are helpful.
+The matchmaking server in `party/matchmaking.ts` keys waiting players by their connection ID. A reconnect produces a new connection ID, but the room-rejoin path goes through the game room directly using the 6-character room code, not back through the queue. The 5-minute reconnect window lives on the game room, not the matchmaker, so a dropped player rejoining their own room doesn't get matched as a new player.

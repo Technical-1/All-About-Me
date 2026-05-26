@@ -61,7 +61,7 @@
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Lucide React | 0.475.0 | Modern icon library |
-| Recharts | 2.10.0 | React charting library |
+| Recharts | 3.8.1 | React charting library |
 
 ### Why I Chose These
 

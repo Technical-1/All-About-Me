@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TD
     subgraph User["Driver"]
-        Claude["Claude Code session<br/>(reads .mcp.json)"]
+        Agent["MCP-capable LLM client<br/>(reads .mcp.json)"]
     end
 
     subgraph macOS["macOS data sources (read-only)"]
@@ -32,15 +32,15 @@ flowchart TD
     end
 
     subgraph Desktop["Optional desktop wrapper"]
-        Electron["Electron main<br/>spawns Next + claude CLI"]
+        Electron["Electron main<br/>spawns Next + LLM client"]
     end
 
-    Claude -- "tool_get_recent_messages" --> Messages
-    Claude -- "create_entities / add_observations" --> Memory
+    Agent -- "tool_get_recent_messages" --> Messages
+    Agent -- "create_entities / add_observations" --> Memory
     Messages -- "SQL" --> ChatDB
     Memory -- "append JSONL" --> MemFile
-    Claude -- "writes sentiment scores" --> SentFile
-    Claude -- "writes handle map" --> HandlesFile
+    Agent -- "writes sentiment scores" --> SentFile
+    Agent -- "writes handle map" --> HandlesFile
 
     Loader --> MemFile
     SQL --> ChatDB
@@ -52,18 +52,18 @@ flowchart TD
     Pages --> UI
 
     Electron --> Pages
-    Electron -. "Refresh button<br/>spawns 'claude' headless" .-> Claude
+    Electron -. "Refresh button<br/>runs LLM client headless" .-> Agent
 ```
 
 ## Component Descriptions
 
 ### MCP layer (`.mcp.json`)
-- **Purpose**: Expose iMessage and the knowledge graph as tools that a Claude session can call directly.
-- **Location**: `/.mcp.json` (project scope, auto-loaded by Claude Code in this directory).
+- **Purpose**: Expose iMessage and the knowledge graph as tools that an MCP-capable LLM client can call directly.
+- **Location**: `/.mcp.json` (project scope, auto-loaded by the LLM client when started in this directory).
 - **Key responsibilities**: Declares two stdio MCP servers — `messages` (via `uvx mac-messages-mcp`) and `memory` (via `npx @modelcontextprotocol/server-memory`). No env vars or secrets.
 
 ### Prompt-driven workflow (`prompts/`)
-- **Purpose**: Encode the multi-phase workflows for seeding, updating, scoring sentiment, and querying — to be pasted into a Claude session.
+- **Purpose**: Encode the multi-phase workflows for seeding, updating, scoring sentiment, and querying — to be pasted into the LLM client.
 - **Location**: `/prompts/{bootstrap,update,sentiment,query}.md`.
 - **Key responsibilities**: Enforce the tagged-observation convention so the graph stays parseable. Phase-gate each run so the user can confirm/correct before writes.
 
@@ -86,16 +86,16 @@ flowchart TD
 - **Key responsibilities**: `/network` renders Cytoscape; `/table`, `/groups`, `/sentiment`, `/hygiene`, `/responsiveness`, `/ghosts`, `/initiation` are sortable tables; `/heatmap`, `/calendar`, `/activity`, `/onthisday` are time-based views; `/wrapped` is a slideshow; `/person/[name]` is the per-contact deep dive.
 
 ### Electron wrapper (`viz/electron/`)
-- **Purpose**: Optional native window plus an IPC endpoint that spawns `claude` to run `prompts/update.md` and `prompts/sentiment.md` in the background.
+- **Purpose**: Optional native window plus an IPC endpoint that runs `prompts/update.md` and `prompts/sentiment.md` headlessly via the local LLM client.
 - **Key responsibilities**: Starts Next.js dev or built server on port 3737, waits for the URL to respond, opens a `BrowserWindow`. The preload script exposes a Refresh button that triggers the backend prompts without leaving the app.
 
 ## Data Flow
 
-1. **Seed (one-time)** — User pastes `prompts/bootstrap.md` into Claude. Claude calls `tool_get_chats` and `tool_get_recent_messages` against the `messages` MCP server, computes per-contact stats locally, and writes Person entities + relations to the `memory` MCP server. Memory appends to `memory.jsonl`.
+1. **Seed (one-time)** — User pastes `prompts/bootstrap.md` into the LLM client. The agent calls `tool_get_chats` and `tool_get_recent_messages` against the `messages` MCP server, computes per-contact stats locally, and writes Person entities + relations to the `memory` MCP server. Memory appends to `memory.jsonl`.
 2. **Update (periodic)** — `prompts/update.md` re-runs the extraction for new messages since the last `last_contacted`, then uses `delete_observations` + `add_observations` to replace tagged lines (not append duplicates).
 3. **Sentiment (weekly)** — `prompts/sentiment.md` scores each top contact per month, appends a JSONL row to `viz/data/sentiment.jsonl`, and writes a `[sent]` observation to the Person entity.
 4. **View** — User runs `npm run dev` (or `npm run app`). Each route calls `loadGraph()` (memoized per request) plus any SQLite reads it needs. Cytoscape renders the network; tables sort client-side; charts compute over the loaded graph.
-5. **Refresh from the app** — In Electron, clicking the Refresh button IPC-calls `main.js`, which spawns `claude --print --dangerously-skip-permissions` with the contents of `update.md` and `sentiment.md` piped in, then waits for completion.
+5. **Refresh from the app** — In Electron, clicking the Refresh button IPC-calls `main.js`, which runs the LLM client headlessly with the contents of `update.md` and `sentiment.md` piped in, then waits for completion.
 
 ## External Integrations
 
@@ -105,7 +105,7 @@ flowchart TD
 | `@modelcontextprotocol/server-memory` | MCP server providing the knowledge-graph store | [npm/server-memory](https://www.npmjs.com/package/@modelcontextprotocol/server-memory) |
 | macOS Messages (`chat.db`) | Source-of-truth for message history | Apple-internal SQLite schema |
 | macOS AddressBook | Contact-name resolution for unknown handles | Apple-internal SQLite schema |
-| Claude Code CLI | Runs the prompts; called headless by the Electron Refresh button | [claude.com/claude-code](https://claude.com/claude-code) |
+| Local MCP-capable LLM client | Runs the prompts; called headlessly by the Electron Refresh button | Any agent that loads `.mcp.json` |
 
 ## Key Architectural Decisions
 
@@ -132,4 +132,4 @@ flowchart TD
 ### Electron wrapper as opt-in, not the default
 - **Context**: A native window is nicer for a personal daily-driver, but adds a heavy dependency.
 - **Decision**: Keep `electron` in `devDependencies`; `npm run app` is opt-in. The browser flow (`npm run dev`) remains the canonical path.
-- **Rationale**: Lets contributors run the app without installing Electron; the wrapper exists mainly so the Refresh button can shell out to `claude` from a single UI surface.
+- **Rationale**: Lets contributors run the app without installing Electron; the wrapper exists mainly so the Refresh button can shell out to the LLM client from a single UI surface.

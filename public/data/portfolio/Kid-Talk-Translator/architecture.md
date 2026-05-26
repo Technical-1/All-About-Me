@@ -46,7 +46,7 @@ flowchart TD
 
     subgraph ExternalAPIs["External Services"]
         UD[Urban Dictionary API]
-        Claude[Claude AI API<br/>Anthropic SDK]
+        Claude[LLM API<br/>Anthropic SDK]
         Firebase[Firebase<br/>Auth + Firestore]
         SentryAPI[Sentry<br/>Error Tracking]
         KV[(Vercel KV Cache)]
@@ -178,7 +178,7 @@ flowchart TD
 2. `detectInputType` classifies input as term, sentence, or conversation
 3. For conversations: `annotateConversation` processes each line, wrapping detected slang in brackets
 4. For terms/sentences: `translateText` checks local dictionary (sorted by length, longest first), then Urban Dictionary API
-5. Simultaneously, `useAiTranslation` sends the input to the Claude AI endpoint for contextual analysis
+5. Simultaneously, `useAiTranslation` sends the input to the LLM endpoint for contextual analysis
 6. Results rendered in a two-column layout: highlighted text + definitions (left), AI insight (right)
 
 ### Browse Flow
@@ -199,7 +199,7 @@ flowchart TD
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
 | Urban Dictionary API | Live slang lookups, trending words, daily automated ingestion | `https://api.urbandictionary.com/v0/` |
-| Claude AI (Anthropic) | Contextual slang analysis and cultural insights | `@anthropic-ai/sdk` via Vercel serverless |
+| Anthropic Claude (Haiku 4.5) | Contextual slang analysis and cultural insights | `@anthropic-ai/sdk` via Vercel serverless |
 | Firebase Auth | Google and Apple sign-in for community features | `firebase/auth` |
 | Firebase Firestore | Community submissions storage, voting, real-time sync | `firebase/firestore` |
 | Vercel KV | Server-side caching for API responses in production | `@vercel/kv` package |
@@ -216,7 +216,7 @@ flowchart TD
 
 ### Dual Translation Engine (Dictionary + AI)
 - **Context**: Local dictionary provides curated definitions but can't explain context, cultural nuances, or evolving usage
-- **Decision**: Run dictionary lookup and Claude AI translation in parallel for every decode request
+- **Decision**: Run dictionary lookup and an LLM translation in parallel for every decode request
 - **Rationale**: Dictionary results appear instantly (cached locally); AI results stream in shortly after, providing deeper cultural context. Users get the best of both worlds without waiting
 
 ### Firebase for Community Features
@@ -225,7 +225,7 @@ flowchart TD
 - **Rationale**: Firestore's `onSnapshot` provides real-time submission feeds without polling. Transactions ensure vote counts stay consistent. Firebase Auth handles OAuth complexity
 
 ### Multi-tier Caching Strategy
-- **Context**: Urban Dictionary API has rate limits; Claude API calls are expensive; need fast responses
+- **Context**: Urban Dictionary has tight rate limits; LLM calls are billed per token; the UI needs fast responses
 - **Decision**: Four cache layers: Vercel KV (server, production), in-memory Map (client runtime), localStorage (client persistent, 7-day TTL for popular words, 20-entry LRU for AI results)
 - **Rationale**: Minimizes API calls while keeping data reasonably fresh; graceful degradation if any layer is unavailable
 
@@ -235,6 +235,6 @@ flowchart TD
 - **Rationale**: PRs (not direct commits) keep a human in the loop. Scripts use `JSON.stringify()` for all UD content to prevent code injection, `--body-file` for shell safety, and atomic writes (tmp + rename) for corruption resistance
 
 ### Vite Dev Proxy for API Calls
-- **Context**: Urban Dictionary API doesn't support CORS from localhost; Claude API needs server-side keys
+- **Context**: Urban Dictionary doesn't support CORS from localhost, and the Anthropic API needs server-side keys
 - **Decision**: Proxy API calls through Vite's dev server during development; use Vercel serverless functions in production
 - **Rationale**: Same client-side code works in both environments; no CORS issues; API keys stay server-side

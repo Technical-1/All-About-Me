@@ -1,57 +1,43 @@
 # Tech Stack
 
-## Core
+## Core Technologies
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Next.js | 15 | App Router framework (server + client components) |
-| TypeScript | 5 | Type safety across API and components |
-| React | 19 | UI rendering |
-| Tailwind CSS | 4 | Utility-first styling with CSS variables |
+| Category | Technology | Version | Why this choice |
+|----------|------------|---------|-----------------|
+| Language | TypeScript | 5 | Type safety across API payloads and component props |
+| Framework | Next.js | 16.1 | App Router gives a clean server/client split for a tiny app |
+| Runtime | React | 19.2 | Comes with Next.js; server components keep the page render trivial |
+| Styling | Tailwind CSS | 4 | Utility-first; zero custom CSS files outside `globals.css` |
 
 ## Backend
 
-| Technology | Purpose |
-|-----------|---------|
-| Upstash Redis | KV storage for preview data (via `@upstash/redis`) |
-| Next.js API Routes | POST endpoint for receiving content |
-| Bearer Token Auth | Simple API key authentication |
+- **Runtime**: Node.js (Vercel serverless functions)
+- **API style**: Single POST endpoint (`/api/preview`) — no router, no framework on top
+- **Auth**: Bearer token compared against `PREVIEW_API_KEY` env var
+- **Storage**: Upstash Redis via `@upstash/redis` REST client
 
 ## Infrastructure
 
-| Technology | Purpose |
-|-----------|---------|
-| Vercel | Hosting (Hobby tier, free) |
-| Vercel KV Integration | Manages Upstash Redis connection |
-| GitHub | Source control (`Technical-1/Remote-Preview`) |
-
-## Testing
-
-| Technology | Purpose |
-|-----------|---------|
-| Vitest | Test runner with jsdom environment |
-| React Testing Library | Component testing |
-| @testing-library/jest-dom | DOM assertion matchers |
+- **Hosting**: Vercel (Hobby tier — free, single-region)
+- **Storage**: Upstash Redis (provisioned through Vercel KV integration)
+- **CI/CD**: Vercel's Git integration — push to `main`, auto-deploy
+- **Monitoring**: Vercel runtime logs; no separate APM
 
 ## Development Tools
 
-| Tool | Purpose |
-|------|---------|
-| ESLint | Linting (Next.js config) |
-| Claude Code | AI-assisted development |
-| Claude Skill | CLI-to-preview automation |
-| `jq` | JSON payload construction in skill |
+- **Package Manager**: npm
+- **Linting**: ESLint with `eslint-config-next`
+- **Testing**: Vitest with `jsdom` environment, React Testing Library
+- **JSON construction**: `jq -n` in the CLI skill (safe escaping for HTML/Markdown payloads)
 
 ## Key Dependencies
 
-```json
-{
-  "@upstash/redis": "KV storage client",
-  "next": "15.x - App Router framework",
-  "react": "19.x - UI library",
-  "tailwindcss": "4.x - CSS framework",
-  "vitest": "Test runner",
-  "@testing-library/react": "Component testing",
-  "@testing-library/jest-dom": "DOM matchers"
-}
-```
+| Package | Purpose |
+|---------|---------|
+| `@upstash/redis` | REST client for the Redis store; sets the single `current-preview` key with TTL |
+| `next` | App Router, server components, API route handler |
+| `marked` | Markdown → HTML conversion on the server |
+| `sanitize-html` | Strips dangerous tags/attributes from Markdown output before storage |
+| `react` / `react-dom` | UI rendering (server + client component split) |
+| `tailwindcss` | All styling outside the iframe-injected markdown CSS |
+| `vitest` + `@testing-library/react` | Unit and component tests (45 in total) |

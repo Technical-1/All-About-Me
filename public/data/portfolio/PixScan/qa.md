@@ -45,11 +45,31 @@ I designed the `processedPhotoIds` set to be filter-agnostic — tracked by uniq
 ### Comprehensive Test Suite
 I built 32 unit tests using Swift Testing (`@Test`, `#expect`) with `@Suite(.serialized)` to avoid UserDefaults race conditions. Tests cover model logic, persistence round-trips, onboarding data types (step progression, sample card configuration, flag preservation), view instantiation, and edge cases. The 25 UI tests use `XCTSkipUnless` to gracefully skip photo-dependent and onboarding-gated tests, while onboarding flow tests verify welcome screen elements, practice swipe prompts, feature highlights content, and permission screen layout.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting the swipe gesture thresholds right so all four directions feel distinct and intentional. The diagonal edge cases required careful tuning of offset comparisons. Refactoring a 1,561-line monolith into modular components while maintaining identical behavior was also a significant effort.
-- **Lessons Learned**: UserDefaults works well for small state, but with very large photo libraries (10,000+), the serialized ID set could grow. A migration path to SwiftData would be worth planning. Splitting code into separate files early prevents monolith accumulation.
-- **Future Plans**: Potential features include smart text categorization (receipts vs. documents vs. screenshots), iCloud sync for processed state across devices, photo tagging/albums integration, and SwiftData migration for persistence.
+### On-device OCR vs. cloud API
+- **Constraint**: Photos are sensitive data; the app needs to work offline and feel instant.
+- **Options**: Cloud OCR (Google Vision, AWS Textract) for higher accuracy; Apple Vision on-device; a hybrid mode.
+- **Choice**: Apple Vision exclusively, run on a `.userInitiated` background queue.
+- **Why**: Vision's accuracy with `.accurate` recognition and language correction is good enough for receipts, screenshots, and documents. Cloud APIs would add latency, network failure modes, an upload privacy surface, and ongoing cost — none of which the product needs.
+
+### UserDefaults vs. Core Data / SwiftData
+- **Constraint**: Persist three things across launches — processed photo IDs, OCR results, and a delete queue.
+- **Options**: Core Data, SwiftData, SQLite via GRDB, plain UserDefaults with JSON encoding.
+- **Choice**: UserDefaults storing a serialized `Set<String>`, JSON-encoded `Codable` `TextEntry` array, and an array of `localIdentifier` strings.
+- **Why**: All three structures are small and accessed as a whole, not queried. Skipping a database removes a schema-migration axis and keeps cold-start cost trivial. If a future library scales past ~10,000 processed IDs, SwiftData becomes the natural next step.
+
+### Four-direction swipe vs. buttons
+- **Constraint**: Triaging a large photo library needs to feel fast — a couple of seconds per photo, one-handed.
+- **Options**: Buttons under each photo; long-press menu; two-direction swipe with a separate OCR mode; four-direction swipe.
+- **Choice**: Four directions mapped to keep / delete / OCR+keep / OCR+delete, with double-tap to undo and long-press for full-screen.
+- **Why**: Buttons make every action a deliberate tap. Folding OCR into the swipe itself (up and down) means the user never needs a mode switch to extract text from a receipt. Double-tap undo covers the misfire case.
+
+### Single ViewModel vs. multiple
+- **Constraint**: One primary screen, several sheet-based sub-views (delete queue, OCR notes, full-screen viewer) that all share state.
+- **Options**: Per-sheet view models with a coordinator passing state; a single shared `ObservableObject`.
+- **Choice**: One `PhotoViewModel` injected as `@EnvironmentObject`.
+- **Why**: All sub-views read or mutate the same underlying photo array, processed set, and delete queue. Splitting would force synchronization plumbing for no architectural payoff at this scope.
 
 ## Frequently Asked Questions
 
@@ -80,5 +100,11 @@ The project follows MVVM with a single `PhotoViewModel` and 16 focused Swift fil
 ### How is the app tested?
 32 unit tests using Swift Testing validate model logic (persistence, selection, onboarding data types, view instantiation, safe subscripts, Codable round-trips). 25 UI tests using XCTest cover onboarding flow (welcome screen, practice prompts, feature highlights, permission screen), smoke scenarios (launch, initial state), and photo-dependent interactions (swipe gestures, long-press full-screen viewer, delete queue sheet, OCR notes sheet). Tests use `XCTSkipUnless` to skip gracefully when gated by onboarding or missing photos.
 
-### What would you improve?
-I'd add smart text categorization to automatically group extracted text by type (receipts, documents, screenshots). I'd also consider migrating persistence from UserDefaults to SwiftData for better scalability with very large photo libraries, and add Spotlight integration so extracted text is searchable system-wide.
+### What does the screenshot filter actually filter on?
+The toolbar menu switches `FilterMode` between `.allPhotos` and `.screenshots`, which only changes the `PHFetchOptions` predicate used by PhotoKit. The `processedPhotoIds` set is shared across both modes by design, so a photo you already swiped won't reappear when you toggle modes.
+
+### Why does pinch-to-zoom and pan work simultaneously in the full-screen viewer?
+`FullScreenPhotoView` composes `MagnifyGesture` and `DragGesture` with `.simultaneously()` so they update independently as the user moves their fingers — the same feel as the system Photos app. Pan offset is clamped against the current zoom scale so the image can't drift fully off-screen at any zoom level.
+
+### What gets prefetched on each swipe?
+On every index change, `ContentView` asks `PHCachingImageManager` to start caching the next three `PHAsset`s at the card's display size. That makes the next several swipes feel instant even on a library with several thousand photos, without holding the entire library in memory.

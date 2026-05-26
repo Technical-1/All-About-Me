@@ -41,16 +41,34 @@ Most clipboard managers compare content to decide whether to clear. This require
 ### Comprehensive Test Coverage
 167 backend tests across three categories: 109 unit tests covering encryption round-trips, CSV parsing, validation, and security audit coverage; 17 command tests verifying the Tauri IPC layer; and 41 integration tests for full workflows including import/export, security features, and cross-module security verification.
 
-### Three-Round Security Audit
-The codebase has been through three progressive security audit rounds: initial hardening (20 issues), IPC boundary audit (7 issues with 48 dedicated tests), and a deep 4-agent parallel audit covering crypto, IPC, memory safety, and frontend isolation (21 findings). The deep audit confirmed the core crypto primitives and frontend isolation are excellent, with remaining findings focused on memory lifecycle hardening and defense-in-depth improvements.
+### Defense in Depth Across the IPC Boundary
+The most realistic attack surface for a web-frontend desktop app is the webview itself. QuickPass treats the IPC layer as the trust boundary: rate-limited password reveal commands (5 per 10-second sliding window in `commands/vault_commands.rs`), length-bounded string inputs on every command, fail-secure canonicalization on USB exports, and capability-gated webview permissions in `src-tauri/capabilities/`. A compromised webview can still copy a single password (because the user is logged in), but it cannot exfiltrate the vault in bulk or pivot to file system writes outside the configured locations.
 
-## Development Story
+## Engineering Decisions
 
-- **Architecture Evolution**: Started as pure Rust (eframe/egui), migrated to Tauri v2 + React for richer UI capabilities
-- **Hardest Part**: Designing the IPC boundary to be both secure (no password leaks) and ergonomic (49 commands with typed wrappers and Zod validation)
-- **Security Hardening**: Three audit rounds covering 48+ issues — initial hardening (CSP, timing-safe comparisons, memory zeroization, devtools), IPC boundary audit (rate limiting, input validation, USB auth), and deep crypto/memory/frontend audit
-- **Lessons Learned**: The IPC boundary between Rust and TypeScript is both the biggest security advantage and the biggest development overhead — no shared type generation means manual synchronization between Rust structs and Zod schemas
-- **Future Plans**: Auto-updater (plugin wired, needs signing keys), browser extension, local network sync
+### Tauri v2 over Electron
+- **Constraint**: Needed a cross-platform desktop shell that does not hold sensitive material in a runtime where memory clearing is unreliable.
+- **Options**: Electron + Node.js, Tauri v2 + Rust, native per-platform (Swift / WinUI / GTK).
+- **Choice**: Tauri v2 with a Rust core.
+- **Why**: Rust's `zeroize` provides compiler-resistant memory clearing for vault keys and decrypted entries — something Node.js fundamentally cannot offer. The OS-webview model also drops binary size from ~150 MB (Electron) to ~15 MB and removes the Node runtime from the production attack surface.
+
+### Dual-key vault encryption instead of one-of-two storage
+- **Constraint**: Users wanted both a password unlock and a visual pattern unlock, but I refused to store either credential or any reversible form of one.
+- **Options**: Store both credentials encrypted, derive a shared key from a combiner, or encrypt the vault key separately under both.
+- **Choice**: Generate a random 32-byte vault key, then encrypt that key twice — once under the password-derived Argon2id key and once under the pattern-derived Argon2id key.
+- **Why**: Changing one credential only requires re-encrypting the 32-byte key, not the whole vault. Either credential decrypts independently. Compromising one Argon2id hash gives no information about the other, and the vault key itself never touches disk in plaintext.
+
+### Zod validation at the IPC boundary instead of `as` casts
+- **Constraint**: Tauri's `invoke()` returns `unknown`, and there is no shared type generation between the Rust `serde` structs and the TypeScript interfaces.
+- **Options**: Trust the Rust side and cast, hand-write type guards, or use a schema validator.
+- **Choice**: Zod schemas in `src/lib/schemas.ts` validate every IPC response inside a `safeInvoke()` wrapper before any frontend code touches the value.
+- **Why**: Drift between a Rust struct and a TypeScript interface becomes a loud runtime error at the boundary instead of a silent `undefined` deeper in a component. The cost is duplication, but for a security tool the boundary check is worth it.
+
+### Token-based clipboard clear instead of content comparison
+- **Constraint**: After the auto-clear timeout, I want to wipe the copied password from the clipboard — but only if it is still mine to wipe.
+- **Options**: Re-read the clipboard and compare to the stored password, or track ownership with a token.
+- **Choice**: Each copy operation generates a unique token; when the timer fires, the backend clears the clipboard only if the current in-process token still matches.
+- **Why**: The comparison approach requires reading the clipboard back, which itself exposes whatever the user has copied since (potentially from another app). Token-based ownership avoids ever reading clipboard contents back into QuickPass.
 
 ## Frequently Asked Questions
 
@@ -85,4 +103,4 @@ Not automatically — this is intentional to avoid cloud dependencies. USB expor
 It's an entropy collection mechanism. User interaction timing and move sequences feed into password generation, supplementing the system's ChaCha20 RNG. It's optional but adds user-contributed randomness for those who want it.
 
 ### How do I verify the security of this implementation?
-The codebase is open source with clear module separation. Critical security code is isolated in `vault.rs` and `security.rs` for easy auditing. All cryptographic choices, security hardening measures, and architectural decisions are documented. The project has undergone three progressive security audit rounds with detailed tracking documents (`SECURITY_HARDENING.md`, `SECURITY_AUDIT_FIXES.md`), covering crypto primitives, IPC boundary security, memory safety, and frontend isolation. 167 backend tests provide regression coverage for all identified issues.
+The codebase is open source with clear module separation. Critical security code is isolated in `src-tauri/src/vault.rs` (AES-256-GCM + dual-key encryption) and `src-tauri/src/security.rs` (Argon2id parameters), so a reviewer can audit the primitives without reading the whole codebase. The 167 backend tests in `src-tauri/tests/` include round-trip encryption checks, timing-safe comparison verification, lockout state machine coverage, and cross-module security regressions, so any regression on a hardened path fails CI before release.

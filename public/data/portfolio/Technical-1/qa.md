@@ -20,10 +20,10 @@ My dynamic GitHub profile README — the special `Technical-1/Technical-1` repo 
 The languages widget is a single 850×255 SVG with two coordinated panels. The left panel renders a contributions-per-month sparkline using 12 vertical `<rect>` elements scaled to the busiest month, with GitHub's lighter contribution-graph green. The right panel renders up to 10 language rows using monospaced text `<tspan>` elements: dot leader, language name (padded to 14 chars), Unicode-block bar (max 20 blocks, scaled relative to the top non-Other language), abbreviated LOC count, and percentage. Sub-1% percentages display with one decimal so micro-languages don't show as `0%`. The entire widget is regenerated from sidecar caches each run.
 
 ### SKIP-Cache for Persistent GraphQL Failures
-A single problematic repo (8.6M LOC, decade of history) had been causing the workflow to fail for five weeks straight before this fix. Retries didn't help — the GitHub backend was timing out at the same point every time. The solution: after five retries on persistent 502s OR `200`-with-empty-JSON-body responses, `recursive_loc()` returns a `'SKIP'` sentinel instead of raising. `cache_builder` then writes the cache row with the live commit `totalCount` but **preserves the prior LOC values**, so the row looks "fresh" on the next run and `recursive_loc` isn't called again until the repo gets new commits. Self-healing without a hardcoded denylist.
+A single large repo (8.6M LOC, decade of history) reliably triggered GitHub backend timeouts during commit-history pagination — retries didn't help, the backend hit the same wall every time. The solution: after five retries on persistent 502s OR `200`-with-empty-JSON-body responses, `recursive_loc()` returns a `'SKIP'` sentinel instead of raising. `cache_builder` then writes the cache row with the live commit `totalCount` but **preserves the prior LOC values**, so the row looks "fresh" on the next run and `recursive_loc` isn't called again until the repo gets new commits. Self-healing without a hardcoded denylist.
 
 ### Parent-Aware Fork Deduplication
-Querying with `OWNER + COLLABORATOR + ORGANIZATION_MEMBER` affiliations returned both an original repo I collaborate on AND a fork of that same repo that I own. The same commits got counted twice — inflating LOC by ~8.6M (a single Go repo with massive history doubled). The fix: query `isFork` and `parent.nameWithOwner` per repo, then drop any fork whose parent is also in the user's edge list. Forks of unrelated upstream projects still count (their commits aren't anywhere else). The same filter applies to the repo count widget so all metrics stay consistent.
+Querying with `OWNER + COLLABORATOR + ORGANIZATION_MEMBER` affiliations returned both an original repo I collaborate on AND a fork of that same repo that I own. The same commits got counted twice — inflating LOC by millions when a large repo with massive history doubled up. The fix: query `isFork` and `parent.nameWithOwner` per repo, then drop any fork whose parent is also in the user's edge list. Forks of unrelated upstream projects still count (their commits aren't anywhere else). The same filter applies to the repo count widget so all metrics stay consistent.
 
 ### Hash-Based LOC Cache with Smart Invalidation
 Counting LOC across 100+ repos requires paginating per-commit history (50 commits per GraphQL request). The cache stores one row per repo keyed by `sha256(nameWithOwner)`: commit count, user-authored commits, additions, deletions. Each run, the script compares the live `totalCount` against the cached count — if equal, the expensive per-commit re-count is skipped. `flush_cache` was upgraded to preserve LOC values by hash when the edge list shrinks (e.g., when the fork filter activates), so cache invalidation doesn't wipe data we already paid to compute.
@@ -31,13 +31,25 @@ Counting LOC across 100+ repos requires paginating per-commit history (50 commit
 ### Contribution Metric Choice
 GitHub's API offers two seemingly similar fields: `totalCommitContributions` (commit-only, undercounts OSS work) and `contributionCalendar.contributionCount` (commits + PRs + issues + reviews, matches the green graph on the user's profile). The widget uses `contributionCalendar` and labels itself "Contributions" rather than "Commits" — accurate naming for the broader metric, and the sparkline visually matches what visitors see on the profile graph (~3,800/yr).
 
-## Development Story
+## Engineering Decisions
 
-- **Origin**: Adapted from Andrew Grant's (`Andrew6rant`) dynamic GitHub profile README template, originally built on `jstrieb/github-stats`
-- **The CI crisis**: The README build action was failing daily for 5+ weeks before being addressed. A single repo's commit-history pagination was reliably triggering GraphQL 502s, killing the whole pipeline. The fix walked through: add retry logic → realize retries weren't enough → SKIP-cache the failure → preserve LOC values on SKIP → catch `200`-with-empty-body as the same failure mode → discover and fix fork double-counting → align repo count widget with the same filter
-- **Building the languages widget**: Started as a standalone SVG with ASCII art duplicated from the existing stats widget. Iterated through: full-width chart without ASCII → split-panel with new graphic on left → commits sparkline on left (with green bars) → lighter mint green for the bars → metric switch from `totalCommitContributions` to `contributionCalendar` (after a discrepancy was spotted between the widget total and GitHub's own profile graph) → expand from 6 to 10 languages → fix sub-1% percentages reading as `0%`
-- **Hardest part**: Distinguishing between three legitimate "commit" metrics — commit_counter's cache-derived all-time count (3,356), totalCommitContributions's owned-repos-only count (653 last 12mo), and contributionCalendar's all-types count (~3,860 last 12mo) — and labeling each accurately
-- **Lessons learned**: GitHub's GraphQL has multiple subtly-different fields for "the same" concept (contributions/commits/contribution-count). The documentation is precise but easy to misread. When numbers don't match across views, the metric definition is almost always the culprit, not a code bug.
+### `contributionCalendar` over `totalCommitContributions`
+- **Constraint**: GitHub exposes multiple "commit-like" metrics with subtly different definitions. `totalCommitContributions` undercounts OSS work because it only includes commits to repos the user owns or has explicit access to.
+- **Options**: `totalCommitContributions` (commit-only), monthly windowed queries, or `contributionCalendar.contributionCount` (commits + PRs + issues + reviews).
+- **Choice**: A single `contributionCalendar` yearly query, summed by month locally.
+- **Why**: One API call instead of twelve, and the number matches the green graph on the GitHub profile exactly — so visitors don't see a discrepancy between the widget and the official profile view.
+
+### SKIP-cache over hardcoded denylist
+- **Constraint**: One large repo with a decade of history consistently triggered GitHub backend timeouts on commit-history pagination. Retries alone didn't help — the same point in pagination failed every run.
+- **Options**: Hardcode a denylist of problematic repos, drop LOC tracking entirely, or build a self-healing fallback.
+- **Choice**: After 5 retries on persistent gateway errors or empty-body responses, return a `'SKIP'` sentinel; preserve prior LOC values in the cache so the row looks "fresh" until the repo gets new commits.
+- **Why**: Self-healing without manual intervention. If GitHub recovers or the repo gets a push, the row invalidates and a fresh attempt happens naturally — no code change required.
+
+### Parent-aware fork filtering vs. affiliation filtering
+- **Constraint**: Querying with `OWNER + COLLABORATOR + ORGANIZATION_MEMBER` affiliations sometimes returned both an upstream repo and the user's fork of it, causing the same commits to be counted twice.
+- **Options**: Drop the COLLABORATOR affiliation (loses real contributions), drop all forks (loses legitimate work on forks of upstream projects), or filter parent-aware.
+- **Choice**: Query `isFork` and `parent.nameWithOwner` per repo, then drop only forks whose parent is also in the user's edge list.
+- **Why**: Honest LOC count without losing legitimate fork contributions. Forks of unrelated upstream projects still count because their commits live nowhere else.
 
 ## Frequently Asked Questions
 
@@ -72,5 +84,8 @@ First version: `totalCommitContributions` × 12 monthly windows (commit-only met
 ### What's the cache-buster `?v=N` in the README image URLs for?
 GitHub proxies SVG images through `camo.githubusercontent.com` and caches them aggressively. When the SVG file content changes but the URL stays the same, the proxy serves stale content for minutes. Appending `?v=N` and bumping N on layout changes forces the proxy to treat it as a new URL and fetch fresh.
 
-### What was the development timeline?
-The original profile README (adapted from Andrew Grant's template) existed for months before this session. The CI fixing + languages widget were built in a single intense iteration: ~22 commits, ~3 hours of work, from "actions broken for 5 weeks" to "custom split-panel widget showing 10 languages and 12 months of contributions, matching GitHub's profile graph exactly."
+### How long does a typical workflow run take?
+About 1.5 minutes for ~30 GraphQL calls on a typical day, thanks to the per-repo LOC cache only re-querying repos whose `totalCount` changed. A cold run with no cache takes closer to 10 minutes across 100+ repos.
+
+### Where did the design come from?
+The stats-widget structure is adapted from Andrew Grant's (`Andrew6rant`) dynamic GitHub profile README template, which is itself built on `jstrieb/github-stats`. The split-panel languages widget, the SKIP-cache resilience layer, the parent-aware fork filter, and the OG preview pipeline are this profile's own additions.

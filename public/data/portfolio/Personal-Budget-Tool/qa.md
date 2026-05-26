@@ -24,12 +24,27 @@ Rather than using Zustand's built-in `persist` middleware (which serializes the 
 ### Client-Side AI Integration
 The AI budget import calls the Anthropic Claude API directly from the browser — no proxy server needed. The user provides their own API key (stored locally in IndexedDB), and images are sent as base64 for parsing. Claude returns structured JSON that gets validated against a Zod schema, then either smart-merged into existing categories (matching by keyword lists) or used as a full replacement.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting the budget period logic right. Edge cases around month boundaries, bills due before the first paycheck, and handling multiple occurrence frequencies (weekly items that span paycheck boundaries) required careful thought. The `isItemInBudgetPeriod` and `expandItemOccurrences` functions went through many iterations.
-- **Lessons Learned**: Starting with localStorage was fine for prototyping but quickly hit limits with structured data. The migration to IndexedDB was worth doing early. Also, CSS custom properties for theming turned out to be much simpler than any CSS-in-JS solution would have been.
-- **Production Hardening**: A comprehensive audit identified 20+ issues across stores, hooks, and components. All were fixed in 10 batched commits covering null guards, Zod import validation, date parsing bugs, RFC 5545 calendar compliance, accessibility (ARIA roles, viewport zoom), error handling, and bundle optimization (lazy-loaded jsPDF). Added Vitest with 79 tests and a GitHub Actions CI pipeline.
-- **Future Plans**: The Goals feature is partially implemented but hidden from navigation — it needs more work on the UI and integration with the main budget flow. Notification reminders are wired up but could be more sophisticated.
+### localStorage to IndexedDB
+- **Constraint**: Monthly tracking data is a nested map keyed by year-month, with paychecks, expense overrides, and card assignments per period. localStorage's 5-10 MB cap and string-only API meant constant JSON serialization for every read.
+- **Options**: Stick with localStorage and accept slower reads; adopt IndexedDB with object stores per concern; pull in a heavier library like Dexie.
+- **Choice**: IndexedDB via `idb` with 12 object stores (one per concern: budget template, monthly tracking, paychecks, cards, goals, settings, etc.).
+- **Why**: Structured storage means partial reads, larger quotas, and indexed lookups. `idb` is a thin Promise wrapper, so the surface area stays small. `db.js` handles migration from the original localStorage layout on first load.
+
+### Reactive persistence without `persist` middleware
+- **Constraint**: Different state slices need different write semantics — the budget template can debounce, drag-and-drop card assignments need immediate writes, and the migration path requires fine-grained control.
+- **Options**: Zustand's built-in `persist` middleware (serializes the whole store on every change); a custom hook with per-slice watchers.
+- **Choice**: Custom `usePersistence` hook with individual `useEffect` watchers per slice.
+- **Why**: Avoids re-serializing unrelated data on every keystroke. Lets some actions bypass the watcher and write directly to IndexedDB. Keeps the localStorage-to-IndexedDB migration logic colocated with the load path.
+
+### Quality and reliability
+The codebase enforces null safety throughout the calculations layer, validates all imported budgets against Zod schemas before mutating state, and generates RFC 5545-compliant ICS files (validated against Apple Calendar, Google Calendar, and Outlook). Date parsing uses local-time helpers to avoid the off-by-one bugs that come from naive `new Date(string)` usage. The bundle lazy-loads jsPDF so the PDF export path doesn't bloat the initial download. Vitest covers the formatters, schemas, calendar export, and store reducers, and the CI pipeline runs on Node 20 and 22 to catch version drift.
+
+## Roadmap
+
+- Goals view: the data model and store are in place; the UI is hidden from navigation until the editor and progress visualizations are finished.
+- Notification reminders: bill reminders work via the Web Notifications API, with room to add smarter scheduling (e.g., only notify for the next paycheck's bills).
 
 ## Frequently Asked Questions
 

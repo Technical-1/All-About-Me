@@ -49,12 +49,31 @@ Coordinating theme state between an inline script (needed to prevent flash), Rea
 ### Streaming Responses
 Both local and cloud modes stream responses token-by-token for a responsive feel. The cloud API uses Server-Sent Events while WebLLM uses async iteration over the completion stream.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Built over several weeks, iterating on the AI chat experience
-- **Hardest Part**: Getting the RAG system to return accurate results. Pure embedding similarity missed obvious matches, requiring the hybrid keyword-boosting approach.
-- **Lessons Learned**: WebLLM is impressive but requires significant device resources. The cloud fallback ensures a good experience for everyone.
-- **Future Plans**: Add more project documentation, improve chat response quality, potentially add voice input.
+### Hybrid local + cloud chat over single-mode
+- **Constraint**: Want a privacy-first chat experience but not at the cost of users on older devices losing the feature entirely.
+- **Options**: Cloud-only (Claude API); local-only (WebLLM, but ~30% of visitors lack WebGPU); hybrid with feature detection.
+- **Choice**: Detect WebGPU support; serve WebLLM locally when available, fall back to Claude API otherwise. Both paths share the same RAG layer and streaming UX.
+- **Why**: No visitor is locked out, and the people who can run it locally get true privacy. The cloud fallback also covers the warmup gap while the 1.7GB WebLLM model downloads on first visit.
+
+### Hybrid semantic + keyword search over pure vector similarity
+- **Constraint**: A visitor typing "Tell me about AHSR" should reliably retrieve the AHSR project even when its embedding is closer to a different project's vector.
+- **Options**: Pure cosine similarity on MiniLM-L6-v2 embeddings; BM25 keyword search; hybrid scoring.
+- **Choice**: Cosine similarity over chunked portfolio docs, with a multiplicative boost when query terms appear verbatim in the chunk.
+- **Why**: Project names are nearly always typed literally, so verbatim hits should dominate ranking even when the embedding doesn't agree.
+
+### Astro islands over a full SPA framework
+- **Constraint**: Most of the site is static content (experience, projects, blog) but the chat and project cards need React-level interactivity.
+- **Options**: Next.js, Remix, plain HTML+vanilla JS, Astro.
+- **Choice**: Astro with `client:load`/`client:only="react"` for the islands that need hydration.
+- **Why**: Zero JS on pages that don't need it (fast LCP, good Core Web Vitals); React is still available where it matters; one build pipeline.
+
+### Build-time embeddings over runtime indexing
+- **Constraint**: RAG search needs to be fast (<100ms) without burning compute on every visit.
+- **Options**: Index portfolio docs at request time; cache an in-memory index; bake embeddings at build time.
+- **Choice**: `scripts/generate-embeddings.ts` runs before `astro build` and writes `public/data/rag/embeddings.json`. The runtime only embeds the user's query.
+- **Why**: Embeddings of the portfolio docs are deterministic per build, so there's no reason to recompute them per request. Updates ship with the next deploy.
 
 ## Frequently Asked Questions
 

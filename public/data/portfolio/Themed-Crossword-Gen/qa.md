@@ -1,61 +1,104 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-Themed Crossword Generator is a full-stack web app that creates custom crossword puzzles on any topic using AI. I enter a theme like "Space Exploration" or "Italian Cuisine," and Claude AI generates themed words with clever clues, which are then arranged into a playable crossword grid. The app includes a complete solving experience with checker mode, hints, statistics tracking, and social sharing — all wrapped in a PWA that works offline.
+Themed Crossword Generator is a full-stack web app that creates custom crossword puzzles on any topic. The user enters a theme like "Space Exploration" or "Italian Cuisine," an LLM generates themed words with clever clues, and a layout algorithm arranges them into a playable grid. The app includes a complete solving experience with checker mode, hints, statistics tracking, and social sharing — all wrapped in a PWA that works offline.
+
+## Problem Solved
+
+Mass-market crosswords cycle through a narrow set of editor-approved themes. Players who want puzzles about niche topics — a favourite show, a hobby, a sport — usually can't find them. This app turns any topic into a playable puzzle in seconds, with the difficulty and grid size the player wants.
+
+## Target Users
+
+- **Casual crossword solvers** — Get a fresh themed puzzle without waiting for a daily release
+- **Educators and parents** — Generate puzzles on a subject the student is studying
+- **Trivia enthusiasts** — Build puzzles around their favourite domain knowledge
 
 ## Key Features
 
-- **AI-Powered Puzzle Generation**: Claude API generates themed word lists with clues, then a layout algorithm arranges them into valid crossword grids with up to 3 retry attempts
-- **Interactive Crossword Grid**: SVG-based grid with full keyboard navigation, auto-advance to next clue, and mobile-optimized clue bar
-- **Checker Mode**: Real-time answer validation that tracks SVG text elements using a greedy distance-based algorithm to color-code correct (blue) and incorrect (red) answers
-- **Statistics & Streaks**: Tracks completion streaks (daily), best/average times per difficulty, and puzzle history (up to 50 puzzles, 500 completion records)
-- **Puzzle Sharing**: Compresses puzzle data with lz-string and encodes it in the URL — recipients can play the exact same puzzle without an API call
-- **Offline PWA**: 75 pre-generated puzzles (5 per theme across 15 themes) cached by a service worker for fully offline play
-- **Accessibility**: High contrast themes, reduced motion support, adjustable text sizes, screen reader announcements, and full keyboard navigation
+### Themed Puzzle Generation
+Anthropic Claude (Sonnet 4) produces a JSON list of `{answer, clue}` pairs for the requested theme. A layout algorithm then arranges them into a valid grid, retrying up to 3 times if it can't find enough intersections.
+
+### Interactive Crossword Grid
+SVG-based grid with full keyboard navigation, auto-advance to the next clue, and a mobile-optimised clue bar.
+
+### Checker Mode
+Real-time answer validation that tracks SVG text elements using a greedy distance-based algorithm to colour-code correct (blue) and incorrect (red) cells.
+
+### Statistics and Streaks
+Tracks completion streaks (daily), best and average times per difficulty, and the last 50 puzzles (up to 500 completion records).
+
+### URL-Encoded Puzzle Sharing
+The entire puzzle is compressed with `lz-string` and encoded into a `?p=` query parameter. Recipients can play the exact same puzzle without an API call.
+
+### Offline PWA
+75 pre-generated puzzles (5 per theme across 15 themes) are bundled and cached by a service worker for fully offline play.
+
+### Accessibility
+High-contrast themes, reduced-motion support, adjustable text sizes, screen-reader announcements, and full keyboard navigation.
 
 ## Technical Highlights
 
-### SVG DOM Manipulation for Checker Mode
-The crossword library (`@jaredreisinger/react-crossword`) doesn't expose an API for styling individual cells. I had to scan the SVG DOM to find text elements, then match them to logical grid positions using a greedy distance-based algorithm that ensures one-to-one element-to-cell mapping. Correct answers are locked in place and colored blue; incorrect ones turn red. This was the most complex frontend challenge — working around a third-party library's rendering without forking it.
+### SVG DOM tracking for the checker
+`@jaredreisinger/react-crossword` does not expose an API for styling individual cells. To paint correct/incorrect colours, the component scans the rendered SVG for `<text>` elements and matches each to a logical grid position with a greedy nearest-neighbour algorithm. Correct cells are locked (cannot be erased) and turn blue; incorrect cells turn red. This avoids forking the third-party library while still giving cell-level feedback. See `src/components/CrosswordGame.tsx`.
 
-### Prompt Engineering for Consistent Output
-Getting Claude to reliably produce valid JSON word lists required careful prompt design. I use XML tag sandboxing (`<theme>...</theme>`) to prevent prompt injection through user-supplied themes, strip non-printable characters, and extract JSON from the response using regex since Claude sometimes wraps output in markdown code blocks. The system requests extra words (wordCount + 5) to account for layout failures.
+### Sandboxed LLM prompt with JSON extraction
+User-supplied themes are wrapped in XML tags (`<theme>...</theme>`) and stripped of non-printable characters before being sent to the model. The response is parsed with a regex that tolerates the model occasionally wrapping the JSON in a Markdown code block. The request asks for `wordCount + 5` words so the layout engine has extra options when the first arrangement fails. See `lib/crossword-generator.ts`.
 
-### Resilient API Architecture
-The generation pipeline has multiple resilience layers: exponential backoff retry (1s → 2s → 4s), error categorization (network/verification/generation/generic), AbortController for cancelling stale requests, and automatic fallback to offline puzzles after max retries. Turnstile verification uses a "fail open" strategy so Cloudflare outages don't block all users.
+### Resilient generation pipeline
+The end-to-end generation path has multiple resilience layers: exponential backoff retry (1s → 2s → 4s, max 3 attempts), error categorisation (`network` / `verification` / `generation` / `generic`), `AbortController` for cancelling stale requests, and automatic fallback to a pre-generated offline puzzle when retries are exhausted. Turnstile verification uses a fail-open strategy so a Cloudflare outage doesn't take the whole site down.
 
-### URL-Based Puzzle Sharing Without a Database
-Instead of storing shared puzzles in a database, I compress the entire puzzle data (grid, clues, answers) with lz-string and encode it as a URL query parameter. This means shared puzzles require zero backend storage, work indefinitely, and load instantly. The trade-off is longer URLs, but they stay well within browser limits.
+### Database-free puzzle sharing
+Completed puzzles are serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. The recipient's app detects the parameter on mount and renders the puzzle directly. No backend storage, no expiring links, no API call.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: The checker mode implementation — mapping SVG DOM elements to logical grid positions required understanding how `@jaredreisinger/react-crossword` renders internally, and building a distance-based matching algorithm that handles edge cases like overlapping cells
-- **Lessons Learned**: React state is async, so using local variables alongside setState is necessary when you need synchronous reads in finally blocks. Also, `hash & hash` is a no-op in JS — you need `hash |= 0` for 32-bit coercion.
-- **Future Plans**: Multiplayer mode for competitive solving, custom puzzle editor, and daily puzzle challenges
+### State-based routing instead of React Router
+- **Constraint**: Only three views (selector, game, history); no need for deep linking beyond the share URL
+- **Options**: `react-router`, TanStack Router, or a simple state variable
+- **Choice**: A single `currentView` state plus conditional rendering with Framer Motion `AnimatePresence`
+- **Why**: Pulling in a router would have added a dependency, bundle size, and configuration for no real benefit at this scale.
+
+### localStorage for all persistence
+- **Constraint**: Puzzle history, stats, settings, and in-progress game state all need to survive reloads
+- **Options**: A hosted database (Supabase, Firebase), IndexedDB, or localStorage
+- **Choice**: localStorage, with capped record counts (50 puzzles, 500 completions)
+- **Why**: Zero infrastructure cost, synchronous reads, works offline. The trade-off — data is device-local and capped near 5 MB — is acceptable for a solo solving experience.
+
+### Shared generator library between dev server and serverless function
+- **Constraint**: The same generation logic has to run inside an Express dev server and a Vercel serverless function
+- **Options**: Duplicate the code, share a JS file, or build a small internal package
+- **Choice**: Extract to `lib/crossword-generator.ts` and import it from both entry points
+- **Why**: Keeps dev/prod behaviour identical without the overhead of publishing a package. The serverless function is a thin wrapper around the shared module.
+
+### Fail-open Turnstile verification
+- **Constraint**: Cloudflare's verification endpoint can be briefly unreachable
+- **Options**: Block all requests on verification failure, or allow them through and log
+- **Choice**: Fail-open — if the verification call itself errors (network failure, not a rejected token), the request is allowed and logged
+- **Why**: A short Cloudflare outage shouldn't break the app for legitimate users. A rejected token is still treated as a failure; only unreachable verification falls through.
 
 ## Frequently Asked Questions
 
-### How does the AI generate puzzles?
-The app sends a structured prompt to Claude Sonnet 4 with the user's theme, difficulty level, and word count. Claude returns a JSON array of word/clue pairs. These are then fed into the `crossword-layout-generator` algorithm, which arranges them into a valid grid. If the layout fails (not enough intersections), it retries up to 3 times.
+### How are the words and clues generated?
+The serverless function sends a structured request to Anthropic Claude (Sonnet 4) with the user's theme, difficulty, and word count. The model returns a JSON array of `{answer, clue}` pairs, which `crossword-layout-generator` then arranges into a valid grid. If the layout fails (not enough intersections), the pipeline retries up to 3 times before falling back to an offline puzzle.
 
-### Why did you choose React + Vite over Next.js?
-The app is fundamentally a client-side SPA — all state is in the browser (localStorage), there's no SEO requirement for puzzle pages, and the only server-side logic is a single API endpoint. Vite + React gives faster dev builds and simpler deployment. The API runs as a Vercel serverless function, which doesn't need a full framework.
+### Why React + Vite instead of Next.js?
+The app is fundamentally a client-side SPA — all state lives in the browser, there is no SEO requirement for puzzle pages, and the only server-side code is a single API endpoint. Vite gives faster dev builds and simpler deployment, and the one API route runs perfectly well as a standalone Vercel function.
 
 ### How does the app work offline?
-A service worker (`sw.js`) caches all static assets on install and 75 pre-generated puzzles spanning 15 themes. When the network is unavailable, the app detects this via `useOfflineDetection` and falls back to serving cached puzzles. The generation flow also automatically falls back to offline puzzles after exhausting retries.
+A service worker (`public/sw.js`) caches the static assets and 75 pre-generated puzzles on install. When the network is unavailable, `useOfflineDetection` triggers the offline path and the app serves cached puzzles. The generation flow also auto-falls back to offline puzzles after exhausting retries.
 
-### How does puzzle sharing work without a backend database?
-The entire puzzle (grid layout, clues, answers) is serialized to JSON, compressed with lz-string, and appended as a `?p=` query parameter. When someone opens the link, the app detects the parameter, decompresses the data, and renders the puzzle directly — no API call needed. This keeps the architecture simple and means shared links never expire.
+### How does puzzle sharing work without a database?
+The entire puzzle (grid layout, clues, answers) is serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. On open, the app detects the parameter, decompresses it, and renders the puzzle directly. Shared links never expire and never hit the API.
 
-### What prevents abuse of the AI API?
-Cloudflare Turnstile provides invisible bot protection. The frontend gets a token from Turnstile's widget, sends it with the generation request, and the serverless function verifies it with Cloudflare before calling Claude. The dev server skips this for faster iteration. If Cloudflare is unreachable, the system fails open (allows the request) to avoid blocking legitimate users during outages.
+### What stops people from abusing the LLM endpoint?
+Cloudflare Turnstile sits in front of the generation request as an invisible captcha. The serverless function verifies the token before calling the model. The Anthropic API key is only ever read server-side — the client never sees it. In development the verification step is skipped for faster iteration.
 
-### How does checker mode know which cells are correct?
-When checker mode is activated, the component scans the crossword SVG for text elements and maps each to a grid position using a greedy distance algorithm. It then compares each cell's current value against the known answer. Correct cells turn blue and become locked (can't be erased). Incorrect cells turn red. The algorithm ensures a strict one-to-one mapping between SVG elements and grid cells.
+### How does checker mode decide which cells are correct?
+When checker mode activates, the component walks the crossword SVG, maps each `<text>` element to a grid position with a greedy distance algorithm, and compares the cell's current value against the known answer. Correct cells turn blue and lock; incorrect cells turn red. The mapping is strict one-to-one to avoid double-colouring overlapping cells.
 
 ### What accessibility features are included?
-The app supports 4 theme variants (light, dark, high contrast light, high contrast dark), adjustable text sizes (normal/large/larger), reduced motion mode that respects both manual toggle and `prefers-reduced-motion`, screen reader announcements for checker mode results and clue changes, keyboard navigation throughout, and ARIA attributes on all interactive elements.
+Four theme variants (light, dark, high-contrast light, high-contrast dark); text-size options (normal/large/larger); reduced-motion mode that honours both the manual toggle and `prefers-reduced-motion`; screen-reader announcements for checker results and clue changes; full keyboard navigation; and ARIA attributes on every interactive element.
 
 ### How is the theme system implemented?
-All colors are defined as CSS custom properties (`--color-*`) in `src/index.css`. Themes are activated by toggling CSS classes and data attributes on `document.documentElement`. This approach means theme switching is instant (no re-render), works with Tailwind's utility classes, and is easily extensible.
+All colours are CSS custom properties (`--color-*`) in `src/index.css`. Themes toggle by setting classes and data attributes on `document.documentElement`. Switching is instant (no re-render), composes cleanly with Tailwind utility classes, and is trivial to extend.

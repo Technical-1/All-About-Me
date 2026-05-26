@@ -150,12 +150,12 @@ flowchart TD
 - **Rationale**: Reduces a full run from ~10 minutes / 100+ calls to ~1.5 minutes / 30 calls on typical days.
 
 ### SKIP-Cache for Persistent GraphQL Failures
-- **Context**: One large repo (`AkshayAshok2/property-probe`, 8.6M LOC) consistently triggered GitHub backend timeouts (502s) for its commit-history pagination. Retries didn't help; the repo would fail the same way every day.
+- **Context**: One large repo (~8.6M LOC, a decade of commit history) consistently triggered GitHub backend timeouts (502s) on its commit-history pagination. Retries didn't help — the backend hit the same wall every time.
 - **Decision**: After 5 retries on persistent gateway errors OR `200`-with-empty-body, return a `'SKIP'` sentinel. `cache_builder` writes the row with the live `totalCount` but **keeps the prior LOC values**, so the row appears "fresh" next run and `recursive_loc` isn't called again until the repo gets new commits.
-- **Rationale**: Treats each problematic repo as a one-time ~93s cost (the retries), then ~0s for every subsequent run. Self-healing: if GitHub recovers OR the repo gets pushed to, the row invalidates and a fresh attempt happens. Prevents the 5-week failure cascade that this fix resolved.
+- **Rationale**: Treats each problematic repo as a one-time ~93s cost (the retries), then ~0s for every subsequent run. Self-healing: if GitHub recovers OR the repo gets pushed to, the row invalidates and a fresh attempt happens — no denylist to maintain.
 
 ### Parent-Aware Fork Filtering
-- **Context**: Querying with `OWNER+COLLABORATOR+ORGANIZATION_MEMBER` affiliations returned both the original `AkshayAshok2/property-probe` AND the user's fork `Technical-1/property-probe`. Both contained the same user-authored commits → counted twice (~8.6M LOC × 2 = 17M overcount).
+- **Context**: Querying with `OWNER+COLLABORATOR+ORGANIZATION_MEMBER` affiliations returned both an upstream repo I collaborate on AND a fork of that same repo that I own. Both contained the same user-authored commits, so LOC got counted twice (millions of lines doubled when a large-history repo was involved).
 - **Decision**: Add `isFork` and `parent.nameWithOwner` to the GraphQL query. After accumulating all edges, drop any fork whose parent is also in the user's repo list. Forks of unrelated upstream projects are kept (they're the only place the user's work appears).
 - **Rationale**: Honest LOC count without losing legitimate fork contributions. Filter is applied identically in `loc_query` and `graph_repos_stars` for consistent repo counts across widgets.
 

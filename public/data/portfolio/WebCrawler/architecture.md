@@ -1,221 +1,122 @@
-# Architecture Overview
+# Architecture
 
-## System Architecture Diagram
-
-```mermaid
-flowchart TB
-    subgraph Scheduling["Scheduling Layer"]
-        EB[EventBridge Rule<br/>Sunday 7 AM UTC]
-    end
-
-    subgraph Orchestration["Orchestration Layer"]
-        SF[AWS Step Functions<br/>miami-scraper-weekly-sync]
-    end
-
-    subgraph Compute["Compute Layer"]
-        subgraph Fargate["ECS Fargate"]
-            Docker[Docker Container<br/>Python 3.11 + Chromium]
-            Selenium[Selenium WebDriver<br/>Headless Chrome]
-            Scraper[SeleniumCrawler<br/>Main Scraper Logic]
-        end
-    end
-
-    subgraph Storage["Storage Layer"]
-        S3[(S3 Bucket<br/>dev-code-compliance-s3)]
-        subgraph S3Contents["S3 Structure"]
-            Config[/config/scraper_config.json/]
-            Markdown[/html_text/*.md/]
-            Results[/scraped_data_latest.json/]
-        end
-    end
-
-    subgraph AI["AI Integration"]
-        Bedrock[AWS Bedrock<br/>Knowledge Base]
-        Chatbot[AI Chatbot<br/>RAG System]
-    end
-
-    subgraph Notifications["Notification Layer"]
-        SNS[SNS Topic]
-        Email[Email Notifications]
-    end
-
-    subgraph Target["Target System"]
-        Miami[Miami.gov<br/>Code Compliance Pages]
-    end
-
-    EB -->|Triggers Weekly| SF
-    SF -->|1. Starts| Fargate
-    SF -->|3. Triggers Sync| Bedrock
-
-    Scraper -->|Loads Config| S3
-    Scraper -->|Controls| Selenium
-    Selenium -->|Crawls| Miami
-    Scraper -->|Uploads Markdown| S3
-    Scraper -->|Saves Results| S3
-
-    S3 -->|Data Source| Bedrock
-    Bedrock -->|Provides Context| Chatbot
-
-    SF -->|4. Sends Notification| SNS
-    SNS -->|Delivers| Email
-```
-
-## Data Flow Diagram
+## System Diagram
 
 ```mermaid
-sequenceDiagram
-    participant EB as EventBridge
-    participant SF as Step Functions
-    participant ECS as ECS Fargate
-    participant S3 as S3 Bucket
-    participant Miami as Miami.gov
-    participant Bedrock as Bedrock KB
-    participant SNS as SNS
+flowchart TD
+    EB[EventBridge cron<br/>Sunday 07:00 UTC]
+    SF[Step Functions<br/>miami-scraper-weekly-sync]
+    ECS[ECS Fargate task<br/>Python 3.11 + Chromium]
+    Cfg[/S3: scraper_config.json/]
+    Site[(miami.gov<br/>Code Compliance pages)]
+    MD[/S3: html_text/*.md/]
+    KB[(AWS Bedrock<br/>Knowledge Base)]
+    SNS[SNS topic → email]
 
-    Note over EB: Sunday 7 AM UTC
-    EB->>SF: Trigger Execution
-    SF->>ECS: Start Fargate Task
-
-    ECS->>S3: Load Configuration
-    S3-->>ECS: scraper_config.json
-
-    loop For each URL (19 start URLs)
-        ECS->>Miami: GET Page (Selenium)
-        Miami-->>ECS: HTML Content
-        ECS->>ECS: Convert to Markdown
-        ECS->>S3: Upload .md File
-    end
-
-    ECS->>S3: Save scraped_data_latest.json
-    ECS-->>SF: Task Complete
-
-    SF->>SF: Wait 5 minutes
-
-    SF->>Bedrock: Start Ingestion Job
-    Bedrock->>S3: Read Markdown Files
-    Bedrock->>Bedrock: Index for RAG
-    Bedrock-->>SF: Ingestion Complete
-
-    SF->>SNS: Publish Results
-    SNS->>SNS: Send Email Notification
+    EB --> SF
+    SF -->|RunTask| ECS
+    ECS -->|GetObject| Cfg
+    ECS -->|Selenium / headless Chromium| Site
+    Site -->|HTML| ECS
+    ECS -->|Markdown + run summary| MD
+    SF -->|Wait 5 min, then StartIngestionJob| KB
+    MD --> KB
+    SF -->|Publish run result| SNS
 ```
 
-## Component Architecture
+## Component Descriptions
 
-```mermaid
-classDiagram
-    class Config {
-        +str s3_bucket_name
-        +str s3_prefix
-        +str sns_topic_arn
-        +List start_urls
-        +int max_pages
-        +int max_depth
-        +float delay
-        +bool enabled
-        +_apply_config(s3_config)
-        +log_configuration(logger)
-    }
+### `Config` (`standalone_selenium/standalone_miami_scraper_selenium.py`)
+- **Purpose**: Carry all runtime knobs (start URLs, per-URL depth, delay, page cap, kill switch).
+- **Key responsibilities**: Hydrate defaults, then overlay values from the S3-loaded JSON via `_apply_config()`; log the effective configuration at startup so CloudWatch shows exactly what ran.
 
-    class SeleniumCrawler {
-        +Config config
-        +Set visited_urls
-        +List to_visit
-        +List scraped_data
-        +Dict url_depths
-        +WebDriver driver
-        +crawl()
-        +_crawl_page(url, depth)
-        +_extract_html_text(url, soup)
-        +_extract_links(base_url, soup, depth)
-        +_upload_html_to_s3(filepath, filename)
-        +close()
-    }
+### `SeleniumCrawler` (`standalone_selenium/standalone_miami_scraper_selenium.py`)
+- **Purpose**: Drive Chromium through each start URL, extract content, and ship Markdown to S3.
+- **Key responsibilities**: Maintain `visited_urls` + `to_visit` BFS state, hold a per-URL `url_depths` map so each seed obeys its own `max_depth`, render pages, run the HTML-to-Markdown extractor, and upload one file per page.
 
-    class HTMLTextValidationManager {
-        +int min_threshold
-        +str s3_bucket
-        +str s3_prefix
-        +validate_results(scraped_data)
-        +print_validation_report(results)
-    }
+### `HTMLTextValidationManager`
+- **Purpose**: Post-run sanity check.
+- **Key responsibilities**: Compare extracted page count against a minimum threshold and confirm S3 objects are dated today; produce a report that the SNS notification embeds.
 
-    Config --> SeleniumCrawler : configures
-    SeleniumCrawler --> HTMLTextValidationManager : provides data
-```
+### S3 layout
+- `{prefix}config/scraper_config.json` — runtime config
+- `{prefix}html_text/YYYY-MM-DD/*.md` — one Markdown file per page
+- `{prefix}results/scraped_data_latest.json` — most recent run summary
+
+### Step Functions state machine
+- **Purpose**: Sequence the run.
+- **Key responsibilities**: `RunTask` against Fargate, `Wait` 5 minutes for S3 consistency, `StartIngestionJob` against the Bedrock data source, then `Publish` to SNS with the outcome.
+
+## Data Flow
+
+1. EventBridge fires the state machine on the weekly cron.
+2. Step Functions starts a Fargate task using the pinned task-definition revision.
+3. The task pulls the latest `scraper_config.json` from S3 and merges it onto code defaults.
+4. The crawler walks each start URL with its own depth budget, executing JavaScript via headless Chromium and parsing with BeautifulSoup.
+5. Each page is converted to Markdown with YAML frontmatter and uploaded to S3.
+6. The task writes a JSON run summary and exits.
+7. Step Functions waits 5 minutes, then triggers a Bedrock Knowledge Base ingestion job that reads the new Markdown.
+8. Step Functions publishes the result (page count, failures, ingestion job id) to SNS, which emails the operator.
+
+## External Integrations
+
+| Service | Purpose | Notes |
+|---|---|---|
+| miami.gov | Source of the content being indexed | Public site, CloudFlare-protected; stealth Chromium options are used to render JS and avoid bot blocks |
+| AWS S3 | Config input + Markdown output | One bucket, separate prefixes for config / html_text / results |
+| AWS Bedrock Knowledge Base | Vector index for the downstream chatbot | Triggered as an ingestion job; the chatbot itself lives outside this repo |
+| AWS SNS | Notification fan-out | Plain email subscription for the run summary |
 
 ## Key Architectural Decisions
 
-### 1. Selenium over Simple HTTP Requests
+### Selenium + headless Chromium over plain HTTP
+- **Context**: Many target pages are JavaScript-rendered and the site has CloudFlare bot mitigation; `requests` and `httpx` returned partial or blocked responses.
+- **Decision**: Drive a real Chromium browser with stealth flags (`--disable-blink-features=AutomationControlled`, navigator.webdriver shimmed, realistic UA and window size).
+- **Rationale**: Cheaper to maintain one rendering path than to keep chasing the site's anti-bot rules with TLS-fingerprint and CF-bypass libraries. The downside (heavier container) is acceptable on a weekly job.
 
-I chose Selenium with headless Chrome over simple HTTP libraries (requests, httpx) because:
+### ECS Fargate over Lambda
+- **Context**: The browser + ChromeDriver image is large and run-time is bursty (2–3 minutes, once a week).
+- **Decision**: Run on Fargate (2 vCPU, 4 GB) instead of Lambda.
+- **Rationale**: Lambda's 10 GB image and 15-minute caps are tight for Chromium and leave no margin for retries; Fargate has neither limit and costs roughly the same at this cadence.
 
-- **JavaScript Rendering**: Miami.gov uses dynamic content loading that requires JavaScript execution
-- **Anti-Bot Bypass**: The site has CloudFlare protection and bot detection that Selenium can evade with proper stealth configuration
-- **Accordion Content**: Many pages have expandable sections that need to be rendered to capture all content
+### Step Functions for orchestration instead of a monolithic script
+- **Context**: The scrape must finish, S3 must settle, then a separate Bedrock ingestion job must succeed before notifying.
+- **Decision**: Express the sequence as a Step Functions state machine with built-in `Wait` and `Retry`.
+- **Rationale**: Each step can be re-run or replaced in isolation, the AWS Console gives a free visual log of every weekly run, and transient Bedrock failures retry without bringing the container back up.
 
-### 2. Serverless Architecture (ECS Fargate)
+### S3-loaded JSON configuration with a kill switch
+- **Context**: URLs and crawl parameters change more often than the code does, and any production run needs an emergency stop.
+- **Decision**: Load `scraper_config.json` from S3 at task start and check an `enabled` boolean; if it's false the task logs and exits 0.
+- **Rationale**: Operators can edit a JSON file (or flip the kill switch) without an ECR push, image rebuild, or task-definition revision. S3 object versioning provides a free audit trail.
 
-I selected ECS Fargate over EC2 or Lambda because:
+### Markdown with YAML frontmatter as the output format
+- **Context**: The output is consumed by an LLM via a Bedrock Knowledge Base, not by humans.
+- **Decision**: Emit one Markdown file per page with `title`, `source_url`, `description`, and `scraped_date` frontmatter.
+- **Rationale**: Markdown keeps headings/lists/tables intact so retrieval chunks stay coherent, and the frontmatter gives the chatbot the source URL it needs for citations.
 
-- **No Server Management**: Fargate handles all infrastructure provisioning and scaling
-- **Cost Efficiency**: Only pay for the 2-3 minutes of actual execution time weekly
-- **Container Support**: Selenium requires a full Chrome browser which exceeds Lambda's constraints
-- **Predictable Resources**: 2 vCPU and 4 GB memory allocation ensures consistent performance
-
-### 3. Step Functions for Orchestration
-
-I implemented AWS Step Functions instead of a monolithic script because:
-
-- **Sequential Dependencies**: The workflow requires waiting for Fargate completion before Bedrock sync
-- **Built-in Retry Logic**: Automatic handling of transient failures
-- **Visual Monitoring**: AWS Console provides clear execution visualization
-- **Decoupled Components**: Each step can be updated independently
-
-### 4. S3-Based Configuration
-
-I designed the configuration system to load from S3 rather than environment variables because:
-
-- **No Redeployment Required**: Configuration changes don't require Docker rebuilds
-- **Kill Switch**: The `enabled` flag allows immediate disabling without infrastructure changes
-- **URL Management**: Adding or removing scrape targets is a simple JSON edit
-- **Audit Trail**: S3 versioning tracks configuration changes over time
-
-### 5. Markdown Output Format
-
-I chose Markdown with YAML frontmatter over raw HTML or plain text because:
-
-- **LLM Optimization**: Markdown preserves document structure that helps RAG systems understand content hierarchy
-- **Metadata Preservation**: YAML frontmatter provides source URL, title, and scrape date for attribution
-- **Human Readable**: Easy to inspect and debug extracted content
-- **Bedrock Compatibility**: AWS Bedrock Knowledge Base works optimally with structured Markdown
-
-### 6. Per-URL Depth Control
-
-I implemented individual depth limits for each start URL rather than a global setting because:
-
-- **Targeted Crawling**: Some pages need child page discovery (depth=1), others are standalone (depth=0)
-- **Efficiency**: Prevents over-crawling unrelated content
-- **Predictable Results**: Consistently extracts the same 22 pages each week
+### Per-URL depth limits instead of a global one
+- **Context**: Some seed pages are standalone, others have a small set of meaningful children, and unlimited depth would explore irrelevant CMS sections.
+- **Decision**: Each entry in `start_urls` carries its own `max_depth`.
+- **Rationale**: Produces the same ~22 pages each week (stable for the knowledge base) without hand-listing every child URL.
 
 ## Infrastructure Components
 
 | Component | AWS Service | Purpose |
-|-----------|-------------|---------|
-| Scheduling | EventBridge | Weekly cron trigger |
-| Orchestration | Step Functions | Workflow management |
+|---|---|---|
+| Schedule | EventBridge | Weekly cron |
+| Orchestration | Step Functions | Run task → wait → ingest → notify |
 | Compute | ECS Fargate | Container execution |
-| Container Registry | ECR | Docker image storage |
-| Storage | S3 | Markdown files + config |
-| AI/ML | Bedrock Knowledge Base | RAG indexing |
-| Notifications | SNS | Email alerts |
-| Logging | CloudWatch Logs | Execution monitoring |
-| Security | IAM | Role-based access control |
+| Image registry | ECR | Scraper image |
+| Storage | S3 | Config in, Markdown out |
+| Index | Bedrock Knowledge Base | RAG ingestion target |
+| Notifications | SNS | Email summary |
+| Logs | CloudWatch Logs | Task and state-machine logs |
+| Auth | IAM | Task and execution roles |
 
-## Security Architecture
+## Security Notes
 
-- **Non-Root Container**: Scraper runs as unprivileged user (UID 1000)
-- **VPC Isolation**: Fargate tasks run in private subnets with NAT gateway
-- **Least Privilege IAM**: Task role only has permissions for specific S3 paths and SNS topic
-- **No Hardcoded Secrets**: All credentials passed via environment variables or IAM roles
-- **S3 Bucket Policy**: Not publicly accessible, only accessible via IAM roles
+- Container runs as a non-root user (UID 1000).
+- Fargate tasks sit in private subnets and reach the internet through a NAT gateway.
+- Task role grants only the specific S3 prefixes and SNS topic the script touches.
+- No secrets in the image; all credentials come from the task role.
+- S3 bucket is private with no public ACLs.

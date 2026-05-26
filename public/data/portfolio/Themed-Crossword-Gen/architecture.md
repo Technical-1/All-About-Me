@@ -34,7 +34,7 @@ flowchart TD
     end
 
     subgraph External["External Services"]
-        Claude[Anthropic Claude API<br/>Word + Clue Generation]
+        LLM[Anthropic Claude<br/>Word + Clue Generation]
         CF[Cloudflare Turnstile<br/>Bot Protection]
     end
 
@@ -56,7 +56,7 @@ flowchart TD
     TS -->|"POST /api/generate-crossword"| GC
     TS -->|"Turnstile Token"| CF
     GC --> Gen
-    Gen --> Claude
+    Gen --> LLM
     GC -->|"Verify Token"| CF
 
     SW --> OP
@@ -135,8 +135,8 @@ flowchart TD
 2. Turnstile widget generates a bot-protection token
 3. `App.tsx` sends POST to `/api/generate-crossword` with config + token
 4. Serverless function verifies Turnstile token with Cloudflare
-5. `crossword-generator.ts` sends themed prompt to Claude API
-6. Claude returns JSON array of `{answer, clue}` pairs
+5. `crossword-generator.ts` sends themed prompt to the LLM
+6. The model returns a JSON array of `{answer, clue}` pairs
 7. `crossword-layout-generator` arranges words into a valid grid (up to 3 retries)
 8. Grid data is returned to client, `CrosswordGame` renders the interactive puzzle
 9. On failure, exponential backoff retry (up to 3 attempts), then offline fallback
@@ -159,7 +159,7 @@ flowchart TD
 
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
-| Anthropic Claude API | Generates themed words and clues | https://docs.anthropic.com |
+| Anthropic Claude (Sonnet 4) | Generates themed words and clues | https://docs.anthropic.com |
 | Cloudflare Turnstile | Bot protection for API endpoint | https://developers.cloudflare.com/turnstile |
 | Vercel | Hosting (static + serverless) | https://vercel.com/docs |
 | crossword-layout-generator | Arranges words into valid grid layouts | npm package |

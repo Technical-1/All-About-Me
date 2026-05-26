@@ -1,8 +1,17 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
 BitcoinTreasuries Proxy is a Cloudflare Worker that scrapes BitcoinTreasuries.net and serves the data as a clean JSON API. It powers the Bitcoin treasuries feature on BTC Explorer (btcexplorer.io), providing categorized data on public companies, private companies, ETFs, governments, and DeFi protocols that hold Bitcoin on their balance sheets.
+
+## Problem Solved
+
+BitcoinTreasuries.net is the canonical public source for corporate and sovereign Bitcoin holdings, but the site is a SvelteKit app with no public API and no CORS-friendly endpoint. Downstream consumers like BTC Explorer can't fetch it from the browser, and hammering the upstream site from every page view would be both rude and slow. This worker sits in front of it: it scrapes once, classifies the entities, caches at the edge, and serves a clean JSON API with the right CORS posture.
+
+## Target Users
+
+- **BTC Explorer (btcexplorer.io)** — the primary consumer; renders the treasuries page from this API
+- **Other dashboards or bots** — any allowlisted origin that wants categorized treasury data without scraping themselves
 
 ## Key Features
 
@@ -29,12 +38,31 @@ Scraping HTML can produce noisy data. I added validation filters that reject ent
 ### Comprehensive Test Suite
 The project has 38 automated tests: integration tests verify the full worker lifecycle (health, 404, 405, CORS, caching, filtering, data quality), while unit tests cover every exported pure function (parseBtcAmount, mapCountryCode, categorizeCompany, determineEntityType, cleanCompanyName). Tests include negative cases like origin prefix spoofing and cache key injection attempts.
 
-## Development Story
+## Engineering Decisions
 
-- **Hardest Part**: Getting reliable data extraction from a SvelteKit site that doesn't expose a public API. The HTML structure varies between pages, and the site occasionally changes layout
-- **Lessons Learned**: Always have a fallback data source when scraping; edge cases in HTML parsing are endless
-- **Future Plans**: Could add scheduled cron triggers for background refresh and KV storage for persistent caching across deployments
-- **Recent Addition**: Enabled Cloudflare static assets binding with `run_worker_first` routing pattern to serve OG images and favicons from the edge without Worker invocation
+### Scrape with a hardcoded fallback rather than scrape-only
+- **Constraint**: BitcoinTreasuries.net has no public API and its HTML layout shifts. A scrape-only proxy goes dark every time the source changes a class name.
+- **Options**: Scrape-only (fail when source breaks); cache-last-good only (gets stale forever); merge scraped data with a curated baseline.
+- **Choice**: Merge. If scraping returns 20+ entities, the curated dataset fills gaps (ETFs, governments, DeFi protocols that live on other pages). If scraping returns fewer than 20, the full curated dataset is served.
+- **Why**: Downstream pages stay useful even during a total scrape failure, and the curated set is small enough that I can hand-update it for major holders.
+
+### Run-worker-first routing for static assets
+- **Constraint**: The worker needs to serve both the JSON API and static images (OG preview, favicons) on the same hostname. Cloudflare's static-assets binding can shadow Worker routes by accident.
+- **Options**: Separate hostname for assets; rely on the absence of `index.html`; explicitly enumerate API routes.
+- **Choice**: `run_worker_first: ["/", "/health"]` in `wrangler.jsonc`, with assets at `/assets/*`.
+- **Why**: Zero Worker CPU on image requests, no separate deployment, and the API routes are protected by explicit allowlist rather than by hoping no static file happens to match.
+
+### Validate the `type` query param before it touches the cache key
+- **Constraint**: The cache key includes the entity-type filter. Without validation, any arbitrary `?type=foo` string would create a new cache entry, letting an attacker fill the edge cache with junk.
+- **Options**: Skip validation; validate after cache lookup; validate first.
+- **Choice**: Validate against a fixed `VALID_TYPES` set before any cache or fetch work.
+- **Why**: Cache key poisoning and upstream amplification both go away for free.
+
+### Status-aware retries with a per-attempt timeout
+- **Constraint**: The upstream is a third-party site that occasionally rate-limits or 5xxes, but also returns 403/404 when it has actually rejected the request. Blindly retrying everything wastes Worker CPU and looks like an attack.
+- **Options**: Retry everything; retry nothing; classify by status.
+- **Choice**: Retry only 429 and 5xx codes; fail fast on 403/404; 10-second timeout per attempt, exponential backoff between attempts (`fetchWithRetries` in `src/index.js`).
+- **Why**: Keeps the worker responsive on permanent failures and only burns budget on transient ones.
 
 ## Frequently Asked Questions
 

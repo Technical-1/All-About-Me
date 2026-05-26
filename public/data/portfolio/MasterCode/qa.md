@@ -24,12 +24,31 @@ I implemented the SuperMemo SM-2 algorithm with a twist: quality scores account 
 ### Zero-Dependency Routing
 Instead of pulling in React Router, I wrote a 100-line hash router hook that handles 5 routes: two landing page variants, learn/{topicId}, about, and privacy. Hash routing eliminates the need for server-side rewrite configuration, which matters for static hosting on Vercel.
 
-## Development Story
+## Engineering Decisions
 
-- **Timeline**: Started as a simple NATO alphabet flashcard app, evolved into a 17-topic platform over several months
-- **Hardest Part**: Designing the distractor generation system to produce plausible wrong answers across very different topic types. Acronym distractors needed a 62KB file of manually curated fake expansions that match the letter patterns of real acronyms.
-- **Lessons Learned**: Starting with a generic `TopicConfig` interface from day one would have saved refactoring time. The SM-2 migration was worth it — users noticeably learn faster with proper spaced repetition versus random selection.
-- **Future Plans**: Service worker for true offline caching, more topics (phonetic alphabets for other languages, aviation weather codes), multiplayer quiz mode
+### Spaced repetition algorithm: SM-2 over a custom weight formula
+- **Constraint**: An earlier weighted-error formula (`errorRate × 10 + daysSinceLastSeen`) scheduled reviews crudely and ignored response time and mode difficulty.
+- **Options**: Keep the weighted formula, design a fresh heuristic, or adopt SM-2 (SuperMemo).
+- **Choice**: SM-2 with mode-aware quality scoring (+0.5 for typing, +0.25 for timed, +0 for multiple choice).
+- **Why**: SM-2 is well-researched and produces exponentially growing intervals tied to an easiness factor, which gives more accurate scheduling than error rate alone. Mode-aware scoring captures the reality that recalling "Quebec" by typing is harder than picking it from four options.
+
+### Data-driven topics over per-topic components
+- **Constraint**: Started as a NATO trainer; needed to scale to 17 distinct code systems with very different render needs (text, SVG hand signs, flag glyphs, music notation).
+- **Options**: Build a separate component per topic, or unify behind one `TopicConfig` interface.
+- **Choice**: One `TopicConfig` interface consumed by all four study modes.
+- **Why**: Each topic is now a config object specifying data, theme, distractor strategy, and render type. Adding a topic requires no new components — only a config entry and (optionally) SVG assets.
+
+### Hash routing instead of React Router
+- **Constraint**: Needed client-side routing across landing variants, per-topic learn pages, and info pages, deployed as a static site.
+- **Options**: React Router with HTML5 history API, a hash router, or no routing at all.
+- **Choice**: A 100-line `useHashRouter` hook.
+- **Why**: Hash routing avoids server-side rewrite configuration on static hosts and saves the React Router dependency. The route set is small enough that a hook is easier to reason about than a routing library.
+
+### localStorage over a backend
+- **Constraint**: A study tool benefits from instant loads, offline use, and zero sign-up friction.
+- **Options**: Backend with accounts and sync, localStorage only, or IndexedDB.
+- **Choice**: Per-topic-namespaced localStorage keys (e.g., `nato-trainer-progress-morse`).
+- **Why**: Removes auth and network latency entirely, keeps the deploy a single static bundle, and lets users reset one topic without touching others. Trade-off: no cross-device sync, acceptable because most users practice on one device.
 
 ## Frequently Asked Questions
 
@@ -48,8 +67,11 @@ There are 8 distractor strategies. NATO uses fake words starting with the same l
 ### Why localStorage instead of a backend?
 A learning flashcard app benefits from zero friction — no sign-up, no API latency, works offline. localStorage gives instant persistence per-device. The trade-off is no cross-device sync, but for a study tool, most users practice on one device. The PWA manifest makes it feel like a native app.
 
-### What was the most challenging part?
-Building distractor generation that produces *plausible* wrong answers across 17 very different topics. Generic random distractors don't work — if you're learning NATO and the correct answer is "Alpha," showing "Golf," "Hotel," and "Xylophone" (not a NATO word) as options would be too easy. Each topic type needed its own strategy.
+### Where does the ASL fingerspelling artwork come from?
+ASL hand signs are rendered with custom inline SVGs in `src/components/ASLSign.tsx`, one path set per letter. Same approach for maritime signal flags (`MaritimeFlag.tsx`), semaphore positions, and music notation (`MusicSymbol.tsx`). Rendering as inline SVG keeps the bundle small, scales cleanly on any display, and lets dark mode style strokes/fills via Tailwind classes.
 
-### What would you improve?
-I'd add a service worker for proper offline caching of SVG assets, implement cross-device sync with an optional account system, and add audio playback for Morse code (actual dot/dash sounds). The bundle could also benefit from lazy-loading the Recharts chunk since stats is an infrequently visited page.
+### Does it actually work offline?
+The PWA manifest makes the app installable, and because all data lives in localStorage there's no API to fail. A proper service worker for caching the JS/CSS/SVG assets is the missing piece — without it, the very first visit needs network, but subsequent loads benefit from browser HTTP caching. Adding a service worker is the next planned change.
+
+### How is progress isolated per topic if everything is in localStorage?
+Every storage key is prefixed with the topic ID — for example, `nato-trainer-progress-morse` versus `nato-trainer-progress-asl`. That isolation lets users reset one topic without touching the others and keeps the SM-2 state for each code system completely independent. The `nato-trainer-` prefix is a legacy artifact from when this was just a NATO alphabet app.

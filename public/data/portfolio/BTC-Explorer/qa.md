@@ -46,6 +46,32 @@ I used TanStack Query with visibility-based refetching. Data refreshes automatic
 ### Innovative Approach: WebSocket with Fallback
 The live transaction stream uses WebSockets for real-time data, but I implemented a REST API fallback for recent blocks if the WebSocket connection fails or takes too long to receive blocks. This hybrid approach ensures users always see meaningful data.
 
+## Engineering Decisions
+
+### Static SPA over server-rendered app
+- **Constraint**: A blockchain explorer needs real-time WebSocket updates, 3D scenes, and frequent client interaction; SEO matters less than interactivity.
+- **Options**: Next.js SSR, Remix, plain Vite SPA on Vercel.
+- **Choice**: Vite + React 18 SPA deployed as a static site.
+- **Why**: SSR offers little benefit when the primary view is a live mempool stream that hydrates seconds after load anyway. A static SPA ships faster, has no server runtime to scale, and lets me run on Vercel's free tier indefinitely.
+
+### Vercel serverless function for MSTR price
+- **Constraint**: Yahoo Finance started returning 429s for browser User-Agents and Stooq has no CORS headers; I needed MSTR data for the Strategy treasury page.
+- **Options**: Add a third Cloudflare Worker, run a Node backend, drop the feature.
+- **Choice**: A single Vercel serverless function at `/api/mstr` (Yahoo Finance with Stooq fallback, 60s CDN cache + 120s stale-while-revalidate).
+- **Why**: Same-origin eliminates CORS preflight, server-side requests can set proper headers, and Vercel's CDN absorbs traffic spikes for free. Adding a third Worker would have split secrets and observability across providers.
+
+### TanStack Query + localStorage instead of a state manager
+- **Constraint**: Multiple data sources with different refresh cadences (WebSocket pushes, 45s/60s/2m/5m polls), API outages must degrade gracefully.
+- **Options**: Redux + RTK Query, Zustand + manual fetch, plain useEffect + Context.
+- **Choice**: TanStack Query as the single source of truth, wrapped with TTL-based `getCached`/`setCached` helpers writing to localStorage.
+- **Why**: Query gives me deduplication, background refetch, visibility-pause, and stale-while-revalidate out of the box. The localStorage layer turns a cold open into an instant render and keeps the app readable when an upstream API is down.
+
+### Three.js loaded only where it's used
+- **Constraint**: Three.js + drei + fiber adds ~500 KB gzipped; users hitting the corporate holdings page should not pay for the 3D bundle.
+- **Options**: Bundle everything, server-render the 3D into images, lazy-load per route.
+- **Choice**: React.lazy + Suspense at the route boundary so 3D code only ships when the user navigates to Home or Live.
+- **Why**: Keeps the critical bundle under 150 KB gzipped while preserving the headline 3D experience. Image fallbacks would have lost the interactivity that is the whole point of those pages.
+
 ## Frequently Asked Questions
 
 ### 1. Why did you build this instead of using existing blockchain explorers?
@@ -68,9 +94,9 @@ I implemented several strategies: TanStack Query deduplicates requests and cache
 
 Three.js has the best balance of power and developer experience. React Three Fiber lets me write 3D scenes using familiar React patterns, making the code maintainable. The Drei library provides production-ready helpers. Direct WebGL would have taken much longer for similar results.
 
-### 6. What would you add if you had more time?
+### 6. How does the WebSocket reconnection logic work?
 
-I would add historical price chart overlays with the power law model, a personal portfolio tracker with alerts, deeper Lightning Network analytics, and possibly a mobile app using React Native with shared components. I would also add full offline support with service workers.
+`useBlockchainWebSocket` in `src/lib/useBlockchain.js` opens a connection to Blockchain.info, subscribes to `unconfirmed_sub` and `blocks_sub`, and listens for `tx` and `block` events. If the socket closes or errors, an exponential backoff retries with a cap, and a `visibilitychange` handler pauses the stream when the tab is hidden so users don't burn bandwidth. If no block arrives within a timeout window, the hook falls back to polling Mempool.space for recent blocks so the Live page always shows something fresh.
 
 ### 7. How do you ensure accessibility?
 
@@ -88,6 +114,6 @@ The treasury data comes from BitcoinTreasuries.net, which aggregates information
 
 Yes. I added Terms of Service, Privacy Policy, and Disclaimer pages as static HTML in the public directory. These are linked from the footer in the Layout component, making them accessible from every page.
 
-### 11. What was the hardest part of building this?
+### 11. How does the Power Law calculator work?
 
-Managing the complexity of multiple real-time data sources with different update frequencies, reliability, and formats while keeping the UI responsive and the code maintainable. Getting the caching strategy right took several iterations to balance freshness with reliability.
+The Power Law page implements the model `price = A * (days_since_genesis ^ n)` with parameters fit to historical price data. The chart uses Recharts with a logarithmic Y axis so the curve renders as a straight line, and the calculator accepts an investment date and amount to project a value at a future date. Bitcoin's genesis block (2009-01-03) anchors the day count, and the parameters live alongside the fit metadata in `src/lib/bitcoinData.js` so they can be re-tuned without touching the page component.

@@ -36,16 +36,17 @@
 
 - **Package Manager**: npm
 - **Build Tool**: Vite ^7.3.1
-- **Linting**: None
-- **Formatting**: None
-- **Testing**: Manual browser testing
+- **Linting**: oxlint ^1.66.0 (fast Rust-based JS linter)
+- **Testing**: Vitest ^4.0.18 with happy-dom for DOM unit tests (`tests/` covers utils, Lottie conversion, upload mode, and a11y)
 
 ## Key Dependencies
 
 | Package | Purpose |
 |---------|---------|
 | `vite` (dev) | Development server with HMR, production bundler |
-| `fit-curve` | Bezier curve fitting for stroke smoothing |
+| `vitest` (dev) | Unit test runner for stroke math, Lottie output, and DOM behavior |
+| `happy-dom` (dev) | Lightweight DOM environment for Vitest |
+| `oxlint` (dev) | Fast JS linter |
 | `gif.js` | Client-side animated GIF generation from canvas frames |
 
 ## Runtime Technologies (No Package)
