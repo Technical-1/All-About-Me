@@ -29,9 +29,9 @@ I chose React + Tailwind over the original eframe/egui because:
 
 - **Runtime**: Rust (compiled to native via Tauri)
 - **Framework**: Tauri v2 command system
-- **API Style**: IPC commands (49 endpoints across 6 modules)
-- **Authentication**: Dual — master password (Argon2id) OR 6x6 pattern lock
-- **Session Management**: In-memory state with `zeroize` on Drop
+- **API Style**: IPC commands (55 endpoints across 6 modules)
+- **Authentication**: Dual — master password (Argon2id) OR 6x6 pattern lock, with optional Touch ID for previously-unlocked vaults
+- **Session Management**: In-memory state with `zeroize` on Drop; IPC credential parameters wrapped in a typed `Credential` type so the wipe is enforced at every exit path
 
 I chose Tauri v2 over Electron because:
 - **Rust backend**: All cryptographic operations in memory-safe native code
@@ -92,14 +92,15 @@ I chose Tauri v2 over Electron because:
 
 - **Package Manager**: npm (frontend), Cargo (backend)
 - **Frontend Build**: Vite 6.4.1 with Tailwind CSS v4 plugin + Terser minification
-- **Backend Build**: Cargo with release profile (LTO, strip, codegen-units=1, panic=abort)
+- **Backend Build**: Cargo with release profile (LTO, strip, codegen-units=1, panic=abort, overflow-checks=true)
 - **Dev Server**: Vite on port 5173 with HMR, Tauri watches for Rust changes
 - **TypeScript**: Strict mode with tsc for type checking before build
+- **Supply-chain visibility**: `cargo-auditable` embeds the `Cargo.lock` dependency manifest into each release binary, so `cargo audit bin <artifact>` can match RUSTSEC advisories against any shipped build directly
 
 ### CI/CD (GitHub Actions)
 
 - **Trigger**: Semantic version tags (`v*.*.*`)
-- **Test Job**: `cargo test` on Ubuntu (167 tests)
+- **Test Job**: `cargo test` on Ubuntu (200+ tests, count grows with each release)
 - **Build Matrix**: Ubuntu 22.04, macOS (ARM + x86), Windows
 - **Artifacts**: Tauri installers (.dmg, .msi, .AppImage, .deb)
 - **Release**: Automatic GitHub Release with all platform installers

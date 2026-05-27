@@ -4,9 +4,10 @@
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| SwiftUI | iOS 17+ | Declarative UI framework for building the entire interface |
+| SwiftUI | iOS 17+ | Declarative UI framework for the entire interface |
 | Swift | 5.9+ | Primary programming language |
-| UIKit | iOS 17+ | Used sparingly for clipboard operations and system colors |
+| WebKit (WKWebView) | iOS 17+ | Renders HTML email bodies (JavaScript disabled for safety) |
+| UIKit | iOS 17+ | Clipboard (`UIPasteboard`), system colors, `UIViewRepresentable` bridges |
 
 ## Platform
 
@@ -46,13 +47,24 @@
 | swift-se0270-range-set | 1.0.1 | Range set data structure |
 | swift-dotenv | 2.1.0 | Environment variable loading |
 
+## Testing & Tooling
+
+| Aspect | Details |
+|--------|---------|
+| Test framework | Apple's Swift Testing (`import Testing`, `@Test` functions) — Xcode 16+ |
+| Test target | `emailerTests` — uses `@testable import emailer` for internal access |
+| CLI runner | `bin/test.sh` — wraps `xcodebuild test`, accepts `DESTINATION` env override |
+| CI | GitHub Actions (`.github/workflows/test.yml`) — runs on push to main + PRs |
+| CI runner | `macos-15` with latest-stable Xcode (currently Xcode 26 series) |
+| Test count | 30 unit tests covering PKCE, Keychain, verification templates, body decoders, Date helpers, AsyncSemaphore |
+
 ## Infrastructure
 
 | Aspect | Details |
 |--------|---------|
 | Distribution | Local builds via Xcode / TestFlight |
 | Signing | Apple Developer Program required |
-| CI/CD | None (manual builds) |
+| CI/CD | GitHub Actions runs unit tests on every push/PR; no automated release pipeline (manual TestFlight) |
 
 ## Key Dependency Choices
 
@@ -89,19 +101,10 @@ I built entirely in SwiftUI because:
 ## Limitations & Trade-offs
 
 ### SwiftMail Main Branch
-I depend on the main branch of SwiftMail rather than a tagged release because:
-- XOAUTH2 support needed recent fixes not in any release
-- This means builds could break with upstream changes
-- **Mitigation**: I could fork and pin to a specific commit for production
+I depend on the main branch of SwiftMail rather than a tagged release because XOAUTH2 support needed fixes not in any release. The risk is builds breaking with upstream changes; mitigated by the CI workflow catching breakage on every push, and by being able to fork and pin to a specific commit if needed.
 
-### No Test Coverage
-The project currently lacks automated tests because:
-- IMAP operations are difficult to unit test without mocking
-- OAuth flows require real credentials to test
-- **Future Work**: Could add UI tests and mock the MailSession
+### Single Account by Design
+The app supports one email account at a time. `MailSession` is a single shared `@EnvironmentObject` owning one IMAP connection, one OAuth2Manager, one set of caches. Multi-account would mean decomposing this into per-account instances plus account-picker UI — a real architectural change rather than an oversight. The current design is intentional for the verification-code-capture use case (typically one throwaway/test account at a time).
 
-### Single Account Support
-The app only supports one email account at a time because:
-- Simplifies the authentication and session management
-- Multiple IMAP connections would require connection pooling
-- **Future Work**: Could extend to support account switching
+### Remote Images in HTML Emails
+`HTMLBodyView` currently allows `<img src>` to load remote URLs, which means marketing emails' tracking pixels will fire when the email is viewed. Mitigation planned via a `WKContentRuleList` that blocks remote resource loads while permitting `data:` URIs. JavaScript is already disabled in the WebView so script-based tracking is blocked today.

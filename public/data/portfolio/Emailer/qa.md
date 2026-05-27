@@ -21,7 +21,7 @@ Modern authentication often requires email verification codes, which creates fri
 Secure sign-in with Gmail, Outlook, and Yahoo using the industry-standard PKCE flow. Users authenticate directly with their email provider through a system browser, so the app never sees their password.
 
 ### Multi-Provider Verification Code Detection
-Template-based detection system that identifies verification codes from Google, Microsoft, Apple, Amazon, Facebook, Twitter, Discord, and generic providers. Each template has specific regex patterns optimized for that provider's email format.
+Template-based detection that identifies verification codes from Google, Microsoft, Apple, Amazon, Facebook, and Twitter, with a stricter catch-all template for unknown senders. Each template has subject patterns, sender-domain patterns, and code regexes — all anchored to verification-context phrasing so order numbers, tracking IDs, and timestamps don't get extracted as codes.
 
 ### Auto-Refresh
 The verification code views automatically refresh every 15 seconds, catching new codes as soon as they arrive without manual intervention.
@@ -38,16 +38,19 @@ All tokens and credentials are stored in the iOS Keychain, encrypted and protect
 ## Technical Highlights
 
 ### Challenge: IMAP Concurrent Access
-IMAP connections do not handle concurrent operations gracefully. With multiple views (Inbox, Recent, Verification) potentially triggering fetches simultaneously, I implemented a serial operation queue using async/await primitives. The `acquireImapLock` pattern ensures only one IMAP operation runs at a time while keeping the UI responsive.
+IMAP doesn't tolerate concurrent commands on a single connection, but four tabs plus auto-refresh timers can all trigger fetches independently. I built `AsyncSemaphore` (`emailer/AsyncSemaphore.swift`) — a ~25-line actor that gives proper FIFO mutual exclusion via `CheckedContinuation`-backed `wait()` / `signal()`. No busy-waiting, no third-party dependency, and `MailSession` stays `@MainActor` for SwiftUI compatibility. A concurrency stress test in the test suite fires 10 concurrent tasks at the semaphore and asserts only one is ever in the critical section.
 
 ### Challenge: OAuth Token Lifecycle
 OAuth tokens expire, and users expect to stay logged in. I implemented automatic token refresh that checks token expiry on app launch and before any IMAP operation. If the access token is within 5 minutes of expiry, the app transparently uses the refresh token to obtain a new access token without user intervention.
 
 ### Challenge: Email Body Encoding
-Emails arrive in various encodings (base64, quoted-printable, plain UTF-8, ISO-8859-1). I built a multi-fallback decoding system that tries each encoding strategy in order until one produces readable text. This handles the real-world diversity of email formats.
+Emails arrive in base64, quoted-printable, plain UTF-8, or ISO-8859-1 — sometimes multiple in the same multipart message. `MessageBodyDecoder` (`emailer/MessageBodyDecoder.swift`) is a pure-function decoder that walks the message parts, honors each part's Content-Transfer-Encoding, and falls back to SwiftMail's `textBody`/`htmlBody` if none decode cleanly. The base64 path strips whitespace before decoding so the RFC-2045 line-wrapped payloads that real servers send actually decode (a heuristic that checked "is this string entirely base64 alphabet?" rejected wrapped payloads). Decode runs in `Task.detached(priority: .userInitiated)` so large HTML emails don't stall the main thread.
 
-### Innovative Approach: Template-Based Code Detection
-Rather than a single regex for all verification codes, I designed a template system where each provider (Google, Microsoft, etc.) has its own detection configuration including sender patterns, subject patterns, code regex patterns, and expected code lengths. This reduces false positives and allows provider-specific optimizations.
+### Challenge: HTML Email Rendering Without Letting Email HTML Run Scripts
+Real transactional emails are heavily-formatted HTML. Rendering them as raw `Text(body)` shows raw markup. Rendering them in a default `WKWebView` lets arbitrary email content execute JavaScript inside the app — a real risk for an inbox app. `HTMLBodyView` wraps `WKWebView` with `WKWebpagePreferences.allowsContentJavaScript = false` and `loadHTMLString(html, baseURL: nil)` so HTML renders with full CSS/layout fidelity but cannot execute scripts or resolve relative URLs.
+
+### Innovative Approach: Template-Based Code Detection with Negative Coverage
+Each provider has its own `VerificationTemplate` with subject patterns, sender-domain patterns, and anchored code regexes (e.g. `"verification code is[^0-9]*([0-9]{6,8})"`, not bare `([0-9]{6,8})`). The test suite includes negative regression cases: an Amazon "order has shipped" email with a 6-digit order number in the body returns `nil`, a Facebook "promo code" marketing email doesn't match the verification template, a Twitter login email with an embedded Unix timestamp extracts the real code rather than the timestamp. "No code found" is always preferred over "wrong code."
 
 ## Engineering Decisions
 
@@ -55,7 +58,7 @@ Rather than a single regex for all verification codes, I designed a template sys
 - **Constraint**: I wanted the same client to talk to Gmail, Outlook, Yahoo, and self-hosted servers without three separate implementations.
 - **Options**: Gmail REST API + Microsoft Graph + Yahoo Mail API (three integrations, three auth flows, three message models), or a single IMAP layer.
 - **Choice**: IMAP via `SwiftMail`, with OAuth2/XOAUTH2 for the major providers and basic auth as a fallback.
-- **Why**: One protocol and one message model means one body-decoder, one folder model, and one set of caching rules. The cost is being on IMAP's serial-connection semantics, which I addressed with the operation lock in `MailSession.swift`.
+- **Why**: One protocol and one message model means one body-decoder, one folder model, and one set of caching rules. The cost is IMAP's serial-connection semantics, addressed by the `AsyncSemaphore` primitive that gates all `MailSession` IMAP calls.
 
 ### Template-driven code extraction over one mega-regex
 - **Constraint**: Verification emails vary wildly by provider, and a generic `\d{6}` match produces too many false positives (order numbers, tracking IDs, dates).
@@ -74,6 +77,12 @@ Rather than a single regex for all verification codes, I designed a template sys
 - **Options**: Per-view `ObservableObject` view-models with a separate networking layer, or one shared `@EnvironmentObject` that owns the connection and publishes message arrays.
 - **Choice**: One `MailSession` `@MainActor ObservableObject` injected via `@EnvironmentObject`.
 - **Why**: Avoids duplicated cache state and connection bookkeeping across views. The trade-off is that adding multi-account support later means decomposing this object — acceptable for a single-account app.
+
+### OAuth client IDs in a gitignored file, not committed config
+- **Constraint**: OAuth client IDs aren't true secrets but they tie every build of the codebase to one developer's Google Cloud / Azure / Yahoo project. Forks shouldn't share quota with me.
+- **Options**: Commit them and document that forks should swap; move them to `.xcconfig` build settings; isolate them in a gitignored Swift file.
+- **Choice**: `emailer/Auth/OAuth2Secrets.swift` is gitignored. `OAuth2Config.swift` (committed) reads `OAuth2Secrets.gmailClientId`, `.outlookRedirectScheme`, etc. README has the template and setup walkthrough.
+- **Why**: Zero build-config complexity, immediately obvious which strings are environment-specific, and Xcode 16's synchronized file groups auto-include the file in the target. CI substitutes a placeholder version with `YOUR_*` values so builds still compile without anyone's real credentials.
 
 ## FAQ
 
@@ -105,9 +114,9 @@ The detection uses regex patterns tuned for common verification email formats. I
 
 On app launch, the app checks the Keychain for stored OAuth tokens. If found and not expired, it uses them to connect to IMAP. If the access token is expired but a refresh token exists, it automatically refreshes. Only if all that fails does the app show the login screen.
 
-### 8. Why is there no test suite?
+### 8. How do you avoid extracting random 6-digit numbers as verification codes?
 
-I acknowledge this as a gap. IMAP operations require a real server connection, and mocking the SwiftMail library would be complex. OAuth flows require real credentials. I prioritized shipping functionality over test coverage for this personal project, but for a production app, I would invest in integration tests with a test email account.
+Every code regex in `VerificationTemplate` is anchored to verification-context phrasing — `"verification code is[^0-9]*([0-9]{6,8})"`, `"security code: ([0-9]{6,8})"`, `"code is[^0-9]*([0-9]{6,8})"`. No template uses a bare `([0-9]{6})` fallback, so an Amazon order-confirmation email with a 6-digit order number doesn't yield that number as a "verification code." The test suite locks this in: there are explicit negative cases asserting that Amazon order shipments, Facebook promo emails, and Twitter timestamps don't match. The trade-off is that an email with a code but no surrounding "code is" / "verification code" wording will return `nil` — I optimize for "no code found" over "wrong code," because a wrong code copied to clipboard is the worst user outcome.
 
 ### 9. Could this be adapted for Android?
 
@@ -115,4 +124,12 @@ The architecture could translate, but the implementation would need to be rewrit
 
 ### 10. How does the app handle the 15-second auto-refresh without hammering the IMAP server?
 
-The verification views run a 15-second timer, but each refresh goes through the same serial IMAP lock as everything else, and the header cache in `MailSession.swift` is valid for 30 seconds. So a refresh that fires while another fetch is mid-flight queues behind it, and a refresh whose underlying data is still fresh returns from cache without a network round-trip. In practice the server only sees a fetch every ~30 seconds even though the UI ticks twice as often.
+The verification views run a 15-second timer, but each refresh goes through the same `AsyncSemaphore`-gated path as everything else, and the verification-header cache (`Constants.verificationHeadersCacheSeconds`, 30s) returns cached results when fresh. So a refresh fired while another is mid-flight queues behind it, and a refresh whose underlying data is still fresh returns from cache without a network round-trip. The server only sees a real fetch every ~30 seconds even though the UI ticks twice as often.
+
+### 11. Why is JavaScript disabled in the HTML email viewer?
+
+Email HTML is *arbitrary content from the internet*. If the WebView ran scripts, opening a marketing email could effectively execute attacker-controlled JavaScript inside the app with access to whatever the WebView is permitted to do. `HTMLBodyView` sets `WKWebpagePreferences.allowsContentJavaScript = false` and uses `loadHTMLString(html, baseURL: nil)` so relative URLs don't resolve either. The cost is that emails that depend on JavaScript for layout render slightly worse — vanishingly rare for legitimate transactional email. Remote `<img src>` is still loaded today (tracking pixels will fire); blocking those via `WKContentRuleList` is on the roadmap.
+
+### 12. How are verification codes kept from lingering in the clipboard?
+
+`UIPasteboard.general.setItems(_:options:)` is invoked with `.expirationDate = Date().addingTimeInterval(Constants.pasteboardCodeExpirationSeconds)` (60s) and `.localOnly = true`. The code auto-expires after a minute and never propagates via Universal Clipboard to other Apple devices. This matters more for 2FA codes than for general copy-paste because the codes themselves are short-lived secrets — leaving them in the clipboard long-term is the same security category as leaving a password there.
