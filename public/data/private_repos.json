@@ -2608,7 +2608,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T18:44:49Z",
+      "pushed_at": "2026-05-27T18:47:46Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2634,7 +2634,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 23181,
+      "JavaScript": 23216,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2647,6 +2647,47 @@
     ],
     "screenshots": [
       "/screenshots/all-about-me/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "APComputerScienceA2019-2020",
+      "full_name": "Technical-1/APComputerScienceA2019-2020",
+      "html_url": "https://github.com/Technical-1/APComputerScienceA2019-2020",
+      "homepage": null,
+      "description": "AP Computer Science A coursework (Java) — 8 modules from primitives to OO design, with Monte Carlo sims, file I/O, and a 156-row hurricane dataset analyzer.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-05-27T18:34:23Z",
+      "topics": [
+        "ap-computer-science",
+        "arrays",
+        "coursework",
+        "education",
+        "file-io",
+        "high-school",
+        "java",
+        "monte-carlo-simulation",
+        "object-oriented-programming",
+        "student-project"
+      ]
+    },
+    "languages": [
+      "Java"
+    ],
+    "language_bytes": {
+      "Java": 64590
+    },
+    "primary_language": "Java",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/apcomputersciencea2019-2020/preview.png"
     ]
   },
   {
