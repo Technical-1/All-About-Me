@@ -9,7 +9,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:38:47Z"
+      "pushed_at": "2026-05-26T05:38:47Z",
+      "topics": [
+        "canvas",
+        "collaboration",
+        "crdt",
+        "encryption",
+        "javascript",
+        "p2p",
+        "partykit",
+        "realtime",
+        "whiteboard",
+        "yjs"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -47,7 +59,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:38:55Z"
+      "pushed_at": "2026-05-26T05:38:55Z",
+      "topics": [
+        "bitcoin",
+        "blockchain",
+        "cryptocurrency",
+        "data-visualization",
+        "react",
+        "threejs"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -83,7 +103,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T07:08:54Z"
+      "pushed_at": "2026-05-27T07:08:54Z",
+      "topics": [
+        "archive",
+        "backup",
+        "git",
+        "github",
+        "preservation"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -121,7 +148,8 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-26T09:54:49Z"
+      "pushed_at": "2026-05-26T09:54:49Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -175,7 +203,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:48:03Z"
+      "pushed_at": "2026-05-27T17:48:03Z",
+      "topics": [
+        "github",
+        "github-api",
+        "nextjs",
+        "react",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -211,7 +246,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T18:13:00Z"
+      "pushed_at": "2026-05-19T18:13:00Z",
+      "topics": [
+        "blackjack",
+        "card-counting",
+        "react",
+        "tailwindcss",
+        "typescript",
+        "vite"
+      ]
     },
     "languages": [
       "TypeScript",
