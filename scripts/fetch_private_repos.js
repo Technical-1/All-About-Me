@@ -227,7 +227,16 @@ async function fetchAllRepos(visibility) {
   // Archived repos to keep surfacing despite the `!r.archived` filter.
   // Default behavior hides archives so abandoned experiments don't pollute the
   // site, but polished/featured work that's been frozen still belongs here.
-  const INCLUDED_ARCHIVED_REPOS = new Set(['AHSR-senior-design-archive', 'QuickPass']);
+  const INCLUDED_ARCHIVED_REPOS = new Set([
+    'AHSR-senior-design-archive',
+    'CAP4770-Final_Project',
+    'DailySMS',
+    'MyVoteProject-V1',
+    'PLC_Project',
+    'QuickPass',
+    'Snowballs',
+    'UCF_DecisionChecker'
+  ]);
 
   return repos.filter(r => {
     if (r.fork) return false;
