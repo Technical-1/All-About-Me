@@ -2275,47 +2275,6 @@
   },
   {
     "repo": {
-      "name": "Snowballs",
-      "full_name": "Technical-1/Snowballs",
-      "html_url": "https://github.com/Technical-1/Snowballs",
-      "homepage": null,
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": true,
-      "pushed_at": "2026-04-21T06:14:28Z",
-      "topics": []
-    },
-    "languages": [
-      "Python",
-      "TypeScript",
-      "JavaScript",
-      "HTML",
-      "SCSS",
-      "PowerShell",
-      "CSS",
-      "Dockerfile",
-      "Batchfile",
-      "Shell"
-    ],
-    "language_bytes": {
-      "Python": 665932,
-      "TypeScript": 264674,
-      "JavaScript": 129050,
-      "HTML": 40718,
-      "SCSS": 17609,
-      "PowerShell": 4291,
-      "CSS": 1847,
-      "Dockerfile": 1361,
-      "Batchfile": 512,
-      "Shell": 508
-    },
-    "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
-  },
-  {
-    "repo": {
       "name": "Terra-Moda-Rewrite",
       "full_name": "Technical-1/Terra-Moda-Rewrite",
       "html_url": "https://github.com/Technical-1/Terra-Moda-Rewrite",
@@ -2608,7 +2567,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T18:47:46Z",
+      "pushed_at": "2026-05-27T18:50:56Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2634,7 +2593,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 23216,
+      "JavaScript": 22835,
       "CSS": 10581,
       "Shell": 7015
     },
