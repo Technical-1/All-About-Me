@@ -639,7 +639,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:48:06Z"
+      "pushed_at": "2026-05-27T17:53:51Z"
     },
     "languages": [
       "TypeScript",
@@ -648,7 +648,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 254029,
+      "TypeScript": 257282,
       "HTML": 9588,
       "CSS": 4751,
       "JavaScript": 2561
@@ -2124,6 +2124,60 @@
   },
   {
     "repo": {
+      "name": "AHSR-senior-design-archive",
+      "full_name": "Technical-1/AHSR-senior-design-archive",
+      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
+      "homepage": "",
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-05-26T09:54:49Z"
+    },
+    "languages": [
+      "Python",
+      "JSON",
+      "YAML",
+      "C",
+      "Text",
+      "CMake",
+      "C++",
+      "Shell",
+      "Makefile",
+      "PowerShell",
+      "Markdown"
+    ],
+    "language_bytes": {
+      "Python": 348913,
+      "JSON": 218973,
+      "YAML": 14449,
+      "C": 11319,
+      "Text": 10099,
+      "CMake": 9974,
+      "C++": 8461,
+      "Shell": 3797,
+      "Makefile": 2123,
+      "PowerShell": 1648,
+      "Markdown": 1128
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ahsr-senior-design-archive/preview.png"
+    ],
+    "metadata": {
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024",
+      "featured": true
+    }
+  },
+  {
+    "repo": {
       "name": "All-About-Me",
       "full_name": "Technical-1/All-About-Me",
       "html_url": "https://github.com/Technical-1/All-About-Me",
@@ -2132,7 +2186,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T10:45:25Z"
+      "pushed_at": "2026-05-27T18:07:44Z"
     },
     "languages": [
       "TypeScript",
@@ -2148,7 +2202,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 22627,
+      "JavaScript": 23004,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2162,6 +2216,28 @@
     "screenshots": [
       "/screenshots/all-about-me/preview.png"
     ]
+  },
+  {
+    "repo": {
+      "name": "APComputerScienceA2019-2020",
+      "full_name": "Technical-1/APComputerScienceA2019-2020",
+      "html_url": "https://github.com/Technical-1/APComputerScienceA2019-2020",
+      "homepage": null,
+      "description": "AP Computer Science A coursework, 2019-2020",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-27T18:01:16Z"
+    },
+    "languages": [
+      "Java"
+    ],
+    "language_bytes": {
+      "Java": 64687
+    },
+    "primary_language": "Java",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -2569,6 +2645,37 @@
     ],
     "screenshots": [
       "/screenshots/pythonforge/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "QuickPass",
+      "full_name": "Technical-1/QuickPass",
+      "html_url": "https://github.com/Technical-1/QuickPass",
+      "homepage": "",
+      "description": "A secure, cross-platform desktop password manager built in Rust with AES-256-GCM encryption, dual authentication (password + pattern lock), TOTP/2FA support, and brute-force protection.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-05-26T05:55:27Z"
+    },
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 280036,
+      "HTML": 12097
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/quickpass/preview.png"
     ]
   },
   {

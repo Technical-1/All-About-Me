@@ -113,6 +113,60 @@
   },
   {
     "repo": {
+      "name": "AHSR-senior-design-archive",
+      "full_name": "Technical-1/AHSR-senior-design-archive",
+      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
+      "homepage": "",
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-05-26T09:54:49Z"
+    },
+    "languages": [
+      "Python",
+      "JSON",
+      "YAML",
+      "C",
+      "Text",
+      "CMake",
+      "C++",
+      "Shell",
+      "Makefile",
+      "PowerShell",
+      "Markdown"
+    ],
+    "language_bytes": {
+      "Python": 348913,
+      "JSON": 218973,
+      "YAML": 14449,
+      "C": 11319,
+      "Text": 10099,
+      "CMake": 9974,
+      "C++": 8461,
+      "Shell": 3797,
+      "Makefile": 2123,
+      "PowerShell": 1648,
+      "Markdown": 1128
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ahsr-senior-design-archive/preview.png"
+    ],
+    "metadata": {
+      "role": "Software Lead",
+      "duration": "Jan 2023 - Dec 2024",
+      "featured": true
+    }
+  },
+  {
+    "repo": {
       "name": "RepoLens",
       "full_name": "Technical-1/RepoLens",
       "html_url": "https://github.com/Technical-1/RepoLens",
