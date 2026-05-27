@@ -1,60 +1,6 @@
 [
   {
     "repo": {
-      "name": "AHSR-senior-design-archive",
-      "full_name": "Technical-1/AHSR-senior-design-archive",
-      "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
-      "homepage": "",
-      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-26T09:54:49Z"
-    },
-    "languages": [
-      "Python",
-      "JSON",
-      "YAML",
-      "C",
-      "Text",
-      "CMake",
-      "C++",
-      "Shell",
-      "Makefile",
-      "PowerShell",
-      "Markdown"
-    ],
-    "language_bytes": {
-      "Python": 348913,
-      "JSON": 218973,
-      "YAML": 14449,
-      "C": 11319,
-      "Text": 10099,
-      "CMake": 9974,
-      "C++": 8461,
-      "Shell": 3797,
-      "Makefile": 2123,
-      "PowerShell": 1648,
-      "Markdown": 1128
-    },
-    "primary_language": "Python",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/ahsr-senior-design-archive/preview.png"
-    ],
-    "metadata": {
-      "role": "Software Lead",
-      "duration": "Jan 2023 - Dec 2024",
-      "featured": true
-    }
-  },
-  {
-    "repo": {
       "name": "ai-talent-platform",
       "full_name": "Technical-1/ai-talent-platform",
       "html_url": "https://github.com/Technical-1/ai-talent-platform",
@@ -103,7 +49,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:39:18Z"
+      "pushed_at": "2026-05-27T13:49:58Z"
     },
     "languages": [
       "JavaScript",
@@ -111,8 +57,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 30507,
-      "TypeScript": 11228,
+      "JavaScript": 28373,
+      "TypeScript": 14024,
       "HTML": 6034
     },
     "primary_language": "JavaScript",
@@ -229,7 +175,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T14:52:16Z"
+      "pushed_at": "2026-05-27T12:48:54Z"
     },
     "languages": [
       "Python",
@@ -277,17 +223,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:41:17Z"
+      "pushed_at": "2026-05-27T13:49:59Z"
     },
     "languages": [
       "JavaScript",
-      "HTML",
-      "TypeScript"
+      "TypeScript",
+      "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 19447,
-      "HTML": 8559,
-      "TypeScript": 7181
+      "JavaScript": 21268,
+      "TypeScript": 12134,
+      "HTML": 8559
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -459,14 +405,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:43:47Z"
+      "pushed_at": "2026-05-27T12:58:26Z"
     },
     "languages": [
       "Swift",
+      "HTML",
       "Shell"
     ],
     "language_bytes": {
       "Swift": 148339,
+      "HTML": 7282,
       "Shell": 556
     },
     "primary_language": "Swift",
@@ -475,6 +423,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailer/preview.png"
     ]
   },
   {
@@ -539,7 +490,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:42:11Z"
+      "pushed_at": "2026-05-27T17:19:47Z"
     },
     "languages": [
       "JavaScript",
@@ -664,7 +615,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:41:27Z"
+      "pushed_at": "2026-05-27T17:48:06Z"
     },
     "languages": [
       "TypeScript",
@@ -673,7 +624,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 247704,
+      "TypeScript": 254029,
       "HTML": 9588,
       "CSS": 4751,
       "JavaScript": 2561
@@ -789,23 +740,30 @@
       "full_name": "Technical-1/Kanfer-D-Toolkit",
       "html_url": "https://github.com/Technical-1/Kanfer-D-Toolkit",
       "homepage": null,
-      "description": null,
+      "description": "Automation suite for the repetitive browser-based work tasks that fill your week. Runs scheduled scripts against your authenticated web tools, unattended, from your desktop.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T16:35:13Z"
+      "pushed_at": "2026-05-27T13:39:31Z"
     },
     "languages": [
       "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 58273,
-      "HTML": 14070
+      "JavaScript": 59529,
+      "HTML": 22517
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/kanfer-d-toolkit/preview.png"
+    ]
   },
   {
     "repo": {
@@ -843,7 +801,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:44:09Z"
+      "pushed_at": "2026-05-27T12:24:08Z"
     },
     "languages": [
       "JavaScript",
@@ -1408,7 +1366,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:39Z"
+      "pushed_at": "2026-05-27T17:48:03Z"
     },
     "languages": [
       "JavaScript",
@@ -1695,39 +1653,6 @@
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
-  },
-  {
-    "repo": {
-      "name": "Signature-Studio",
-      "full_name": "Technical-1/Signature-Studio",
-      "html_url": "https://github.com/Technical-1/Signature-Studio",
-      "homepage": "https://signature-studio-nu.vercel.app",
-      "description": "Create animated signature SVGs — draw freehand or type with single-stroke calligraphic fonts",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-26T05:48:40Z"
-    },
-    "languages": [
-      "JavaScript",
-      "HTML",
-      "CSS"
-    ],
-    "language_bytes": {
-      "JavaScript": 140422,
-      "HTML": 22278,
-      "CSS": 17592
-    },
-    "primary_language": "JavaScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/signature-studio/preview.png"
-    ]
   },
   {
     "repo": {
@@ -2069,7 +1994,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T10:39:25Z"
+      "pushed_at": "2026-05-27T10:45:25Z"
     },
     "languages": [
       "TypeScript",
@@ -2132,7 +2057,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T15:01:36Z"
+      "pushed_at": "2026-05-27T12:18:25Z"
     },
     "languages": [
       "JavaScript",
@@ -2141,7 +2066,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "JavaScript": 130351,
+      "JavaScript": 142231,
       "CSS": 34033,
       "HTML": 29734,
       "Shell": 1642
@@ -2510,37 +2435,6 @@
   },
   {
     "repo": {
-      "name": "QuickPass",
-      "full_name": "Technical-1/QuickPass",
-      "html_url": "https://github.com/Technical-1/QuickPass",
-      "homepage": "",
-      "description": "A secure, cross-platform desktop password manager built in Rust with AES-256-GCM encryption, dual authentication (password + pattern lock), TOTP/2FA support, and brute-force protection.",
-      "private": false,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-26T05:55:27Z"
-    },
-    "languages": [
-      "Rust",
-      "HTML"
-    ],
-    "language_bytes": {
-      "Rust": 280036,
-      "HTML": 12097
-    },
-    "primary_language": "Rust",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/quickpass/preview.png"
-    ]
-  },
-  {
-    "repo": {
       "name": "RepoLens",
       "full_name": "Technical-1/RepoLens",
       "html_url": "https://github.com/Technical-1/RepoLens",
@@ -2549,7 +2443,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:35Z"
+      "pushed_at": "2026-05-27T17:48:03Z"
     },
     "languages": [
       "TypeScript",
@@ -2635,6 +2529,39 @@
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "Signature-Studio",
+      "full_name": "Technical-1/Signature-Studio",
+      "html_url": "https://github.com/Technical-1/Signature-Studio",
+      "homepage": "https://signature-studio-nu.vercel.app",
+      "description": "Create animated signature SVGs — draw freehand or type with single-stroke calligraphic fonts",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-26T05:48:40Z"
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 140422,
+      "HTML": 22278,
+      "CSS": 17592
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/signature-studio/preview.png"
+    ]
   },
   {
     "repo": {

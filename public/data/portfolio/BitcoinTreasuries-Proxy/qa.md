@@ -36,7 +36,13 @@ I hardened the API across multiple layers: CORS denies unknown origins (no wildc
 Scraping HTML can produce noisy data. I added validation filters that reject entries where the name lacks ASCII letters (catches emoji-only or Unicode garbage), where the ticker is a pure large number (catches BTC amounts misread as tickers), and where BTC holdings are zero or negative. This was added after real-world scraping surfaced these edge cases.
 
 ### Comprehensive Test Suite
-The project has 38 automated tests: integration tests verify the full worker lifecycle (health, 404, 405, CORS, caching, filtering, data quality), while unit tests cover every exported pure function (parseBtcAmount, mapCountryCode, categorizeCompany, determineEntityType, cleanCompanyName). Tests include negative cases like origin prefix spoofing and cache key injection attempts.
+The project has 46 automated tests across two files. `test/index.spec.ts` (43 tests) is integration-heavy: full Worker lifecycle (health, 404, 405, CORS, caching, filtering, data quality), unit coverage for every exported pure function (`parseBtcAmount`, `mapCountryCode`, `categorizeCompany`, `determineEntityType`, `cleanCompanyName`), and negative cases like origin prefix spoofing and cache key injection. `test/scraping/parseHomepage.spec.ts` (3 tests) runs the parser against a real homepage snapshot.
+
+### Structured Observability via console.log JSON
+Every interesting branch - cache hit, scrape success, scrape fallback, scrape error, forced refresh - emits a single JSON line through `logEvent(event, fields)` in `src/observability.js`. Cloudflare Workers Logs indexes the JSON, so I can filter the dashboard by `event:"scrape_result" AND outcome:"fallback"` and watch the `parsed_count` / `upstream_status` / `duration_ms` fields drift over time without bolting on a separate telemetry stack.
+
+### Locking the Scraping Contract With an HTML Fixture
+A 1.6 MB snapshot of the BitcoinTreasuries.net homepage lives at `test/fixtures/bitcointreasuries-homepage.html`. Miniflare's `modulesRules` maps `**/*.html` to the Text module type, so the fixture imports as a string and `parseHomepageHtml` runs against it in CI. The contract: parse at least 50 entities and always find Strategy (MSTR) above 100,000 BTC. When upstream HTML eventually drifts, CI breaks on the next fixture refresh - well before production scrapes start returning fallback data.
 
 ## Engineering Decisions
 
@@ -61,8 +67,14 @@ The project has 38 automated tests: integration tests verify the full worker lif
 ### Status-aware retries with a per-attempt timeout
 - **Constraint**: The upstream is a third-party site that occasionally rate-limits or 5xxes, but also returns 403/404 when it has actually rejected the request. Blindly retrying everything wastes Worker CPU and looks like an attack.
 - **Options**: Retry everything; retry nothing; classify by status.
-- **Choice**: Retry only 429 and 5xx codes; fail fast on 403/404; 10-second timeout per attempt, exponential backoff between attempts (`fetchWithRetries` in `src/index.js`).
+- **Choice**: Retry only 429 and 5xx codes; fail fast on 403/404; 10-second timeout per attempt, exponential backoff between attempts (`fetchWithRetries` in `src/fetchWithRetries.js`).
 - **Why**: Keeps the worker responsive on permanent failures and only burns budget on transient ones.
+
+### Share category and country tables with the sibling proxy via JSON files
+- **Constraint**: This Worker and the sibling `Crypto-Proxy-coingecko` Worker need the same ticker -> category map and the same country slug -> ISO code map. Two inline copies drift the moment one repo gets a fix the other doesn't.
+- **Options**: Inline tables and trust diff reviews; publish a shared npm package; duplicate the data as JSON with a written sync contract.
+- **Choice**: Duplicate as `data/categories.json` and `data/countries.json`, byte-identical between the two repos, with `data/KEEP_IN_SYNC.md` describing the rule and pointing the reviewer at a one-line `diff` check. Each file carries a dated `version` string.
+- **Why**: Zero build-time coupling, no package version skew, no private-registry plumbing. Drift is loud (a non-empty `diff`) rather than silent.
 
 ## Frequently Asked Questions
 
@@ -88,7 +100,10 @@ Workers run at the edge globally, which means low latency for BTC Explorer users
 This Cloudflare Workers flag ensures that the `fetch()` API can only reach public internet addresses, not internal Cloudflare services or private IPs. It's a security measure that prevents the worker from being used as a proxy to internal resources.
 
 ### How is country data normalized?
-Country data comes from flag image URLs in the HTML (e.g., `/countries/united-states`). The `mapCountryCode` function maps these slugs to ISO 2-letter codes using a lookup table of ~45 countries (including New Zealand, South Africa, Switzerland, Argentina, Gibraltar, Seychelles, and others). Unrecognized slugs have their normalized form (letters-only, lowercased) truncated to 2 uppercase characters as a best-effort fallback, falling back to `US` if the slug is empty.
+Country data comes from flag image URLs in the HTML (e.g., `/countries/united-states`). The `mapCountryCode` function in `src/scraping/countries.js` normalizes the slug (lowercase, alpha-only) and looks it up in `data/countries.json` to return an ISO 3166-1 alpha-2 code. The map covers ~50 countries with both long-form (`unitedkingdom` -> `GB`) and shorthand (`uk` -> `GB`, `bvi` -> `VG`) entries. Unknown slugs return `US` as a deliberate, conservative default rather than a synthesized two-letter guess.
+
+### How do you catch upstream HTML drift before production breaks?
+`test/fixtures/bitcointreasuries-homepage.html` is a 1.6 MB live snapshot of the upstream homepage. Vitest's Miniflare config maps `**/*.html` to the Text module type, so `test/scraping/parseHomepage.spec.ts` can `import html from '../fixtures/...'` and feed it to `parseHomepageHtml`. The fixture tests assert that the parser still extracts >= 50 entities and still finds Strategy (MSTR) as a top entity with >100k BTC. When upstream eventually changes the HTML structure (renames a class, swaps a `<table>` for a `<div>`, etc.), the next fixture refresh in CI will fail those assertions, and I get a heads-up well before the production scrape silently falls through to the curated dataset.
 
 ### How are static assets served?
 Static assets (the OG preview image `preview.png` and favicons) are served via Cloudflare's static assets binding. The `public/` directory is uploaded alongside the Worker, and Cloudflare serves matching file paths (`/assets/*`) directly from its edge CDN without invoking the Worker. The `run_worker_first: ["/", "/health"]` configuration ensures API routes always hit the Worker's fetch handler, preventing static files from accidentally shadowing the API. This approach provides zero Worker CPU cost for image requests while keeping API routing explicit and safe.

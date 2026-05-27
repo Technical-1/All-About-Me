@@ -2,7 +2,7 @@
 
 ## Overview
 
-Kid Talk Translator Pro is a web app that helps adults decode Gen Alpha and Gen Z slang. It combines a curated local dictionary of 90+ terms with LLM-backed contextual analysis (Anthropic Claude Haiku 4.5) and live Urban Dictionary lookups, exposing smart decoding, a browsable dictionary, and community-submitted terms with real-time voting.
+Kid Talk Translator Pro is a web app that helps adults decode Gen Alpha and Gen Z slang. It pairs a curated local dictionary of 100+ terms with LLM-backed contextual analysis (Anthropic Claude Haiku 4.5) and live Urban Dictionary lookups, exposing smart decoding, a browsable dictionary, and community-submitted terms with real-time voting. The community layer is backed by Firestore security rules that enforce vote integrity and daily-submission caps server-side rather than trusting the client.
 
 ## Problem Solved
 
@@ -26,19 +26,19 @@ Modern youth slang turns over fast and is contextual — a single term can flip 
 ## Technical Highlights
 
 ### Dual Translation Engine
-Every decode request fans out to two engines in parallel. The local dictionary (sorted by term length so multi-word phrases match before their constituent words) returns instantly with curated entries; an LLM call returns shortly after with cultural context and tone notes. The UI renders dictionary hits immediately and slots the AI commentary in when it arrives, so latency never blocks the primary answer. See `webapp/src/hooks/useTranslation.js` and `webapp/src/hooks/useAiTranslation.js`.
+Every decode request fans out to two engines in parallel. The local dictionary (sorted by term length so multi-word phrases match before their constituent words) returns instantly with curated entries; an LLM call returns shortly after with cultural context and tone notes. The UI renders dictionary hits immediately and slots the AI commentary in when it arrives, so latency never blocks the primary answer. The shared term-matching helper `webapp/src/utils/findTermsInText.js` powers both the local-dictionary path in `useTranslation` and the Urban Dictionary path in `dictionaryService`, so word-boundary bugs only need to be fixed once.
 
-### Feature-Scoped Architecture
-`App.jsx` is a ~40-line shell. Each tab (Decode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks (`useTranslation`, `useAiTranslation`, `useDictionary`, `useCommunity`). This keeps render code thin and concentrates the testable behaviour in the hooks layer.
+### Firestore Rules as the Integrity Contract
+Voting writes both the per-user vote doc and the submission's aggregate counters (`upvotes`, `downvotes`, `netScore`) inside a Firestore client transaction. But the *real* guarantee lives in `firebase/firestore.rules`: each counter delta is bounded to ±1, `netScore` must equal `upvotes − downvotes` after the write, only the three counter keys may change, and the per-user daily counter doc enforces the 5-submissions-per-UTC-day cap with explicit same-day-increment and new-day-reset shapes. The client transaction's job is to satisfy the rules; the rules are unit-tested against the Firestore emulator and a regression that loosens an invariant fails CI.
 
-### Community Voting with Firestore Transactions
-Voting writes both the per-user vote doc and the submission's aggregate counters (`upvotes`, `downvotes`, `netScore`) inside a single Firestore transaction, so concurrent votes can't desync the totals. Submissions are deduplicated case-insensitively, filtered through a content blacklist, and rate-limited to 5/day per user. See `webapp/src/services/communityService.js`.
+### Feature-Scoped Architecture with a Single Listener
+`App.jsx` is a ~40-line shell. Each tab (Decode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks. `ApprovedTermsContext` owns the only `onSnapshot` subscription for approved community submissions — both `useDictionary` and `useCommunity` consume the same stream, halving the Firestore listener count and eliminating duplicate-result races between the two consumers.
 
-### Four-Layer Caching
-Vercel KV caches LLM and Urban Dictionary responses server-side in production. On the client, an in-memory `Map` covers the current session, a 20-entry LRU in `localStorage` persists AI translations across reloads, and a separate 7-day `localStorage` bucket holds popular-word lookups. Any layer can be missing and the next one absorbs the load.
+### Four-Layer Caching + Per-IP Rate Limiting
+Vercel KV caches LLM and Urban Dictionary responses server-side in production. On the client, an in-memory `Map` covers the current session, a 20-entry LRU in `localStorage` persists AI translations across reloads, and a separate 7-day `localStorage` bucket holds popular-word lookups. The same KV instance also stores per-IP rate-limit counters via `webapp/api/_lib/rate-limit.js`, which falls back to a self-pruning in-memory map when KV is unavailable instead of erroring. Anonymous requests without `x-forwarded-for` share an `unknown` bucket rather than getting a bypass.
 
 ### Shared Dictionary as Single Source of Truth
-`shared/slangDictionary.js` is the canonical store; the web app reads a copy synced into `webapp/src/data/` at build time. Adding a term means editing one file — no schema migration, no rebuild plumbing.
+`shared/slangDictionary.js` is the canonical store; the web app reads a copy synced into `webapp/src/data/` at build time. Adding a term means editing one file — no schema migration, no rebuild plumbing. The same parser (`scripts/lib/dict-utils.js`) is used by both ingestion workflows so trending and community merges write identical entry shapes.
 
 ## Engineering Decisions
 
@@ -53,6 +53,12 @@ Vercel KV caches LLM and Urban Dictionary responses server-side in production. O
 - **Options**: Client-side increments (race-prone); Cloud Functions trigger; client-side Firestore transaction
 - **Choice**: Client-side transaction that reads the vote doc, computes the delta, and writes both the vote and the counters atomically
 - **Why**: Keeps the deploy surface to one (the web app) and gives strong consistency without a serverless cold-start in the voting path.
+
+### Server-side rules instead of trusting the client (vs. trusting the transaction alone)
+- **Constraint**: A client-side transaction protects honest concurrent writers but doesn't stop a hand-crafted Firestore write that sets `upvotes: 10000`. The integrity guarantee can't live only in the client code
+- **Options**: Cloud Functions-mediated writes; admin SDK with a thin REST layer; tighten Firestore rules
+- **Choice**: Push the invariants — bounded counter deltas, `netScore == upvotes − downvotes`, UTC-day cap, dedup via `activeTermLower` — into `firebase/firestore.rules` and unit-test the rules against the Firestore emulator
+- **Why**: No extra deploy target, no cold start, and the rules become the contract that any client (current or future) has to satisfy. Tests run in CI via `npm run test:rules`.
 
 ### Vite proxy for dev, Vercel functions for prod
 - **Constraint**: Urban Dictionary blocks CORS from localhost, and the Anthropic API key can't ship to the browser
@@ -75,7 +81,7 @@ Vercel KV caches LLM and Urban Dictionary responses server-side in production. O
 The curated 90+ entries have vetted definitions, examples, wrong-usage warnings, and pronunciation. Urban Dictionary fills the long tail but ranges from gold to garbage, so it's used as a fallback for unmatched terms and as a feed for the trending row — never as the primary source.
 
 ### How are abusive or spammy community submissions handled?
-Three layers: a client-side blacklist in `webapp/src/utils/blacklist.js` rejects obvious profanity and slurs at submit time; a 5/day per-user rate limit slows down spam; and the merge pipeline only promotes submissions with 25+ net upvotes, so anything not endorsed by the community never reaches the dictionary.
+Four layers, with each as a backstop for the one above it: a client-side blacklist in `webapp/src/utils/blacklist.js` rejects profanity, slurs, and Unicode-confusable look-alikes at submit time; the per-IP API rate limiter throttles abusive clients (`webapp/api/_lib/rate-limit.js`); Firestore rules enforce the 5-submissions-per-UTC-day cap server-side via the `users/{uid}` counter doc, so even a bypassed client can't exceed it; and the merge pipeline only promotes submissions with 25+ net upvotes, so unendorsed terms never reach the dictionary.
 
 ### What model powers the AI insight panel?
 Anthropic Claude Haiku 4.5, called via `@anthropic-ai/sdk` from a Vercel serverless function (`webapp/api/ai-translate.js`). Haiku was chosen for cost and latency — slang explanations don't need a frontier model, and the cached prompts amortise across users.
@@ -90,4 +96,7 @@ Tailwind's `darkMode: 'class'` strategy. `ThemeContext` reads OS `prefers-color-
 Edit `shared/slangDictionary.js` with `definition`, `example`, `wrongUsage`, `era`, `origin`, `type`, and `pronunciation`. The next build syncs it into `webapp/src/data/` and the web app picks it up.
 
 ### What's the test setup?
-57 tests across 12 files using Vitest and React Testing Library — covering layout components, the hooks layer (notably `useAiTranslation`), the dictionary service, the auth/theme contexts, and the utilities (speak, blacklist, detectInputType). GitHub Actions runs the full suite on every push and PR.
+212 tests across 28 files using Vitest and React Testing Library — covering layout components, the hooks layer (notably `useAiTranslation`), the dictionary service, the auth/theme/approved-terms contexts, the term-matching helper, the API handlers (`ai-translate`, `urban-dictionary`), the shared API helpers (`cors`, `kv`, `rate-limit`), and the ingestion scripts. Firestore security rules have their own emulator-backed test suite under `firebase/__tests__/` driven by `@firebase/rules-unit-testing`. CI (`.github/workflows/ci-v2.yml`) runs lint, unit tests, rules tests against the Firebase emulator (requires JDK 21), and a production build on every push and PR.
+
+### How does the API protect itself from abuse and misconfigured origins?
+Every handler under `webapp/api/` routes through `webapp/api/_lib/`. `cors.js` is a single-source allowlist for production and dev origins; `rate-limit.js` enforces per-IP buckets backed by Vercel KV with a self-pruning in-memory fallback so a transient KV outage degrades to memory-limit rather than no-limit; `kv.js` exposes an `isReal` flag so the unit tests can swap in a stub without monkey-patching. Anonymous requests (no `x-forwarded-for`) share an `unknown` bucket so they're still rate-limited rather than getting a bypass.
