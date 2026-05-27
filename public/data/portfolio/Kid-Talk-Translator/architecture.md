@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TD
     subgraph SharedData["Shared Data Layer"]
-        SD[shared/slangDictionary.js<br/>90+ terms, filters]
+        SD[shared/slangDictionary.js<br/>100+ terms, filters]
     end
 
     subgraph WebApp["React Web App (webapp/)"]
@@ -14,6 +14,7 @@ flowchart TD
         subgraph Contexts["Context Providers"]
             Theme[ThemeContext<br/>Dark mode]
             Auth[AuthContext<br/>Google + Apple sign-in]
+            Approved[ApprovedTermsContext<br/>Single onSnapshot subscription]
         end
 
         subgraph Tabs["Feature Tabs"]
@@ -31,37 +32,48 @@ flowchart TD
 
         subgraph Services["Service Layer"]
             DictService[dictionaryService.js<br/>API + caching]
-            CommService[communityService.js<br/>Firestore CRUD]
+            CommService[communityService.js<br/>Firestore CRUD + transactions]
         end
 
         subgraph Utils["Utilities"]
             Speak[speak.js]
             Detect[detectInputType.js]
             Escape[escapeRegex.js]
-            Blacklist[blacklist.js]
+            FindTerms[findTermsInText.js<br/>Shared word-boundary matcher]
+            Blacklist[blacklist.js<br/>+ Unicode confusables]
         end
 
         LocalDict[data/slangDictionary.js]
     end
 
+    subgraph Serverless["Vercel API (webapp/api/)"]
+        AIFunc[ai-translate.js]
+        UDFunc[urban-dictionary.js]
+        ApiLib[_lib/<br/>cors + kv + rate-limit]
+        AIFunc --> ApiLib
+        UDFunc --> ApiLib
+    end
+
     subgraph ExternalAPIs["External Services"]
         UD[Urban Dictionary API]
         Claude[LLM API<br/>Anthropic SDK]
-        Firebase[Firebase<br/>Auth + Firestore]
+        FirebaseAuth[Firebase Auth]
+        Firestore[(Firestore<br/>+ firebase/firestore.rules)]
         SentryAPI[Sentry<br/>Error Tracking]
-        KV[(Vercel KV Cache)]
+        KV[(Vercel KV Cache<br/>+ rate-limit counters)]
     end
 
     subgraph Hosting["Deployment"]
         Vercel[Vercel<br/>Hosting + Serverless]
         ViteProxy[Vite Dev Proxy]
-        GHA[GitHub Actions<br/>CI + Ingestion Pipelines]
+        GHA[GitHub Actions<br/>ci-v2 + ingestion pipelines]
     end
 
     SD -->|copied at build| LocalDict
 
     App --> Theme
     App --> Auth
+    App --> Approved
     App --> Decode
     App --> Browse
     App --> Community
@@ -71,20 +83,29 @@ flowchart TD
     Browse --> useDictionary
     Community --> useCommunity
 
+    useTranslation --> FindTerms
     useTranslation --> DictService
     useTranslation --> LocalDict
     useDictionary --> DictService
     useDictionary --> LocalDict
+    useDictionary --> Approved
     useCommunity --> CommService
+    useCommunity --> Approved
+    DictService --> FindTerms
 
     DictService -->|production| Vercel
     DictService -->|development| ViteProxy
     useAiTranslation -->|/api/ai-translate| Vercel
-    CommService --> Firebase
-    Auth --> Firebase
-    Vercel --> UD
-    Vercel --> Claude
-    Vercel --> KV
+    Vercel --> AIFunc
+    Vercel --> UDFunc
+    CommService --> FirebaseAuth
+    CommService --> Firestore
+    Auth --> FirebaseAuth
+    Approved --> Firestore
+    AIFunc --> Claude
+    AIFunc --> KV
+    UDFunc --> UD
+    UDFunc --> KV
     ViteProxy --> UD
     Entry --> SentryAPI
 ```
@@ -148,6 +169,21 @@ flowchart TD
   - User-friendly error messages for common auth failures
   - Provides `user`, `signInWithGoogle`, `signInWithApple`, `signOut`
 
+### ApprovedTermsContext (Single Subscription)
+- **Purpose**: Owns the only `onSnapshot` subscription for approved community submissions
+- **Location**: `webapp/src/context/ApprovedTermsContext.jsx`
+- **Key responsibilities**:
+  - Subscribes once via `subscribeToApproved` at mount
+  - Exposes the live list to both `useDictionary` (for merging into `allTerms`) and `useCommunity` (for the community feed) so they share a single Firestore listener instead of opening one each
+
+### findTermsInText.js (Shared Term Matcher)
+- **Purpose**: One canonical implementation for matching slang terms in arbitrary text
+- **Location**: `webapp/src/utils/findTermsInText.js`
+- **Key responsibilities**:
+  - Sorts candidate terms longest-first so multi-word phrases match before their constituent words ("no cap" beats "no")
+  - Word-boundary regex with claimed-range tracking so partial matches inside other terms don't double-count ("rizz" inside "rizzler" is rejected)
+  - Used by both `useTranslation` (local dictionary path) and `dictionaryService` (Urban Dictionary path)
+
 ### dictionaryService.js (API Layer)
 - **Purpose**: Unified API for slang lookups with multi-tier caching
 - **Location**: `webapp/src/services/dictionaryService.js`
@@ -168,8 +204,26 @@ flowchart TD
 - **Purpose**: Single source of truth for all slang data
 - **Location**: `shared/slangDictionary.js`
 - **Key responsibilities**:
-  - Exports `slangDictionary` (90+ terms with definition, example, wrongUsage, era, origin, type, pronunciation)
+  - Exports `slangDictionary` (100+ terms with definition, example, wrongUsage, era, origin, type, pronunciation)
   - Exports filter option arrays (`tabs`, `eras`, `origins`, `types`)
+
+### webapp/api/_lib/ (Shared API Helpers)
+- **Purpose**: One implementation each for the cross-cutting concerns every serverless function needs
+- **Location**: `webapp/api/_lib/cors.js`, `kv.js`, `rate-limit.js`
+- **Key responsibilities**:
+  - `cors.js` — single `ALLOWED_ORIGINS` array; production domain changes require editing one file
+  - `kv.js` — returns the real Vercel KV client in prod and a no-op stub in tests; `isReal` flag lets callers gate KV-specific paths
+  - `rate-limit.js` — per-IP token bucket using KV `INCR`/`EXPIRE` with an in-memory fallback that self-prunes; trims `x-forwarded-for` whitespace; anonymous requests share an `unknown` bucket rather than bypassing the limit
+
+### firebase/firestore.rules (Server-Side Integrity)
+- **Purpose**: Last line of defence on community-data integrity; the client-side transaction logic can't be trusted alone
+- **Location**: `firebase/firestore.rules` (tested by `firebase/__tests__/firestore.rules.test.js`)
+- **Key responsibilities**:
+  - Vote-counter writes are restricted to the `upvotes`/`downvotes`/`netScore` keys, each delta bounded to ±1, and `netScore` must equal `upvotes − downvotes` after the write
+  - Submissions require `activeTermLower == termLower` on create — clearing `activeTermLower` server-side marks a slug resubmittable after rejection/merge
+  - Per-user counter doc enforces the 5-submissions-per-UTC-day cap; same-day increments must add exactly 1, new-day writes must reset to 1
+  - Vote subcollection reads are owner-only; aggregate counts stay public via the parent submission doc
+  - Delete is denied except via the admin SDK used by the merge workflow
 
 ## Data Flow
 
@@ -199,10 +253,11 @@ flowchart TD
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
 | Urban Dictionary API | Live slang lookups, trending words, daily automated ingestion | `https://api.urbandictionary.com/v0/` |
-| Anthropic Claude (Haiku 4.5) | Contextual slang analysis and cultural insights | `@anthropic-ai/sdk` via Vercel serverless |
+| Anthropic Claude Haiku 4.5 | Contextual slang analysis and cultural insights | `@anthropic-ai/sdk` via Vercel serverless |
 | Firebase Auth | Google and Apple sign-in for community features | `firebase/auth` |
-| Firebase Firestore | Community submissions storage, voting, real-time sync | `firebase/firestore` |
-| Vercel KV | Server-side caching for API responses in production | `@vercel/kv` package |
+| Firebase Firestore | Community submissions storage, voting, real-time sync, server-enforced integrity rules | `firebase/firestore` |
+| Firebase Emulator | Drives the Firestore rules unit tests in CI | `firebase-tools` + `@firebase/rules-unit-testing` |
+| Vercel KV | Server-side response cache + per-IP rate-limit counters | `@vercel/kv` package |
 | Vercel Hosting | Static hosting + serverless API proxy functions | `vercel.json` config |
 | Sentry | Production error tracking and performance monitoring | `@sentry/react` |
 | Web Speech API | Text-to-speech pronunciation of slang terms | Browser built-in |
@@ -221,8 +276,28 @@ flowchart TD
 
 ### Firebase for Community Features
 - **Context**: Community submissions need authentication, real-time updates, and atomic voting
-- **Decision**: Firebase Auth (Google + Apple) + Firestore with transaction-based voting
-- **Rationale**: Firestore's `onSnapshot` provides real-time submission feeds without polling. Transactions ensure vote counts stay consistent. Firebase Auth handles OAuth complexity
+- **Decision**: Firebase Auth (Google + Apple) + Firestore with client-side transaction voting
+- **Rationale**: Firestore's `onSnapshot` provides real-time submission feeds without polling. Client-side transactions ensure vote counts stay consistent without adding Cloud Functions cold starts to the voting path. Firebase Auth handles OAuth complexity
+
+### Firestore Rules as the Integrity Backstop
+- **Context**: A client-side transaction can keep counters consistent under honest concurrent voters, but a malicious client can still write arbitrary values directly to Firestore — the transaction logic isn't part of the trust boundary
+- **Decision**: Move integrity guarantees into `firebase/firestore.rules`: vote-counter deltas bounded to ±1; `netScore == upvotes − downvotes` enforced post-write; submission daily cap (5/UTC-day) and `activeTermLower` dedup invariant checked at the rules layer; vote-doc reads restricted to the owner
+- **Rationale**: The rules become the contract — the client transaction merely satisfies them. Rules are unit-tested against the Firestore emulator (`npm run test:rules`) so a regression that loosens an invariant fails CI
+
+### One onSnapshot for Approved Community Terms
+- **Context**: Both `useDictionary` (merging community-approved terms into `allTerms`) and `useCommunity` (rendering the community feed) needed the same approved-submissions stream and each opened its own listener
+- **Decision**: Lift the subscription into `ApprovedTermsContext`, mount it once at the app root, and consume from both call sites via `useApprovedTerms()`
+- **Rationale**: Halves the Firestore listener count, eliminates duplicate-result races between the two hooks, and removes the need for any in-hook caching
+
+### Shared API Helpers (`webapp/api/_lib/`)
+- **Context**: CORS, KV access, and rate-limiting each appeared in both serverless functions with subtly different copies; a fix in one place often missed the other
+- **Decision**: Extract `cors.js` (single `ALLOWED_ORIGINS` array), `kv.js` (real-or-stub KV with an `isReal` flag for tests), and `rate-limit.js` (per-IP KV bucket with in-memory fallback) under `webapp/api/_lib/`, and route every handler through them
+- **Rationale**: Domain changes touch one file, the rate limiter handles KV outages by falling back to memory instead of erroring, and tests can swap in the fake KV without monkey-patching modules
+
+### Unified Term-Matching Helper
+- **Context**: `useTranslation` and `dictionaryService` both scanned text for slang terms with near-identical but slightly different regex logic, and bugs in one (e.g. "rizz" matching inside "rizzler") didn't get fixed in the other
+- **Decision**: Extract `webapp/src/utils/findTermsInText.js` — word-boundary alternation regex, longest-first sort, claimed-range tracking — and call it from both paths
+- **Rationale**: One place to fix term-overlap bugs; the helper is independently unit-tested so the matching contract is locked down
 
 ### Multi-tier Caching Strategy
 - **Context**: Urban Dictionary has tight rate limits; LLM calls are billed per token; the UI needs fast responses
@@ -231,8 +306,8 @@ flowchart TD
 
 ### Automated Dictionary Growth (Ingestion Pipelines)
 - **Context**: The static dictionary needs to grow over time from two sources — Urban Dictionary trending terms and community submissions
-- **Decision**: Two daily GitHub Actions workflows that fetch/filter terms, insert them into `shared/slangDictionary.js`, sync to `webapp/src/data/`, and open PRs for human review
-- **Rationale**: PRs (not direct commits) keep a human in the loop. Scripts use `JSON.stringify()` for all UD content to prevent code injection, `--body-file` for shell safety, and atomic writes (tmp + rename) for corruption resistance
+- **Decision**: Two daily GitHub Actions workflows that fetch/filter terms, insert them into `shared/slangDictionary.js` via the shared `scripts/lib/dict-utils.js` parser, sync to `webapp/src/data/`, and open PRs for human review
+- **Rationale**: PRs (not direct commits) keep a human in the loop. Scripts use `JSON.stringify()` for all UD content to prevent code injection, `--body-file` for shell safety, and atomic temp-file writes for corruption resistance
 
 ### Vite Dev Proxy for API Calls
 - **Context**: Urban Dictionary doesn't support CORS from localhost, and the Anthropic API needs server-side keys
