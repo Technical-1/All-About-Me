@@ -301,7 +301,8 @@ async function processRepo(repo) {
       private: repo.private,
       fork: repo.fork,
       archived: repo.archived,
-      pushed_at: repo.pushed_at
+      pushed_at: repo.pushed_at,
+      topics: repo.topics || []
     },
     languages,
     language_bytes: finalLangBytes,
