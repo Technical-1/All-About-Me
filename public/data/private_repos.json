@@ -9,7 +9,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T07:53:21Z"
+      "pushed_at": "2026-05-26T07:53:21Z",
+      "topics": []
     },
     "languages": [],
     "language_bytes": {},
@@ -27,7 +28,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T16:03:14Z"
+      "pushed_at": "2025-11-27T16:03:14Z",
+      "topics": []
     },
     "languages": [
       "JavaScript"
@@ -49,7 +51,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T13:49:58Z"
+      "pushed_at": "2026-05-27T13:49:58Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -82,7 +85,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T18:13:00Z"
+      "pushed_at": "2026-05-19T18:13:00Z",
+      "topics": [
+        "blackjack",
+        "card-counting",
+        "react",
+        "tailwindcss",
+        "typescript",
+        "vite"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -113,7 +124,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:38:55Z"
+      "pushed_at": "2026-05-26T05:38:55Z",
+      "topics": [
+        "bitcoin",
+        "blockchain",
+        "cryptocurrency",
+        "data-visualization",
+        "react",
+        "threejs"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -149,7 +168,13 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-11T19:23:52Z"
+      "pushed_at": "2025-12-11T19:23:52Z",
+      "topics": [
+        "blues-brothers",
+        "framer-motion",
+        "react",
+        "vite"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -175,7 +200,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T12:48:54Z"
+      "pushed_at": "2026-05-27T12:48:54Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -201,7 +227,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:37:55Z"
+      "pushed_at": "2026-05-26T22:37:55Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -225,7 +252,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-07-29T13:05:46Z"
+      "pushed_at": "2025-07-29T13:05:46Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -247,7 +275,11 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T13:49:59Z"
+      "pushed_at": "2026-05-27T13:49:59Z",
+      "topics": [
+        "cloudflare-worker",
+        "coingecko"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -280,7 +312,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-01T01:52:48Z"
+      "pushed_at": "2026-02-01T01:52:48Z",
+      "topics": [
+        "csny",
+        "framer-motion",
+        "javascript",
+        "react",
+        "vite"
+      ]
     },
     "languages": [
       "CSS",
@@ -306,7 +345,15 @@
       "private": true,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-27T17:12:24Z"
+      "pushed_at": "2026-05-27T17:12:24Z",
+      "topics": [
+        "automation",
+        "mental-health",
+        "messaging",
+        "sms",
+        "twilio",
+        "wellness"
+      ]
     },
     "languages": [
       "JavaScript"
@@ -335,7 +382,24 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:39:05Z"
+      "pushed_at": "2026-05-26T05:39:05Z",
+      "topics": [
+        "algorithmic-art",
+        "canvas",
+        "creative-coding",
+        "differential-growth",
+        "generative-art",
+        "nextjs",
+        "organic-patterns",
+        "procedural-generation",
+        "pwa",
+        "react",
+        "simulation",
+        "tailwindcss",
+        "typescript",
+        "webgl",
+        "zustand"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -369,7 +433,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T20:02:45Z"
+      "pushed_at": "2026-01-14T20:02:45Z",
+      "topics": [
+        "luxury",
+        "nextjs",
+        "react",
+        "tailwindcss",
+        "transportation",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -395,7 +467,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:11:56Z"
+      "pushed_at": "2026-05-26T05:11:56Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -423,7 +496,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:39:45Z"
+      "pushed_at": "2026-05-26T05:39:45Z",
+      "topics": [
+        "browser-based",
+        "email-analyzer",
+        "email-archive",
+        "email-parser",
+        "indexeddb",
+        "offline",
+        "privacy",
+        "react",
+        "typescript",
+        "vite"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -458,7 +543,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T12:58:26Z"
+      "pushed_at": "2026-05-27T12:58:26Z",
+      "topics": [
+        "2fa",
+        "automation",
+        "email-client",
+        "imap",
+        "ios",
+        "oauth2",
+        "swift",
+        "swiftui",
+        "verification-code",
+        "xcode"
+      ]
     },
     "languages": [
       "Swift",
@@ -491,7 +588,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-13T15:24:55Z"
+      "pushed_at": "2026-05-13T15:24:55Z",
+      "topics": [
+        "nextjs",
+        "react",
+        "security",
+        "tailwindcss",
+        "typescript",
+        "vercel"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -517,7 +622,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-13T06:36:34Z"
+      "pushed_at": "2026-02-13T06:36:34Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -543,7 +649,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:19:47Z"
+      "pushed_at": "2026-05-27T17:19:47Z",
+      "topics": [
+        "blockchain",
+        "ethereum",
+        "nft",
+        "react",
+        "staking",
+        "vite"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -576,7 +690,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-07-24T16:10:53Z"
+      "pushed_at": "2025-07-24T16:10:53Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -598,7 +713,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:16:37Z"
+      "pushed_at": "2026-05-26T05:16:37Z",
+      "topics": [
+        "b2b-wholesale",
+        "cost-optimization",
+        "custom-css",
+        "ecommerce",
+        "javascript",
+        "liquid",
+        "shopify",
+        "shopify-theme"
+      ]
     },
     "languages": [
       "Liquid",
@@ -633,7 +758,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:24:27Z"
+      "pushed_at": "2026-05-26T05:24:27Z",
+      "topics": [
+        "ambient-music",
+        "audio-visualization",
+        "creative-coding",
+        "expo",
+        "generative-art",
+        "particle-system",
+        "react-native",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -668,7 +803,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:53:51Z"
+      "pushed_at": "2026-05-27T17:53:51Z",
+      "topics": [
+        "firebase",
+        "pwa",
+        "react",
+        "tailwindcss",
+        "tanstack-router",
+        "typescript",
+        "vercel",
+        "vite",
+        "web-scraping",
+        "wishlist"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -703,7 +850,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T18:12:01Z"
+      "pushed_at": "2026-01-06T18:12:01Z",
+      "topics": [
+        "caching",
+        "cloudflare-workers",
+        "cors",
+        "github-api",
+        "proxy",
+        "rate-limiting"
+      ]
     },
     "languages": [
       "TypeScript"
@@ -725,7 +880,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:48:06Z"
+      "pushed_at": "2026-05-26T05:48:06Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -753,7 +909,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-05-26T14:12:57Z"
+      "pushed_at": "2025-05-26T14:12:57Z",
+      "topics": []
     },
     "languages": [
       "Swift"
@@ -775,7 +932,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-09T17:30:06Z"
+      "pushed_at": "2026-02-09T17:30:06Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -799,7 +957,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-22T00:39:14Z"
+      "pushed_at": "2026-01-22T00:39:14Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -825,7 +984,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T13:39:31Z"
+      "pushed_at": "2026-05-27T13:39:31Z",
+      "topics": [
+        "automation",
+        "browser-automation",
+        "chrome",
+        "cross-platform",
+        "desktop-app",
+        "electron",
+        "electron-builder",
+        "nodejs",
+        "puppeteer",
+        "scheduler"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -856,7 +1027,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T22:37:18Z"
+      "pushed_at": "2026-01-14T22:37:18Z",
+      "topics": [
+        "aws",
+        "bedrock",
+        "dynamodb",
+        "eventbridge",
+        "lambda",
+        "python",
+        "s3",
+        "sagemaker",
+        "selenium",
+        "web-scraping"
+      ]
     },
     "languages": [
       "Python",
@@ -882,7 +1065,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T12:24:08Z"
+      "pushed_at": "2026-05-27T12:24:08Z",
+      "topics": [
+        "gen-alpha",
+        "gen-z",
+        "react",
+        "slang-dictionary",
+        "translator"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -915,7 +1105,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:22:22Z"
+      "pushed_at": "2026-05-26T05:22:22Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -949,7 +1140,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-16T18:44:36Z"
+      "pushed_at": "2026-03-16T18:44:36Z",
+      "topics": []
     },
     "languages": [
       "Svelte",
@@ -981,7 +1173,21 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:41:53Z"
+      "pushed_at": "2026-05-26T05:41:53Z",
+      "topics": [
+        "braille",
+        "education",
+        "flashcards",
+        "learning-app",
+        "morse-code",
+        "nato-phonetic-alphabet",
+        "pwa",
+        "react",
+        "spaced-repetition",
+        "tailwindcss",
+        "typescript",
+        "vite"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1018,7 +1224,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-04T16:21:20Z"
+      "pushed_at": "2025-12-04T16:21:20Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -1058,7 +1265,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-06-20T21:57:05Z"
+      "pushed_at": "2025-06-20T21:57:05Z",
+      "topics": []
     },
     "languages": [
       "Swift",
@@ -1092,7 +1300,24 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:43:32Z"
+      "pushed_at": "2026-05-26T05:43:32Z",
+      "topics": [
+        "anthropic",
+        "claude",
+        "cytoscape",
+        "imessage",
+        "knowledge-graph",
+        "macos",
+        "mcp",
+        "model-context-protocol",
+        "nextjs",
+        "personal-tools",
+        "quantified-self",
+        "relationship-graph",
+        "tailwindcss",
+        "typescript",
+        "visualization"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1127,7 +1352,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:06Z"
+      "pushed_at": "2026-05-26T05:12:06Z",
+      "topics": [
+        "budget-tracker",
+        "indexeddb",
+        "javascript",
+        "personal-finance",
+        "pwa",
+        "react",
+        "vite",
+        "zustand"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -1160,7 +1395,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:44:20Z"
+      "pushed_at": "2026-05-26T22:44:20Z",
+      "topics": []
     },
     "languages": [
       "Swift",
@@ -1191,7 +1427,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-03-25T02:42:55Z"
+      "pushed_at": "2025-03-25T02:42:55Z",
+      "topics": []
     },
     "languages": [],
     "language_bytes": {},
@@ -1209,7 +1446,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:38:47Z"
+      "pushed_at": "2026-05-26T05:38:47Z",
+      "topics": [
+        "canvas",
+        "collaboration",
+        "crdt",
+        "encryption",
+        "javascript",
+        "p2p",
+        "partykit",
+        "realtime",
+        "whiteboard",
+        "yjs"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -1247,7 +1496,21 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:32Z"
+      "pushed_at": "2026-05-26T05:45:32Z",
+      "topics": [
+        "claude-code",
+        "desktop-app",
+        "developer-tools",
+        "github-api",
+        "productivity",
+        "react",
+        "rust",
+        "sqlite",
+        "tailwindcss",
+        "tanstack-query",
+        "tauri",
+        "typescript"
+      ]
     },
     "languages": [
       "Rust",
@@ -1284,7 +1547,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:11:56Z"
+      "pushed_at": "2026-05-26T05:11:56Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -1312,7 +1576,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:23:48Z"
+      "pushed_at": "2026-05-26T08:23:48Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -1336,7 +1601,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:23:43Z"
+      "pushed_at": "2026-05-26T08:23:43Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -1360,7 +1626,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-22T08:49:17Z"
+      "pushed_at": "2026-05-22T08:49:17Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -1396,7 +1663,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:44:40Z"
+      "pushed_at": "2026-05-26T22:44:40Z",
+      "topics": []
     },
     "languages": [
       "Rust",
@@ -1431,7 +1699,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-13T00:59:55Z"
+      "pushed_at": "2026-02-13T00:59:55Z",
+      "topics": []
     },
     "languages": [],
     "language_bytes": {},
@@ -1449,7 +1718,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-06-26T19:54:14Z"
+      "pushed_at": "2025-06-26T19:54:14Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -1477,7 +1747,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-10-12T21:34:03Z"
+      "pushed_at": "2025-10-12T21:34:03Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -1501,7 +1772,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:48:03Z"
+      "pushed_at": "2026-05-27T17:48:03Z",
+      "topics": [
+        "electron",
+        "nodejs",
+        "puppeteer",
+        "redfin",
+        "web-scraping"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -1532,7 +1810,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:46:47Z"
+      "pushed_at": "2026-05-26T05:46:47Z",
+      "topics": [
+        "cron",
+        "free-tier",
+        "github-actions",
+        "keepalive",
+        "nodejs",
+        "redis",
+        "typescript",
+        "upstash",
+        "vercel",
+        "vercel-marketplace"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1565,7 +1855,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:05:03Z"
+      "pushed_at": "2026-05-26T08:05:03Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -1591,7 +1882,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:19:01Z"
+      "pushed_at": "2026-05-26T05:19:01Z",
+      "topics": [
+        "admin-panel",
+        "firebase",
+        "mobile-first",
+        "react",
+        "restaurant",
+        "tailwindcss",
+        "template",
+        "theming",
+        "vite",
+        "white-label"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -1624,7 +1927,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:53Z"
+      "pushed_at": "2026-05-26T05:12:53Z",
+      "topics": [
+        "ai",
+        "local-l",
+        "pwa",
+        "react",
+        "resume-optimizer",
+        "typescript",
+        "vite",
+        "webgpu",
+        "webllm",
+        "zustand"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1656,7 +1971,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-25T20:15:30Z"
+      "pushed_at": "2026-02-25T20:15:30Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -1686,7 +2002,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-09T21:37:04Z"
+      "pushed_at": "2025-12-09T21:37:04Z",
+      "topics": [
+        "ai-powered",
+        "azure",
+        "azure-functions",
+        "blob-storage",
+        "document-analysis",
+        "ocr-processing"
+      ]
     },
     "languages": [
       "Python"
@@ -1708,7 +2032,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-10-28T14:13:49Z"
+      "pushed_at": "2025-10-28T14:13:49Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -1734,7 +2059,24 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-23T07:38:22Z"
+      "pushed_at": "2026-05-23T07:38:22Z",
+      "topics": [
+        "business-management",
+        "crm",
+        "dashboard",
+        "firebase",
+        "mantine",
+        "nextjs",
+        "rbac",
+        "react",
+        "real-time",
+        "responsive-design",
+        "scheduling",
+        "service-management",
+        "tailwindcss",
+        "typescript",
+        "zustand"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1764,7 +2106,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:39:47Z"
+      "pushed_at": "2026-05-26T05:39:47Z",
+      "topics": [
+        "ai",
+        "backgammon",
+        "board-game",
+        "browser-game",
+        "game",
+        "nextjs",
+        "react",
+        "threejs",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1799,7 +2152,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:25Z"
+      "pushed_at": "2026-05-26T05:12:25Z",
+      "topics": [
+        "apple-music",
+        "claude-ai",
+        "dj",
+        "ios",
+        "music",
+        "playlist",
+        "swift",
+        "swiftui"
+      ]
     },
     "languages": [
       "Swift"
@@ -1825,7 +2188,15 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-24T19:45:45Z"
+      "pushed_at": "2026-01-24T19:45:45Z",
+      "topics": [
+        "ios-app",
+        "landing-page",
+        "music",
+        "threejs",
+        "vercel",
+        "vite"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -1851,7 +2222,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:24:46Z"
+      "pushed_at": "2026-05-26T05:24:46Z",
+      "topics": []
     },
     "languages": [
       "Swift",
@@ -1882,7 +2254,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-27T17:29:15Z"
+      "pushed_at": "2025-12-27T17:29:15Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -1910,7 +2283,8 @@
       "private": true,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-04-21T06:14:28Z"
+      "pushed_at": "2026-04-21T06:14:28Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -1950,7 +2324,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T09:58:56Z"
+      "pushed_at": "2026-05-26T09:58:56Z",
+      "topics": []
     },
     "languages": [
       "Liquid",
@@ -1980,7 +2355,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:39:53Z"
+      "pushed_at": "2026-05-26T05:39:53Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -2015,7 +2391,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:48:30Z"
+      "pushed_at": "2026-05-26T05:48:30Z",
+      "topics": []
     },
     "languages": [
       "TypeScript",
@@ -2049,7 +2426,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-07-05T14:28:11Z"
+      "pushed_at": "2025-07-05T14:28:11Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -2071,7 +2449,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:11:39Z"
+      "pushed_at": "2026-05-26T05:11:39Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -2104,7 +2483,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:18:15Z"
+      "pushed_at": "2026-05-26T05:18:15Z",
+      "topics": [
+        "aws",
+        "aws-bedrock-agents",
+        "aws-fargate",
+        "chatbot",
+        "selenium"
+      ]
     },
     "languages": [
       "HTML",
@@ -2134,7 +2520,8 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-06T17:19:25Z"
+      "pushed_at": "2026-02-06T17:19:25Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -2166,7 +2553,8 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-26T09:54:49Z"
+      "pushed_at": "2026-05-26T09:54:49Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -2220,7 +2608,17 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T18:26:43Z"
+      "pushed_at": "2026-05-27T18:44:49Z",
+      "topics": [
+        "ai-chat",
+        "astro",
+        "personal-website",
+        "portfolio",
+        "rag",
+        "react",
+        "tailwindcss",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -2236,7 +2634,7 @@
       "Astro": 85315,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 23148,
+      "JavaScript": 23181,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2253,35 +2651,6 @@
   },
   {
     "repo": {
-      "name": "APComputerScienceA2019-2020",
-      "full_name": "Technical-1/APComputerScienceA2019-2020",
-      "html_url": "https://github.com/Technical-1/APComputerScienceA2019-2020",
-      "homepage": null,
-      "description": "AP Computer Science A coursework, 2019-2020",
-      "private": false,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-27T18:34:23Z"
-    },
-    "languages": [
-      "Java"
-    ],
-    "language_bytes": {
-      "Java": 64590
-    },
-    "primary_language": "Java",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/apcomputersciencea2019-2020/preview.png"
-    ]
-  },
-  {
-    "repo": {
       "name": "CAP4770-Final_Project",
       "full_name": "Technical-1/CAP4770-Final_Project",
       "html_url": "https://github.com/Technical-1/CAP4770-Final_Project",
@@ -2290,7 +2659,15 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-27T17:20:20Z"
+      "pushed_at": "2026-05-27T17:20:20Z",
+      "topics": [
+        "data-science",
+        "machine-learning",
+        "neural-network",
+        "nyc-taxi",
+        "python",
+        "tensorflow"
+      ]
     },
     "languages": [
       "Jupyter Notebook",
@@ -2321,7 +2698,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-25T05:52:50Z"
+      "pushed_at": "2022-05-25T05:52:50Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -2343,7 +2721,11 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T12:18:25Z"
+      "pushed_at": "2026-05-27T12:18:25Z",
+      "topics": [
+        "scheduling",
+        "time-blocking"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2378,7 +2760,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-24T22:46:52Z"
+      "pushed_at": "2022-05-24T22:46:52Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -2400,7 +2783,17 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T22:33:54Z"
+      "pushed_at": "2026-01-06T22:33:54Z",
+      "topics": [
+        "email-archive",
+        "email-parser",
+        "gmail",
+        "mbox",
+        "npm",
+        "olm",
+        "outlook",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript"
@@ -2422,7 +2815,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-06-02T14:59:56Z"
+      "pushed_at": "2022-06-02T14:59:56Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -2444,7 +2838,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:16:59Z"
+      "pushed_at": "2026-05-26T22:16:59Z",
+      "topics": []
     },
     "languages": [
       "Rust",
@@ -2481,7 +2876,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T07:08:54Z"
+      "pushed_at": "2026-05-27T07:08:54Z",
+      "topics": [
+        "archive",
+        "backup",
+        "git",
+        "github",
+        "preservation"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2519,7 +2921,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-21T17:50:17Z"
+      "pushed_at": "2025-11-21T17:50:17Z",
+      "topics": []
     },
     "languages": [
       "CSS",
@@ -2549,7 +2952,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:02Z"
+      "pushed_at": "2026-05-26T05:12:02Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -2582,7 +2986,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-03-04T00:35:52Z"
+      "pushed_at": "2025-03-04T00:35:52Z",
+      "topics": []
     },
     "languages": [
       "JavaScript",
@@ -2606,7 +3011,13 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-03-06T21:14:48Z"
+      "pushed_at": "2025-03-06T21:14:48Z",
+      "topics": [
+        "applescript",
+        "automation",
+        "iphone-mirroring",
+        "python3"
+      ]
     },
     "languages": [
       "Python"
@@ -2628,7 +3039,16 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-27T17:30:53Z"
+      "pushed_at": "2026-05-27T17:30:53Z",
+      "topics": [
+        "2020-election",
+        "css",
+        "html",
+        "javascript",
+        "static-site",
+        "vanilla-js",
+        "voter-education"
+      ]
     },
     "languages": [
       "HTML",
@@ -2661,7 +3081,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:42:14Z"
+      "pushed_at": "2026-05-26T05:42:14Z",
+      "topics": [
+        "frame-creator",
+        "led",
+        "neomatrix",
+        "rust",
+        "ws2812"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2694,7 +3121,16 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-27T17:32:56Z"
+      "pushed_at": "2026-05-27T17:32:56Z",
+      "topics": [
+        "ast",
+        "compiler",
+        "interpreter",
+        "java",
+        "lexer",
+        "parser",
+        "programming-language"
+      ]
     },
     "languages": [
       "Java",
@@ -2725,7 +3161,12 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:38Z"
+      "pushed_at": "2026-05-26T05:45:38Z",
+      "topics": [
+        "particle-system",
+        "threejs",
+        "webgl"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2758,7 +3199,17 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:56Z"
+      "pushed_at": "2026-05-26T05:45:56Z",
+      "topics": [
+        "bootstrap",
+        "cli",
+        "developer-tools",
+        "project-template",
+        "python",
+        "ruff",
+        "scaffolding",
+        "uv"
+      ]
     },
     "languages": [
       "Python",
@@ -2793,7 +3244,22 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-26T05:55:27Z"
+      "pushed_at": "2026-05-26T05:55:27Z",
+      "topics": [
+        "2fa",
+        "aes-256-gcm",
+        "argon2",
+        "cross-platform",
+        "desktop-app",
+        "egui",
+        "encryption",
+        "password",
+        "password-generator",
+        "password-manager",
+        "rust",
+        "security",
+        "totp"
+      ]
     },
     "languages": [
       "Rust",
@@ -2824,7 +3290,16 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T18:21:06Z"
+      "pushed_at": "2026-05-27T18:21:06Z",
+      "topics": [
+        "claude-code",
+        "developer-tools",
+        "nextjs",
+        "preview",
+        "typescript",
+        "upstash-redis",
+        "vercel"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -2859,7 +3334,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:48:03Z"
+      "pushed_at": "2026-05-27T17:48:03Z",
+      "topics": [
+        "github",
+        "github-api",
+        "nextjs",
+        "react",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -2895,7 +3377,16 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:08:36Z"
+      "pushed_at": "2026-05-26T22:08:36Z",
+      "topics": [
+        "cpu-tracker",
+        "dashboard",
+        "egui",
+        "memory-tracking",
+        "pid",
+        "rust",
+        "rust-gui"
+      ]
     },
     "languages": [
       "Svelte",
@@ -2934,7 +3425,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-31T12:26:23Z"
+      "pushed_at": "2022-05-31T12:26:23Z",
+      "topics": []
     },
     "languages": [
       "Python"
@@ -2956,7 +3448,18 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:48:40Z"
+      "pushed_at": "2026-05-26T05:48:40Z",
+      "topics": [
+        "animation",
+        "calligraphy",
+        "framer-motion",
+        "handwriting",
+        "react",
+        "signature",
+        "svg",
+        "vanilla-js",
+        "vite"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2989,7 +3492,19 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:10:04Z"
+      "pushed_at": "2026-05-26T05:10:04Z",
+      "topics": [
+        "collection-tracker",
+        "pokemon",
+        "pokemon-tcg",
+        "react",
+        "single-page-app",
+        "snorlax",
+        "tcg",
+        "trading-card-game",
+        "typescript",
+        "vite"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -3020,7 +3535,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-25T06:30:57Z"
+      "pushed_at": "2022-05-25T06:30:57Z",
+      "topics": []
     },
     "languages": [
       "JavaScript"
@@ -3042,7 +3558,8 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:06:13Z"
+      "pushed_at": "2026-05-26T08:06:13Z",
+      "topics": []
     },
     "languages": [
       "Python",
@@ -3073,7 +3590,8 @@
       "private": false,
       "fork": false,
       "archived": true,
-      "pushed_at": "2026-05-27T17:13:42Z"
+      "pushed_at": "2026-05-27T17:13:42Z",
+      "topics": []
     },
     "languages": [
       "HTML",
