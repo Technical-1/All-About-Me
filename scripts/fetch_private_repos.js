@@ -229,6 +229,7 @@ async function fetchAllRepos(visibility) {
   // site, but polished/featured work that's been frozen still belongs here.
   const INCLUDED_ARCHIVED_REPOS = new Set([
     'AHSR-senior-design-archive',
+    'APComputerScienceA2019-2020',
     'CAP4770-Final_Project',
     'DailySMS',
     'MyVoteProject-V1',
