@@ -224,8 +224,17 @@ async function fetchAllRepos(visibility) {
   // Repos to exclude from the site (sensitive content)
   const EXCLUDED_REPOS = ['SAA'];
 
-  // Keep only active, non-fork repos, excluding sensitive ones
-  return repos.filter(r => !r.fork && !r.archived && !EXCLUDED_REPOS.includes(r.name));
+  // Archived repos to keep surfacing despite the `!r.archived` filter.
+  // Default behavior hides archives so abandoned experiments don't pollute the
+  // site, but polished/featured work that's been frozen still belongs here.
+  const INCLUDED_ARCHIVED_REPOS = new Set(['AHSR-senior-design-archive', 'QuickPass']);
+
+  return repos.filter(r => {
+    if (r.fork) return false;
+    if (EXCLUDED_REPOS.includes(r.name)) return false;
+    if (r.archived && !INCLUDED_ARCHIVED_REPOS.has(r.name)) return false;
+    return true;
+  });
 }
 
 async function fetchLanguagesForRepo(repo) {
