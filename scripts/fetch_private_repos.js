@@ -221,28 +221,14 @@ async function fetchAllRepos(visibility) {
     page += 1;
   }
 
-  // Repos to exclude from the site (sensitive content)
-  const EXCLUDED_REPOS = ['SAA'];
-
-  // Archived repos to keep surfacing despite the `!r.archived` filter.
-  // Default behavior hides archives so abandoned experiments don't pollute the
-  // site, but polished/featured work that's been frozen still belongs here.
-  const INCLUDED_ARCHIVED_REPOS = new Set([
-    'AHSR-senior-design-archive',
-    'APComputerScienceA2019-2020',
-    'CAP4770-Final_Project',
-    'DailySMS',
-    'MyVoteProject-V1',
-    'PLC_Project',
-    'QuickPass',
-    'Snowballs',
-    'UCF_DecisionChecker'
-  ]);
+  // Repos to exclude from the site. Archives are surfaced by default — every
+  // archived repo has been individually curated — so this list only catches
+  // sensitive content (SAA) or archives that shouldn't be public-facing.
+  const EXCLUDED_REPOS = ['SAA', 'Snowballs'];
 
   return repos.filter(r => {
     if (r.fork) return false;
     if (EXCLUDED_REPOS.includes(r.name)) return false;
-    if (r.archived && !INCLUDED_ARCHIVED_REPOS.has(r.name)) return false;
     return true;
   });
 }
