@@ -189,6 +189,21 @@ Features like Docker, GitHub Actions, and VS Code settings are modular add-ons:
 - **Post-creation addition**: Features can be added to existing projects via `quickforge add`
 - **Independent templates**: Each feature has its own template set
 
+### 8. Context-Aware Escaping for Generated Code
+
+The Jinja2 environment runs with autoescaping disabled — correct for emitting code and config rather than HTML, but it shifts the responsibility for escaping onto the templates. Since a project's description and author name are free text, a stray quote, backslash, or brace would otherwise produce a broken `pyproject.toml` or unparsable Python file.
+
+I solved this with destination-specific filters in `generator.py` rather than blanket input sanitization:
+
+- `toml_escape` for TOML basic strings
+- `py_escape` for Python string and docstring literals
+- `fstring_escape` for f-string contexts (also doubles `{`/`}` so braces aren't read as replacement fields)
+- `github_slug` to reduce an author name to a URL-safe path segment
+
+This keeps user input verbatim where it's displayed and escapes it precisely where it's embedded, so the generated `pyproject.toml` round-trips the exact description while still parsing as valid TOML.
+
+A related concern is license metadata: PyPI trove classifiers use a controlled vocabulary that does not match SPDX identifiers (SPDX `Apache-2.0` is the classifier `Apache Software License`). `License.classifier` and `License.spdx_id` in `models.py` map each license to the correct value for both fields, and the non-SPDX `Proprietary` case is emitted as a `LicenseRef-` expression so the generated metadata is valid.
+
 ## Module Responsibilities
 
 | Module | Responsibility |

@@ -9,6 +9,7 @@ flowchart TD
         CONF[vault/&lt;year&gt;/config.yaml]
         RULES[default_rules.yaml + user rules.yaml]
         MA[manual_additions.yaml]
+        ASSETS[vault/&lt;year&gt;/assets.yaml]
     end
 
     subgraph Engine[Python engine - entity-agnostic]
@@ -21,7 +22,11 @@ flowchart TD
     subgraph FormMap[Form mapping - per year, per entity]
         F1120[forms/y2025/form_1120.py]
         F1125A[forms/y2025/form_1125a.py]
+        F4562[forms/y2025/form_4562.py]
         FFL[forms/y2025/form_fl_f1120.py]
+        FTX[forms/y2025/form_tx_franchise.py]
+        FVA500[forms/y2025/form_va_500.py]
+        FVA760[forms/y2025/form_va_760_inclusion.py]
         SC[forms/y2025/schedule_c.py]
         SSE[forms/y2025/schedule_se.py]
         F8829[forms/y2025/form_8829.py]
@@ -39,9 +44,10 @@ flowchart TD
     CAT --> TR
     TR --> SUM
     MA --> SUM
-    SUM --> F1120 & F1125A & FFL & SC & SSE & F8829
-    F1120 & F1125A & FFL & SC & SSE & F8829 --> XLSX
-    F1120 & F1125A & FFL & SC & SSE & F8829 --> PDFOUT
+    ASSETS[vault/&lt;year&gt;/assets.yaml] --> F4562
+    SUM --> F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829
+    F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829 --> XLSX
+    F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829 --> PDFOUT
 ```
 
 ## Component Descriptions
@@ -67,9 +73,14 @@ flowchart TD
 - **Key responsibilities**: Splits revenue into positive (Line 1a) and negative-as-positive (Line 1b returns and allowances). Routes operating-expense subcategories into an `other_deductions_breakdown` dict that downstream form modules iterate. Excludes transfer-tagged transactions from every total.
 
 ### `forms/y2025/*.py` — form line mapping
-- **Purpose**: Pure functions from `CategoryTotals` to `{line_number: Decimal}` dicts
+- **Purpose**: Pure functions from `CategoryTotals` (and, for Form 4562, a list of `DepreciableAsset`) to `{line_number: Decimal}` dicts
 - **Location**: `src/tax_toolkit/forms/y2025/`
-- **Key responsibilities**: One file per form (Form 1120, Form 1125-A, FL F-1120, Statement of Other Deductions, Schedule C, Schedule SE, Form 8829). No file I/O, no rendering — just the tax-law mapping. Year-versioned under `y2025/` so 2026 form changes become a sibling directory rather than a global edit.
+- **Key responsibilities**: One file per form (Form 1120, Form 1125-A, Form 4562, Statement of Other Deductions, Schedule C, Schedule SE, Form 8829, and three state modules: FL F-1120, TX Franchise, VA Form 500, VA 760 Inclusion). No file I/O, no rendering — just the tax-law mapping. Year-versioned under `y2025/` so 2026 form changes become a sibling directory rather than a global edit. The CLI dispatches one state module per vault based on the `state:` field in `config.yaml`.
+
+### `forms/y2025/form_4562.py` — depreciation computation
+- **Purpose**: Compute the current-year depreciation deduction from a list of `DepreciableAsset` objects
+- **Location**: `src/tax_toolkit/forms/y2025/form_4562.py`
+- **Key responsibilities**: Implements three methods — MACRS GDS half-year convention (IRS percentage tables for 5-year and 7-year property), 40% bonus depreciation (2025 TCJA phase-down rate), and §179 immediate expensing (2025 cap $1,250,000, phaseout at $3,130,000, income limit enforced so §179 cannot create a loss, disallowed amount tracked as carryforward). Two-pass §179 ordering: all §179 elections are summed first to test the income limit; only the allowed amount is allocated across elections proportionally. Prior-year assets continue depreciating off the same MACRS table using their original placed-in-service date.
 
 ### `output/workbook.py` + `output/schedule_c_workbook.py`
 - **Purpose**: Build the multi-sheet xlsx
@@ -81,6 +92,11 @@ flowchart TD
 - **Location**: `src/tax_toolkit/manual_additions.py`
 - **Key responsibilities**: Loads `vault/<year>/manual_additions.yaml`, validates each entry against a strict `ManualAddition` pydantic model, merges them into the categorized-transactions stream before `summarize` runs. Sign convention: positive amounts in YAML, direction inferred from category — removes the footgun of users writing `-247.18` for an expense.
 
+### `assets.py` — capital asset loader
+- **Purpose**: Load and validate the `vault/<year>/assets.yaml` file that declares depreciable business assets
+- **Location**: `src/tax_toolkit/assets.py`
+- **Key responsibilities**: Parses each `DepreciableAsset` entry via a strict pydantic model (fields: `description`, `cost`, `placed_in_service`, `recovery_period`, `business_use_percent`, `method`). Validates recovery period (5 or 7), business-use percentage range (1–100), and method enum (`macrs` | `section_179` | `bonus`). Absent or empty file is treated as zero assets — no depreciation is computed. Returns a typed list that `form_4562.py` consumes.
+
 ### `cli.py` + `cli_init.py` + `cli_summary.py`
 - **Purpose**: Typer CLI surface
 - **Location**: `src/tax_toolkit/`
@@ -88,9 +104,9 @@ flowchart TD
 
 ## Data Flow
 
-1. User runs `tax-toolkit init` and answers prompts (year, entity type, filing status, home office, inventory). Result: `vault/<year>/config.yaml` + empty rules and manual-additions stubs + `statements/` subdirectories.
-2. User drops monthly bank statement PDFs into `vault/<year>/statements/checking/` (and `savings/` for C-corp).
-3. `tax-toolkit process` or `process-schedule-c` runs the engine: `extract → categorize → detect_transfers → load_manual_additions → merge → summarize → forms/y2025/*.map(...) → workbook + worksheet PDF`.
+1. User runs `tax-toolkit init` and answers prompts (year, entity type, filing status, home office, inventory). Result: `vault/<year>/config.yaml` + empty rules, manual-additions, and assets stubs + `statements/` subdirectories.
+2. User drops monthly bank statement PDFs into `vault/<year>/statements/checking/` (and `savings/` for C-corp). Capital asset purchases are tagged with a categorization rule (`category: capital_asset`) so they are excluded from regular expense totals — the same mechanism used to exclude inter-account transfers.
+3. `tax-toolkit process` or `process-schedule-c` runs the engine: `extract → categorize → detect_transfers → load_manual_additions → merge → summarize → forms/y2025/*.map(...) → workbook + worksheet PDF`. If `assets.yaml` is present, `assets.py` loads it and passes the `DepreciableAsset` list to `form_4562.py`, which computes the depreciation deduction and feeds it to Schedule C Line 13 or Form 1120 Line 20.
 4. The Audit sheet inside the workbook records `rule_id` provenance for every transaction; users (or their CPA) inspect this to verify categorization before transcribing numbers to the official IRS forms.
 
 ## External Integrations
@@ -130,6 +146,16 @@ API key at all.
 - **Context**: Real returns include line items that don't appear in business bank statements — IRS-standard-mileage mileage deductions, expenses paid on personal cards, year-end accrual adjustments. The pre-v0.4 toolkit had no way to add these.
 - **Decision**: `vault/<year>/manual_additions.yaml` adds entries that get merged into the categorized-transaction stream before `summarize` runs. Sign convention is "amount is always positive; category infers direction" so users don't need to remember to write `-247.18` for an expense.
 - **Rationale**: Lets users (or a CPA reviewer) match a filed return's Line 26 itemization line-for-line, not just the bank-derivable subset. Audit sheet tags these with `rule_id = "manual_addition"` so the provenance is preserved.
+
+### Depreciate-don't-expense + tag-and-exclude capital purchases
+- **Context**: Capital asset purchases appear in bank statements as ordinary outflows. Without special handling, a $2,500 laptop would land in operating expenses and be fully deducted in the year of purchase — incorrect for most assets, and inconsistent with Form 4562 depreciation.
+- **Decision**: A categorization rule tags the transaction as `capital_asset`; the summarizer excludes `capital_asset`-tagged transactions from all expense totals (the same mechanism already used for inter-account transfers). The depreciation deduction is then computed separately from `assets.yaml` and inserted on the dedicated form lines (Schedule C Line 13 / Form 1120 Line 20). This mirrors exactly how transfers are handled: tag to exclude, then account for the economic effect through the correct channel.
+- **Rationale**: Keeps the bank-statement pipeline category-agnostic — the summarizer does not need to know which transactions are assets vs. expenses, only which tags to skip. Adding a new exclusion category (capital assets, inter-company loans, etc.) is a one-line change to the exclusion list, not a structural refactor.
+
+### Two-pass §179 income-limit ordering
+- **Context**: §179 immediate expensing cannot create a business loss — the deduction is capped at taxable income before the §179 election. When multiple assets elect §179, the ordering in which they are evaluated affects which assets get the full deduction vs. a partial one if the income limit binds.
+- **Decision**: `form_4562.py` uses a two-pass approach: first, sum all §179 elections to determine the total requested and compare against the income limit; then, if the limit binds, allocate the allowed amount across elections proportionally to their individual costs. Any disallowed amount is surfaced as a carryforward in the terminal summary and workbook without affecting line totals.
+- **Rationale**: Proportional allocation is consistent with IRS guidance when the income limit partially disallows a group of §179 elections, and it avoids surprising the user by silently zeroing out a particular asset's deduction. The carryforward is computed and displayed in v0.6 even though it is not yet automatically persisted to the following year's assets file.
 
 ### Engine ↔ intelligence layer split
 - **Context**: AI capabilities (PDF parsing for unknown formats, categorization for unknown merchants) shouldn't be hard-wired into the Python engine, but the toolkit also needs to work for users who don't or can't set an API key.

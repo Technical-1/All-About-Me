@@ -41,6 +41,9 @@ Project creation is a linear pipeline (`validate -> create dirs -> render templa
 ### Conditional template rendering
 Templates are tagged by archetype and feature flags. `cli.py.j2` is rendered only for `--type cli`; the FastAPI router only for `--type api`; Docker, MkDocs, devcontainer files only when their flags are set. The generated tree contains only files the user actually asked for.
 
+### Context-aware escaping in a code generator
+Jinja2 autoescaping is built for HTML; for emitting TOML and Python it's the wrong default, so it's disabled — which means free-text fields (a project description, an author name) could otherwise inject a stray quote or brace and break the generated files. Rather than sanitizing input globally, I escape at the point of use with destination-specific filters in `src/quickforge/generator.py`: `toml_escape` for TOML strings, `py_escape` for Python literals and docstrings, and `fstring_escape` for f-string contexts (which additionally doubles braces so they aren't parsed as replacement fields). The result is that a description containing `"` and `{}` is preserved verbatim in `pyproject.toml` while the file still parses as valid TOML.
+
 ## Engineering Decisions
 
 ### tomlkit vs tomli for upgrades
@@ -80,6 +83,12 @@ One tool replaces three, with a single config block in `pyproject.toml` and subs
 
 ### Why basedpyright instead of mypy?
 basedpyright (a fork of pyright) is significantly faster, stricter by default, and produces clearer error messages with better editor integration. For new projects starting fresh, the stricter defaults catch bugs the day they're written.
+
+### What happens if my project description or author name contains quotes or braces?
+It's handled. Because the generator emits code and config (not HTML), free-text fields are escaped per destination — TOML strings, Python literals/docstrings, and f-strings each have their own escaping rule — so a description like `He said "hi" {now}` lands intact in `pyproject.toml` and the generated Python still compiles.
+
+### Which licenses generate a real LICENSE file?
+All six offered (MIT, Apache-2.0, GPL-3.0-only, BSD-3-Clause, Unlicense, Proprietary) emit a complete `LICENSE` file, and the project's PyPI trove classifier and SPDX expression are set to the correct values for the chosen license — including the `LicenseRef-` form for the non-SPDX Proprietary case.
 
 ### Can I customize the generated templates?
 Not at the moment — templates are bundled with the package. The intent is that the generated output is opinionated. If you need a different stack, fork the project or modify the generated files after creation.

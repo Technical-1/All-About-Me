@@ -7,9 +7,10 @@
 | Language | TypeScript | ^5 | Type-safe app code across server + client |
 | Web framework | Next.js | 16.2.6 (Turbopack) | App-router pages, request-memoized data loading, server components for SQLite reads |
 | UI runtime | React | 19.2.4 | Server + client components |
-| Styling | Tailwind CSS | v4 (+ `@tailwindcss/postcss`) | Utility-first styling, no custom design system |
-| Graph rendering | Cytoscape | ^3.33 | Network view at `/network` |
-| Tables | TanStack Table | ^8.21 | Sortable headless tables on `/table`, `/groups`, `/sentiment`, etc. |
+| Styling | Tailwind CSS | v4 (+ `@tailwindcss/postcss`) | Utility-first styling over a token-based theme (`src/lib/theme/`) and shared UI primitives (`src/components/ui/`) |
+| Graph rendering | Cytoscape | ^3.33 | Network view at `/network` with selectable layout (force-directed / concentric) and node sizing |
+| Data table | TanStack Table | ^8.21 | Powers the full sortable + filterable data table at `/table` |
+| List sorting | custom `useSortableRows` hook | — | Client-side column sorting for the ranked list pages (`/ghosts`, `/sentiment`, `/responsiveness`, `/initiation`, …) |
 | Graph math | graphology + graphology-communities-louvain | ^0.26 / ^2.0 | Community detection for cluster coloring |
 | SQLite | better-sqlite3 | ^12.10 | Direct read-only access to `chat.db` and AddressBook |
 | Image processing | sharp | ^0.34 | Attachment thumbnails for `/gallery` |
@@ -17,10 +18,10 @@
 ## Frontend
 
 - **Framework**: Next.js 16 with the App Router and Turbopack as the default bundler
-- **State management**: None — server components fetch, client components receive props; small `useState`/`useMemo` islands where interactive
-- **Styling**: Tailwind v4, configured via `postcss.config.mjs`
+- **State management**: None — server components fetch, client components receive props; small `useState`/`useMemo` islands where interactive (sort controls, network filters, selection panels)
+- **Styling**: Tailwind v4 (via `postcss.config.mjs`) layered over a custom token-based theme in `src/lib/theme/` — a single dark "Observatory" palette resolved through CSS custom properties — plus a library of shared presentational primitives in `src/components/ui/` so every route shares one visual language and interaction pattern
 - **Build tool**: Turbopack (replaces Webpack; ~260ms cold start observed)
-- **Fonts**: Geist Sans + Geist Mono via `next/font/google`
+- **Fonts**: IBM Plex Sans + IBM Plex Mono via `next/font/google`
 
 ## Backend / Data Layer
 
@@ -58,7 +59,7 @@ Both registered in `.mcp.json` at project scope; an MCP-capable LLM client auto-
 - **Package manager**: npm
 - **Linting**: ESLint 9 with `eslint-config-next`
 - **Formatting**: None enforced (no Prettier config in repo)
-- **Testing**: `node --test` with `tsx` for `*.test.ts` files (see `src/lib/sentiment.test.ts`, `src/lib/tfidf.test.ts`)
+- **Testing**: `node --test` with `tsx` for `*.test.ts` files — pure logic is factored out so it can be tested without the framework (e.g. `src/lib/sort-rows.test.ts`, `src/lib/sentiment.test.ts`, `src/components/ui/ToneDot.test.ts`)
 - **Type checking**: `npx tsc --noEmit` (no separate `typecheck` script)
 - **Concurrency utility**: `concurrently` + `wait-on` available for orchestrating Electron + Next together
 
@@ -70,7 +71,7 @@ Both registered in `.mcp.json` at project scope; an MCP-capable LLM client auto-
 | `react` / `react-dom` | UI runtime |
 | `cytoscape` | Force-directed network rendering on `/network` |
 | `graphology` + `graphology-communities-louvain` | In-memory graph + Louvain community detection |
-| `@tanstack/react-table` | Headless sortable tables across the tabular pages |
+| `@tanstack/react-table` | Headless sort/filter for the full data table at `/table` |
 | `better-sqlite3` | Synchronous SQLite access to `chat.db` + AddressBook |
 | `sharp` | On-the-fly attachment thumbnail generation |
 | `electron` | Optional native desktop wrapper |
