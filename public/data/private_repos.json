@@ -200,7 +200,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T12:48:54Z",
+      "pushed_at": "2026-05-27T19:09:51Z",
       "topics": []
     },
     "languages": [
@@ -209,13 +209,17 @@
       "Makefile"
     ],
     "language_bytes": {
-      "Python": 101199,
+      "Python": 204652,
       "Shell": 2503,
       "Makefile": 1068
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -227,7 +231,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T22:37:55Z",
+      "pushed_at": "2026-05-27T20:06:12Z",
       "topics": []
     },
     "languages": [
@@ -235,8 +239,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 531604,
-      "HTML": 26556
+      "Python": 803940,
+      "HTML": 41753
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -803,7 +807,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:53:51Z",
+      "pushed_at": "2026-05-27T21:18:35Z",
       "topics": [
         "firebase",
         "pwa",
@@ -824,7 +828,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 257282,
+      "TypeScript": 269549,
       "HTML": 9588,
       "CSS": 4751,
       "JavaScript": 2561
@@ -1496,7 +1500,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:45:32Z",
+      "pushed_at": "2026-05-27T19:10:25Z",
       "topics": [
         "claude-code",
         "desktop-app",
@@ -1520,8 +1524,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "Rust": 365706,
-      "TypeScript": 304915,
+      "Rust": 387894,
+      "TypeScript": 310347,
       "JavaScript": 10867,
       "HTML": 5331,
       "CSS": 1720
@@ -1810,7 +1814,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:46:47Z",
+      "pushed_at": "2026-05-28T09:41:59Z",
       "topics": [
         "cron",
         "free-tier",
@@ -2567,7 +2571,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T18:50:56Z",
+      "pushed_at": "2026-05-27T18:52:22Z",
       "topics": [
         "ai-chat",
         "astro",
