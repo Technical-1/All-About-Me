@@ -448,12 +448,6 @@ html.dark {
   }
 }
 
-/* Archive grid spotlight — gently dim sibling cards while one is hovered */
-.archive-grid:has(a:hover, a:focus-visible) > a:not(:hover):not(:focus-visible) {
-  opacity: 0.55;
-  transition: opacity 250ms ease-out;
-}
-
 /* Mermaid Diagram Overrides - theme-aware */
 .mermaid {
   /* Node backgrounds */
