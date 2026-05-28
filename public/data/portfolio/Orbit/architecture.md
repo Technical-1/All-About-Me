@@ -85,6 +85,10 @@ flowchart TD
 - **Purpose**: Each route is a focused lens onto the graph.
 - **Key responsibilities**: `/network` renders Cytoscape; `/table`, `/groups`, `/sentiment`, `/hygiene`, `/responsiveness`, `/ghosts`, `/initiation` are sortable tables; `/heatmap`, `/calendar`, `/activity`, `/onthisday` are time-based views; `/wrapped` is a slideshow; `/person/[name]` is the per-contact deep dive.
 
+### Design substrate (`viz/src/lib/theme/` + `viz/src/components/ui/`)
+- **Purpose**: Give every route one visual language and interaction model instead of per-page styling.
+- **Key responsibilities**: A token set (colors, spacing, accent glow) resolved to CSS custom properties plus a theme resolver in `src/lib/theme/`; a library of presentational primitives in `src/components/ui/` (page mastheads, filter bars, sortable column headers, stat grids, aside blocks, the node selection panel, sparklines). Pages compose these primitives, so a visual change is a token edit rather than an N-page sweep.
+
 ### Electron wrapper (`viz/electron/`)
 - **Purpose**: Optional native window plus an IPC endpoint that runs `prompts/update.md` and `prompts/sentiment.md` headlessly via the local LLM client.
 - **Key responsibilities**: Starts Next.js dev or built server on port 3737, waits for the URL to respond, opens a `BrowserWindow`. The preload script exposes a Refresh button that triggers the backend prompts without leaving the app.
@@ -128,6 +132,11 @@ flowchart TD
 - **Context**: Some views (gallery thumbnails, per-person message body, attachment IDs) need raw message data the MCP server doesn't expose.
 - **Decision**: Open `chat.db` and AddressBook DBs read-only with `better-sqlite3` in server components.
 - **Rationale**: Direct path avoids tunneling everything through the MCP layer. Marked `server-only` so it never ships to the browser. Trade-off: tightly couples the app to macOS file paths.
+
+### Shared design substrate over per-page styling
+- **Context**: ~18 routes each combine charts, tables, and filters; styling them independently drifts quickly and is hard to keep consistent.
+- **Decision**: Centralize a token-based theme (`src/lib/theme/`) and a primitives library (`src/components/ui/`); each route is a thin composition of primitives, with interactivity (sorting, network filters, selection) isolated in small `"use client"` wrappers while data loading stays in server components.
+- **Rationale**: One palette and one set of interaction patterns across every page; a restyle is a token edit, not a sweep across pages. Keeping interaction in dedicated client wrappers lets the data-loading pages remain server components that read SQLite directly and pass already-rendered content (e.g. an aside) down as props, so the client bundle stays small.
 
 ### Electron wrapper as opt-in, not the default
 - **Context**: A native window is nicer for a personal daily-driver, but adds a heavy dependency.

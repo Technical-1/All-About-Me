@@ -47,6 +47,9 @@ Some views (gallery, per-person message bodies, attachment IDs) need raw data th
 ### Entity disambiguation via the `/hygiene` view
 The same person can show up under multiple handles (phone, email, iMessage IDs). Automatic merging either over-merges (similar names, different people) or under-merges (same person, different handle). `/hygiene` lists unnamed handles next to AddressBook candidate names so I can confirm-and-merge by hand, which is right far more often than any heuristic I tried.
 
+### One design substrate across ~18 routes
+Every page combines charts, filters, and tables, which drifts fast if each is styled independently. The frontend sits on a token-based theme (`src/lib/theme/`) and a library of presentational primitives (`src/components/ui/`) — mastheads, filter bars, sortable column headers, stat grids, the node selection panel — so each route is a thin composition rather than bespoke markup, and a restyle is a token edit. Interactivity (column sorting via a small `useSortableRows` hook, network layout/size filters, node selection) lives in client wrappers, while the data-loading pages stay server components that read SQLite directly and pass already-rendered content (like a sidebar aside) down as props, keeping the client bundle lean.
+
 ## Engineering Decisions
 
 ### Two MCP servers instead of a custom integration
@@ -91,7 +94,7 @@ Two reasons. First, the integrations already existed as MCP servers — no need 
 For personal-scale data (~100 contacts), parsing a JSONL file on every page render is fast enough and the operational simplicity is worth it. No migrations, no ORM, easy to inspect by hand, and the MCP server already writes to that format.
 
 ### How does sentiment scoring work?
-`prompts/sentiment.md` scores each top contact per month (−1 to +1, with a confidence and short rationale) and appends JSONL rows to `viz/data/sentiment.jsonl`. The score is also written back to the Person entity as a `[sent]` observation. The `/sentiment` page shows a sortable table; the per-person view renders the time series as an arc.
+`prompts/sentiment.md` scores each top contact per month (−1 to +1, with a confidence and short rationale) and appends JSONL rows to `viz/data/sentiment.jsonl`. The score is also written back to the Person entity as a `[sent]` observation. The `/sentiment` page renders each contact as a diverging bar (warm to the right, strained to the left) with sortable columns; the per-person view renders the time series as an arc.
 
 ### What happens to personal data?
 Everything stays local. `viz/data/sentiment.jsonl` and `viz/data/entity_handles.json` contain real names and sentiment rationales, so they're gitignored. The published repo has only source code, prompts, and conventions — no actual messages, contacts, or graph contents.

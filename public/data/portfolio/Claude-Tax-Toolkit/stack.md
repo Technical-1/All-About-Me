@@ -30,7 +30,7 @@
 
 - **Package Manager**: [uv](https://github.com/astral-sh/uv) — chosen for fast installs and a single lockfile (`uv.lock`) committed to the repo
 - **Build backend**: hatchling
-- **Testing**: pytest 8.x + pytest-cov 5.x — 164 tests across `tests/unit/`, `tests/integration/`, and `tests/privacy/`
+- **Testing**: pytest 8.x + pytest-cov 5.x — ~237 tests across `tests/unit/`, `tests/integration/`, and `tests/privacy/`
 - **Privacy enforcement**: a `.githooks/pre-commit` shell script (`make setup` installs it) + a `scripts/check_clean.py` working-tree scanner (`make check-clean`)
 
 ## Key Dependencies

@@ -180,20 +180,57 @@ not set, it exits with code 3 and a message pointing at the
 agent-runtime alternative.
 
 ### What entity types are supported?
-v0.4 supports US C-corporations (Form 1120 + Form 1125-A COGS +
-Florida F-1120 + Statement of Other Deductions for Line 26) and
-sole proprietors / single-member LLCs (Schedule C + Schedule SE +
-Form 8829 Simplified Method home office). Future work: S-corp (Form
-1120-S), partnership (Form 1065), and Form 4562 depreciation.
+v0.6 supports US C-corporations (Form 1120 + Form 1125-A COGS + Form 4562
+depreciation + state form + Statement of Other Deductions for Line 26) and
+sole proprietors / single-member LLCs (Schedule C + Schedule SE + Form 8829
+Simplified Method home office + Form 4562 depreciation + optional state form).
+State coverage: FL, TX, and VA (see state-coverage Q&A above). Future work:
+S-corp (Form 1120-S) and partnership (Form 1065).
 
-### Why is there only Florida state coverage on the C-corp side?
-The C-corp synthetic example I built it against was a Florida
-business. Florida's corporate income/franchise tax (Form F-1120) is
-implemented as `forms/y2025/form_fl_f1120.py`. Adding another state
-is a sibling file in the same directory — the form module reads
-Schedule C / Form 1120 federal taxable income as its starting point
-and applies state-specific apportionment and rate. The architecture
-supports it; I just haven't shipped other states yet.
+### What state coverage does v0.6 include?
+Three states are supported, selected by a `state:` field in the per-year
+`config.yaml`. The CLI dispatches one state form per vault based on that
+field:
+
+- **FL** — Florida F-1120 corporate income/franchise tax (C-corp only;
+  Florida has no personal income tax, so Schedule C produces no state form).
+  Default for backward compatibility with pre-v0.5 vaults.
+- **TX** — Texas franchise (margin) tax. C-corps always produce this form.
+  On the Schedule C side it fires only when `tx_franchise.is_llc: true` —
+  bare sole proprietors without an LLC wrapper are exempt from Texas franchise
+  tax.
+- **VA** — Virginia Form 500 corporate income tax at 6% flat (C-corp);
+  a VA Form 760 inclusion worksheet for Schedule C (Schedule C net profit
+  and SE deductible half to report on the personal VA Form 760; doesn't
+  compute full personal income tax).
+
+Setting `state: null` skips all state forms. Each state is a sibling module
+under `forms/y2025/` — adding a fourth state is a new file plus a dispatch
+branch in `cli.py`.
+
+### How does the toolkit handle equipment purchases and depreciation?
+Capital asset purchases — computers, cameras, vehicles, furniture, office
+equipment — are treated differently from regular operating expenses. A
+categorization rule tags the bank transaction as `capital_asset`, which
+excludes it from all expense line totals (the same mechanism used to exclude
+inter-account transfers from revenue). The user then declares the asset in
+`vault/<year>/assets.yaml` with its cost, placed-in-service date, recovery
+period, business-use percentage, and depreciation method. At processing time
+the toolkit computes the Form 4562 deduction and routes the result to
+Schedule C Line 13 (sole prop) or Form 1120 Line 20 (C-corp).
+
+Three depreciation methods are supported for 2025: §179 immediate expensing
+(2025 cap $1,250,000, with phaseout above $3,130,000 and an income limit
+so §179 cannot create a business loss), 40% first-year bonus depreciation
+(the 2025 TCJA phase-down rate), and MACRS GDS half-year convention for
+5-year property (computers, vehicles, equipment) and 7-year property
+(furniture and fixtures). Prior-year assets already in service continue
+depreciating off the MACRS table in subsequent years.
+
+Every run that includes at least one depreciable asset generates a Form 4562
+sheet and a Depreciation Schedule sheet in the workbook, and a Form 4562
+section in the printable worksheet PDF. A runnable example is included in the
+repository: `uv run tax-toolkit process-schedule-c --example depreciation-demo-2025`.
 
 ### How does the categorization actually work?
 A regex rule is `{pattern, category, subcategory, type_hint?}`. The
