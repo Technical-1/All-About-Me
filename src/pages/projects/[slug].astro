@@ -21,6 +21,10 @@ const { repo } = Astro.props;
 const slug = getRepoSlug(repo);
 const hasPortfolio = repo.has_portfolio && repo.portfolio;
 
+// OG preview image (convention-based, same as the projects grid)
+const hasScreenshot = repo.screenshots && repo.screenshots.length > 0;
+const pngPath = `/screenshots/${slug}/preview.png`;
+
 // Convert markdown to HTML for portfolio content
 const architectureHtml = hasPortfolio && repo.portfolio?.architecture
   ? await marked.parse(repo.portfolio.architecture)
@@ -32,11 +36,15 @@ const qaHtml = hasPortfolio && repo.portfolio?.qa
   ? await marked.parse(repo.portfolio.qa)
   : '';
 
-// Determine which tabs to show
+// Determine which tabs to show, ordered by increasing technical depth:
+// About (narrative) -> Tech Stack -> Architecture (deep dive / diagrams).
 const tabs = [];
-if (architectureHtml) tabs.push({ id: 'architecture', label: 'Architecture', icon: 'grid' });
-if (stackHtml) tabs.push({ id: 'stack', label: 'Tech Stack', icon: 'layers' });
 if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
+if (stackHtml) tabs.push({ id: 'stack', label: 'Tech Stack', icon: 'layers' });
+if (architectureHtml) tabs.push({ id: 'architecture', label: 'Architecture', icon: 'grid' });
+
+// The first available tab is the default; its panel is the one shown on load.
+const defaultPanel = tabs[0]?.id;
 ---
 
 <BaseLayout
@@ -47,13 +55,37 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
   <section class="section pt-8 pb-4">
     <div class="container-narrow">
       <!-- Breadcrumb -->
-      <nav class="mb-8">
+      <nav class="mb-6">
         <ol class="flex items-center gap-2 text-sm" style="color: var(--text-muted);">
           <li><a href="/projects" class="hover:underline">Projects</a></li>
           <li>/</li>
           <li style="color: var(--text-secondary);">{repo.name}</li>
         </ol>
       </nav>
+
+      <!-- OG Preview Hero -->
+      {hasScreenshot && (
+        <figure
+          class="og-hero relative mb-8 rounded-xl overflow-hidden"
+          style="border: 1px solid var(--border-color); box-shadow: var(--shadow-card); background-color: var(--bg-surface);"
+        >
+          <img
+            src={pngPath}
+            alt={`${repo.name} preview`}
+            class="w-full aspect-[1200/630] object-cover"
+            loading="eager"
+            onerror="this.closest('.og-hero').style.display='none'"
+          />
+          {repo.private && (
+            <span
+              class="absolute top-3 right-3 px-2.5 py-1 rounded text-xs font-medium backdrop-blur-sm"
+              style="background-color: rgba(0,0,0,0.55); color: white;"
+            >
+              Private
+            </span>
+          )}
+        </figure>
+      )}
 
       <!-- Title & Meta -->
       <div class="mb-8">
@@ -63,13 +95,16 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
               {categoryLabels[repo.metadata.category] || repo.metadata.category}
             </span>
           )}
-          {repo.private && (
+          {repo.private && !hasScreenshot && (
             <span class="tag-red">Private Project</span>
           )}
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-          <h1 class="text-4xl md:text-5xl font-display font-bold" style="color: var(--text-heading);">
+          <h1
+            class:list={["text-4xl md:text-5xl font-display font-bold", { "sr-only": hasScreenshot }]}
+            style="color: var(--text-heading);"
+          >
             {repo.name.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
           </h1>
           <div class="text-sm" style="color: var(--text-muted);">
@@ -77,9 +112,11 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
           </div>
         </div>
 
-        <p class="text-xl" style="color: var(--text-secondary);">
-          {repo.description}
-        </p>
+        {!hasScreenshot && (
+          <p class="text-xl" style="color: var(--text-secondary);">
+            {repo.description}
+          </p>
+        )}
       </div>
 
       <!-- Quick Info -->
@@ -99,33 +136,11 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
           )}
         </div>
       )}
-
-      <!-- Actions -->
-      <div class="flex flex-wrap gap-4">
-        {repo.homepage && (
-          <a href={repo.homepage} target="_blank" rel="noopener noreferrer" class="btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            Live Demo
-          </a>
-        )}
-        {!repo.private && (
-          <a href={repo.html_url} target="_blank" rel="noopener noreferrer" class="btn-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="mr-2">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            View on GitHub
-          </a>
-        )}
-      </div>
     </div>
   </section>
 
   <!-- Tabbed Portfolio Content -->
-  {tabs.length > 0 && (
+  {(tabs.length > 0 || !repo.private || repo.homepage) && (
     <section class="section pt-0">
       <div class="container-narrow">
         <!-- Tab Navigation -->
@@ -159,26 +174,68 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
               {tab.label}
             </button>
           ))}
+
+          {/* Live Demo & GitHub as external "tabs" — no data-tab, so the
+              panel-switch script skips them and the browser follows the link. */}
+          {repo.homepage && (
+            <a
+              href={repo.homepage}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="tab-btn flex items-center gap-2 px-6 py-4 font-medium transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              Live Demo
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-60">
+                <path d="M7 17L17 7"/>
+                <path d="M7 7h10v10"/>
+              </svg>
+            </a>
+          )}
+
+          {!repo.private && (
+            <a
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="tab-btn flex items-center gap-2 px-6 py-4 font-medium transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-60">
+                <path d="M7 17L17 7"/>
+                <path d="M7 7h10v10"/>
+              </svg>
+            </a>
+          )}
         </div>
 
         <!-- Tab Content -->
-        <div class="tab-content rounded-b-lg" style="background: var(--bg-card); border: 1px solid var(--border-color); border-top: none;">
-          {architectureHtml && (
-            <div class="tab-panel p-6 md:p-8" data-panel="architecture">
-              <div class="prose prose-lg max-w-none portfolio-content" set:html={architectureHtml} />
-            </div>
-          )}
-          {stackHtml && (
-            <div class="tab-panel p-6 md:p-8 hidden" data-panel="stack">
-              <div class="prose prose-lg max-w-none portfolio-content" set:html={stackHtml} />
-            </div>
-          )}
-          {qaHtml && (
-            <div class="tab-panel p-6 md:p-8 hidden" data-panel="about">
-              <div class="prose prose-lg max-w-none portfolio-content" set:html={qaHtml} />
-            </div>
-          )}
-        </div>
+        {tabs.length > 0 && (
+          <div class="tab-content rounded-b-lg" style="background: var(--bg-card); border: 1px solid var(--border-color); border-top: none;">
+            {qaHtml && (
+              <div class:list={["tab-panel p-6 md:p-8", { hidden: defaultPanel !== 'about' }]} data-panel="about">
+                <div class="prose prose-lg max-w-none portfolio-content" set:html={qaHtml} />
+              </div>
+            )}
+            {stackHtml && (
+              <div class:list={["tab-panel p-6 md:p-8", { hidden: defaultPanel !== 'stack' }]} data-panel="stack">
+                <div class="prose prose-lg max-w-none portfolio-content" set:html={stackHtml} />
+              </div>
+            )}
+            {architectureHtml && (
+              <div class:list={["tab-panel p-6 md:p-8", { hidden: defaultPanel !== 'architecture' }]} data-panel="architecture">
+                <div class="prose prose-lg max-w-none portfolio-content" set:html={architectureHtml} />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   )}
@@ -262,9 +319,11 @@ if (qaHtml) tabs.push({ id: 'about', label: 'About', icon: 'help' });
       const tabPanels = document.querySelectorAll('.tab-panel');
 
       tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tabId = btn.getAttribute('data-tab');
+        const tabId = btn.getAttribute('data-tab');
+        // The GitHub "tab" is an external link with no data-tab — leave it alone.
+        if (!tabId) return;
 
+        btn.addEventListener('click', () => {
           // Update active tab button
           tabBtns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');

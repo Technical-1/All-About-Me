@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  // Only emit hover: styles under (hover: hover), so taps on touch devices
+  // don't trigger sticky :hover that fights tap-to-toggle UI (e.g. project cards).
+  future: { hoverOnlyWhenSupported: true },
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   darkMode: 'class',
   theme: {
