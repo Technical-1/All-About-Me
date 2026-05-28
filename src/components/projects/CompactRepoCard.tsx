@@ -25,8 +25,18 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
   const hasScreenshot = repo.screenshots && repo.screenshots.length > 0;
   const pngPath = `/screenshots/${slug}/preview.png`;
 
-  const href = repo.has_portfolio ? `/projects/${slug}` : repo.html_url;
-  const external = !repo.has_portfolio;
+  // A private repo's GitHub URL 404s for anyone but the owner, so it's never a
+  // valid public destination. Detail pages are internal; only public repos
+  // without a portfolio page fall back to linking out to GitHub. Private
+  // repos without a portfolio link to their live demo if they have one, else
+  // they're just an info card (hover popover only, no navigation).
+  const canViewGitHub = !repo.has_portfolio && !repo.private;
+  const href = repo.has_portfolio
+    ? `/projects/${slug}`
+    : canViewGitHub
+      ? repo.html_url
+      : repo.homepage || undefined;
+  const external = !!href && !repo.has_portfolio;
 
   const titleCase = repo.name
     .replace(/-/g, ' ')
@@ -177,13 +187,15 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
                 Live Demo
               </button>
             )}
-            <span
-              onClick={(e) => e.stopPropagation()}
-              className="text-[11px] font-medium inline-flex items-center gap-1 transition-transform duration-300 group-hover:translate-x-0.5"
-              style={{ color: 'var(--accent-secondary)' }}
-            >
-              {repo.has_portfolio ? 'View details' : 'View on GitHub'} →
-            </span>
+            {(repo.has_portfolio || canViewGitHub) && (
+              <span
+                onClick={(e) => e.stopPropagation()}
+                className="text-[11px] font-medium inline-flex items-center gap-1 transition-transform duration-300 group-hover:translate-x-0.5"
+                style={{ color: 'var(--accent-secondary)' }}
+              >
+                {repo.has_portfolio ? 'View details' : 'View on GitHub'} →
+              </span>
+            )}
           </div>
         </div>
       </div>

@@ -41,11 +41,11 @@ const PREVIEW_FILES = ['preview.png', 'preview.gif'];
 // List of repo names that should be featured (order matters for display)
 const FEATURED_REPO_NAMES = [
   'Private-Collab-Whiteboard',
+  'Orbit',
   'BTC-Explorer',
-  'Git-Archiver-Web',
+  'PixScan',
   'AHSR-senior-design-archive',
-  'RepoLens',
-  'Blackjack-Trainer'
+  'RepoLens'
 ];
 
 // Manual entries for external repos not in the user's GitHub account.
