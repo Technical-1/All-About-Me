@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import GitHubRepos from '../../components/projects/GitHubRepos';
-import CaseStudyCard from '../../components/projects/CaseStudyCard';
+import GitHubReposWall from '../../components/projects/GitHubReposWall';
+import CompactRepoCard from '../../components/projects/CompactRepoCard';
 import { fetchFeaturedRepos } from '../../lib/github';
 
 // Fetch featured projects from dedicated JSON (includes AHSR)
@@ -33,9 +33,9 @@ const featuredProjects = await fetchFeaturedRepos();
         Featured Projects
       </h2>
 
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-8 md:grid-cols-2">
         {featuredProjects.map((project) => (
-          <CaseStudyCard repo={project} featured={false} client:load />
+          <CompactRepoCard repo={project} client:load />
         ))}
       </div>
     </div>
@@ -48,7 +48,7 @@ const featuredProjects = await fetchFeaturedRepos();
         All Repositories
       </h2>
 
-      <GitHubRepos client:load />
+      <GitHubReposWall client:load />
     </div>
   </section>
 </BaseLayout>

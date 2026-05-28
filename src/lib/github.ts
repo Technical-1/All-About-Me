@@ -97,8 +97,8 @@ interface GitHubAPIRepo {
 
 // Cache settings for localStorage (client-side only)
 // Bump version when featured repos list changes to invalidate stale caches
-const CACHE_KEY = 'github_repos_cache_v14';
-const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v14';
+const CACHE_KEY = 'github_repos_cache_v15';
+const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v15';
 const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
 // Repos to exclude from the public projects page
@@ -327,10 +327,16 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
   }
 
   // Fetch fresh data
-  const [publicRepos, privateRepos] = await Promise.all([
+  const [publicRepos, privateRepos, featuredRepos] = await Promise.all([
     fetchPublicRepos(),
     fetchPrivateRepos(),
+    fetchFeaturedRepos(),
   ]);
+
+  // featured_repos.json is the single source of truth for what's featured, so
+  // exclude exactly those from "All" by full_name. This avoids drift with the
+  // per-repo metadata.featured flag in private_repos.json.
+  const featuredFullNames = new Set(featuredRepos.map((r) => r.full_name));
 
   // Merge repos, preferring privateRepos (from JSON) over publicRepos (from API)
   // since JSON has enriched metadata like has_portfolio, screenshots, etc.
@@ -349,7 +355,7 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
   // Convert to array, filter out featured and hidden repos, and sort by pushed_at descending
   // Featured repos are shown in their own section, so exclude them from "All Repositories"
   const allRepos = Array.from(repoMap.values())
-    .filter(repo => repo.metadata?.featured !== true)
+    .filter(repo => !featuredFullNames.has(repo.full_name))
     .filter(repo => !HIDDEN_REPOS.includes(repo.name))
     .sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
 
