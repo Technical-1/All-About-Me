@@ -109,10 +109,7 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": [],
-    "metadata": {
-      "featured": true
-    }
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -1250,7 +1247,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T19:07:49Z",
+      "pushed_at": "2026-05-28T21:35:09Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1276,7 +1273,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 567340,
+      "TypeScript": 567372,
       "HTML": 11747,
       "JavaScript": 8932,
       "CSS": 3095
@@ -1290,7 +1287,10 @@
     ],
     "screenshots": [
       "/screenshots/orbit/preview.png"
-    ]
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -1365,7 +1365,10 @@
     ],
     "screenshots": [
       "/screenshots/pixscan/preview.png"
-    ]
+    ],
+    "metadata": {
+      "featured": true
+    }
   },
   {
     "repo": {
@@ -2000,7 +2003,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T19:12:28Z",
+      "pushed_at": "2026-05-28T21:39:58Z",
       "topics": [
         "ai",
         "backgammon",
@@ -2020,7 +2023,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 246273,
+      "TypeScript": 261989,
       "CSS": 17425,
       "HTML": 13331,
       "JavaScript": 2418
@@ -2428,7 +2431,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T17:58:34Z",
+      "pushed_at": "2026-05-28T22:47:48Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2450,11 +2453,11 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 134209,
+      "TypeScript": 134807,
       "Astro": 88030,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 23039,
+      "JavaScript": 23018,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -2767,10 +2770,7 @@
     ],
     "screenshots": [
       "/screenshots/git-archiver-web/preview.png"
-    ],
-    "metadata": {
-      "featured": true
-    }
+    ]
   },
   {
     "repo": {
@@ -3419,7 +3419,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:06:13Z",
+      "pushed_at": "2026-05-28T22:47:31Z",
       "topics": []
     },
     "languages": [
@@ -3427,7 +3427,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 52069,
+      "Python": 53903,
       "HTML": 7295
     },
     "primary_language": "Python",
