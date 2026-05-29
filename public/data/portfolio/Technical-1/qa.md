@@ -8,7 +8,7 @@ My dynamic GitHub profile README — the special `Technical-1/Technical-1` repo 
 
 - **Auto-Updating Stats Banner**: ASCII-art logo + contact info + GitHub stats (commits, repos, stars, followers, LOC) rendered in a terminal-aesthetic SVG, regenerated every day from live GraphQL data.
 - **Languages-by-LOC Widget**: A second 850×255 split-panel SVG showing my 12-month contribution sparkline (left) and top 10 programming languages by user-authored lines of code (right), with GitHub-official language colors.
-- **Honest LOC Counting**: Owned forks whose upstream parent I also have access to are filtered out — no double-counting the same commits in two repos.
+- **Honest LOC Counting**: Merge commits (whose API additions are combined diffs that re-count underlying work) are skipped, and owned forks whose upstream parent I also have access to are filtered out — no double-counting the same lines in two places.
 - **Self-Healing Resilience**: When GitHub's GraphQL backend persistently fails on a repo (e.g. 5+ minute history pagination triggering a 502), the script SKIP-caches that repo with prior LOC values preserved, then retries only when the repo gets new commits.
 - **Dark/Light Theme Support**: Every SVG ships in dark + light variants, switched automatically via the README's `<picture>` element and `prefers-color-scheme` media query.
 - **Intelligent Caching**: Per-repo LOC cache + per-language sidecar + per-month commits sidecar minimize API calls. Typical daily run: ~30 GraphQL calls, ~1.5 minutes total.
@@ -19,8 +19,14 @@ My dynamic GitHub profile README — the special `Technical-1/Technical-1` repo 
 ### Split-Panel Languages Widget
 The languages widget is a single 850×255 SVG with two coordinated panels. The left panel renders a contributions-per-month sparkline using 12 vertical `<rect>` elements scaled to the busiest month, with GitHub's lighter contribution-graph green. The right panel renders up to 10 language rows using monospaced text `<tspan>` elements: dot leader, language name (padded to 14 chars), Unicode-block bar (max 20 blocks, scaled relative to the top non-Other language), abbreviated LOC count, and percentage. Sub-1% percentages display with one decimal so micro-languages don't show as `0%`. The entire widget is regenerated from sidecar caches each run.
 
-### SKIP-Cache for Persistent GraphQL Failures
-A single large repo (8.6M LOC, decade of history) reliably triggered GitHub backend timeouts during commit-history pagination — retries didn't help, the backend hit the same wall every time. The solution: after five retries on persistent 502s OR `200`-with-empty-JSON-body responses, `recursive_loc()` returns a `'SKIP'` sentinel instead of raising. `cache_builder` then writes the cache row with the live commit `totalCount` but **preserves the prior LOC values**, so the row looks "fresh" on the next run and `recursive_loc` isn't called again until the repo gets new commits. Self-healing without a hardcoded denylist.
+### Merge-Commit Double-Counting Fix
+The single biggest accuracy bug: GitHub's GraphQL `Commit.additions` on a *merge* commit returns the combined diff — every change the merge brings in — which re-counts work already attributed to the underlying non-merge commits. One dormant collaborator repo reported **8.6M lines for ~376k real lines**: a 23× inflation from 26 PR-merge commits. The fix adds `parents { totalCount }` to the history query and skips any commit with `totalCount > 1`, mirroring `git log --no-merges`. This alone dropped the displayed LOC from inflated millions to an honest per-author total.
+
+### Hardcoded Overrides for Repos the API Can't Count Honestly
+Two repo classes defeat even the merge-fixed live counter. **Subtree-merged archives** pull whole sub-repos in via merge commits, so skipping merges leaves them reporting near-zero. **Dormant repos** (one untouched since 2023) reliably 502 on their history walk no matter how many retries. A top-of-file `LOC_HARDCODE` dict, keyed by `owner/repo`, pins each one's `additions`/`deletions`/`my_commits` (from local `cloc` and `git log --no-merges --shortstat`) and fires before the commit-count drift check so these repos never re-query GitHub. An optional `language_breakdown` distributes additions across the languages actually in the tree (`cloc` on `git ls-files`) rather than GitHub's single Linguist-chosen `primaryLanguage` — which, for one repo that accidentally committed `node_modules`, mislabeled 376k mostly-JavaScript additions as "Go."
+
+### SKIP-Cache for Transient GraphQL Failures
+Even healthy repos occasionally hit GitHub backend hiccups (502/503/504, or a `200` with an empty body) mid-pagination. Zeroing those rows corrupts the total — this caused a 20M → 4M regression on 2026-05-24. The fix: after five retries on persistent gateway errors OR `200`-with-empty-JSON-body responses, `recursive_loc()` returns a `'SKIP'` sentinel instead of raising. `cache_builder` writes the cache row with the live commit `totalCount` but **preserves the prior LOC values**, so the row looks "fresh" on the next run and isn't re-queried until the repo gets new commits. Self-healing: a push to the repo invalidates the row and a fresh attempt happens automatically.
 
 ### Parent-Aware Fork Deduplication
 Querying with `OWNER + COLLABORATOR + ORGANIZATION_MEMBER` affiliations returned both an original repo I collaborate on AND a fork of that same repo that I own. The same commits got counted twice — inflating LOC by millions when a large repo with massive history doubled up. The fix: query `isFork` and `parent.nameWithOwner` per repo, then drop any fork whose parent is also in the user's edge list. Forks of unrelated upstream projects still count (their commits aren't anywhere else). The same filter applies to the repo count widget so all metrics stay consistent.
@@ -33,17 +39,23 @@ GitHub's API offers two seemingly similar fields: `totalCommitContributions` (co
 
 ## Engineering Decisions
 
+### Skip merge commits when counting LOC
+- **Constraint**: GitHub's GraphQL `Commit.additions` on a merge reports the combined diff, double-counting work already in the underlying commits — inflating one repo 23× (8.6M vs ~376k real lines).
+- **Options**: Trust the API totals, subtract an estimated merge factor, or filter merges out entirely.
+- **Choice**: Add `parents { totalCount }` to the query and skip any commit with `totalCount > 1`.
+- **Why**: Exactly mirrors `git log --no-merges`, the canonical "real authorship" view — no heuristics, no magic constants, and it's the single largest accuracy improvement to the LOC total.
+
 ### `contributionCalendar` over `totalCommitContributions`
 - **Constraint**: GitHub exposes multiple "commit-like" metrics with subtly different definitions. `totalCommitContributions` undercounts OSS work because it only includes commits to repos the user owns or has explicit access to.
 - **Options**: `totalCommitContributions` (commit-only), monthly windowed queries, or `contributionCalendar.contributionCount` (commits + PRs + issues + reviews).
 - **Choice**: A single `contributionCalendar` yearly query, summed by month locally.
 - **Why**: One API call instead of twelve, and the number matches the green graph on the GitHub profile exactly — so visitors don't see a discrepancy between the widget and the official profile view.
 
-### SKIP-cache over hardcoded denylist
-- **Constraint**: One large repo with a decade of history consistently triggered GitHub backend timeouts on commit-history pagination. Retries alone didn't help — the same point in pagination failed every run.
-- **Options**: Hardcode a denylist of problematic repos, drop LOC tracking entirely, or build a self-healing fallback.
-- **Choice**: After 5 retries on persistent gateway errors or empty-body responses, return a `'SKIP'` sentinel; preserve prior LOC values in the cache so the row looks "fresh" until the repo gets new commits.
-- **Why**: Self-healing without manual intervention. If GitHub recovers or the repo gets a push, the row invalidates and a fresh attempt happens naturally — no code change required.
+### Two-tier failure handling: SKIP-cache for transient, hardcode for permanent
+- **Constraint**: GraphQL counting fails in two distinct ways — *transient* backend hiccups on otherwise-healthy repos, and *permanent* unreliability on a few repos (dormant repos that always 502, or subtree-merged archives that count to near-zero once merges are skipped).
+- **Options**: One mechanism for both (either retry-forever, or a blanket denylist), or distinct handling per failure mode.
+- **Choice**: Transient failures → SKIP-cache (preserve prior LOC, retry next run). Permanent failures → a small `LOC_HARDCODE` table of locally-verified `cloc` numbers that bypasses GraphQL entirely.
+- **Why**: SKIP-cache self-heals when GitHub recovers, but a repo that *always* fails would SKIP forever and burn retries every run — those few get pinned instead. Keeping the table tiny and locally-verified avoids it becoming a stale denylist.
 
 ### Parent-aware fork filtering vs. affiliation filtering
 - **Constraint**: Querying with `OWNER + COLLABORATOR + ORGANIZATION_MEMBER` affiliations sometimes returned both an upstream repo and the user's fork of it, causing the same commits to be counted twice.
@@ -68,6 +80,12 @@ Both are accurate; neither is "wrong." The labels are written to make the distin
 
 ### How does the SKIP-cache mechanism work?
 When `recursive_loc()` exhausts five retries on persistent GraphQL gateway errors (502/503/504) or a `200`-with-empty-body response, it returns a `'SKIP'` sentinel. `cache_builder` writes the cache row with the live commit `totalCount` (so the row matches on next run and isn't re-queried) but preserves the prior LOC values from the existing cache row (so the displayed total doesn't drop). When the repo eventually gets new commits, the totalCount changes, the cache row no longer matches, and `recursive_loc()` is called fresh — self-healing without manual intervention.
+
+### Why was the LOC count once wildly inflated, and how is it accurate now?
+The counter originally summed `Commit.additions` for every user-authored commit. But on a *merge* commit, GitHub returns the combined diff — the union of everything the merge brings in — so the same lines got counted again. One repo with 26 PR-merges reported 8.6M lines for ~376k of real work. The fix queries each commit's `parents { totalCount }` and skips anything with more than one parent, exactly like `git log --no-merges`. The displayed total is now per-author, non-merge additions only.
+
+### Why are a few repos' LOC values hardcoded?
+A small `LOC_HARDCODE` table pins LOC for repos the live API can't count honestly: subtree-merged archives (whose real content lives in merge commits the counter now skips) and a dormant repo that reliably 502s on its history walk. Each pinned value comes from local `cloc` or `git log --no-merges --shortstat`, and an optional `language_breakdown` splits the additions across the languages actually in the tree instead of GitHub's single `primaryLanguage` guess. The override fires before the cache's drift check, so these repos never re-query GitHub.
 
 ### How does fork de-duplication work?
 The `loc_query` GraphQL request fetches each repo's `isFork` flag and `parent.nameWithOwner`. After all pages of edges are accumulated, `filter_owned_forks()` drops any fork whose parent is also in the user's repo list — those represent the same commits as the original. Forks of upstream projects the user doesn't otherwise have access to are kept, since their commits are the only place the user's work shows. The repo count widget applies the same filter so all metrics stay consistent.
