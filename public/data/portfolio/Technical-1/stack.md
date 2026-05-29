@@ -49,5 +49,6 @@
   - `full/` — 1050×515px, neofetch-inspired full card with language/framework/tool lists
   - `compact/*_simple.svg` — 850×255px, ASCII logo + contact + GitHub stats
   - `compact/*_languages.svg` — 850×255px split layout: 12-month contributions sparkline (left) + top-10 languages by LOC (right)
-- **Language colors**: Bars in the languages widget use GitHub's official `primaryLanguage.color` per language (Python `#3572A5`, Go `#00ADD8`, etc.). Other bucket uses mode-appropriate `.cc` gray.
+- **Bars**: `render_bar` uses Unicode partial-block glyphs (`▏▎▍▌▋▊▉█`) at 1/8-cell precision so small languages render at distinct lengths instead of all flooring to one block; any non-zero value stays visible at ≥1/8 cell.
+- **Language colors**: Bars in the languages widget use GitHub's official `primaryLanguage.color` per language (Python `#3572A5`, Go `#00ADD8`, etc.). A `LANGUAGE_COLORS` fallback map supplies Linguist colors for languages that come from a hardcoded breakdown and never appear in a live GraphQL response. Other bucket uses mode-appropriate `.cc` gray.
 - **Cache-busting**: README references include a `?v=N` query string so browsers and GitHub's image proxy pick up new SVG content immediately after a layout change.
