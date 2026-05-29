@@ -80,6 +80,24 @@ line items that never appear in bank statements. These get merged
 into the pipeline as ghost transactions with `rule_id =
 "manual_addition"` for audit-trail provenance.
 
+### Past-year reconciliation with transaction tracing
+The `reconcile` command re-imports a prior year's statements, recomputes
+the return with the current engine, and diffs it against what the user
+actually filed (`filed_return.yaml`). Each line is classified match /
+minor / material, missed deductions and over-claims are surfaced, and
+every material discrepancy is traced back to the specific transactions
+that explain it — output as a workbook sheet, a PDF, and a terminal
+summary.
+
+### Carryforward engine
+Carryforward amounts brought into a year via `carryforward.yaml` are
+consumed in the computation: a C-corp NOL fills Form 1120 line 29a
+(post-TCJA 80%-of-taxable-income limit), a prior-year §179 disallowed
+amount is applied against the current income limit, and prior-year
+bonus/§179 assets keep depreciating on a user-supplied `remaining_basis`.
+The ending carryforward state is surfaced in a "Carryforward" workbook
+sheet, the worksheet PDF, and the terminal summary.
+
 ## Technical Highlights
 
 ### `ExtractionNeedsHelp` as a typed seam
@@ -180,14 +198,14 @@ not set, it exits with code 3 and a message pointing at the
 agent-runtime alternative.
 
 ### What entity types are supported?
-v0.6 supports US C-corporations (Form 1120 + Form 1125-A COGS + Form 4562
+The toolkit supports US C-corporations (Form 1120 + Form 1125-A COGS + Form 4562
 depreciation + state form + Statement of Other Deductions for Line 26) and
 sole proprietors / single-member LLCs (Schedule C + Schedule SE + Form 8829
 Simplified Method home office + Form 4562 depreciation + optional state form).
-State coverage: FL, TX, and VA (see state-coverage Q&A above). Future work:
+State coverage: FL, TX, and VA (see the state-coverage Q&A below). Future work:
 S-corp (Form 1120-S) and partnership (Form 1065).
 
-### What state coverage does v0.6 include?
+### What state coverage is included?
 Three states are supported, selected by a `state:` field in the per-year
 `config.yaml`. The CLI dispatches one state form per vault based on that
 field:
@@ -231,6 +249,45 @@ Every run that includes at least one depreciable asset generates a Form 4562
 sheet and a Depreciation Schedule sheet in the workbook, and a Form 4562
 section in the printable worksheet PDF. A runnable example is included in the
 repository: `uv run tax-toolkit process-schedule-c --example depreciation-demo-2025`.
+
+### Can I check a past year's return for errors?
+Yes — that's what `tax-toolkit reconcile` does. You record what you actually
+filed in `vault/<year>/filed_return.yaml` (any subset of the form's lines),
+drop that year's statements in the vault, and run the command. The toolkit
+re-imports the statements, recomputes the return with the current engine, and
+diffs it against your filed figures. Each line is classified match / minor /
+material; deduction lines the engine computed but your filed return omitted
+are flagged as possible missed deductions; and each material discrepancy is
+traced to the contributing transactions so you can see why the numbers differ.
+The result is written as a Reconciliation workbook sheet, a PDF, and a terminal
+summary, with a headline delta on net profit (Schedule C) or taxable income
+(C-corp). A runnable demo with planted discrepancies ships in the repository:
+`uv run tax-toolkit reconcile --example reconcile-demo-2025`.
+
+One honest limitation: the toolkit ships only 2025 form modules, so a pre-2025
+reconciliation recomputes with 2025 rules. Year-independent checks
+(miscategorizations, omitted income, arithmetic) are accurate for any year, but
+year-specific provisions — bonus depreciation percentage, §179 caps, the
+standard mileage rate — differ, so the report prints a caveat for those lines
+when the year predates 2025.
+
+### How do carryforwards from a prior year get applied?
+Record them in `vault/<year>/carryforward.yaml`: `nol_carryforward` (a
+C-corporation net operating loss) and `section_179_carryforward` (a §179
+deduction a prior year's income limit disallowed). On a run, the NOL fills Form
+1120 line 29a, capped at 80% of taxable income (the post-2017 rule), and the
+§179 carryforward is added to the current year's §179 elections and allowed up
+to the business-income limit. For a depreciable asset placed in service in an
+earlier year that is still being written off — a bonus or §179 asset — add a
+`remaining_basis` field to its `assets.yaml` entry (the post-first-year MACRS
+basis the depreciation table runs on, not net book value), and the toolkit
+continues its MACRS schedule. After the run, a "Carryforward" workbook sheet,
+a worksheet-PDF section, and the terminal summary show what rolls into next year:
+the remaining NOL (including any current-year loss), the unused §179, and each
+asset's remaining basis. These are explicit inputs rather than auto-derived
+because the toolkit ships only 2025 rules and cannot accurately recompute a
+prior year's depreciation or limits. A runnable demo:
+`uv run tax-toolkit process --example carryforward-demo-2025`.
 
 ### How does the categorization actually work?
 A regex rule is `{pattern, category, subcategory, type_hint?}`. The
