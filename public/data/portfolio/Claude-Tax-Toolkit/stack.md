@@ -30,7 +30,7 @@
 
 - **Package Manager**: [uv](https://github.com/astral-sh/uv) — chosen for fast installs and a single lockfile (`uv.lock`) committed to the repo
 - **Build backend**: hatchling
-- **Testing**: pytest 8.x + pytest-cov 5.x — ~237 tests across `tests/unit/`, `tests/integration/`, and `tests/privacy/`
+- **Testing**: pytest 8.x + pytest-cov 5.x — ~284 tests across `tests/unit/`, `tests/integration/`, and `tests/privacy/`
 - **Privacy enforcement**: a `.githooks/pre-commit` shell script (`make setup` installs it) + a `scripts/check_clean.py` working-tree scanner (`make check-clean`)
 
 ## Key Dependencies
@@ -38,7 +38,7 @@
 | Package | Purpose |
 |---------|---------|
 | `pydantic` | Runtime data validation for `Transaction`, `Rule`, `CategoryTotals`, `YearConfig`, `ManualAddition`. The strict-mode + `mode="before"` validator pattern is core to the money-precision discipline. |
-| `typer` | CLI subcommands (`init`, `process`, `process-schedule-c`, `extract`, `categorize`) and interactive prompts (`typer.prompt`, `typer.confirm`) for the setup wizard. |
+| `typer` | CLI subcommands (`init`, `process`, `process-schedule-c`, `reconcile`, `extract`, `categorize`) and interactive prompts (`typer.prompt`, `typer.confirm`) for the setup wizard. |
 | `pdfplumber` | Bank-statement PDF text extraction. The toolkit's deterministic parser walks pdfplumber's per-page text lines and matches a date-prefix + amount-suffix regex against a known transaction-line shape. |
 | `openpyxl` | Builds the multi-sheet xlsx output. Hidden-sheet support (`ws.sheet_state = "hidden"`) is how the Audit sheet carries categorization provenance without cluttering the user's view. |
 | `reportlab` | Renders the printable Worksheet PDF and generates the synthetic-example statement fixtures. The `Table` + `Paragraph` API gives enough layout control without HTML→PDF conversion overhead. |
@@ -52,6 +52,8 @@
 - `vault/<year>/config.yaml` — per-year per-vault settings (entity type, filing status, inventory, home office)
 - `vault/<year>/rules.yaml` — user-scoped rules layered on top of defaults
 - `vault/<year>/manual_additions.yaml` — non-bank line items
+- `vault/<year>/filed_return.yaml` — what was actually filed, for past-year reconciliation
+- `vault/<year>/carryforward.yaml` — NOL / §179 carryforward brought into the year
 - `.githooks/pre-commit` — privacy enforcement at commit time
 - `scripts/check_clean.py` — release-checklist scanner
 - `Makefile` — `make setup / test / test-unit / test-integration / test-privacy / check-clean / example / clean`

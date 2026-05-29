@@ -197,16 +197,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T17:29:28Z",
+      "pushed_at": "2026-05-28T23:14:38Z",
       "topics": []
     },
     "languages": [
       "Python",
+      "HTML",
       "Shell",
       "Makefile"
     ],
     "language_bytes": {
-      "Python": 295533,
+      "Python": 361042,
+      "HTML": 8638,
       "Shell": 2503,
       "Makefile": 1068
     },
@@ -216,6 +218,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/claude-tax-toolkit/preview.png"
     ]
   },
   {
@@ -804,7 +809,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T18:38:42Z",
+      "pushed_at": "2026-05-28T23:06:03Z",
       "topics": [
         "firebase",
         "pwa",
@@ -2113,7 +2118,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T21:39:58Z",
+      "pushed_at": "2026-05-28T23:14:09Z",
       "topics": [
         "ai",
         "backgammon",
@@ -2133,10 +2138,10 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 261989,
+      "TypeScript": 268789,
       "CSS": 17425,
       "HTML": 13331,
-      "JavaScript": 2418
+      "JavaScript": 2417
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -2574,7 +2579,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T22:47:48Z",
+      "pushed_at": "2026-05-28T22:51:02Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -3562,7 +3567,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T22:47:31Z",
+      "pushed_at": "2026-05-28T22:51:11Z",
       "topics": []
     },
     "languages": [
@@ -3571,7 +3576,7 @@
     ],
     "language_bytes": {
       "Python": 53903,
-      "HTML": 7295
+      "HTML": 7296
     },
     "primary_language": "Python",
     "has_portfolio": true,

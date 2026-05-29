@@ -10,6 +10,8 @@ flowchart TD
         RULES[default_rules.yaml + user rules.yaml]
         MA[manual_additions.yaml]
         ASSETS[vault/&lt;year&gt;/assets.yaml]
+        FILED[vault/&lt;year&gt;/filed_return.yaml]
+        CARRYIN[vault/&lt;year&gt;/carryforward.yaml]
     end
 
     subgraph Engine[Python engine - entity-agnostic]
@@ -37,6 +39,12 @@ flowchart TD
         PDFOUT[worksheet.pdf<br/>preparation worksheet]
     end
 
+    subgraph Reconcile[Reconciliation - reconcile command]
+        RR[return_record.py<br/>load filed_return.yaml]
+        RECON[reconcile.py<br/>diff + classify + trace]
+        RECONOUT[reconciliation.xlsx + .pdf]
+    end
+
     PDF --> EXT
     CONF --> EXT
     EXT --> CAT
@@ -45,9 +53,14 @@ flowchart TD
     TR --> SUM
     MA --> SUM
     ASSETS[vault/&lt;year&gt;/assets.yaml] --> F4562
+    CARRYIN --> F4562 & F1120
     SUM --> F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829
     F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829 --> XLSX
     F1120 & F1125A & F4562 & FFL & FTX & FVA500 & FVA760 & SC & SSE & F8829 --> PDFOUT
+    FILED --> RR --> RECON
+    SC & F1120 --> RECON
+    CAT --> RECON
+    RECON --> RECONOUT
 ```
 
 ## Component Descriptions
@@ -97,10 +110,30 @@ flowchart TD
 - **Location**: `src/tax_toolkit/assets.py`
 - **Key responsibilities**: Parses each `DepreciableAsset` entry via a strict pydantic model (fields: `description`, `cost`, `placed_in_service`, `recovery_period`, `business_use_percent`, `method`). Validates recovery period (5 or 7), business-use percentage range (1–100), and method enum (`macrs` | `section_179` | `bonus`). Absent or empty file is treated as zero assets — no depreciation is computed. Returns a typed list that `form_4562.py` consumes.
 
+### `return_record.py` — filed-return loader
+- **Purpose**: Load and validate the `vault/<year>/filed_return.yaml` file that records what a taxpayer actually filed for a past year
+- **Location**: `src/tax_toolkit/return_record.py`
+- **Key responsibilities**: Parses a `FiledReturn` via a strict pydantic model — `entity_type`, `year`, optional `prepared_by`, and a partial-tolerant `lines` map (any subset of the form's line keys). Money values reject `float` literals via the same `mode="before"` discipline as `assets.py`. Reserves (defines but does not consume) carryforward fields — NOL, §179 disallowed, per-asset remaining basis — so a future carryforward engine is purely additive. Absent file returns `None` ("nothing to reconcile").
+
+### `reconcile.py` — filed vs recomputed diff engine
+- **Purpose**: Compare a `FiledReturn` against a fresh re-import of the year's statements and classify every line
+- **Location**: `src/tax_toolkit/reconcile.py`
+- **Key responsibilities**: Pure function `reconcile(filed, recomputed_lines, transactions)` returning a `ReconciliationReport` of `LineDiff`s. Classifies each filed line `match` / `minor` (sub-$1 threshold) / `material`; flags `missed_deduction` (a non-zero recomputed deduction line absent from the filed return, gated by a per-entity deduction allowlist) and `over_claim` (a filed line with no recomputed counterpart). For material lines it traces the delta to contributing transactions by inverting the Schedule C subcategory→line routing table (`line_sources`). Reports the headline delta on the bottom-line figure (net profit / taxable income).
+
+### `output/reconciliation_report.py` — reconciliation workbook + PDF
+- **Purpose**: Render a `ReconciliationReport` as a standalone workbook sheet and PDF
+- **Location**: `src/tax_toolkit/output/`
+- **Key responsibilities**: `build_reconciliation_workbook` writes a "Reconciliation" sheet (`Line | Filed | Recomputed | Delta | Status | Notes`) with a summary header; `build_reconciliation_pdf` renders the same table via reportlab. Both prepend the prior-year-rules caveat when the reconciled year predates the shipped form set.
+
+### `carryforward.py` — carryforward inputs + ending-state computation
+- **Purpose**: Load `vault/<year>/carryforward.yaml` and compute the carryforward state rolling into the next year
+- **Location**: `src/tax_toolkit/carryforward.py`
+- **Key responsibilities**: `CarryforwardInput` (strict, float-rejecting pydantic model) holds the scalar inputs — `nol_carryforward` (C-corp) and `section_179_carryforward`; an absent file loads as zeros. `compute_ending_carryforward(...)` is a pure function returning an `EndingCarryforward` (unused NOL + current-year loss for C-corps, unused §179, and each prior-year asset's remaining MACRS basis). The inputs feed `form_4562.map(section_179_carryforward_in=...)` and `form_1120.map(nol_carryforward_in=...)`; the ending state is display-only (workbook sheet + PDF section + terminal summary). Prior-year bonus/§179 assets continue depreciating via a `remaining_basis` field on `assets.yaml` entries.
+
 ### `cli.py` + `cli_init.py` + `cli_summary.py`
 - **Purpose**: Typer CLI surface
 - **Location**: `src/tax_toolkit/`
-- **Key responsibilities**: `init` walks the user through creating a `vault/<year>/` interactively; `process` and `process-schedule-c` orchestrate the engine; `cli_summary` prints headline tax-form values to the terminal after a successful run.
+- **Key responsibilities**: `init` walks the user through creating a `vault/<year>/` interactively; `process` and `process-schedule-c` orchestrate the engine; `reconcile` re-runs the recompute pipeline for a past year and diffs it against `filed_return.yaml`; `cli_summary` prints headline tax-form values to the terminal after a successful run.
 
 ## Data Flow
 
@@ -108,6 +141,8 @@ flowchart TD
 2. User drops monthly bank statement PDFs into `vault/<year>/statements/checking/` (and `savings/` for C-corp). Capital asset purchases are tagged with a categorization rule (`category: capital_asset`) so they are excluded from regular expense totals — the same mechanism used to exclude inter-account transfers.
 3. `tax-toolkit process` or `process-schedule-c` runs the engine: `extract → categorize → detect_transfers → load_manual_additions → merge → summarize → forms/y2025/*.map(...) → workbook + worksheet PDF`. If `assets.yaml` is present, `assets.py` loads it and passes the `DepreciableAsset` list to `form_4562.py`, which computes the depreciation deduction and feeds it to Schedule C Line 13 or Form 1120 Line 20.
 4. The Audit sheet inside the workbook records `rule_id` provenance for every transaction; users (or their CPA) inspect this to verify categorization before transcribing numbers to the official IRS forms.
+5. To check a past year, the user records what they filed in `vault/<year>/filed_return.yaml` and runs `tax-toolkit reconcile --year <year>`. The same recompute pipeline runs, then `reconcile.py` diffs the recomputed lines against the filed record and writes `reconciliation.xlsx` + `reconciliation.pdf` flagging material discrepancies, missed deductions, and over-claims — tracing material deltas to the contributing transactions.
+6. Carryforward inputs in `vault/<year>/carryforward.yaml` (NOL, §179) and `remaining_basis` on prior-year `assets.yaml` entries are consumed during `process`: the NOL fills Form 1120 line 29a (80%-limited), the §179 carryforward is applied against the income limit, and prior-year bonus/§179 assets continue depreciating. The ending carryforward state for next year is shown in a "Carryforward" workbook sheet, the worksheet PDF, and the terminal summary.
 
 ## External Integrations
 
@@ -155,7 +190,17 @@ API key at all.
 ### Two-pass §179 income-limit ordering
 - **Context**: §179 immediate expensing cannot create a business loss — the deduction is capped at taxable income before the §179 election. When multiple assets elect §179, the ordering in which they are evaluated affects which assets get the full deduction vs. a partial one if the income limit binds.
 - **Decision**: `form_4562.py` uses a two-pass approach: first, sum all §179 elections to determine the total requested and compare against the income limit; then, if the limit binds, allocate the allowed amount across elections proportionally to their individual costs. Any disallowed amount is surfaced as a carryforward in the terminal summary and workbook without affecting line totals.
-- **Rationale**: Proportional allocation is consistent with IRS guidance when the income limit partially disallows a group of §179 elections, and it avoids surprising the user by silently zeroing out a particular asset's deduction. The carryforward is computed and displayed in v0.6 even though it is not yet automatically persisted to the following year's assets file.
+- **Rationale**: Proportional allocation is consistent with IRS guidance when the income limit partially disallows a group of §179 elections, and it avoids surprising the user by silently zeroing out a particular asset's deduction. The disallowed amount is surfaced as a carryforward in the terminal summary and workbook, and is consumed the following year as an explicit `section_179_carryforward` input (see "Carryforward as explicit inputs" below) rather than being silently written back into the privacy-sensitive vault.
+
+### Reconciliation as a diff between a filed record and a fresh re-import
+- **Context**: A common real-world need is checking a past year's filed return for errors — missed deductions, miscategorized expenses, omitted income, arithmetic mistakes. The toolkit already recomputes a return deterministically from statements, so the missing piece was a record of what was actually filed and an engine to compare the two.
+- **Decision**: A per-year `filed_return.yaml` records the filed line values (any subset). The `reconcile` command re-runs the existing recompute pipeline to produce the current-engine line values, then a pure `reconcile.py` engine diffs filed-vs-recomputed, classifies each line (match / minor / material / missed-deduction / over-claim), and traces material deltas to the contributing transactions by inverting the subcategory→line routing the form modules use.
+- **Rationale**: Reusing the recompute pipeline means reconciliation always reflects the full current engine (including Form 4562 depreciation) with no parallel logic to drift. Keeping the diff engine pure (it takes a dict of recomputed lines, not a vault path) makes it trivially testable and reusable. The `FiledReturn` model reserves carryforward fields from day one so the future carryforward engine is additive. Known limitation, surfaced as a report caveat: pre-2025 years recompute with the 2025 engine, so year-specific lines (bonus %, §179 caps, mileage rate) may differ from that year's rules — year-versioned form modules are the eventual fix.
+
+### Carryforward as explicit inputs with display-only ending state
+- **Context**: NOLs, disallowed §179, and partially-depreciated assets carry from one tax year into the next. The toolkit could try to derive them by recomputing the prior year — but it ships only 2025 form rules, and year-specific provisions (bonus % , §179 caps, mileage rate) differ, so a recomputed prior year would be wrong.
+- **Decision**: Carryforward amounts are explicit user inputs — entity-level scalars in `vault/<year>/carryforward.yaml` (NOL, §179) plus a `remaining_basis` field on prior-year `assets.yaml` entries (defined as the post-first-year MACRS basis the depreciation table runs on). The engine consumes them in the current-year computation (Form 1120 line 29a with the 80% limit; §179 carryforward added to current elections under the income limit; prior-year bonus/§179 assets continuing MACRS). The *ending* carryforward state is computed and surfaced (workbook sheet, PDF, terminal) but not auto-written into next year's files.
+- **Rationale**: Inputs-not-derivation is both simpler and more correct given the year-versioned-rules limitation — the user holds the authoritative figures from their filed prior return. Keeping the ending-state computation in a pure `compute_ending_carryforward` makes it testable in isolation, and display-only output matches the toolkit's "preparation aid, not a filer" stance (no silent writes into the privacy-sensitive vault). The `FiledReturn` model reserved these fields back in v0.7, so v0.8 was purely additive.
 
 ### Engine ↔ intelligence layer split
 - **Context**: AI capabilities (PDF parsing for unknown formats, categorization for unknown merchants) shouldn't be hard-wired into the Python engine, but the toolkit also needs to work for users who don't or can't set an API key.
