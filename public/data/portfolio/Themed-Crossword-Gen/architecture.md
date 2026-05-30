@@ -26,16 +26,19 @@ flowchart TD
     end
 
     subgraph API["Vercel Serverless"]
-        GC[generate-crossword.ts<br/>Validation + CORS]
+        GC[generate-crossword.ts<br/>CORS + Rate Limit + Validation]
     end
 
     subgraph Shared["Shared Library"]
         Gen[crossword-generator.ts<br/>AI Prompt + Layout]
+        RL[rate-limit.ts<br/>Trust-Based Limiter]
+        Val[validation.ts<br/>Input Sanitization]
     end
 
     subgraph External["External Services"]
         LLM[Anthropic Claude<br/>Word + Clue Generation]
-        CF[Cloudflare Turnstile<br/>Bot Protection]
+        CF[Cloudflare Turnstile<br/>Trust Signal]
+        UR[(Upstash Redis<br/>Shared Rate Counter)]
     end
 
     subgraph PWA["Service Worker"]
@@ -55,9 +58,12 @@ flowchart TD
 
     TS -->|"POST /api/generate-crossword"| GC
     TS -->|"Turnstile Token"| CF
+    GC --> Val
+    GC --> RL
     GC --> Gen
     Gen --> LLM
-    GC -->|"Verify Token"| CF
+    GC -.->|"Verify token → pick limit tier"| CF
+    RL -->|"INCR / EXPIRE"| UR
 
     SW --> OP
     App -.->|"Offline Fallback"| SW
@@ -83,7 +89,8 @@ flowchart TD
 - **Key responsibilities**:
   - Theme input with 15 suggestion options and keyboard navigation
   - Grid size / word count / difficulty selection
-  - Cloudflare Turnstile widget (invisible captcha, `interaction-only` mode)
+  - Cloudflare Turnstile widget (`interaction-only` appearance) that emits a token used purely as a trust signal — if the script is blocked or never loads within 10s, the form still submits with an empty token and the server applies the stricter unverified rate limit
+  - Widget lifecycle management: removes the widget on unmount to avoid detached-container polling and widget leaks across re-mounts
   - Loading states with retry count display
 
 ### CrosswordGame.tsx
@@ -132,14 +139,16 @@ flowchart TD
 ### Puzzle Generation Flow
 
 1. User enters theme, grid size, word count, and difficulty in `ThemeSelector`
-2. Turnstile widget generates a bot-protection token
+2. Turnstile widget produces a trust-signal token (or none, if blocked)
 3. `App.tsx` sends POST to `/api/generate-crossword` with config + token
-4. Serverless function verifies Turnstile token with Cloudflare
-5. `crossword-generator.ts` sends themed prompt to the LLM
-6. The model returns a JSON array of `{answer, clue}` pairs
-7. `crossword-layout-generator` arranges words into a valid grid (up to 3 retries)
-8. Grid data is returned to client, `CrosswordGame` renders the interactive puzzle
-9. On failure, exponential backoff retry (up to 3 attempts), then offline fallback
+4. Serverless function keys the request by the edge-injected `x-real-ip` (never the client-controllable `x-forwarded-for`)
+5. If a token is present, the function verifies it with Cloudflare to decide the rate-limit tier: verified → 10/min, unverified → 3/min
+6. The rate limiter (`rate-limit.ts`) increments the per-IP counter in Upstash Redis; over the limit returns `429`, otherwise the request proceeds
+7. `validation.ts` validates and sanitizes the request body (theme, grid bounds, word count, difficulty)
+8. `crossword-generator.ts` sends the themed prompt to the LLM, which returns a JSON array of `{answer, clue}` pairs
+9. `crossword-layout-generator` arranges words into a valid grid (up to 3 retries)
+10. Grid data is returned to the client and `CrosswordGame` renders the interactive puzzle
+11. On failure, exponential backoff retry (up to 3 attempts), then offline fallback
 
 ### Puzzle Sharing Flow
 
@@ -160,7 +169,8 @@ flowchart TD
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
 | Anthropic Claude (Sonnet 4) | Generates themed words and clues | https://docs.anthropic.com |
-| Cloudflare Turnstile | Bot protection for API endpoint | https://developers.cloudflare.com/turnstile |
+| Cloudflare Turnstile | Trust signal that selects the rate-limit tier | https://developers.cloudflare.com/turnstile |
+| Upstash Redis | Shared per-IP rate-limit counter (in-memory fallback) | https://upstash.com/docs/redis |
 | Vercel | Hosting (static + serverless) | https://vercel.com/docs |
 | crossword-layout-generator | Arranges words into valid grid layouts | npm package |
 | @jaredreisinger/react-crossword | Interactive crossword grid component | npm package |
@@ -187,10 +197,15 @@ flowchart TD
 - **Decision**: Scan SVG DOM elements and match them to grid positions using a greedy distance-based algorithm
 - **Rationale**: Allows real-time correct/incorrect coloring without forking the crossword library
 
-### Fail-Open Turnstile Verification
-- **Context**: Cloudflare API could be temporarily unreachable
-- **Decision**: If Turnstile verification request fails (network error), allow the puzzle generation to proceed
-- **Rationale**: Better user experience — a brief Cloudflare outage shouldn't block all users. Logged for monitoring.
+### Trust-Based Rate Limiting Instead of Captcha Gating
+- **Context**: A hard Turnstile gate punished legitimate users behind content blockers or during a Cloudflare outage, while the real cost to protect was the paid LLM endpoint
+- **Decision**: Demote Turnstile to a trust signal. A valid token earns the normal quota (10 requests/min/IP); a missing or failing token still works but at a stricter cap (3/min). The request is never hard-rejected for lacking a token — the rate limiter is the only gate, and it keys on the edge-injected `x-real-ip` rather than the spoofable `x-forwarded-for`
+- **Rationale**: Bounds abuse of the expensive endpoint without false-positives on real users. Tokenless requests also skip the `siteverify` round-trip, so they can't be used to spam Cloudflare. See `api/generate-crossword.ts`.
+
+### Upstash Redis Limiter with In-Memory Fallback
+- **Context**: Vercel serverless instances are ephemeral and independent, so a per-instance counter under-counts a distributed client across many cold starts
+- **Decision**: Back the limiter with a shared Upstash Redis fixed-window counter (`INCR` + `EXPIRE`), falling back to the per-instance in-memory map if Redis is unconfigured or errors mid-request
+- **Rationale**: Gives a consistent global limit when Redis is available, and degrades to a stricter local limit during an outage rather than failing open. The limiter re-asserts the TTL if an `EXPIRE` was lost, so a key can never lock an IP out permanently. See `lib/rate-limit.ts`.
 
 ### Offline-First with Pre-Generated Puzzles
 - **Context**: PWA should work without network connectivity

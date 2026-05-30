@@ -5,7 +5,7 @@
 | Category | Technology | Version | Purpose |
 |----------|------------|---------|---------|
 | Language | TypeScript | ~5.9 | Type safety across frontend and Cloud Functions |
-| Runtime | Node.js | 20+ | Development tooling and Cloud Functions runtime |
+| Runtime | Node.js | 24 | Development tooling and Cloud Functions runtime (CI pins the same version) |
 | Framework | React | 19.2 | UI rendering with hooks-based architecture |
 | Build Tool | Vite | 7.3 | Fast HMR dev server and optimized production builds |
 
@@ -34,14 +34,15 @@
 
 - **Frontend Hosting**: Vercel (SPA rewrites via vercel.json)
 - **Backend Hosting**: Firebase (Cloud Functions + Firestore)
-- **CI/CD**: Manual deploy via Vercel CLI and Firebase CLI
+- **CI**: GitHub Actions runs lint, `tsc` type-check, frontend tests, a functions build/test job, and Firestore security-rules tests against the emulator on every push and PR
+- **Deploy**: Cloud Functions and Firestore rules deploy from GitHub Actions on commits tagged `[deploy-functions]`, using keyless Workload Identity Federation (short-lived OIDC token exchanged for a 1-hour GCP access token — no long-lived service-account key stored). Frontend deploys to Vercel.
 
 ## Development Tools
 
 - **Package Manager**: npm
 - **Linting**: ESLint 9 with react-hooks and react-refresh plugins
 - **Type Checking**: TypeScript compiler (`tsc -b`)
-- **Testing**: Vitest 4.x + React Testing Library + happy-dom
+- **Testing**: Vitest 4.x + React Testing Library + happy-dom; Firestore rules tested with `@firebase/rules-unit-testing` on the emulator
 - **Dev Server**: Vite with HMR
 
 ## Key Dependencies
@@ -59,7 +60,9 @@
 | `sonner` | Toast notifications for in-app feedback |
 | `@vercel/analytics` | Frontend usage analytics |
 | `cheerio` | Server-side HTML parsing for link scraping (Cloud Functions) |
-| `puppeteer` | Headless Chrome fallback for JS-rendered pages (Cloud Functions) |
+| `puppeteer-core` + `@sparticuz/chromium` | Headless Chrome fallback for JS-rendered pages, with a serverless-friendly Chromium binary (Cloud Functions) |
+| `puppeteer-extra` + stealth plugin | Reduces bot-detection blocks on retailer pages during the fallback render |
+| `firebase-functions` (v6) | Cloud Functions v2 SDK — callable functions and Firestore triggers |
 | `firebase-admin` | Admin SDK for Firestore triggers and FCM sends (Cloud Functions) |
 | `@testing-library/react` | Component testing with user-centric queries |
 | `vitest` | Fast test runner with Vite integration |

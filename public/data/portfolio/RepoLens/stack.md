@@ -5,7 +5,7 @@
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **Next.js** | 15.3.7 | React framework with App Router, server components, and API routes |
-| **React** | 19.0.3 | UI component library with latest concurrent features |
+| **React** | 19.2.6 | UI component library with latest concurrent features |
 | **TypeScript** | 5.9.3 | Type safety and improved developer experience |
 | **Tailwind CSS** | 3.4.16 | Utility-first styling with custom GitHub-inspired theme |
 | **Recharts** | 2.15.0 | Interactive data visualizations for code frequency charts |
@@ -55,7 +55,7 @@ I added GraphQL alongside REST to optimize the most expensive operation — comm
 - A single GraphQL query replaces 51+ REST API calls for fetching commit details
 - Reduces rate limit consumption by ~98% for the commit-fetching path
 - Falls back to REST automatically if GraphQL fails
-- Also enables fallback code frequency calculation for repos >10k commits
+- Pages history with cursor-based `after`/`endCursor` (GitHub caps `history(first:)` at 100 per page) to deepen up to ~2,500 commits when GitHub won't serve `/stats/code_frequency` — used to compute accurate line totals for repos where the statistics API returns 422
 
 ### next-auth (v5.0.0-beta.25)
 
@@ -100,11 +100,12 @@ Lucide provides the iconography because:
 |------------|---------|---------|
 | **ESLint** | 9.16.0 | Code linting with Next.js config |
 | **eslint-config-next** | 15.3.7 | Next.js-specific ESLint rules |
-| **PostCSS** | 8.4.49 | CSS processing for Tailwind |
+| **PostCSS** | 8.5.10 | CSS processing for Tailwind |
 | **Autoprefixer** | 10.4.20 | Automatic vendor prefixes |
+| **Vitest** | 4.0.18 | Unit test runner (jsdom + Testing Library) |
 | **@types/node** | 22.10.2 | Node.js type definitions |
-| **@types/react** | 19.0.1 | React type definitions |
-| **@types/react-dom** | 19.0.1 | React DOM type definitions |
+| **@types/react** | 19.2.15 | React type definitions |
+| **@types/react-dom** | 19.2.3 | React DOM type definitions |
 
 ## Runtime Requirements
 

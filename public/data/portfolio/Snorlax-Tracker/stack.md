@@ -25,7 +25,7 @@ None. The app is fully client-side. The only network calls are read-only fetches
 - **Hosting**: [Vercel](https://snorlax-tracker.vercel.app) — the static build (`npm run build` → `dist/`) is a self-contained bundle deployable to any static host.
 - **CI/CD**: Vercel rebuilds and redeploys on every push to `main`; correctness verification (`typecheck` + `test` + `build`) is run locally — no separate test CI.
 - **Monitoring**: None (no server; Vercel default analytics only).
-- **Persistence**: Browser `localStorage` (`snorlax_v3` = owned, `snorlax_user_v1` = manual overrides).
+- **Persistence**: Browser `localStorage` (`snorlax_v3` = owned, `snorlax_user_v1` = manual overrides, `snorlax_prices_v1` = 24h price cache).
 
 ## Development Tools
 

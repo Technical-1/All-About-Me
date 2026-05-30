@@ -23,7 +23,7 @@
 
 - **Runtime**: Vercel Serverless Functions (production API proxy)
 - **Dev Proxy**: Vite dev server proxy (local development)
-- **AI API**: Anthropic Claude Haiku 4.5 (`@anthropic-ai/sdk ^0.77.0`) via `/api/ai-translate` serverless function
+- **AI API**: Anthropic Claude Haiku 4.5 (`@anthropic-ai/sdk ^0.77.0`) via two serverless functions — `/api/ai-translate` (decode) and `/api/ai-encode` (encode, with a dictionary-anchored prompt)
 - **External API**: Urban Dictionary API v0 (`/v0/define`, `/v0/autocomplete-extra`, `/v0/autocomplete`)
 - **Shared API helpers**: `webapp/api/_lib/` — `cors.js` (single-source allowlist), `kv.js` (real-or-fake KV switch for tests), `rate-limit.js` (per-IP buckets, KV-backed with in-memory fallback)
 - **Caching**: Vercel KV (server-side, production), localStorage (client-side, 7-day TTL for popular words, 20-entry LRU for AI results)
@@ -45,7 +45,7 @@
 - **Package Manager**: npm
 - **Linting**: ESLint 8 + eslint-plugin-react + eslint-plugin-react-hooks + eslint-plugin-react-refresh + eslint-config-prettier
 - **Formatting**: Prettier 3.8 (no semicolons, single quotes, trailing commas es5, 100 char width)
-- **Testing**: Vitest 4 + React Testing Library 16 + jest-dom 6 + user-event 14 + jsdom (212 tests across 28 files covering hooks, services, components, utils, API handlers, and ingestion scripts)
+- **Testing**: Vitest 4 + React Testing Library 16 + jest-dom 6 + user-event 14 + jsdom (257 tests across 33 files covering hooks, services, components, utils, API handlers, and ingestion scripts)
 - **Rules testing**: `@firebase/rules-unit-testing` driven by `firebase-tools` against the Firestore emulator (`npm run test:rules`)
 - **CSS Processing**: PostCSS + Autoprefixer
 
