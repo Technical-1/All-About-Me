@@ -7,6 +7,7 @@ flowchart TD
     subgraph Client["Frontend (React SPA)"]
         Router["TanStack Router<br/>File-based routes"]
         Query["TanStack Query<br/>Server state cache"]
+        Realtime["Realtime Layer<br/>onSnapshot listeners"]
         Auth["AuthProvider<br/>Firebase Auth context"]
         UI["UI Components<br/>WishCard, Modals, Dialogs"]
         Notif["Notification Layer<br/>FCM token + prompt"]
@@ -32,7 +33,9 @@ flowchart TD
     Auth --> FAuth
     FAuth --> Google
     Query --> Firestore
+    Realtime --> |"live updates"| Firestore
     UI --> Query
+    UI --> Realtime
     Notif --> FCM
     Functions --> ProductSites
     Functions --> Puppeteer
@@ -51,7 +54,17 @@ flowchart TD
 ### TanStack Query (Server State)
 - **Purpose**: Async data fetching, caching, and mutation with automatic invalidation
 - **Location**: `src/hooks/`
-- **Key responsibilities**: Firestore reads via query hooks, write operations via mutations, optimistic cache invalidation on create/update/delete
+- **Key responsibilities**: One-shot Firestore reads via query hooks (e.g. bounded dashboard reads), write operations via mutations, cache invalidation on create/update/delete
+
+### Realtime Layer
+- **Purpose**: Keep open list views in sync as items are claimed or edited from other devices
+- **Location**: `subscribeToWishlistItems` in `src/lib/firestore.ts`, consumed by `useLiveWishlistItems` in `src/hooks/useWishlistItems.ts`
+- **Key responsibilities**: Open a Firestore `onSnapshot` listener scoped to a wishlist's `items` subcollection, validate each document, push the array into React state, and unsubscribe on unmount — so a claim made on the shared view appears on the owner's list without a refresh
+
+### Affiliate Link Helper
+- **Purpose**: Monetize outbound product links without polluting stored data
+- **Location**: `src/lib/affiliate.ts`
+- **Key responsibilities**: At render time, append the Amazon Associates tag to `amazon.com` URLs only (other hosts pass through unchanged); stored item URLs stay canonical so re-scrapes and URL validation always run against the untagged URL, and the tag lives in exactly one place
 
 ### AuthProvider
 - **Purpose**: Wraps the app in Firebase Auth context, exposes user state and signInWithGoogle
@@ -111,19 +124,21 @@ flowchart TD
 4. Security rules restrict shared viewers to only updating claim-related fields
 5. The `onItemClaimed` Firestore trigger fires, sending a push notification to the list owner via FCM
 6. The owner sees claim details (name/photo/note) unless the claimer chose anonymity
+7. Because the owner's list view subscribes via `onSnapshot`, the claimed state appears live without a refresh
 
 ### Push Notifications
 1. On dashboard load, `NotificationPrompt` checks if user has granted notification permission
 2. If not, prompts the user; on iOS Safari, shows a guide to install the PWA first
 3. On enable: requests permission, gets FCM token, stores token in `users/{uid}` document
 4. When an item is claimed, the `onItemClaimed` trigger reads the owner's FCM tokens and sends a web push
-5. Stale tokens are automatically cleaned up on send failure
+5. The trigger guards against duplicate sends: a Firestore transaction atomically stamps `notifiedAt`, and a re-delivered event that finds it already set bails out — so an at-least-once trigger never double-notifies
+6. Stale tokens are automatically cleaned up on send failure
 
 ### Item Refresh
 1. Owner clicks refresh on a WishCard, triggering `useRefreshItem`
 2. Re-scrapes the URL via the `scrapeUrl` Cloud Function
 3. Updates only changed fields via `updateItemMetadata`
-4. Bulk refresh via `refreshAllItems` processes all items in batches of 10
+4. Bulk refresh via `refreshAllItems` is bounded: a global cap (200 items) is divided into a per-list `limit()` so a user with many large lists can't trigger an unbounded read fan-out, then processed in batches
 
 ## External Integrations
 
@@ -133,9 +148,11 @@ flowchart TD
 | Cloud Firestore | Document database for wishlists, items, and user FCM tokens |
 | Cloud Functions v2 | Server-side link scraping, bulk refresh, claim notifications |
 | Cloud Messaging (FCM) | Web push notifications for item claims |
-| Puppeteer | Headless Chrome fallback for JS-rendered product pages |
+| Headless Chrome (`puppeteer-core` + `@sparticuz/chromium` + stealth) | Fallback render for JS-rendered product pages |
+| Amazon Associates | Affiliate tag appended to `amazon.com` outbound links at render time |
 | Vercel | Frontend hosting with SPA rewrites |
 | Vercel Analytics | Usage tracking |
+| GitHub Actions + GCP Workload Identity Federation | CI checks and keyless Cloud Functions / rules deploy |
 | Google Fonts | Playfair Display + DM Sans |
 
 ## Key Architectural Decisions
@@ -169,3 +186,23 @@ flowchart TD
 - **Context**: Users may have many lists with many items; need a compact overview
 - **Decision**: Show mini-cards in a horizontal scroll per list, with a "View all" toggle to expand into a full card grid
 - **Rationale**: Compact by default so you can scan all lists quickly; expandable for when you need the full view with actions
+
+### Realtime Listeners on List Views, One-Shot Reads on the Dashboard
+- **Context**: A claim made on a shared link should appear on the owner's open list immediately, but the dashboard renders every list and shouldn't open a listener per list
+- **Decision**: List/shared views use a Firestore `onSnapshot` subscription (`useLiveWishlistItems`); the dashboard uses bounded one-shot reads (`useWishlistItems` with a `limitCount`)
+- **Rationale**: Live sync where the surprise-collision risk is real (two people claiming the same item), and cheap bounded reads where dozens of simultaneous listeners would otherwise add cost and connection overhead
+
+### Idempotent Claim Trigger
+- **Context**: Firestore triggers deliver at-least-once, so `onItemClaimed` can fire more than once for a single claim and would otherwise send duplicate push notifications
+- **Decision**: A pure predicate gates the false→true claim transition (and skips self-claims), then a Firestore transaction atomically stamps `notifiedAt`; a re-delivery that finds it set returns early
+- **Rationale**: Moves the de-dupe into a single atomic check-and-set rather than relying on best-effort flags, so concurrent re-deliveries can't both pass
+
+### Render-Time Affiliate Tagging
+- **Context**: Want Amazon Associates revenue without corrupting the stored URL that re-scrapes and SSRF validation depend on
+- **Decision**: Store canonical URLs; append the `tag` query param only when rendering an outbound `amazon.com` link, in one helper (`affiliateUrl`)
+- **Rationale**: Re-scrapes and URL validation always see the clean URL, the tag can change in a single place, and non-Amazon hosts pass through untouched — a site-wide disclosure in `__root.tsx` satisfies the Associates agreement
+
+### Bounded Server-Side Reads
+- **Context**: `refreshAllItems` could fan out to an unbounded number of document reads for a user with many large lists
+- **Decision**: Cap the total at 200 items, divide that into a per-list `limit()`, then cap again across lists before processing
+- **Rationale**: Keeps the function's read cost and runtime predictable regardless of how much data a single user accumulates

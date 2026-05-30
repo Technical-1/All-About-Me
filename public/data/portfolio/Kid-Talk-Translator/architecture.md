@@ -17,8 +17,9 @@ flowchart TD
             Approved[ApprovedTermsContext<br/>Single onSnapshot subscription]
         end
 
-        subgraph Tabs["Feature Tabs"]
+        subgraph Tabs["Feature Tabs (kept mounted via TabPanels)"]
             Decode[DecodeTab<br/>+ HighlightedText<br/>+ DefinitionList<br/>+ AiInsightPanel]
+            Encode[EncodeTab<br/>+ VariationCard<br/>+ EncodeGlossary]
             Browse[BrowseTab<br/>+ FilterBar<br/>+ TermCard<br/>+ TrendingRow]
             Community[CommunityTab<br/>+ AuthPrompt<br/>+ SubmissionForm<br/>+ SubmissionCard]
         end
@@ -26,6 +27,7 @@ flowchart TD
         subgraph Hooks["Custom Hooks"]
             useTranslation[useTranslation]
             useAiTranslation[useAiTranslation]
+            useEncode[useEncode]
             useDictionary[useDictionary]
             useCommunity[useCommunity]
         end
@@ -40,6 +42,7 @@ flowchart TD
             Detect[detectInputType.js]
             Escape[escapeRegex.js]
             FindTerms[findTermsInText.js<br/>Shared word-boundary matcher]
+            MergeGloss[mergeGlossary.js<br/>Curated + AI glossary merge]
             Blacklist[blacklist.js<br/>+ Unicode confusables]
         end
 
@@ -48,9 +51,11 @@ flowchart TD
 
     subgraph Serverless["Vercel API (webapp/api/)"]
         AIFunc[ai-translate.js]
+        EncodeFunc[ai-encode.js]
         UDFunc[urban-dictionary.js]
         ApiLib[_lib/<br/>cors + kv + rate-limit]
         AIFunc --> ApiLib
+        EncodeFunc --> ApiLib
         UDFunc --> ApiLib
     end
 
@@ -75,17 +80,22 @@ flowchart TD
     App --> Auth
     App --> Approved
     App --> Decode
+    App --> Encode
     App --> Browse
     App --> Community
 
     Decode --> useTranslation
     Decode --> useAiTranslation
+    Encode --> useEncode
+    Encode --> MergeGloss
     Browse --> useDictionary
     Community --> useCommunity
 
     useTranslation --> FindTerms
     useTranslation --> DictService
     useTranslation --> LocalDict
+    MergeGloss --> FindTerms
+    MergeGloss --> LocalDict
     useDictionary --> DictService
     useDictionary --> LocalDict
     useDictionary --> Approved
@@ -96,7 +106,9 @@ flowchart TD
     DictService -->|production| Vercel
     DictService -->|development| ViteProxy
     useAiTranslation -->|/api/ai-translate| Vercel
+    useEncode -->|/api/ai-encode| Vercel
     Vercel --> AIFunc
+    Vercel --> EncodeFunc
     Vercel --> UDFunc
     CommService --> FirebaseAuth
     CommService --> Firestore
@@ -104,6 +116,8 @@ flowchart TD
     Approved --> Firestore
     AIFunc --> Claude
     AIFunc --> KV
+    EncodeFunc --> Claude
+    EncodeFunc --> KV
     UDFunc --> UD
     UDFunc --> KV
     ViteProxy --> UD
@@ -114,11 +128,20 @@ flowchart TD
 
 ### App.jsx (Application Shell)
 - **Purpose**: Thin orchestration shell that renders the header, tab bar, and active tab
-- **Location**: `webapp/src/App.jsx` (~40 lines)
+- **Location**: `webapp/src/App.jsx`
 - **Key responsibilities**:
-  - Manages active tab state (decode, browse, community)
+  - Manages active tab state (decode, encode, browse, community)
+  - Declares the panel list and hands it to `TabPanels`, which keeps each visited tab mounted so its state survives switching tabs
   - Calls `useDictionary` once and passes data down
   - Renders the footer with live term count
+
+### TabPanels (Tab State Persistence)
+- **Purpose**: Render tab panels while preserving each one's state across tab switches
+- **Location**: `webapp/src/components/Layout/TabPanels.jsx`
+- **Key responsibilities**:
+  - Mounts a panel the first time its tab becomes active, then keeps it mounted (hidden via `display:none`) instead of unmounting — so a panel's typed input, results, and filters survive navigating away and back
+  - Never renders a tab that hasn't been visited, so lazy-loaded panels keep their separate code-split chunks and load on demand
+  - Wraps each panel in its own `Suspense` boundary so a first-visit chunk load only shows a spinner in that panel's area
 
 ### main.jsx (Entry Point)
 - **Purpose**: Bootstraps the app with providers and error boundary
@@ -135,6 +158,15 @@ flowchart TD
   - Orchestrates local translation (`useTranslation`) and AI translation (`useAiTranslation`) in parallel
   - Renders highlighted text with clickable slang terms and scrollable definitions
   - Displays AI insight panel alongside dictionary results
+
+### EncodeTab (Reverse Translation)
+- **Purpose**: The inverse of decode — rewrites plain adult English into current kid slang
+- **Location**: `webapp/src/components/Encode/EncodeTab.jsx`
+- **Key responsibilities**:
+  - Sends the input to `useEncode`, which calls the `/api/ai-encode` serverless function and returns three slang-intensity variations (light → medium → full Gen Alpha) plus a glossary
+  - Renders each variation as a `VariationCard` with a copy-to-clipboard button and an escalating colour accent that conveys the intensity spectrum
+  - Builds the displayed glossary with `mergeGlossary`, which detects curated-dictionary terms in the output (so they carry vetted definitions) and folds in the model's own glossary for everything else; `EncodeGlossary` caps the list at six with a "Show all" toggle
+  - Scrolls to results only once they arrive, since encode has no synchronous output to anchor to
 
 ### BrowseTab (Dictionary Browser)
 - **Purpose**: Filterable, searchable dictionary with trending terms
@@ -183,6 +215,14 @@ flowchart TD
   - Sorts candidate terms longest-first so multi-word phrases match before their constituent words ("no cap" beats "no")
   - Word-boundary regex with claimed-range tracking so partial matches inside other terms don't double-count ("rizz" inside "rizzler" is rejected)
   - Used by both `useTranslation` (local dictionary path) and `dictionaryService` (Urban Dictionary path)
+
+### mergeGlossary.js (Encode Glossary Builder)
+- **Purpose**: Assemble the glossary shown under the encode results from two sources of differing trust
+- **Location**: `webapp/src/utils/mergeGlossary.js`
+- **Key responsibilities**:
+  - Runs `findTermsInText` over the generated variation texts to detect curated-dictionary terms, which carry vetted definitions and are listed first
+  - Folds in the encode model's own glossary for any slang not in the dictionary, deduping case-insensitively so the curated definition always wins
+  - Tolerates malformed model output (non-object entries, missing fields) without throwing
 
 ### dictionaryService.js (API Layer)
 - **Purpose**: Unified API for slang lookups with multi-tier caching
@@ -235,6 +275,13 @@ flowchart TD
 5. Simultaneously, `useAiTranslation` sends the input to the LLM endpoint for contextual analysis
 6. Results rendered in a two-column layout: highlighted text + definitions (left), AI insight (right)
 
+### Encode Flow
+1. User types a plain-English phrase in the encode tab
+2. `useEncode` checks its in-memory and localStorage caches, then POSTs to `/api/ai-encode` on a miss
+3. The serverless function calls Claude with a system prompt that injects the curated dictionary's terms and definitions, asking for three intensity-graded rewrites plus a glossary, and validates/whitelists the response shape before caching it
+4. `mergeGlossary` cross-references the returned variations against the local dictionary so curated terms get vetted definitions; the rest come from the model's glossary
+5. Results render as three `VariationCard`s (left) with the glossary alongside (right), capped at six terms with a "Show all" toggle
+
 ### Browse Flow
 1. User searches with debounced input in the browse tab
 2. Local dictionary filtered by search query + era/origin/type filters
@@ -253,7 +300,7 @@ flowchart TD
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
 | Urban Dictionary API | Live slang lookups, trending words, daily automated ingestion | `https://api.urbandictionary.com/v0/` |
-| Anthropic Claude Haiku 4.5 | Contextual slang analysis and cultural insights | `@anthropic-ai/sdk` via Vercel serverless |
+| Anthropic Claude Haiku 4.5 | Contextual slang analysis on decode (`ai-translate`) and slang generation on encode (`ai-encode`) | `@anthropic-ai/sdk` via Vercel serverless |
 | Firebase Auth | Google and Apple sign-in for community features | `firebase/auth` |
 | Firebase Firestore | Community submissions storage, voting, real-time sync, server-enforced integrity rules | `firebase/firestore` |
 | Firebase Emulator | Drives the Firestore rules unit tests in CI | `firebase-tools` + `@firebase/rules-unit-testing` |
@@ -273,6 +320,16 @@ flowchart TD
 - **Context**: Local dictionary provides curated definitions but can't explain context, cultural nuances, or evolving usage
 - **Decision**: Run dictionary lookup and an LLM translation in parallel for every decode request
 - **Rationale**: Dictionary results appear instantly (cached locally); AI results stream in shortly after, providing deeper cultural context. Users get the best of both worlds without waiting
+
+### Encode as a Separate Endpoint with a Dictionary-Anchored Prompt
+- **Context**: The reverse direction (plain English → slang) can't reuse the decode pipeline — the local dictionary is a forward index with no "meaning → slang" lookup, and the response shape (intensity-graded variations + glossary) differs from decode's. Output also needs to be accurate to current slang *and* link back to vetted definitions where possible
+- **Decision**: A dedicated `webapp/api/ai-encode.js` function with its own system prompt that injects the curated dictionary's terms and definitions to steer the model toward linkable terms, its own cache namespace (`enc:`) and rate-limit bucket (`enc-rate`), and response validation that reconstructs each variation/glossary entry from only its declared fields before caching
+- **Rationale**: Keeping encode out of the proven decode handler avoids mode-branching two different contracts through one function and isolates its cache/limits so the two features can't collide. The field-whitelisting validation means a malformed or adversarial model response can never poison the 30-day KV cache. The shared `_lib/` helpers are reused, so the new endpoint adds a prompt and a validator, not new CORS/KV/rate-limit code
+
+### Persisting Tab State Without Breaking Code-Splitting
+- **Context**: Tabs were rendered conditionally and unmounted on switch, discarding their state — typing in decode, glancing at encode, and returning wiped the decode input. The naive fix (render everything always) would eagerly bundle every tab and defeat the lazy-loaded code-split chunks
+- **Decision**: `TabPanels` tracks which tabs have been visited, mounts a tab on first visit, and thereafter keeps it mounted but hidden (`display:none`) rather than unmounting; never-visited tabs are still not rendered
+- **Rationale**: React preserves the state of a mounted-but-hidden subtree, so switching away and back is lossless with no re-fetch or re-render flash — while unvisited tabs keep their separate chunks and load on demand. The behaviour is locked down by unit tests asserting unvisited tabs don't mount and visited tabs retain their state
 
 ### Firebase for Community Features
 - **Context**: Community submissions need authentication, real-time updates, and atomic voting

@@ -240,7 +240,7 @@ Components are organized by domain rather than flat in a single directory:
 
 The GitHub integration now uses both REST and GraphQL APIs:
 
-- **GraphQL** fetches commit history in a single call (replacing 51+ REST calls)
+- **GraphQL** fetches commit history in a single call (replacing 51+ REST calls), and pages with cursor-based `after`/`endCursor` to deepen up to 2,500 commits when accurate line totals are needed
 - **REST** handles repo info, languages, contributors, and code frequency
 - **Fallback chain**: GraphQL → REST → calculated approximation for code frequency
 - This hybrid approach dramatically reduces API rate limit consumption
@@ -287,12 +287,12 @@ In `lib/github.ts`, I fetch repository data, languages, commits, code frequency,
 
 ### 9. Progressive Enhancement for Statistics
 
-GitHub's statistics API returns 202 when stats are still being computed. Rather than blocking the UI, I:
+GitHub's statistics API returns 202 while stats compute (and 422 for very large repos). Rather than blocking the UI or showing an empty chart, I:
 
-- Return empty data immediately and render placeholders
-- Poll with exponential backoff (3s, 6s, 12s, 24s, 48s) on the client
+- Render a stand-in code-frequency series immediately, derived from the per-commit additions/deletions already fetched (`deriveCodeFrequencyFallback`)
+- Poll with exponential backoff (3s, 6s, 12s, 24s, 48s) on the client — but only when the series is genuinely pending and the commit-derived estimate doesn't already cover the repo's full history
+- Deepen line totals by paginating GraphQL commit history up to 2,500 commits when GitHub won't serve `/stats/code_frequency`
 - Use a fallback endpoint for contributors if stats aren't ready
-- Show clear loading states with helpful messaging
 
 ### 10. URL-Based State Management
 

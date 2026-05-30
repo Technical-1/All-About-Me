@@ -2,7 +2,7 @@
 
 ## Overview
 
-Kid Talk Translator Pro is a web app that helps adults decode Gen Alpha and Gen Z slang. It pairs a curated local dictionary of 100+ terms with LLM-backed contextual analysis (Anthropic Claude Haiku 4.5) and live Urban Dictionary lookups, exposing smart decoding, a browsable dictionary, and community-submitted terms with real-time voting. The community layer is backed by Firestore security rules that enforce vote integrity and daily-submission caps server-side rather than trusting the client.
+Kid Talk Translator Pro is a web app that helps adults keep up with Gen Alpha and Gen Z slang. It pairs a curated local dictionary of 100+ terms with LLM-backed translation in both directions (Anthropic Claude Haiku 4.5) — decode slang into plain English, or encode plain English into current slang — plus live Urban Dictionary lookups, a browsable dictionary, and community-submitted terms with real-time voting. The community layer is backed by Firestore security rules that enforce vote integrity and daily-submission caps server-side rather than trusting the client.
 
 ## Problem Solved
 
@@ -17,6 +17,7 @@ Modern youth slang turns over fast and is contextual — a single term can flip 
 ## Key Features
 
 - **Smart Decode** — Detects whether input is a single term, sentence, or multi-line conversation, then highlights slang inline with clickable definitions, drawing on both the local dictionary and an LLM running in parallel
+- **Encode (Reverse Translation)** — Type a phrase the way an adult would say it and get it rewritten in current kid slang at three intensity levels (lightly seasoned → medium → full Gen Alpha), each copyable, with a glossary of the terms used; the model is steered toward the curated dictionary so most output terms link to vetted definitions
 - **Live Urban Dictionary Integration** — Real-time lookups for terms not in the curated dictionary, plus trending word feeds
 - **Community Submissions** — Users sign in with Google or Apple, submit new slang terms, and upvote/downvote submissions with real-time Firestore sync
 - **Dark Mode** — Light/dark toggle persisted to localStorage and honouring OS preference
@@ -30,6 +31,9 @@ Every decode request fans out to two engines in parallel. The local dictionary (
 
 ### Firestore Rules as the Integrity Contract
 Voting writes both the per-user vote doc and the submission's aggregate counters (`upvotes`, `downvotes`, `netScore`) inside a Firestore client transaction. But the *real* guarantee lives in `firebase/firestore.rules`: each counter delta is bounded to ±1, `netScore` must equal `upvotes − downvotes` after the write, only the three counter keys may change, and the per-user daily counter doc enforces the 5-submissions-per-UTC-day cap with explicit same-day-increment and new-day-reset shapes. The client transaction's job is to satisfy the rules; the rules are unit-tested against the Firestore emulator and a regression that loosens an invariant fails CI.
+
+### Encode: Dictionary-Anchored Generation with a Trust-Tiered Glossary
+The encode direction can't reuse the decode pipeline — the local dictionary is a forward index with no "meaning → slang" lookup. Instead, `webapp/api/ai-encode.js` injects the curated dictionary's terms and definitions into the system prompt so the model *prefers* terms the app can link to vetted definitions, while still allowing other current slang, and returns three intensity-graded rewrites plus a glossary. The response is validated and each variation/glossary entry is reconstructed from only its declared fields before being written to the 30-day KV cache, so a malformed or adversarial model response can't poison it. On the client, `webapp/src/utils/mergeGlossary.js` then re-detects curated terms in the output via the shared `findTermsInText` matcher (those get vetted definitions, listed first) and folds in the model's own glossary for the rest — a trust-tiered list that `EncodeGlossary` caps at six with a "Show all" toggle.
 
 ### Feature-Scoped Architecture with a Single Listener
 `App.jsx` is a ~40-line shell. Each tab (Decode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks. `ApprovedTermsContext` owns the only `onSnapshot` subscription for approved community submissions — both `useDictionary` and `useCommunity` consume the same stream, halving the Firestore listener count and eliminating duplicate-result races between the two consumers.
@@ -47,6 +51,12 @@ Vercel KV caches LLM and Urban Dictionary responses server-side in production. O
 - **Options**: LLM-only with caching; dictionary-only with crowdsourced updates; hybrid
 - **Choice**: Hybrid — curated dictionary fronts the LLM, both run in parallel on decode
 - **Why**: The dictionary covers the common case in <50ms with verified definitions; the LLM handles the long tail and adds cultural nuance. Users never wait on the model to see *something*.
+
+### Keep-mounted tabs instead of conditional rendering (state persistence)
+- **Constraint**: Tabs were rendered conditionally and unmounted on switch, so moving between decode and encode wiped whatever you'd typed. But rendering all tabs unconditionally would eagerly bundle every tab and defeat the lazy-loaded code-split chunks
+- **Options**: Lift every tab's state into shared context; render all tabs always; mount-on-first-visit then keep hidden
+- **Choice**: `TabPanels` mounts a tab the first time it's opened and thereafter keeps it mounted but hidden (`display:none`) rather than unmounting; never-visited tabs aren't rendered
+- **Why**: React preserves a hidden subtree's state, so switching away and back is lossless with no re-fetch or flash — while unvisited tabs keep their separate chunks and load on demand. No per-field state-lifting and no bundle-size regression
 
 ### Firestore transactions for voting (vs. Cloud Functions)
 - **Constraint**: Vote totals must stay consistent under concurrent writes; a Cloud Functions trigger would add cold-start latency and another moving part
@@ -77,6 +87,15 @@ Vercel KV caches LLM and Urban Dictionary responses server-side in production. O
 ### How does smart decode classify a single word vs. a conversation?
 `detectInputType` looks for line breaks, sentence-ending punctuation, and word counts. Conversations get processed line-by-line so each utterance's slang is annotated inline with brackets; single terms and short sentences hit the term-matching path that sorts the dictionary by term length (longest first) before scanning, so "no cap" matches before "no" does.
 
+### How does the Encode tab generate slang?
+You type a phrase in plain English and `webapp/api/ai-encode.js` asks Claude Haiku 4.5 for three rewrites along an intensity spectrum — lightly seasoned, medium, and full Gen Alpha — plus a glossary of the slang it used. The system prompt injects the curated dictionary's terms so the model leans on words the app can link to vetted definitions. Each variation is shown on its own card with a copy button and an escalating colour accent, and the glossary alongside re-detects curated terms in the output (vetted definitions first) before falling back to the model's own definitions for anything new.
+
+### Why a separate `/api/ai-encode` endpoint instead of reusing decode?
+Encode returns a different shape from decode (intensity-graded variations + glossary vs. a single translation + vibe), and the local dictionary can't run in reverse. Folding both into one handler would mean branching two contracts through the same function. A dedicated endpoint keeps the proven decode path untouched, gives encode its own cache namespace and rate-limit bucket so the two can't collide, and lets its prompt and response validation evolve independently. The shared CORS/KV/rate-limit helpers in `webapp/api/_lib/` are still reused, so the new endpoint is essentially a prompt plus a validator.
+
+### Does switching tabs lose what I typed?
+No. Once you've opened a tab it stays mounted (just hidden) rather than being torn down, so its input and results persist when you switch away and come back — decode and encode each remember their own state. Tabs you've never opened still aren't loaded until first use, so this doesn't bloat the initial bundle. The behaviour is covered by unit tests in `webapp/src/components/__tests__/TabPanels.test.jsx`.
+
 ### Why both Urban Dictionary and a curated dictionary?
 The curated 90+ entries have vetted definitions, examples, wrong-usage warnings, and pronunciation. Urban Dictionary fills the long tail but ranges from gold to garbage, so it's used as a fallback for unmatched terms and as a feed for the trending row — never as the primary source.
 
@@ -96,7 +115,7 @@ Tailwind's `darkMode: 'class'` strategy. `ThemeContext` reads OS `prefers-color-
 Edit `shared/slangDictionary.js` with `definition`, `example`, `wrongUsage`, `era`, `origin`, `type`, and `pronunciation`. The next build syncs it into `webapp/src/data/` and the web app picks it up.
 
 ### What's the test setup?
-212 tests across 28 files using Vitest and React Testing Library — covering layout components, the hooks layer (notably `useAiTranslation`), the dictionary service, the auth/theme/approved-terms contexts, the term-matching helper, the API handlers (`ai-translate`, `urban-dictionary`), the shared API helpers (`cors`, `kv`, `rate-limit`), and the ingestion scripts. Firestore security rules have their own emulator-backed test suite under `firebase/__tests__/` driven by `@firebase/rules-unit-testing`. CI (`.github/workflows/ci-v2.yml`) runs lint, unit tests, rules tests against the Firebase emulator (requires JDK 21), and a production build on every push and PR.
+257 tests across 33 files using Vitest and React Testing Library — covering layout components (including tab-state persistence in `TabPanels`), the hooks layer (notably `useAiTranslation` and `useEncode`), the dictionary service, the auth/theme/approved-terms contexts, the term-matching and glossary-merge helpers, the API handlers (`ai-translate`, `ai-encode`, `urban-dictionary`), the shared API helpers (`cors`, `kv`, `rate-limit`), and the ingestion scripts. Firestore security rules have their own emulator-backed test suite under `firebase/__tests__/` driven by `@firebase/rules-unit-testing`. CI (`.github/workflows/ci-v2.yml`) runs lint, unit tests, rules tests against the Firebase emulator (requires JDK 21), and a production build on every push and PR.
 
 ### How does the API protect itself from abuse and misconfigured origins?
 Every handler under `webapp/api/` routes through `webapp/api/_lib/`. `cors.js` is a single-source allowlist for production and dev origins; `rate-limit.js` enforces per-IP buckets backed by Vercel KV with a self-pruning in-memory fallback so a transient KV outage degrades to memory-limit rather than no-limit; `kv.js` exposes an `isReal` flag so the unit tests can swap in a stub without monkey-patching. Anonymous requests (no `x-forwarded-for`) share an `unknown` bucket so they're still rate-limited rather than getting a bypass.

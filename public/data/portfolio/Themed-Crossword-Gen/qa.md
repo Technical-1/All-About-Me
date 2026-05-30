@@ -46,7 +46,7 @@ High-contrast themes, reduced-motion support, adjustable text sizes, screen-read
 User-supplied themes are wrapped in XML tags (`<theme>...</theme>`) and stripped of non-printable characters before being sent to the model. The response is parsed with a regex that tolerates the model occasionally wrapping the JSON in a Markdown code block. The request asks for `wordCount + 5` words so the layout engine has extra options when the first arrangement fails. See `lib/crossword-generator.ts`.
 
 ### Resilient generation pipeline
-The end-to-end generation path has multiple resilience layers: exponential backoff retry (1s → 2s → 4s, max 3 attempts), error categorisation (`network` / `verification` / `generation` / `generic`), `AbortController` for cancelling stale requests, and automatic fallback to a pre-generated offline puzzle when retries are exhausted. Turnstile verification uses a fail-open strategy so a Cloudflare outage doesn't take the whole site down.
+The end-to-end generation path has multiple resilience layers: exponential backoff retry (1s → 2s → 4s, max 3 attempts), error categorisation (`network` / `verification` / `generation` / `generic`), `AbortController` for cancelling stale requests, and automatic fallback to a pre-generated offline puzzle when retries are exhausted. On the server side, the rate limiter degrades from the shared Upstash counter to a per-instance in-memory limiter if Redis is unreachable, so abuse protection survives a backing-store outage without ever blocking legitimate users.
 
 ### Database-free puzzle sharing
 Completed puzzles are serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. The recipient's app detects the parameter on mount and renders the puzzle directly. No backend storage, no expiring links, no API call.
@@ -71,11 +71,11 @@ Completed puzzles are serialised to JSON, compressed with `lz-string`, and appen
 - **Choice**: Extract to `lib/crossword-generator.ts` and import it from both entry points
 - **Why**: Keeps dev/prod behaviour identical without the overhead of publishing a package. The serverless function is a thin wrapper around the shared module.
 
-### Fail-open Turnstile verification
-- **Constraint**: Cloudflare's verification endpoint can be briefly unreachable
-- **Options**: Block all requests on verification failure, or allow them through and log
-- **Choice**: Fail-open — if the verification call itself errors (network failure, not a rejected token), the request is allowed and logged
-- **Why**: A short Cloudflare outage shouldn't break the app for legitimate users. A rejected token is still treated as a failure; only unreachable verification falls through.
+### Trust-based rate limiting instead of a captcha gate
+- **Constraint**: The asset worth protecting is the paid LLM endpoint, but a hard Turnstile gate produced false-positives — it blocked users behind content blockers and would lock everyone out during a Cloudflare outage
+- **Options**: Reject any request without a valid token, fail-open on verification errors only, or stop gating on the token entirely
+- **Choice**: Treat the token as a trust signal that only selects the rate-limit tier — verified IPs get 10 requests/min, unverified (or token-blocked) IPs get 3/min, and nobody is hard-rejected for a missing token. The Upstash-backed per-IP counter, keyed on the unspoofable `x-real-ip`, is the only gate
+- **Why**: It bounds abuse of the expensive endpoint without punishing real users, and tokenless requests skip the `siteverify` round-trip so they can't be turned into a Cloudflare-spamming amplifier.
 
 ## Frequently Asked Questions
 
@@ -92,7 +92,7 @@ A service worker (`public/sw.js`) caches the static assets and 75 pre-generated 
 The entire puzzle (grid layout, clues, answers) is serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. On open, the app detects the parameter, decompresses it, and renders the puzzle directly. Shared links never expire and never hit the API.
 
 ### What stops people from abusing the LLM endpoint?
-Cloudflare Turnstile sits in front of the generation request as an invisible captcha. The serverless function verifies the token before calling the model. The Anthropic API key is only ever read server-side — the client never sees it. In development the verification step is skipped for faster iteration.
+A per-IP rate limiter, not a captcha wall. Each IP gets a fixed-window quota — 10 requests/min if a valid Cloudflare Turnstile token is present, 3/min if not — enforced by a shared Upstash Redis counter (with an in-memory fallback if Redis is down). The limiter keys on the edge-injected `x-real-ip`, which clients can't spoof, rather than `x-forwarded-for`. The Anthropic API key is only ever read server-side, so the client never sees it. Turnstile is a trust signal that picks the quota tier — it never hard-blocks a request on its own.
 
 ### How does checker mode decide which cells are correct?
 When checker mode activates, the component walks the crossword SVG, maps each `<text>` element to a grid position with a greedy distance algorithm, and compares the cell's current value against the known answer. Correct cells turn blue and lock; incorrect cells turn red. The mapping is strict one-to-one to avoid double-colouring overlapping cells.

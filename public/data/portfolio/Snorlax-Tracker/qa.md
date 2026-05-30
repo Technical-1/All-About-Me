@@ -45,12 +45,18 @@ All non-trivial behavior (CSV codec, override merge, price-tier selection, image
 ### ID reconciliation with fail-safe matching
 Three different ID schemes exist across the data sources: the app's friendly IDs, pokemontcg.io's IDs (which postdate many older cards), and TCGdex's set+collector-number scheme. The resolver never trusts a fuzzy match — it requires set+number+language to align exactly, then double-checks the card name. The output is correct-or-proxy, never confidently wrong; unmatched cards surface in the resolver's run summary so they're visible rather than buried.
 
+### Cache-first loading without a stale-data trap
+`useCardPrices` reads a 24h-TTL snapshot from `localStorage` (`src/lib/priceCache.ts`) before touching the network: if the snapshot is fresh, the grid renders immediately with no loading spinner; if it's missing or expired, the app fetches and writes a new snapshot. The TTL check, JSON-shape validation, and `Number.isFinite(ts)` guard all live in the pure `readPriceCache` function, so a corrupted or hand-edited cache entry degrades to "fetch fresh" rather than throwing. Writes are best-effort and swallow quota/private-mode errors, so caching never blocks the app.
+
+### Render-crash recovery instead of a white screen
+A class-based `ErrorBoundary` (`src/components/ErrorBoundary.tsx`) wraps the whole tree. Any render exception is caught and replaced with a recoverable fallback offering **Reload** and **Clear saved data & reload** — the latter purges all three `localStorage` keys, which is the escape hatch when a corrupted owned-set or override entry would otherwise crash on every load. It's the one place the codebase uses a class component, because error boundaries have no hook equivalent.
+
 ## Engineering Decisions
 
 ### localStorage-only persistence over a backend
 - **Constraint**: Users want to track ownership and customize per-card data across sessions and devices, but the app is a hobby project.
 - **Options**: Firebase/Supabase backend with accounts; URL-hash state; pure local persistence with manual export.
-- **Choice**: Browser `localStorage` (`snorlax_v3` = owned set, `snorlax_user_v1` = manual overrides), plus CSV export/import for cross-device portability.
+- **Choice**: Browser `localStorage` (`snorlax_v3` = owned set, `snorlax_user_v1` = manual overrides, `snorlax_prices_v1` = a 24h price-cache snapshot), plus CSV export/import for cross-device portability.
 - **Why**: Zero infrastructure cost, instant first load, no privacy concerns, and the CSV doubles as a portable backup. The trade-off — no automatic device sync — is solved by the import flow.
 
 ### Build-time image resolution over runtime API calls
@@ -90,3 +96,9 @@ Add an entry to `src/data/cards.ts` and run `npm run resolve-images`. The script
 
 ### Why are old cards missing prices?
 Cards whose IDs predate pokemontcg.io's current scheme have images (resolved from TCGdex) but no live price. Set a manual price on those if you want them counted in the collection-value total.
+
+### Why does the app load instantly on repeat visits?
+Fetched prices are cached in `localStorage` (`snorlax_prices_v1`) with a 24-hour TTL. On a return visit within that window, the cached snapshot renders immediately with no network round-trip; after 24 hours the next load fetches fresh prices and rewrites the cache. The cache is validated on read, so a corrupted entry just falls back to a fresh fetch.
+
+### What happens if the app crashes?
+A top-level error boundary catches render crashes and shows a recovery screen instead of a blank page, with a **Reload** button and a **Clear saved data & reload** button. The latter resets your owned cards and manual overrides — the fix when a corrupted saved entry would otherwise crash on every load.

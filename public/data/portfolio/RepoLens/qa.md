@@ -32,8 +32,11 @@ The application never stores user credentials or access tokens in a database. Al
 ### GraphQL + REST Hybrid API Strategy
 The most significant optimization is the hybrid GitHub API approach. Fetching commit history used to require 51+ REST API calls (1 for the commit list + 1 per commit for details). I replaced this with a single GraphQL query that returns everything in one call — a ~98% reduction in API consumption. The system falls back to REST if GraphQL fails, and can calculate approximate code frequency from commit data when the statistics API returns 422 for large repos.
 
-### Handling GitHub's 202 Response
-GitHub's statistics API returns HTTP 202 when stats are still being computed for a repository. I implemented client-side polling with exponential backoff (3s, 6s, 12s, 24s, 48s) that gracefully handles this case, showing a loading state while automatically retrying until data is available.
+### Handling GitHub's lazy statistics API
+GitHub serves `/stats/code_frequency` lazily: the first request for an uncached repo returns HTTP 202 (computing) or an empty series, and repos over ~10k commits return 422 outright. Rather than stalling on "Statistics unavailable", `deriveCodeFrequencyFallback` renders a stand-in chart immediately from the per-commit additions/deletions already in hand. Client-side polling with exponential backoff (3s, 6s, 12s, 24s, 48s) still runs — but only when the series is genuinely pending *and* the commit-derived estimate doesn't already cover the repo's full history, so small repos render complete data and skip polling entirely.
+
+### Accurate line totals with honest labeling
+"Total lines of code" is a derived metric, and the naive version — summing the ~100 commits in the display list — silently undercounts any repo with real history. When GitHub serves the full `/stats/code_frequency` weekly series, the total is the exact net (additions − deletions) across the repo's entire history. When it won't (422 on large repos, or still computing), the code pages commit history via GraphQL up to 2,500 commits and sums real per-commit deltas. The key is that the result never lies about its own precision: `FullRepoAnalysis` carries `totalLinesIsEstimated` and `totalLinesCommitsCovered`, and `estimateCoversFullHistory(covered, total)` promotes an estimate to an exact figure only when coverage provably reaches the repo's full commit count. The UI surfaces "estimate from N commits" rather than presenting an approximation as ground truth.
 
 ### Feature-Sliced Component Architecture
 Components are organized by domain: `layout/` for page structure, `ui/` for reusable primitives (Card with variant system, LoadingSkeleton), `features/` for domain-specific components (stats, commits, contributors, repos), and specialized directories for embed and effects. A barrel export enables clean imports from `@/components`.
@@ -90,7 +93,7 @@ A: GitHub's statistics API has limitations. Repositories with over 10,000 commit
 
 ### Q: How accurate is the "Total Lines" count?
 
-A: The total lines metric is calculated from the commit history I can access (typically the most recent 50 commits). It's an approximation based on additions minus deletions. For a more accurate count, you'd need to clone the repository and run a tool like `cloc` locally.
+A: It depends on what GitHub will serve. When GitHub provides the full `/stats/code_frequency` series, the total is the exact net of additions minus deletions across the repository's entire history — not an estimate. When that series is unavailable (large repos return 422, or it's still computing on first request), the app pages commit history through GraphQL up to 2,500 commits and sums the real per-commit line changes. In that case the number is labeled as an estimate and shows how many commits it covers, and it's only promoted back to "exact" if that coverage spans the repo's full commit count. The one thing it won't do is present an approximation as if it were authoritative.
 
 ### Q: Why should I sign in with GitHub?
 
@@ -126,7 +129,7 @@ A: I maintain a static mapping of language colors based on GitHub's linguist lib
 
 ### Q: How does the GraphQL optimization work?
 
-A: Instead of making one REST call per commit to get detailed stats (additions, deletions, file changes), the app sends a single GraphQL query that fetches all commit details at once. For a typical 50-commit analysis, this reduces API calls from 51 to 1. The REST API is used as a fallback if GraphQL is unavailable.
+A: Instead of making one REST call per commit to get detailed stats (additions, deletions, file changes), the app sends a single GraphQL query that fetches all commit details at once. For the default display list of up to 100 commits, this collapses what would be 100+ REST calls into one. The same query paginates with cursor-based `after`/`endCursor` (GitHub caps each `history` page at 100) to deepen further when computing line totals for repos GitHub won't serve statistics for. The REST API is used as a fallback if GraphQL is unavailable.
 
 ### Q: What's the difference between the public page and the dashboard?
 
@@ -138,4 +141,4 @@ A: The public page at `/` lets anyone analyze a repo by URL. The dashboard at `/
 - **Rate limiting**: Heavy use without authentication will hit GitHub's 60 requests/hour limit
 - **Stats computation time**: First-time analysis of a repository may require waiting for GitHub to compute statistics
 - **Embed privacy**: Widgets only work for public repositories
-- **Historical data**: Code frequency only shows the past year; older history isn't available through the API
+- **Chart window**: The code-frequency chart displays the last 52 weeks for readability — line totals are computed over full history, but the visualization is intentionally scoped to the past year

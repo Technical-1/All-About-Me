@@ -26,13 +26,15 @@
 - **Framework (dev)**: Express 5 via `server.dev.ts`
 - **Framework (prod)**: Vercel serverless functions (`api/` directory)
 - **API Style**: REST (single POST endpoint)
-- **Authentication**: Cloudflare Turnstile (bot protection, not user auth)
+- **Rate Limiting**: Trust-based two-tier limiter (Upstash Redis fixed-window counter, in-memory fallback)
+- **Trust Signal**: Cloudflare Turnstile (selects the rate-limit tier; not user auth and not a hard gate)
 
 ## Infrastructure
 
 - **Hosting**: Vercel (auto-deploys from GitHub)
 - **CDN**: Vercel Edge Network
-- **Bot Protection**: Cloudflare Turnstile (invisible captcha)
+- **Rate Limiting Store**: Upstash Redis (serverless Redis over REST); per-instance in-memory fallback
+- **Trust Signal**: Cloudflare Turnstile (`interaction-only` widget)
 - **Security Headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy (via vercel.json)
 
 ## Development Tools
@@ -48,6 +50,7 @@
 | Package | Purpose |
 |---------|---------|
 | `@anthropic-ai/sdk` | Anthropic Claude API client for AI-powered word/clue generation |
+| `@upstash/redis` | REST-based Redis client backing the shared per-IP rate limiter |
 | `@jaredreisinger/react-crossword` | Interactive SVG crossword grid with keyboard navigation |
 | `crossword-layout-generator` | Algorithm for arranging words into valid crossword grid layouts |
 | `framer-motion` | Declarative animations and page transitions |
