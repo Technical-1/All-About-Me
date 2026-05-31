@@ -6,10 +6,10 @@
       "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
       "homepage": "https://private-collab-whiteboard.vercel.app",
       "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
-      "private": true,
+      "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T07:33:36Z",
+      "pushed_at": "2026-05-31T08:26:02Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -59,7 +59,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T07:20:52Z",
+      "pushed_at": "2026-05-31T08:29:05Z",
       "topics": [
         "anthropic",
         "claude",
@@ -85,7 +85,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 606579,
+      "TypeScript": 621318,
       "JavaScript": 16805,
       "HTML": 11747,
       "CSS": 3095
