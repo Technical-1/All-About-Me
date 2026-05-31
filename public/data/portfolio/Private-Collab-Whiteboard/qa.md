@@ -2,7 +2,7 @@
 
 ## Overview
 
-Private Collab Whiteboard is a real-time collaborative drawing app that prioritizes privacy. It lets multiple users draw on a shared canvas simultaneously, with all data synced peer-to-peer through CRDTs and optionally encrypted end-to-end. No account required — just create a room and share the link. All drawing data lives in the browser (IndexedDB), and the server is a minimal message relay that never sees plaintext content.
+Private Collab Whiteboard is a real-time collaborative drawing app that prioritizes privacy. It lets multiple users draw on a shared canvas simultaneously, with all data synced peer-to-peer through CRDTs and optionally encrypted end-to-end. No account required — just create a room and share a link. The interesting part is access control: encrypted rooms use capability links (owner / editor / viewer) whose permissions are enforced by ECDSA signatures verified between peers, so view-only actually means view-only even though there's no server to ask. All drawing data lives in the browser (IndexedDB), and the relay is a minimal broadcast server that never sees plaintext.
 
 ## Key Features
 
@@ -10,17 +10,19 @@ Private Collab Whiteboard is a real-time collaborative drawing app that prioriti
 - **Drawing Tools**: Freehand pencil, lines, rectangles, circles, text tool, shape eraser, and brush eraser with configurable stroke widths and fill colors
 - **Infinite Canvas**: Pan (Space+drag), zoom (scroll wheel or buttons), and fit-to-content with a virtual coordinate system
 - **End-to-End Encryption**: Optional password protection using AES-256-GCM with PBKDF2 key derivation (100K iterations)
+- **Capability-Based Roles**: Encrypted rooms issue owner / editor / viewer links; the role is carried (and enforced) by which signing keys the link contains, not a flag the client can flip
+- **Cryptographic View-Only**: Viewers hold no signing key, so peers reject any edit they try to make — view-only survives a hostile viewer editing the URL or the JS
+- **Owner-Controlled Rotation**: Only the owner can rotate the room to a new epoch (via change-password), instantly invalidating older links
 - **Select & Manipulate**: Select, move, resize shapes; multi-select with Shift+click; copy/paste/duplicate; lock shapes
 - **Undo/Redo**: CRDT-aware undo that only affects your own changes, never other users'
 - **Multiple Boards**: Organize content across separate boards within a single room
-- **Read-Only Mode**: Share view-only links with a signed permission token
 - **Offline Support**: Full offline drawing with automatic sync when reconnected via IndexedDB persistence
 - **Board History**: "My Boards" page tracks all rooms you've visited with role badges and access counts
 
 ## Technical Highlights
 
-### Custom Y.js Sync Provider with E2E Encryption
-I built a custom WebSocket sync provider (`sync-provider.js`) that wraps Y.js's sync and awareness protocols with optional AES-256-GCM encryption. Every message — including cursor positions and drawing previews — is encrypted before leaving the browser. The PartyKit server is a 35-line relay that broadcasts binary blobs it can't read. The key derivation uses PBKDF2 with the room ID as salt, so the same password produces different keys in different rooms.
+### Signed-Update Sync Layer with Cryptographic View-Only
+Encryption hides content from the *server*, but everyone with the room password can still decrypt — so a view-only link that just sets a client flag is bypassed by editing the URL or the JS. I replaced Y.js's stock document-sync protocol with a thin custom layer (`signed-doc-sync.js` + `protocol.js`): editors sign each Y.js update with a per-epoch ECDSA P-256 key over `epoch ‖ update` (epoch-prefixed to block replay), and every peer verifies the signature against the room's certified editor key before applying it. Viewers are simply never handed a signing key, so any update they emit fails verification at every honest peer and never lands in the shared document. Y.js still does all the CRDT conflict resolution; only the transport framing is mine. The underlying transport (`sync-provider.js`) AES-256-GCM-encrypts every frame before it hits the PartyKit relay.
 
 ### CRDT-Aware Undo/Redo
 The undo system uses Y.js's built-in UndoManager, which only tracks local changes. This means pressing Ctrl+Z never undoes another user's work — a subtle but critical UX detail for collaborative editing. Changes within 500ms are grouped into a single undo step to match user intent (e.g., a quick series of shape moves becomes one undo).
@@ -28,8 +30,8 @@ The undo system uses Y.js's built-in UndoManager, which only tracks local change
 ### Infinite Canvas with World/Screen Coordinate Transform
 The drawing system maintains a virtual world coordinate system separate from screen pixels. All shapes are stored in world coordinates, and a viewport transform (pan + zoom) converts between the two. This enables smooth zooming centered on the cursor position, fit-to-content, and consistent shape sizes regardless of zoom level. Touch/pinch-to-zoom is also supported for mobile.
 
-### Access Token System with Tamper Detection
-Share links encode both the password and permission level (edit/view) into a signed token in the URL hash. The token includes a simple signature (`base64(password + role + salt)`) that prevents casual tampering — changing "view" to "edit" in the URL invalidates the signature. Legacy plain-password URLs are still supported for backward compatibility.
+### Owner Root-of-Trust and P2P Revocation
+The hard problem in a serverless system is revocation: if the editor key is just embedded in links, there's no authority to ask "is this link still allowed?" My answer is a two-tier PKI rooted in a per-room owner ECDSA keypair (`room-cert.js`). The owner key signs an *epoch certificate* binding the current editor public key to an epoch number, and peers only trust an editor key that a valid owner cert vouches for (`signed-doc-sync.js` verifies this once on start and fails closed if the cert doesn't pin the exact editor key it's verifying against). Because only the owner holds the owner private key, only the owner can mint a new epoch. Rotating the room mints epoch N+1 with a fresh editor key and broadcasts an owner-signed rotate notice; peers mark the old epoch superseded and stop applying its updates, so anyone holding an old link can no longer produce edits anyone will accept — real revocation with no central server. The owner link itself is never shared, so editors can draw but can't rotate.
 
 ## Engineering Decisions
 
@@ -39,11 +41,11 @@ Share links encode both the password and permission level (edit/view) into a sig
 - **Choice**: PartyKit relay (`party/index.ts`) with all payloads encrypted client-side.
 - **Why**: WebRTC's NAT traversal failed too often in practice. A broadcast relay is simpler and reaches everywhere a WebSocket reaches, and because messages are AES-256-GCM encrypted before they leave the browser, the relay never sees plaintext — the privacy model survives the migration.
 
-### Default-board creation only after sync settles
-- **Constraint**: Opening a fresh tab against an existing room kept producing a duplicate "default" board because both the IndexedDB load and the network sync would each see an empty `boards` map.
-- **Options**: Lock board creation to the room owner, write a deduplicating merge in the CRDT, or block creation until persistence and network sync had a chance to populate state.
-- **Choice**: Await IndexedDB sync, then wait up to a short network-sync timeout in `yjs-setup.js` before creating the default board.
-- **Why**: It's a one-line gate that solves the race without inventing roles or hand-rolling CRDT reconciliation, and it degrades cleanly when the user is fully offline (the timeout fires and creation proceeds).
+### Lazy default-board creation over eager initialization
+- **Constraint**: When each client independently ran `boards.set('default', new Y.Array())` on load, two joiners created competing `default` entries in the `boards` Y.Map. The CRDT resolves the conflict by picking a winner by random client ID, which could orphan the array that actually held the drawings — content would sync at the byte level but never render.
+- **Options**: Gate creation behind a sync timeout, lock creation to the owner, or never create the board eagerly and let the first *write* create it.
+- **Choice**: Don't create `default` at init at all (`yjs-setup.js`); `drawing.js` lazily creates it on the first drawn shape, and the drawing observer re-subscribes if the board array instance changes underneath it.
+- **Why**: A joiner receives the editor's existing array via snapshot and never races to create a competing one, so there's no Y.Map conflict to orphan content. It also avoids inventing roles or a timeout heuristic for what is really a "who creates the seed object" problem.
 
 ### Multi-page Vite build over an SPA shell
 - **Constraint**: Three pages with very different payloads — a marketing landing page, a board-history list, and the heavy whiteboard runtime (Y.js + canvas engine + crypto).
@@ -51,11 +53,11 @@ Share links encode both the password and permission level (edit/view) into a sig
 - **Choice**: MPA — `index.html`, `boards.html`, `room.html` each ship their own bundle, with Vercel rewrites mapping `/room/:id` to `room.html`.
 - **Why**: The landing page loads in a couple of KB without dragging in Y.js, and there is no shared client-side state worth preserving across navigations. Routing collapses into a static rewrite rule.
 
-### Signed access tokens in the URL fragment
-- **Constraint**: View-only links had to be tamper-resistant without introducing accounts or a server-side auth check (the server is intentionally dumb).
-- **Options**: Server-issued JWTs, separate "view" and "edit" room IDs, or signing the role into the share link itself.
-- **Choice**: Encode `{password, role, signature}` into the URL hash and verify the signature in `room-manager.js` before unlocking edit operations.
-- **Why**: Fragments never hit the relay, the signature stops casual users from flipping `view` to `edit`, and the model stays accountless. Legacy plain-password links still work for backward compatibility.
+### Capabilities in the URL fragment, enforced by signatures
+- **Constraint**: View-only had to be tamper-proof against a *hostile* viewer — someone who has the password, can decrypt, and will edit the URL or patch the client JS — without introducing accounts or a server-side auth check (the relay is intentionally dumb).
+- **Options**: A client-side `readOnly` flag (bypassable), a weak "signature" over the role string (still bypassable — nothing verifies it at write time), server-issued JWTs (breaks the dumb-relay/P2P model), or capability links where the *absence of a key* is the enforcement.
+- **Choice**: Encode the role's keys into the URL fragment — viewer links carry only public keys, editor links add the editor private key, owner links add the owner private key — and have every peer verify each update's signature before applying it (`room-manager.js`, `signed-doc-sync.js`).
+- **Why**: There's nothing to "flip." A viewer can't sign edits because they don't have the key, and editing the URL can't conjure one. Fragments never reach the relay, the model stays accountless, and trust is rooted in the owner key rather than a shared secret. (Older link formats are intentionally *not* honored — a hard version break, since a weaker legacy format would be a downgrade path.)
 
 ## Frequently Asked Questions
 
@@ -74,8 +76,20 @@ Y.js handles this at the CRDT level. Each shape is a JSON object in a Y.Array. I
 ### How does undo work in a collaborative environment?
 The undo system uses Y.js's UndoManager, which tracks which changes were made by the local user. When you press Ctrl+Z, it only reverts your own recent action — it never touches other users' changes. This prevents the common collaborative editing frustration where one user's undo erases another user's work.
 
-### How does the read-only mode work?
-When sharing a room link, you can generate a "view-only" link. This encodes a signed permission token in the URL hash (`{password, role: "view", signature}`). The client checks this token on load and sets read-only mode, which disables all mutation operations in JavaScript (not just CSS hiding). The signature prevents casual URL tampering from "view" to "edit".
+### How does view-only mode actually stop a determined viewer?
+It doesn't rely on the viewer's client behaving. A viewer link contains only public keys — no editor signing key. Edits in an encrypted room must be signed with the per-epoch editor key and are verified by every peer before being applied (`signed-doc-sync.js`). So even if a viewer edits the URL, opens dev tools, and forces their own client into "edit mode," the updates they broadcast carry no valid signature and every other peer drops them. The UI also hides editing controls for viewers, but that's cosmetic — the real enforcement is the missing key.
+
+### What's the difference between the owner, editor, and viewer links?
+All three are capability links carried in the URL fragment. A **viewer** link has public keys only (can read, can't sign). An **editor** link adds the editor private key (can read and draw). An **owner** link adds the owner private key as well (can read, draw, *and* rotate the room). The owner link is never shared by the app — it stays in the creator's address bar — so editors can collaborate but can't lock anyone out or rotate the room.
+
+### How does rotating / revoking access work without a server?
+Rotation is owner-only. Changing the password mints a new epoch (epoch N+1) with a fresh editor key, and the owner key signs a new certificate for it. The owner broadcasts an owner-signed rotate notice; current peers verify it against the owner public key, mark the old epoch superseded, and stop applying its updates. The owner is reloaded into the new link to re-share with whoever should keep access. Anyone holding an old link can still decrypt old cached state but can no longer produce edits that peers will accept — the practical effect of revocation, achieved with signatures instead of a central authority.
+
+### Why ECDSA P-256 instead of Ed25519?
+Ed25519 is smaller and more modern, but Web Crypto support for it only shipped in very recent browser versions and throws "Unrecognized name" on most installed browsers. ECDSA P-256 has been supported everywhere `crypto.subtle` exists for years. For a tool people open in whatever browser they already have, universal support matters far more than Ed25519's marginal size advantage.
+
+### Is the relay really in the dark, even about who's drawing?
+In an encrypted room, yes. Every frame — document updates, snapshots, cursor positions, names, the live drawing preview — is AES-256-GCM-encrypted before it leaves the browser, and the PartyKit relay only ever forwards opaque bytes. The one thing peers do advertise in the clear is an "encrypted room" marker, so a visitor who arrives without a key knows to ask for an invite link rather than silently joining an unreadable room.
 
 ### Can I use this offline?
 Yes. All drawing data is persisted to IndexedDB via y-indexeddb. If you lose your connection, you can keep drawing normally. When you reconnect, Y.js automatically merges your offline changes with any changes made by other users while you were away. The CRDT model guarantees this merge is conflict-free.

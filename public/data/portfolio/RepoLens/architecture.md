@@ -112,6 +112,7 @@ graph TB
 graph LR
     subgraph Public["Public Routes"]
         Home["/ — Repo search + analysis"]
+        About["/about — Info hub: how-it-works, widget guide, FAQ"]
     end
 
     subgraph Protected["Protected Routes"]
@@ -199,6 +200,13 @@ components/
 │   ├── RepoInput.tsx           # Repository URL input form
 │   └── PrivacyNotice.tsx       # Privacy disclosure banner
 ├── features/                   # Domain-specific feature components
+│   ├── about/
+│   │   ├── AboutContent.tsx        # Assembles the /about info hub
+│   │   ├── AboutIntro.tsx          # "What is RepoLens" section
+│   │   ├── HowItWorks.tsx          # Methodology + engineering notes
+│   │   ├── WidgetGuide.tsx         # Interactive embed-widget guide
+│   │   ├── FaqAccordion.tsx        # Collapsible FAQ
+│   │   └── widgets.ts              # Widget metadata + snippet builders
 │   ├── stats/
 │   │   ├── StatsOverview.tsx       # Stars, forks, watchers grid
 │   │   ├── LanguageBreakdown.tsx   # Color-coded language bar
@@ -309,7 +317,7 @@ I added a comprehensive SEO layer to improve discoverability:
 
 - **Static OG/favicon images** — replaced dynamic edge-generated `ImageResponse` icons with pre-rendered PNGs in `public/`, eliminating unnecessary edge compute for images that never change
 - **`robots.ts`** — allows `/`, disallows `/api/` and `/dashboard`, references sitemap
-- **`sitemap.ts`** — includes only the homepage (dynamic repo pages are infinite and discovered organically)
+- **`sitemap.ts`** — includes the static pages (homepage and `/about`); dynamic repo pages are effectively infinite and discovered organically
 - **JSON-LD structured data** — `WebApplication` schema on every page via root layout, `WebPage` schema on individual repo pages via `lib/structured-data.ts`
 - **Per-page metadata** — the repo page uses a server/client split so the server component can export `generateMetadata()` with dynamic title, description, and OG tags for each `owner/name` combination
 - **Dashboard noindex** — the protected dashboard has `robots: { index: false, follow: false }` to prevent accidental crawling

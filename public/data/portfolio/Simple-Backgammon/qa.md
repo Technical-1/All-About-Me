@@ -12,7 +12,7 @@ Three difficulty levels provide appropriate challenge for all skill levels. Easy
 
 ### Real-Time Online Multiplayer
 
-Players can create private rooms with shareable 6-character codes or join via matchmaking queue. The game uses WebSockets for instant move synchronization. If a player disconnects, they have 5 minutes to reconnect before the room closes. An in-game chat allows communication between opponents.
+Players can create private rooms with shareable 6-character codes or join via matchmaking queue. The game uses WebSockets for instant move synchronization. If a player disconnects, they have a 90-second grace window to reconnect; if they time out mid-game, the present opponent wins by forfeit. An in-game chat allows communication between opponents, and reconnecting players are replayed the recent chat history.
 
 ### 3D Animated Dice
 
@@ -40,9 +40,9 @@ The interface adapts smoothly from desktop to mobile. Touch interactions work na
 
 ## Technical Highlights
 
-### Server-authoritative multiplayer
+### One rule engine, shared by client and server
 
-Online play needs to be cheat-proof and consistent across both clients. The PartyKit server in `party/backgammon.ts` owns the full game state — clients only send intents (`ROLL_DICE`, `MAKE_MOVE`) and the server validates each one against the rules, advances state, and broadcasts the result. There is no way for a client to fabricate a move because the server recomputes legality every time.
+Online play needs to be cheat-proof *and* consistent across both clients — and the most common way that breaks is the client and server quietly disagreeing about the rules. I avoided a second implementation entirely: `party/backgammon.ts` imports `createInitialState`, `makeMove`, `doRollDice`, and `endTurn` from the same `lib/game` module the browser uses. Clients send only intents (`ROLL_DICE`, `MAKE_MOVE`); the authoritative server recomputes legality with byte-for-byte identical code, so there's no way to fabricate a move and no way for the two sides to drift. A test (`party/__tests__/shared-engine.test.ts`) scans the server source and fails if it ever re-declares an engine function, keeping the single-source-of-truth invariant honest.
 
 ### Immutable game state with cheap undo
 
@@ -56,13 +56,17 @@ The board renders to a single `<canvas>` element for 60fps animation without DOM
 
 Bearing off has subtle constraints: all 15 checkers must be in the home board, an exact die match bears that point, and a larger die can only bear off the furthest-back checker. `canBearOff()` and the bear-off paths in `calculateAvailableMoves()` encode these rules explicitly so the same logic governs both AI play and online move validation.
 
+### Disconnect grace that survives server hibernation
+
+PartyKit hibernates idle rooms to save resources, which means a naïve `setTimeout` for the reconnect grace period would silently vanish on restart and a forfeit would never fire. Instead, the room persists `disconnectedAt` in its durable state and schedules a **storage alarm** (`reconcileDisconnectAlarm()` in `party/backgammon.ts`). `onAlarm()` runs even after the room wakes from hibernation, recomputes who has exceeded the 90-second window, and resolves the room deterministically — opponent-wins-by-forfeit if a game is live, otherwise close the room. The alarm is recomputed on every connect/disconnect so it always tracks the soonest deadline.
+
 ## Engineering Decisions
 
-### Server authority vs. client-trusted multiplayer
+### Server authority via a shared engine, not a duplicated one
 - **Constraint**: Online play must be tamper-proof and stay in sync across two browsers and a possible reconnect.
-- **Options**: Trust the client and broadcast state; have the server validate but share code with the client; full server authority with duplicated logic.
-- **Choice**: Full server authority. `party/backgammon.ts` re-implements the rules and is the single source of truth.
-- **Why**: PartyKit runs on Cloudflare Workers with bundling constraints that made sharing the `lib/` modules awkward. Duplicating ~200 lines of logic was cheaper than fighting the build, and it removes any possibility of a client desync mattering.
+- **Options**: Trust the client and broadcast state; full server authority with the rules re-implemented in the server; full server authority that imports the same `lib/` engine the client uses.
+- **Choice**: Full server authority that imports the shared `lib/game` engine, with a test that forbids re-declaring engine functions in `party/`.
+- **Why**: A duplicated rule set is the classic source of client/server desync — the two copies drift one bug-fix at a time. Reusing the exact module the client runs makes desync structurally impossible, and the `shared-engine.test.ts` guard means a future contributor can't reintroduce a copy without the suite going red. The server stays authoritative (clients send intents, not state) without paying the duplication tax.
 
 ### Canvas vs. SVG/DOM for the board
 - **Constraint**: Smooth piece animations on mobile, with a board that scales to the viewport.
@@ -98,7 +102,7 @@ When you exit a game (clicking "Back to Menu"), your current game state is autom
 
 ### What happens if I disconnect during an online game?
 
-You have 5 minutes to reconnect to the same game room. Your opponent will see a "Player disconnected" message. When you return, you'll resume from where you left off. If you don't reconnect within 5 minutes, the room closes and the game ends.
+You have a 90-second grace window to reconnect to the same game room. Your opponent sees a "Player disconnected" message, and when you return you resume exactly where you left off — including the recent chat history. If you don't make it back in time and a game is in progress, your opponent wins by forfeit; if there's no active game, the room simply closes. This deadline is enforced by a durable storage alarm, so it still fires correctly even if the server hibernated the room while you were gone.
 
 ### Can spectators watch online games?
 
@@ -116,10 +120,10 @@ I wanted to keep the project simple and focused. A rating system would require u
 
 Not currently. The classic green board with brown/tan points is hardcoded. Adding theme customization would be a straightforward enhancement - the colors are defined as constants in `Board.tsx`.
 
-### Why is the game logic duplicated between client and server?
+### How do the client and server stay in sync about the rules?
 
-PartyKit servers run in a Cloudflare Workers environment with specific bundling constraints. Sharing TypeScript modules between the Next.js frontend and PartyKit proved problematic. Duplicating the ~200 lines of game logic was simpler and ensures the server can authoritatively validate all moves.
+They run the same code. The PartyKit server imports its move validation, dice, and bear-off logic from the `lib/game` module the browser also uses, so there is no second copy to drift out of sync. To keep it that way, `party/__tests__/shared-engine.test.ts` reads the server source and fails the build if it re-declares any engine function — making "single source of truth" an enforced invariant rather than a convention.
 
 ### How does the matchmaking queue avoid pairing the same player against themselves on a flaky connection?
 
-The matchmaking server in `party/matchmaking.ts` keys waiting players by their connection ID. A reconnect produces a new connection ID, but the room-rejoin path goes through the game room directly using the 6-character room code, not back through the queue. The 5-minute reconnect window lives on the game room, not the matchmaker, so a dropped player rejoining their own room doesn't get matched as a new player.
+The matchmaking server in `party/matchmaking.ts` keys waiting players by their connection ID. A reconnect produces a new connection ID, but the room-rejoin path goes through the game room directly using the 6-character room code, not back through the queue. The 90-second reconnect window lives on the game room, not the matchmaker, so a dropped player rejoining their own room doesn't get matched as a new player.

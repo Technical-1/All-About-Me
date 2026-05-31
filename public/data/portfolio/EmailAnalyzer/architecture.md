@@ -139,7 +139,7 @@ I selected Zustand over Redux or Context API for several reasons:
 - Built-in selectors prevent unnecessary re-renders
 - Simple synchronization between IndexedDB and UI state
 
-The store acts as an in-memory cache of the database, providing instant access to all data while keeping the UI responsive.
+The store acts as an in-memory cache of **header rows** — subject, sender, dates, flags, tags — so list views and charts have instant access without re-querying IndexedDB. Heavy payloads (full body, HTML, attachment data) and the per-message search text stay in the database and are fetched on demand, keeping the resident set small even for large archives.
 
 ### 4. Virtual Scrolling with TanStack Virtual
 
@@ -174,11 +174,17 @@ Each email format (OLM, MBOX, Gmail Takeout) has its own dedicated parser. This 
 
 Large email archives are parsed in a dedicated Web Worker (`workers/parserWorker.ts`) to keep the main thread responsive. The worker handles file reading and parsing in the background, sending progress updates and parsed emails back to the UI thread via message passing. This prevents the browser from freezing during imports of large archives.
 
-### 9. Extensible Services Architecture
+### 9. Split Header Rows from Heavy Payloads
+
+A naive schema stores each email as one fat row. Loading the archive then pulls every body and every base64 attachment into memory just to render a list of subjects. I split the data: the `emails` table holds slim header rows, while body text, HTML, and attachment blobs live in a separate `emailBodies` table fetched lazily when a message is opened.
+
+Body **search** posed the follow-on problem — matching `from:x report` against message bodies seems to require those bodies in memory. Instead, each header carries only a bounded (~2KB) stripped-text field used for snippets, and full-text body queries run as an indexed scan against IndexedDB, returning matching IDs. The in-memory store therefore never holds body content, so resident memory scales with the *number* of emails, not their total size — the difference between a few hundred MB and a tab crash on a large archive.
+
+### 10. Extensible Services Architecture
 
 Beyond the core detection pipeline, the application includes several supporting services:
 
-- **customRulesEngine.ts** — User-defined filtering rules stored in localStorage
+- **customRulesEngine.ts** — User-defined rules (conditions on sender/subject/body/recipient → tag/move/star/mark-read actions) stored in localStorage; applied during import and re-runnable across the whole archive
 - **savedSearchService.ts** — Persists frequently used search queries
 - **vcardExporter.ts** — Exports contacts in vCard 3.0 format
 - **attachmentService.ts** — Handles attachment type detection and preview capabilities
@@ -187,11 +193,13 @@ Beyond the core detection pipeline, the application includes several supporting 
 
 ## Database Schema Evolution
 
-The schema evolved through 4 versions to support new features:
+The schema evolved through 6 versions to support new features:
 
 - **v1**: Basic emails, accounts, purchases, contacts, calendar events
 - **v2**: Added folders table for email organization
 - **v3**: Added composite indexes for query performance
 - **v4**: Added subscriptions and newsletters tables
+- **v5**: Split heavy payloads (body, HTML, attachment data) into a separate `emailBodies` table, leaving slim header rows for cheap list loads
+- **v6**: Added a multi-entry index on `tags` so emails can carry user/rule labels
 
-All migrations are handled automatically by Dexie's versioning system.
+All migrations are handled automatically by Dexie's versioning system — v5 backfills the body table from existing rows; v6 adds an index with no data rewrite.

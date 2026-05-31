@@ -59,18 +59,21 @@ flowchart LR
         Hero3D
         GameControls
         GameChat
+        GameOverModal
         SavedGamesModal
         Stats_Comp["Stats Display"]
         Footer
     end
 
-    subgraph Logic["Game Logic"]
+    subgraph Logic["Game Logic (lib/)"]
         GameModule["game.ts"]
         AIModule["ai.ts"]
         MovesModule["moves.ts"]
         BoardModule["board.ts"]
         DiceModule["dice.ts"]
         StorageModule["storage.ts"]
+        ValidationModule["validation.ts"]
+        FlowModule["gameFlow.ts"]
     end
 
     Home --> ModeSelector
@@ -80,10 +83,12 @@ flowchart LR
     Game --> Board
     Game --> Dice3D
     Game --> GameControls
+    Game --> GameOverModal
     Online --> Board
     OnlineRoom --> Board
     OnlineRoom --> Dice3D
     OnlineRoom --> GameChat
+    OnlineRoom --> GameOverModal
     Stats --> Stats_Comp
 
     Board --> GameModule
@@ -92,6 +97,8 @@ flowchart LR
     GameModule --> MovesModule
     GameModule --> BoardModule
     GameModule --> DiceModule
+
+    AIModule --> GameModule
 ```
 
 ## Online Multiplayer Data Flow
@@ -139,23 +146,35 @@ I chose HTML5 Canvas over SVG or DOM-based rendering for the game board for seve
 
 The downside is accessibility - Canvas content is not accessible to screen readers. For a future iteration, I would add ARIA live regions to announce game state changes.
 
-#### 2. Pure TypeScript Game Logic
+#### 2. One Rule Engine, Shared by Client and Server
 
-I implemented all game rules (move validation, bearing off, hitting blots) in pure TypeScript without any UI dependencies:
+I implemented all game rules (move validation, bearing off, hitting blots) as pure TypeScript in `lib/` with no UI dependencies, and the PartyKit server imports the *same* modules rather than carrying its own copy:
 
-- **Testability**: The game logic can be unit tested independently
-- **Server Reuse**: The same logic runs on both client and PartyKit server for authoritative game state
-- **Functional Style**: Functions like `makeMove()` return new state objects rather than mutating, making undo trivial
+- **Single source of truth**: `party/backgammon.ts` imports `createInitialState`, `makeMove`, `doRollDice`, `endTurn`, etc. from `lib/game`. The client and the authoritative server validate moves with byte-for-byte identical code, so they can never silently drift apart.
+- **Enforced, not hoped for**: `party/__tests__/shared-engine.test.ts` reads the server source and asserts it does *not* re-declare any engine function (`calculateAvailableMoves`, `canBearOff`, …). If someone hand-copies a rule into the server, the test fails. The invariant is structural, not a comment.
+- **Functional style**: `makeMove()` returns a new state object rather than mutating, which makes undo a history stack and makes AI lookahead a matter of simulating against snapshots.
 
 #### 3. PartyKit for Real-Time Multiplayer
 
 I selected PartyKit over alternatives like Socket.io or Firebase for real-time features:
 
 - **Edge-First**: PartyKit runs on Cloudflare Workers, placing game rooms close to players
-- **Durable Objects**: Room state persists automatically, handling disconnections gracefully
+- **Durable Objects**: Room state persists automatically, surviving the platform's hibernation between bursts of activity
 - **Simple API**: WebSocket management is handled automatically with the `partysocket` React hook
 
-I duplicated the game logic in the PartyKit server rather than importing from the shared lib due to PartyKit's build constraints. This ensures the server is authoritative - clients cannot cheat by sending invalid moves.
+Because the server reuses the `lib/` engine (Decision #2), it is fully authoritative: clients send only intents (`ROLL_DICE`, `MAKE_MOVE`) and the server recomputes legality every time, so a tampered client cannot fabricate a move.
+
+#### 3b. Durable Disconnect Handling and Forfeit
+
+Reconnect grace can't be a `setTimeout` — PartyKit hibernates idle rooms, which would silently drop the timer. Instead the room records `disconnectedAt` in its persisted state and schedules a **durable storage alarm** (`reconcileDisconnectAlarm()` in `party/backgammon.ts`). When a player has been gone past the 90-second grace window, `onAlarm()` fires even after a restart and resolves the room deterministically: if a game is in progress and the opponent is still present, the opponent **wins by forfeit**; otherwise the room closes. The alarm is recomputed on every connect/disconnect so it always reflects the soonest pending deadline.
+
+#### 3c. Server Hardening
+
+The multiplayer servers defend against malformed and abusive input at the edge:
+
+- **Input sanitization** (`lib/validation.ts`): player names and chat messages are stripped of control characters and length-capped (30 / 500 chars) before being stored or broadcast.
+- **Rate limiting**: each connection is capped at 20 messages/second in both the game room and the matchmaker.
+- **Tamper-resistant restore** (`lib/storage.ts`): `isValidGameState()` is a type guard that rejects corrupt or hand-edited localStorage (wrong board length, out-of-range borne-off counts) instead of crashing on load.
 
 #### 4. Three.js for 3D Dice Only
 
@@ -188,18 +207,21 @@ The AI runs entirely client-side, keeping server load minimal and allowing insta
 ### Directory Structure Rationale
 
 ```
-/app                 - Next.js 14 App Router pages
+/app                 - Next.js 15 App Router pages
 /app/online/[roomCode] - Dynamic route for online game rooms
 /components          - React components (UI only, no business logic)
-/lib                 - Pure TypeScript modules (game logic, storage, types)
-/lib/multiplayer     - Multiplayer-specific type definitions
+/lib                 - Pure TypeScript modules (game logic, AI, storage, validation, types)
+/lib/__tests__       - Vitest suite for the rule engine and pure helpers
+/lib/multiplayer     - Multiplayer message/type definitions
 /hooks               - Custom React hooks (matchmaking, multiplayer game)
-/party               - PartyKit server code (separate runtime)
+/party               - PartyKit server code (imports the lib/ engine; separate runtime)
+/party/__tests__     - Room forfeit + shared-engine invariant tests
 /public              - Static assets, PWA icons
 /scripts             - Build utilities (icon generation)
 ```
 
 This separation ensures:
 - Components remain presentational and testable
-- Game logic is reusable across client/server
+- The rule engine is reused verbatim across client and server
 - Hooks encapsulate complex stateful interactions
+- Decision logic is extracted into pure helpers (`lib/gameFlow.ts`, `lib/boardGeometry.ts`) so it can be unit-tested without rendering a component

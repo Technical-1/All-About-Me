@@ -22,7 +22,7 @@ Identifies recurring service charges (streaming, software, etc.) and tracks rene
 Finds newsletters and promotional emails, extracting unsubscribe links where available. Helps users identify and clean up unwanted subscriptions.
 
 ### Advanced Search
-Supports Gmail-style search syntax including `from:`, `to:`, `subject:`, `date:`, `has:attachment`, `is:unread`, and more. Results update instantly thanks to in-memory indexing.
+Supports Gmail-style search syntax including `from:`, `to:`, `subject:`, `date:`, `has:attachment`, `is:unread`, and more. Header fields (subject, sender, flags) match instantly from the in-memory store; full body text is matched against IndexedDB on demand so large archives stay memory-light.
 
 ### Conversation Threading
 Groups related emails into conversation threads using explicit thread IDs or normalized subject matching. Shows conversation context when viewing individual messages.
@@ -43,10 +43,13 @@ Toggle between light and dark themes using the built-in theme toggle. Preference
 A slide-out sidebar overlay optimized for mobile devices, with a hamburger menu that slides out navigation without disrupting the content area.
 
 ### Custom Filtering Rules
-User-defined email filtering rules (stored in localStorage) let users create automated categorization beyond the built-in detectors.
+User-defined rules match on sender, subject, body, or recipient (substring, exact, prefix/suffix, or regex) and apply actions: add a tag, move to a folder, star, or mark as read. Rules run automatically as new mail is imported and can be re-applied to the entire archive on demand from the Rules page.
+
+### Tags
+Emails can be labeled — by hand from the detail view or automatically by rules — and tags render as chips across the list and detail views. Tags are indexed in the database so they can back future tag-based filtering.
 
 ### Saved Searches
-Frequently used search queries can be saved and reused, avoiding the need to retype complex search syntax.
+Frequently used search queries can be saved, renamed, and re-run from a dedicated page or straight from the search bar, avoiding the need to retype complex search syntax.
 
 ### Undo Actions
 Destructive actions like deleting or archiving emails show an undo toast notification, giving users a window to reverse the action.
@@ -55,15 +58,15 @@ Destructive actions like deleting or archiving emails show an undo toast notific
 
 ### Parsing three email formats through a common interface
 
-OLM files are ZIP archives containing Outlook-flavored XML. MBOX files are plain text with header-based message separation. Gmail Takeout wraps MBOX in a ZIP with its own folder layout. Each parser lives in its own module under `web/src/services/parsers/` and emits a normalized `Email` object so the rest of the app stays format-agnostic. Format-specific edge cases (malformed headers, missing fields) log warnings rather than aborting the import.
+OLM files are ZIP archives containing Outlook-flavored XML. MBOX files are plain text with header-based message separation. Gmail Takeout wraps MBOX in a ZIP with its own folder layout. Each parser lives in its own module under `web/src/services/` (`olmParser.ts`, `mboxParser.ts`, `gmailTakeoutParser.ts`) and emits a normalized `Email` object so the rest of the app stays format-agnostic. Format-specific edge cases (malformed headers, missing fields) log warnings rather than aborting the import.
 
 ### Detection pipeline runs during import, not on-demand
 
-Account, purchase, subscription, and newsletter detection all run inside the parser worker as each email is ingested. Front-loading the work into the moment users already expect waiting (the import progress bar) makes every subsequent navigation instant, and enables cross-email passes like duplicate-purchase detection and subscription grouping that would be awkward to do per-view.
+As the worker streams parsed batches back, the import pipeline (`web/src/services/importPipeline.ts`) runs account, purchase, subscription, and newsletter detection — plus any active custom rules — over each email before it lands in the database. Front-loading the work into the moment users already expect waiting (the import progress bar) makes every subsequent navigation instant, and enables cross-email passes like duplicate-purchase detection and subscription grouping that would be awkward to do per-view.
 
-### Gmail-style search syntax over an in-memory index
+### Gmail-style search with a memory-bounded body index
 
-Rather than a wall of filter dropdowns, the search bar accepts queries like `from:amazon type:purchase after:2024-01-01`. The tokenizer in `web/src/services/searchParser.ts` resolves operators against the Zustand store, which holds the full dataset in memory after first load — results update on every keystroke without hitting IndexedDB.
+Rather than a wall of filter dropdowns, the search bar accepts queries like `from:amazon type:purchase after:2024-01-01`. The tokenizer in `web/src/services/searchParser.ts` resolves header operators (sender, subject, flags, type, folder, date) against the in-memory header store for instant results. Body text is the catch: holding every message's body in memory to keep search synchronous is exactly what blows up the heap on a 100k-message archive. So body matching is the one part that runs as an indexed scan against IndexedDB — the resolved IDs feed back into the same synchronous filter, so the store stays slim while full-text search still works.
 
 ### HTML email rendering with DOMPurify
 
@@ -109,9 +112,9 @@ Two-tier. First pass looks for explicit `Thread-Topic` / `References` / `In-Repl
 
 Yes. The backup page emits a single JSON archive containing emails, detected accounts, purchases, subscriptions, newsletters, contacts, and folder structure. Optionally encrypted with a passphrase via AES-GCM + PBKDF2 (Web Crypto). The same page can restore from a backup or wipe IndexedDB entirely.
 
-### What happens if I open the same archive twice?
+### What happens if a message appears in several folders?
 
-The importer hashes each email's `Message-ID` + date + sender on insert. Re-importing a file you've already loaded is a no-op for duplicates; only new messages are added. This makes "import last month's incremental export" safe.
+Within a single Gmail Takeout, the same message often shows up under both All Mail and a label. The Takeout parser de-duplicates these during parsing, keeping one copy and merging the folder associations, so a labeled message isn't counted twice. (Cross-import de-duplication — recognizing a file you imported in an earlier session — isn't done today; re-importing the same archive re-adds its messages.)
 
 ### Why no AI categorization?
 
@@ -123,7 +126,7 @@ Tested up to ~50,000 messages and ~2GB of attachments on a mid-range laptop. The
 
 ### Adding a new export format — what's involved?
 
-Add a parser module under `web/src/services/parsers/` that implements the parser interface (returns an async iterable of normalized `Email` objects), then register it in the file-type dispatch in `parserWorker.ts`. The detection pipeline and UI are format-agnostic, so nothing downstream changes. EML and PST would be the natural next additions.
+Add a parser module under `web/src/services/` that emits normalized `Email` objects, then register it in the file-type dispatch in `web/src/workers/parserWorker.ts`. The detection pipeline and UI are format-agnostic, so nothing downstream changes. EML and PST would be the natural next additions.
 
 ### Is HTML email rendered safely?
 

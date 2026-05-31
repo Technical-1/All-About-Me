@@ -121,7 +121,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-29T13:38:29Z",
+      "pushed_at": "2026-05-30T18:42:30Z",
       "topics": [
         "bitcoin",
         "blockchain",
@@ -137,7 +137,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 245164,
+      "JavaScript": 245347,
       "HTML": 215088,
       "CSS": 4653
     },
@@ -388,7 +388,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-29T13:38:41Z",
+      "pushed_at": "2026-05-31T07:27:28Z",
       "topics": [
         "algorithmic-art",
         "canvas",
@@ -415,7 +415,7 @@
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 553863,
+      "TypeScript": 645312,
       "HTML": 9342,
       "CSS": 3812,
       "JavaScript": 1371,
@@ -491,53 +491,6 @@
     "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": []
-  },
-  {
-    "repo": {
-      "name": "EmailAnalyzer",
-      "full_name": "Technical-1/EmailAnalyzer",
-      "html_url": "https://github.com/Technical-1/EmailAnalyzer",
-      "homepage": "https://email-analyzer-eta.vercel.app",
-      "description": "A privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, automatically detect accounts and purchases, track subscriptions, visualize email patterns, and manage contacts—all offline with zero data uploads. Built with React, TypeScript, and IndexedDB.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-29T14:15:39Z",
-      "topics": [
-        "browser-based",
-        "email-analyzer",
-        "email-archive",
-        "email-parser",
-        "indexeddb",
-        "offline",
-        "privacy",
-        "react",
-        "typescript",
-        "vite"
-      ]
-    },
-    "languages": [
-      "TypeScript",
-      "CSS",
-      "HTML",
-      "JavaScript"
-    ],
-    "language_bytes": {
-      "TypeScript": 786185,
-      "CSS": 10446,
-      "HTML": 6886,
-      "JavaScript": 616
-    },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/emailanalyzer/preview.png"
-    ]
   },
   {
     "repo": {
@@ -1179,7 +1132,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T06:04:12Z",
+      "pushed_at": "2026-05-30T17:16:19Z",
       "topics": [
         "braille",
         "education",
@@ -1306,7 +1259,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-29T17:31:23Z",
+      "pushed_at": "2026-05-31T07:20:52Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1332,7 +1285,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 567354,
+      "TypeScript": 606579,
       "JavaScript": 16805,
       "HTML": 11747,
       "CSS": 3095
@@ -1458,7 +1411,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-29T21:19:12Z",
+      "pushed_at": "2026-05-31T07:33:36Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -1479,9 +1432,9 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 197412,
-      "HTML": 50944,
-      "CSS": 48286,
+      "JavaScript": 219277,
+      "HTML": 51097,
+      "CSS": 48384,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
@@ -1784,7 +1737,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T17:48:03Z",
+      "pushed_at": "2026-05-31T07:29:03Z",
       "topics": [
         "electron",
         "nodejs",
@@ -2107,52 +2060,6 @@
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
-  },
-  {
-    "repo": {
-      "name": "Simple-Backgammon",
-      "full_name": "Technical-1/Simple-Backgammon",
-      "html_url": "https://github.com/Technical-1/Simple-Backgammon",
-      "homepage": "https://simple-backgammon.vercel.app/",
-      "description": "A modern backgammon game with AI opponents and 3D animated dice, built with Next.js and Three.js",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-05-29T03:17:31Z",
-      "topics": [
-        "ai",
-        "backgammon",
-        "board-game",
-        "browser-game",
-        "game",
-        "nextjs",
-        "react",
-        "threejs",
-        "typescript"
-      ]
-    },
-    "languages": [
-      "TypeScript",
-      "CSS",
-      "HTML",
-      "JavaScript"
-    ],
-    "language_bytes": {
-      "TypeScript": 275921,
-      "CSS": 17425,
-      "HTML": 13331,
-      "JavaScript": 2417
-    },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/simple-backgammon/preview.png"
-    ]
   },
   {
     "repo": {
@@ -2579,7 +2486,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-29T10:36:44Z",
+      "pushed_at": "2026-05-30T09:08:07Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2787,6 +2694,61 @@
   },
   {
     "repo": {
+      "name": "EEL4599-Final-Project",
+      "full_name": "Technical-1/EEL4599-Final-Project",
+      "html_url": "https://github.com/Technical-1/EEL4599-Final-Project",
+      "homepage": null,
+      "description": "Multi-node wireless sensor network: XBee/802.15.4 temperature & light nodes report to a WiFi coordinator that logs readings to ThingSpeak. EEL4599 final project.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-05-30T18:52:21Z",
+      "topics": [
+        "arduino",
+        "circuitpython",
+        "embedded-systems",
+        "esp8266",
+        "iot",
+        "kicad",
+        "raspberry-pi-pico",
+        "rp2040",
+        "thingspeak",
+        "wireless-sensor-network",
+        "xbee",
+        "zigbee"
+      ]
+    },
+    "languages": [
+      "C",
+      "CMake",
+      "HTML",
+      "Python",
+      "C++",
+      "Shell",
+      "Makefile"
+    ],
+    "language_bytes": {
+      "C": 11636,
+      "CMake": 6931,
+      "HTML": 5025,
+      "Python": 4155,
+      "C++": 1918,
+      "Shell": 395,
+      "Makefile": 229
+    },
+    "primary_language": "C",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/eel4599-final-project/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "email-archive-parser",
       "full_name": "Technical-1/email-archive-parser",
       "html_url": "https://github.com/Technical-1/email-archive-parser",
@@ -2816,6 +2778,53 @@
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
+  },
+  {
+    "repo": {
+      "name": "EmailAnalyzer",
+      "full_name": "Technical-1/EmailAnalyzer",
+      "html_url": "https://github.com/Technical-1/EmailAnalyzer",
+      "homepage": "https://email-analyzer-eta.vercel.app",
+      "description": "A privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, automatically detect accounts and purchases, track subscriptions, visualize email patterns, and manage contacts—all offline with zero data uploads. Built with React, TypeScript, and IndexedDB.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-30T19:46:50Z",
+      "topics": [
+        "browser-based",
+        "email-analyzer",
+        "email-archive",
+        "email-parser",
+        "indexeddb",
+        "offline",
+        "privacy",
+        "react",
+        "typescript",
+        "vite"
+      ]
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 877150,
+      "CSS": 10446,
+      "HTML": 6886,
+      "JavaScript": 616
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailanalyzer/preview.png"
+    ]
   },
   {
     "repo": {
@@ -2888,7 +2897,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T06:28:08Z",
+      "pushed_at": "2026-05-31T07:21:26Z",
       "topics": [
         "archive",
         "backup",
@@ -2904,10 +2913,10 @@
       "Shell"
     ],
     "language_bytes": {
-      "JavaScript": 104339,
+      "JavaScript": 116717,
       "CSS": 42266,
       "HTML": 39520,
-      "Shell": 10130
+      "Shell": 11212
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -3090,7 +3099,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:42:14Z",
+      "pushed_at": "2026-05-31T07:18:55Z",
       "topics": [
         "frame-creator",
         "led",
@@ -3105,9 +3114,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 60021,
+      "JavaScript": 76816,
       "CSS": 30754,
-      "HTML": 29884
+      "HTML": 29920
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -3343,7 +3352,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T05:28:56Z",
+      "pushed_at": "2026-05-30T18:07:10Z",
       "topics": [
         "github",
         "github-api",
@@ -3358,7 +3367,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 232621,
+      "TypeScript": 253149,
       "CSS": 5885,
       "JavaScript": 672
     },
@@ -3489,6 +3498,52 @@
     ],
     "screenshots": [
       "/screenshots/signature-studio/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Simple-Backgammon",
+      "full_name": "Technical-1/Simple-Backgammon",
+      "html_url": "https://github.com/Technical-1/Simple-Backgammon",
+      "homepage": "https://simple-backgammon.vercel.app/",
+      "description": "A modern backgammon game with AI opponents and 3D animated dice, built with Next.js and Three.js",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-05-30T19:15:34Z",
+      "topics": [
+        "ai",
+        "backgammon",
+        "board-game",
+        "browser-game",
+        "game",
+        "nextjs",
+        "react",
+        "threejs",
+        "typescript"
+      ]
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 275921,
+      "CSS": 17425,
+      "HTML": 13331,
+      "JavaScript": 2417
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/simple-backgammon/preview.png"
     ]
   },
   {

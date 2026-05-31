@@ -21,29 +21,28 @@
 ## Infrastructure
 
 - **Hosting**: Vercel (static site deployment)
-- **PWA**: Web App Manifest with standalone display, installable on mobile/desktop
-- **Storage**: localStorage (all data client-side, no backend)
+- **PWA**: Web App Manifest with standalone display, installable on mobile/desktop; hand-written service worker (`public/sw.js`) for offline asset caching
+- **Storage**: localStorage (all data client-side, no backend), with JSON export/import for backup and portability
 - **SEO**: JSON-LD structured data, Open Graph/Twitter meta tags, sitemap.xml, robots.txt
 
 ## Development Tools
 
 - **Package Manager**: npm
 - **Linting**: ESLint 9 with TypeScript and React hooks plugins
-- **Testing**: Vitest with React Testing Library, jsdom environment, V8 coverage
+- **Testing**: Vitest with React Testing Library, jsdom environment, V8 coverage — 375 tests across 31 files
 - **Bundle Analysis**: rollup-plugin-visualizer (generates dist/stats.html)
-- **Image Processing**: Sharp (for OG image and favicon generation)
 
 ## Key Dependencies
+
+The runtime dependency surface is intentionally tiny — only three production packages.
 
 | Package | Purpose |
 |---------|---------|
 | `react` | UI component framework |
 | `react-dom` | React DOM rendering |
 | `recharts` | SVG-based charts for stats/progress visualization |
-| `@tailwindcss/postcss` | Tailwind CSS PostCSS plugin |
-| `@vitejs/plugin-react` | Vite React integration with Fast Refresh |
-| `vitest` | Unit test runner compatible with Vite config |
-| `@testing-library/react` | Component testing utilities |
-| `puppeteer` | Browser automation (OG image generation scripts) |
-| `sharp` | Image processing (favicon/icon generation) |
-| `rollup-plugin-visualizer` | Bundle size analysis and visualization |
+| `@tailwindcss/postcss` | Tailwind CSS PostCSS plugin (dev) |
+| `@vitejs/plugin-react` | Vite React integration with Fast Refresh (dev) |
+| `vitest` | Unit test runner compatible with Vite config (dev) |
+| `@testing-library/react` | Component testing utilities (dev) |
+| `rollup-plugin-visualizer` | Bundle size analysis and visualization (dev) |

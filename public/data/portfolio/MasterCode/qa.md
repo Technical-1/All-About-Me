@@ -2,16 +2,19 @@
 
 ## Overview
 
-MasterCode is a free, browser-based learning platform for mastering communication code systems. It covers 17 topics — from NATO phonetic alphabet and Morse code to ASL fingerspelling, military acronyms, and maritime signal flags. I built it as a client-side SPA with no backend, using the SM-2 spaced repetition algorithm to schedule reviews and localStorage for persistence. It works offline as a PWA and is deployed on Vercel.
+MasterCode is a free, browser-based learning platform for mastering communication code systems. It covers 19 topics — from NATO phonetic alphabet and Morse code to ASL fingerspelling, military acronyms, maritime signal flags, periodic-table elements, and country flags. I built it as a client-side SPA with no backend, using the SM-2 spaced repetition algorithm to schedule reviews and localStorage for persistence. It works offline as a PWA and is deployed on Vercel.
 
 ## Key Features
 
-- **Multi-Topic Platform**: 17 code systems with a data-driven architecture — adding a new topic requires only a config object, not new components
+- **Multi-Topic Platform**: 19 code systems with a data-driven architecture — adding a new topic requires only a config object, not new components
 - **SM-2 Spaced Repetition**: Quality scoring (0-5) based on correctness, response time, and study mode difficulty. Items are scheduled for review based on easiness factor and interval growth.
-- **4 Study Modes**: Flashcards (passive), multiple choice (recognition), typing practice (recall), timed challenge (speed under pressure)
+- **4 Study Modes + Smart Session**: Flashcards (passive), multiple choice (recognition), typing practice (recall), timed challenge (speed) — plus a Smart Session that picks the format per item based on how well you know it
+- **Focus Filters**: Scope any session to low-accuracy items, unpracticed items, or (for single-letter topics) vowels/consonants, with live due/new counts on the menu
+- **Confusion Insights**: The app attributes each wrong answer to the specific item you mistook it for, then surfaces a Most Confused Pairs panel and an end-of-session recap
 - **Smart Distractor Generation**: 8 distractor strategies tailored to topic types — NATO-style fake words, numerically close Roman numerals, same-category dev codes, acronym-style fake expansions, etc.
-- **Visual Renderers**: Custom SVG components for ASL hand signs, maritime signal flags, semaphore positions, and music notation symbols
-- **Gamification**: Achievement system (10 achievements), streak tracking, daily goals with completion notifications
+- **Visual Renderers**: Custom SVG components for ASL hand signs, maritime signal flags, semaphore positions, music notation, and country flags
+- **Data Portability**: Export/import progress as JSON, and reset a single topic independently of the rest
+- **Gamification**: Achievement system, streak tracking, daily goals with completion notifications
 
 ## Technical Highlights
 
@@ -20,6 +23,15 @@ The app started as a NATO alphabet trainer. When I expanded it to 17 code system
 
 ### SM-2 Algorithm with Mode-Aware Quality Scoring
 I implemented the SuperMemo SM-2 algorithm with a twist: quality scores account for response time and study mode difficulty. Typing practice gets a +0.5 bonus (it's harder), timed challenges get +0.25 (time pressure), and multiple choice gets +0 (easiest). A fast correct answer in typing mode scores 5.0 (perfect recall), while a slow correct multiple choice answer scores 3.0 (recognized but struggled). This makes the scheduling more accurate than binary correct/incorrect.
+
+### Smart Session as a Thin Orchestrator
+Rather than building a fifth study UI for guided sessions, `SmartSession.tsx` mounts the existing `MultipleChoice` and `TypingPractice` components one item at a time and decides the format from SM-2 mastery: `chooseMode()` returns typing (recall) once an item has `repetitions ≥ 3 && easinessFactor ≥ 1.8`, and multiple choice (recognition) otherwise. The tricky part is timing — the child calls `setProgress` then `onAnswered` in the same batched tick, so the next item is re-picked in an effect keyed *only* on the answered counter. That guarantees the pick reads post-commit progress without re-picking mid-question when the in-flight answer mutates progress.
+
+### Confusion Attribution by Value
+Recording "wrong" is easy; recording *what* you confused something with is the useful part. Because distractors are generated dynamically, option position is meaningless across questions, so `chosenKeyFromValue()` in `src/utils/confusions.ts` maps the picked value back to the item that value actually belongs to. `incrementConfusion()` accumulates a per-item (correct → mistaken) count, and `topConfusions()` ranks one worst pair per item to drive the Most Confused Pairs panel and the session recap.
+
+### Split-Strategy Offline Service Worker
+`public/sw.js` serves content-hashed `/assets/*` and `/images/*` cache-first (they're immutable, so this is both instant and safe), while navigations and the app shell are network-first with an `offline.html` fallback. This gives genuine offline use without the classic service-worker pitfall of pinning users to a stale build after a deploy.
 
 ### Zero-Dependency Routing
 Instead of pulling in React Router, I wrote a 100-line hash router hook that handles 5 routes: two landing page variants, learn/{topicId}, about, and privacy. Hash routing eliminates the need for server-side rewrite configuration, which matters for static hosting on Vercel.
@@ -71,7 +83,19 @@ A learning flashcard app benefits from zero friction — no sign-up, no API late
 ASL hand signs are rendered with custom inline SVGs in `src/components/ASLSign.tsx`, one path set per letter. Same approach for maritime signal flags (`MaritimeFlag.tsx`), semaphore positions, and music notation (`MusicSymbol.tsx`). Rendering as inline SVG keeps the bundle small, scales cleanly on any display, and lets dark mode style strokes/fills via Tailwind classes.
 
 ### Does it actually work offline?
-The PWA manifest makes the app installable, and because all data lives in localStorage there's no API to fail. A proper service worker for caching the JS/CSS/SVG assets is the missing piece — without it, the very first visit needs network, but subsequent loads benefit from browser HTTP caching. Adding a service worker is the next planned change.
+Yes. The PWA manifest makes the app installable, all data lives in localStorage so there's no API to fail, and a hand-written service worker (`public/sw.js`) caches the JS/CSS/SVG assets. It's cache-first for content-hashed assets and images, and network-first for navigations with an `offline.html` fallback — so after the first visit the app loads and runs without a connection, while still picking up new deploys when you're back online.
+
+### What is Smart Session and how does it pick the question type?
+Smart Session is a guided 15-item run that adapts the format to your mastery of each item. For every item it calls `chooseMode()`: if you've answered it correctly enough times that its SM-2 stats clear a threshold (`repetitions ≥ 3` and `easinessFactor ≥ 1.8`, and the topic supports typing), it asks you to type the answer (recall); otherwise it gives you multiple choice (recognition). The run ends with a recap of the items you confused most.
+
+### How do the Focus filters work?
+Each topic exposes a focus selector on the menu. "Low-accuracy" and "unpracticed" apply everywhere; "vowels" and "consonants" only appear for single-letter topics (NATO, Morse, Braille, etc.), because they don't make sense for acronyms or flags. The filter is passed straight into item selection, and the menu shows live "due" and "new" counts so you know what's worth studying today.
+
+### How does the Most Confused Pairs feature know what I confused?
+When you pick a wrong option, the app resolves the value you chose back to the item it belongs to and increments a confusion count on the correct item. Over time that builds a per-item map of which look-alikes trip you up. The Stats page and the Smart Session recap then show the highest-count pairs, e.g. "Sierra often picked as Saint" — so you can target genuine confusions instead of guessing.
+
+### Can I move my progress to another device?
+Yes — Settings has JSON export/import. Since there's no backend or account, that's the supported way to back up or transfer your data. You can also reset a single topic from Settings without affecting any other topic's progress.
 
 ### How is progress isolated per topic if everything is in localStorage?
 Every storage key is prefixed with the topic ID — for example, `nato-trainer-progress-morse` versus `nato-trainer-progress-asl`. That isolation lets users reset one topic without touching the others and keeps the SM-2 state for each code system completely independent. The `nato-trainer-` prefix is a legacy artifact from when this was just a NATO alphabet app.

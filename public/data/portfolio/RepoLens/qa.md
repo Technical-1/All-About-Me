@@ -15,6 +15,9 @@ The code frequency chart shows additions and deletions over the past year using 
 ### Embeddable Widgets
 Generate SVG images that can be embedded directly in README files. Three widget types are available: repository stats (stars, forks, watchers, issues), code stats (lines, additions, deletions, commits), and language breakdown. Widgets support dark and light themes and are cached at the CDN edge for fast loading.
 
+### Info Hub & Interactive Widget Guide
+A public `/about` page documents what RepoLens is, how its stats are computed (including the honest accuracy caveats for large repositories), and the engineering choices behind it. Its centerpiece is an interactive widget gallery: the three badges render live for a sample repository, a dark/light toggle re-themes them instantly, and a per-widget "Show code" disclosure reveals copy-paste Markdown and HTML snippets that work for any public repo. A collapsible FAQ rounds out the page.
+
 ### GitHub OAuth Integration
 Sign in with GitHub to access private repositories and increase API rate limits from 60 to 5,000 requests per hour. Authentication uses NextAuth v5 with JWT sessions - no credentials are stored on any server.
 
@@ -38,8 +41,11 @@ GitHub serves `/stats/code_frequency` lazily: the first request for an uncached 
 ### Accurate line totals with honest labeling
 "Total lines of code" is a derived metric, and the naive version — summing the ~100 commits in the display list — silently undercounts any repo with real history. When GitHub serves the full `/stats/code_frequency` weekly series, the total is the exact net (additions − deletions) across the repo's entire history. When it won't (422 on large repos, or still computing), the code pages commit history via GraphQL up to 2,500 commits and sums real per-commit deltas. The key is that the result never lies about its own precision: `FullRepoAnalysis` carries `totalLinesIsEstimated` and `totalLinesCommitsCovered`, and `estimateCoversFullHistory(covered, total)` promotes an estimate to an exact figure only when coverage provably reaches the repo's full commit count. The UI surfaces "estimate from N commits" rather than presenting an approximation as ground truth.
 
+### Zero-fetch live widget previews
+The `/about` widget gallery shows the three embed badges working in real time, but it ships no new data-fetching code. Because the `/api/embed/*` endpoints already return rendered SVG, each preview is just an `<img>` whose `src` points at the endpoint; the dark/light toggle simply rewrites the `theme` query param and the browser re-fetches. The Markdown/HTML snippets and preview URLs come from a single set of pure builders in `features/about/widgets.ts` (`embedSrc`, `markdownSnippet`, `htmlSnippet`), so what the visitor copies is guaranteed to match what they previewed. This keeps the interactive guide essentially free — no API routes, no client fetch logic, no extra rate-limit pressure.
+
 ### Feature-Sliced Component Architecture
-Components are organized by domain: `layout/` for page structure, `ui/` for reusable primitives (Card with variant system, LoadingSkeleton), `features/` for domain-specific components (stats, commits, contributors, repos), and specialized directories for embed and effects. A barrel export enables clean imports from `@/components`.
+Components are organized by domain: `layout/` for page structure, `ui/` for reusable primitives (Card with variant system, LoadingSkeleton), `features/` for domain-specific components (about, stats, commits, contributors, repos), and specialized directories for embed and effects. A barrel export enables clean imports from `@/components`.
 
 ### Typed Caching with TTL
 The caching layer uses a generic `Cache<T>` class with configurable TTL and max size. Pre-configured instances (`repoCache`, `statsCache`) handle unauthenticated request caching to stay within GitHub's 60 req/hr limit. Expired entries are cleaned up automatically.
