@@ -25,6 +25,7 @@ flowchart TD
     subgraph LearningApp["Learning App Core"]
         LA[LearningApp]
         MN[Menu]
+        SS[SmartSession]
         FC[Flashcards]
         MC[MultipleChoice]
         TY[TypingPractice]
@@ -34,6 +35,8 @@ flowchart TD
 
     subgraph DataLayer["Data Layer"]
         SR[SM-2 Algorithm]
+        SM2[Smart Session Logic]
+        CNF[Confusions]
         STO[localStorage Storage]
         TC2[Topic Config]
         AD[Acronym Distractors]
@@ -56,16 +59,20 @@ flowchart TD
     AR --> HR
     HR --> LM & LC & ASM & PP & LA
 
-    LA --> MN --> FC & MC & TY & TC & ST
+    LA --> MN --> FC & MC & TY & TC & SS & ST
 
+    SS --> MC & TY
+    SS --> SM2
     FC & MC & TY & TC --> SR
     SR --> STO
+    MC & TY --> CNF
+    CNF --> STO
     FC & MC & TY & TC --> HLP
     HLP --> TC2 & AD
     FC & MC & TY & TC --> AUD
 
     LA --> TS & SM
-    ST --> GM
+    ST --> GM & CNF
     MC & TY & FC --> ASL & MF & MS
     LA --> NOT
 ```
@@ -85,7 +92,17 @@ flowchart TD
 ### Topic Config System
 - **Purpose**: Data-driven topic definitions that make the platform extensible
 - **Location**: `src/config/topics.ts`
-- **Key responsibilities**: Defines 17 TopicConfig objects, each specifying name, data (key-value pairs), theme colors, distractor type, render type (text/image), quiz direction, and status (available/coming-soon). New topics are added by creating a config object — no new components needed.
+- **Key responsibilities**: Defines 19 TopicConfig objects, each specifying name, data (key-value pairs), theme colors, distractor type, render type (text/image), quiz direction, and status. New topics are added by creating a config object — no new components needed.
+
+### Smart Session Orchestrator
+- **Purpose**: A guided session that adapts the question format per item to the learner's mastery
+- **Location**: `src/components/SmartSession.tsx`, logic in `src/utils/smart-session.ts`
+- **Key responsibilities**: Runs a fixed-length run (15 items), re-using `MultipleChoice` and `TypingPractice` as child renderers. For each item, `chooseMode()` returns `typing` when the item is well-learned (`repetitions ≥ 3 && easinessFactor ≥ 1.8` and the topic supports typing) and `multiple-choice` otherwise — escalating from recognition to recall as mastery grows. The next item is picked only in an effect keyed on the answered counter, so an in-flight answer's `setProgress` can't trigger a mid-question re-pick. On completion it renders a top-confusions recap. `smart-session.ts` also exposes `countDue`/`countNew` and `focusOptionsForTopic` for the menu.
+
+### Confusion Tracking
+- **Purpose**: Turn wrong answers into actionable "you keep mistaking X for Y" insight
+- **Location**: `src/utils/confusions.ts`, surfaced in `Stats.tsx` and the Smart Session recap
+- **Key responsibilities**: When a learner picks a wrong option, `chosenKeyFromValue()` maps the chosen value back to the item it actually belongs to, and `incrementConfusion()` records the (correct item → mistaken item) pair on the item's `confusions` map in progress. `topConfusions()` ranks one worst pair per studied item and returns the top N for the Most Confused Pairs panel.
 
 ### SM-2 Spaced Repetition
 - **Purpose**: Implements the SuperMemo SM-2 algorithm for optimal review scheduling
@@ -108,9 +125,10 @@ flowchart TD
 2. LearningApp loads topic-specific progress and stats from localStorage
 3. User selects a study mode → LearningApp creates a SessionData object and renders the mode component
 4. Mode component calls `getNextLetterSM2()` to select the next item based on SM-2 scheduling
-5. User answers → `updateProgressSM2()` calculates quality score, updates EF/interval/repetitions, persists to localStorage
+5. User answers → `updateProgressSM2()` calculates quality score, updates EF/interval/repetitions, persists to localStorage; a wrong choice also records a confusion pair on the item
 6. Stats update flows up to LearningApp via callbacks → achievements checked → goal progress updated
 7. On mode exit → session saved to localStorage, progress history updated
+8. In Smart Session, each committed answer advances the run and re-picks the next item, with `chooseMode()` selecting recognition or recall based on the item's current mastery; the run ends with a Most Confused Pairs recap
 
 ## External Integrations
 
@@ -144,6 +162,21 @@ flowchart TD
 - **Rationale**: The state tree is shallow (one level of study mode children), so prop drilling is straightforward. Avoids the complexity of Redux/Zustand for what amounts to ~5 state variables shared among sibling components.
 
 ### Per-Topic localStorage Namespacing
-- **Context**: 17 topics each need independent progress tracking
+- **Context**: 19 topics each need independent progress tracking
 - **Decision**: Namespace all localStorage keys with topic ID (e.g., `nato-trainer-progress-morse`)
 - **Rationale**: Simple key prefixing keeps topics isolated without needing a database. Users can reset one topic without affecting others. The `nato-trainer-` prefix is a legacy artifact from the original project name.
+
+### Smart Session Reuses Modes Instead of Adding a New One
+- **Context**: A guided "just study" flow needs to alternate between recognition and recall, but duplicating quiz/typing UI would double the surface area to maintain
+- **Decision**: Make `SmartSession` a thin orchestrator that mounts the existing `MultipleChoice` and `TypingPractice` components per item, choosing the mode from SM-2 mastery
+- **Rationale**: The study components already encapsulate scoring, feedback, and rendering. The orchestrator only owns item selection, the mode decision, and a recap — so adaptive sessions inherit every fix to the underlying modes for free. The subtle part is re-picking the next item only after an answer commits (effect keyed on the answer counter) so progress updates mid-question don't cause a re-pick.
+
+### Confusion Attribution by Value, Not Position
+- **Context**: Recording "the answer was wrong" is cheap but useless; learners want to know *which* look-alike they confused it with
+- **Decision**: Map the chosen distractor's value back to the item that value belongs to (`chosenKeyFromValue`) and accumulate per-item confusion counts in progress
+- **Rationale**: Distractors are generated dynamically, so option position carries no meaning across questions. Resolving the picked value to a real item key produces a stable (correct → mistaken) pair that aggregates into the Most Confused Pairs panel and the session recap, directly steering future review toward genuine look-alikes.
+
+### Split-Strategy Service Worker
+- **Context**: The PWA needs reliable offline use without serving stale app code after a deploy
+- **Decision**: A hand-written service worker (`public/sw.js`) that is cache-first for content-hashed `/assets/*` and `/images/*`, and network-first (with an `offline.html` fallback) for navigations and the app shell
+- **Rationale**: Vite content-hashes asset filenames, so they're safe to cache immutably and serve instantly offline. HTML and the shell stay network-first so a new deploy is picked up on the next online load, while still falling back to a cached page when offline — avoiding the classic "users stuck on an old build" service-worker trap.

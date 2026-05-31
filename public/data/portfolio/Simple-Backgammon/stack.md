@@ -50,8 +50,8 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 
 - **PartyKit 0.0.115** - WebSocket infrastructure
   - Built on Cloudflare Workers and Durable Objects
-  - Handles game rooms, matchmaking, and state synchronization
-  - Automatic reconnection handling
+  - Game-room server imports the shared `lib/` rule engine and is fully authoritative over moves
+  - Durable storage alarms drive the 90-second disconnect grace and forfeit, surviving platform hibernation
   - Deployed to edge for low latency
 
 ### WebSocket Client
@@ -59,6 +59,12 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 - **PartySocket 1.1.10** - React WebSocket hook
   - Automatic reconnection with exponential backoff
   - Type-safe message passing
+
+### Server Hardening
+
+- **Input sanitization** (`lib/validation.ts`) - control characters stripped, names/messages length-capped
+- **Rate limiting** - 20 messages/second per connection on both the game room and matchmaker
+- **Server-authoritative validation** - clients send intents only; the server recomputes move legality
 
 ## Database / Storage
 
@@ -72,9 +78,9 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 ### Server-Side Persistence
 
 - **PartyKit Durable Storage** - Room state
-  - Persists game state across disconnections
-  - 5-minute timeout for abandoned rooms
-  - Chat history (last 100 messages)
+  - Persists game state across disconnections and platform hibernation
+  - 90-second disconnect grace enforced by a durable storage alarm; timeout forfeits the game to the present opponent
+  - Chat history (last 100 messages), replayed to reconnecting players
 
 ## Infrastructure and Deployment
 
@@ -96,7 +102,7 @@ A full-stack web application featuring a real-time multiplayer backgammon game w
 
 - **npm** - Package management
 - **ESLint 8** - Code linting with Next.js config
-- **Vitest 4** - Unit tests for game logic in `lib/`
+- **Vitest 4** - Unit tests across the rule engine, AI, storage, validation, and pure helpers in `lib/`, plus the room forfeit logic and the shared-engine invariant in `party/`
 - **Sharp 0.34.5** - Image processing for build
 
 ## Key Dependencies
