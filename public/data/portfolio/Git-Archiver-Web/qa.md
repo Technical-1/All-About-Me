@@ -2,106 +2,82 @@
 
 ## Overview
 
-Git-Archiver Web is a free, serverless service for taking permanent snapshots of public GitHub repositories. A visitor pastes a repo URL, a Cloudflare Worker validates it and opens a labelled issue on the archive repo, and a GitHub Actions workflow clones the repo, compresses it to `.tar.gz`, and publishes it as a GitHub Release. The interesting bit is that the entire stack — frontend, API, compute, and storage — runs inside GitHub and Cloudflare free tiers.
+Git-Archiver Web is a free, serverless service for archiving public GitHub repositories. A user pastes a repo URL and receives a permanent `.tar.gz` snapshot stored in GitHub Releases. The whole stack runs on free tiers with no servers or database — this repo holds the frontend and the GitHub Actions archive engine; the API proxy is a separate Cloudflare Worker.
 
 ## Problem Solved
 
-GitHub repos disappear: owners delete accounts, projects go private, DMCA notices remove code, and forks vanish along with their upstream. Once a repo is gone, downstream users have no clean way to recover it. Git-Archiver Web gives anyone a one-click way to mint a permanent, downloadable snapshot before that happens — and to share that snapshot with others without setting up infrastructure of their own.
+Public GitHub repositories can disappear — deleted by owners, taken down via DMCA, or made private. Git-Archiver Web preserves a snapshot so the code remains downloadable even if the original vanishes.
 
 ## Target Users
 
-- **Open-source maintainers** preserving deprecated or pre-acquisition versions of a project
-- **Researchers and educators** archiving codebases referenced in papers or course material
-- **Developers depending on small libraries** who want a fallback if the upstream disappears
-- **Anyone curious** who wants a downloadable `.tar.gz` of a public repo without cloning locally
+- **Developers** — preserve dependencies or references that might disappear
+- **Researchers** — keep citable snapshots of code
+- **Archivists** — bulk-preserve at-risk repositories
 
 ## Key Features
 
 ### One-click archiving
-Paste a `github.com/owner/repo` URL and the worker handles validation, size-checking, and queueing. No login, no API key.
+Paste a GitHub URL; the service clones, compresses, and publishes a snapshot as a GitHub Release.
 
-### Bulk submit
-The bulk modal accepts up to 20 URLs at once — useful for archiving a whole org or a list of dependencies in a single sitting.
+### Bulk submission
+Submit up to 20 repositories at once.
 
-### Content-addressed deduplication
-Every archive's `.tar.gz` is hashed with SHA-256, and the hash is written into a sibling `metadata.json`. Before publishing a new release the workflow downloads the previous metadata and compares hashes; matching hashes mean no new release is created. This keeps the releases list clean even when re-archiving an unchanged repo.
+### Change-based deduplication
+A repo is re-archived only when its latest commit changed since the last snapshot — unchanged repos are skipped instead of producing duplicate releases.
 
-### Live source-status indicator
-Each card shows whether the original repo is still public, has been made private, or has been deleted — which is exactly the information a user needs when deciding whether to download the archive now.
-
-### README preview
-Archived READMEs are uploaded as a separate release asset and served back through the worker, so the detail modal can render the README without hitting CORS issues from GitHub's redirected asset URLs.
-
-### Daily refresh job
-`update-archives.yml` runs on a cron, picks the oldest archives, and dispatches the archive workflow against them. Combined with the SHA-256 dedupe, this means only repos that actually changed produce new releases.
+### Live source-status badges
+Each repo card shows whether the original GitHub repo is still public, archived, or deleted, resolved for the whole page in a single batched request.
 
 ## Technical Highlights
 
-### GitHub Issues as a job queue
-Submissions don't go through Redis, SQS, or a hosted queue — the worker creates a GitHub issue with an `archive-request` label, and `archive.yml` is triggered on `issues.opened` filtered to that label. The issue body carries the request payload, the issue thread becomes the user-visible status log (the workflow comments back), and closing the issue marks the job done. The whole queue is free, durable, and auditable by anyone with the repo URL.
+### Issue-driven serverless pipeline
+The frontend can't run server code, so submissions become labelled GitHub issues that trigger a GitHub Actions workflow (`archive.yml`). This turns GitHub's own infrastructure into a free, auditable job queue — every archive request is a visible, closable issue.
 
-### Token-isolating proxy
-The frontend never sees the GitHub PAT. The Cloudflare Worker holds the token in its secrets store, validates incoming submissions against GitHub's API (repo exists, size under 2 GB, not a duplicate of today's archive), and only then opens the issue. This means the frontend can stay as static HTML on GitHub Pages — no auth, no session, no leaked tokens in browser DevTools.
+### Batched status to stay inside rate limits
+The archive listing can render dozens of cards, each needing a live source-status badge. Rather than firing one request per card (which would blow the per-IP rate limit and leave most badges blank), the frontend collects every visible repo and resolves them in one `POST /bulk-status` call, painting all badges from the single response.
 
-### Index as a release asset
-There is no database. The master list of archived repos lives in a single `index.json` published as an asset on a release tagged `index`. The worker proxies fetches of this file so the frontend can grab it with a normal CORS-safe request. Updates happen as part of the archive workflow: download the current index, append/update the entry, upload the new asset. It's a homegrown read-mostly key-value store backed by GitHub's CDN.
+### Injection-safe CI
+`archive.yml` consumes an attacker-controlled repository description. All untrusted values are passed through `env:` and referenced as quoted shell variables rather than interpolated into `run:` blocks, and a bash regression test (`scripts/test/ci-injection.test.sh`) asserts a malicious description is treated as inert data.
 
-### Per-archive metadata triplet
-Each archived release contains three assets: the `.tar.gz` itself, a `metadata.json` (size, hash, star count, default branch, archive date), and the extracted `README.md`. Splitting these out lets the frontend show rich repo cards and previews without ever downloading the full archive.
+### Browser-verified, dependency-light tests
+Pure helpers (URL parsing, date guards, the API client) are unit-tested under Node; the real page load is covered by a Playwright smoke test that drives Chromium against a fully-stubbed backend and asserts the shell renders, stats populate, cards appear, the batched badge resolves, and no uncaught errors fire — all with zero npm audit advisories in the toolchain.
 
 ## Engineering Decisions
 
-### Static frontend with no framework
-- **Constraint**: Needed zero hosting cost and zero build complexity.
-- **Options**: React/Vite, SvelteKit, Astro, or plain HTML+JS.
-- **Choice**: Plain HTML, CSS, and a few vanilla-JS modules (`app.js`, `api.js`, `utils.js`).
-- **Why**: The UI is a list view, a detail modal, and a submission form — nothing that warrants a framework. Skipping the build step means GitHub Pages serves the source files directly, edits go live with a push, and total payload stays around 40 KB.
+### Static frontend over a framework
+- **Constraint**: Small app, wanted zero build complexity
+- **Options**: React/Vue SPA vs vanilla JS
+- **Choice**: Vanilla JS, no build step
+- **Why**: Instant loads, trivial to host on Pages, nothing to compile or keep patched
 
-### GitHub Issues over a real queue
-- **Constraint**: Needed a durable, observable, free job queue.
-- **Options**: Redis on a hobby VM, AWS SQS, Cloudflare Queues, or a homegrown queue.
-- **Choice**: GitHub Issues filtered by label, triggering `archive.yml` on `issues.opened`.
-- **Why**: Issues are already a queue with comments, labels, assignees, and a UI. They're free for public repos, integrate natively with Actions, and give users a public URL where they can see their request's status. The cost is being coupled to GitHub's webhook latency, which is acceptable for a job that takes minutes anyway.
+### Worker in its own repository
+- **Constraint**: The backend deploys on a different cadence than the static site and holds its own secrets
+- **Options**: Keep the worker as a subdirectory of this repo, or split it out
+- **Choice**: Split into [Git-Archiver-Worker](https://github.com/Technical-1/Git-Archiver-Worker)
+- **Why**: Independent CI and deploy, cleaner separation of the public static site from the credentialed backend
 
-### Cloudflare Workers in front of GitHub
-- **Constraint**: Token had to stay off the client, and the frontend needed CORS-friendly endpoints.
-- **Options**: A hosted backend (Fly, Render), AWS Lambda + API Gateway, or Cloudflare Workers.
-- **Choice**: Cloudflare Workers, deployed with Wrangler.
-- **Why**: Free tier covers 100K requests/day, cold starts are sub-5ms, and secrets management is built in. No container to maintain and no separate API-gateway config to keep in sync.
-
-### SHA-256 dedupe instead of "always create a release"
-- **Constraint**: Re-archiving an unchanged repo shouldn't pile up identical releases.
-- **Options**: Skip re-archiving entirely, compare git SHAs, or hash the tarball contents.
-- **Choice**: Hash the produced `.tar.gz` and compare against the previous archive's metadata.
-- **Why**: Comparing git SHAs misses changes from clone-time variability (timestamps, line endings); comparing tarball hashes is exact. Skipping re-archives entirely would mean stale data for active repos. Hashing the output gives the right behavior: new release if and only if the content actually differs.
+### GitHub Releases as storage
+- **Constraint**: Needed free durable storage for large files plus one queryable manifest
+- **Options**: S3, Cloudflare R2, GitHub Releases
+- **Choice**: GitHub Releases, with a single `index` release holding `index.json`
+- **Why**: Free, durable, CDN-backed, no extra account, and each release is independently addressable
 
 ## Frequently Asked Questions
 
-### Why use this instead of just forking the repo?
-A fork is a live reference to the upstream. If the upstream is taken down for DMCA reasons, your fork can be taken down too. A Git-Archiver release is an independent `.tar.gz` file on a different repo's releases page — it persists regardless of what happens to the source.
+### How does a submission turn into an archive?
+The worker opens a GitHub issue labelled `archive-request`; that issue triggers `archive.yml`, which clones the repo, builds a `.tar.gz`, and publishes a Release. The frontend never touches repo contents directly.
 
-### How long do archives stick around?
-Indefinitely, in principle. GitHub doesn't publish a hard cap on release-asset storage for public repos. If the archive repo ever gets contacted about excessive storage, the answer would be to shard across multiple repos.
+### Can I archive private repos?
+No — only public repositories are supported.
 
-### Can I archive a private repo?
-No — public only. The worker checks `private: false` on the repo metadata before queueing. This is a deliberate decision: archiving private repos without the owner's consent isn't something this service is willing to do.
+### What's the size limit?
+2 GB per repository (the GitHub Release asset cap).
 
-### What's the maximum repo size?
-2 GB, which is GitHub's per-asset limit for releases. The worker checks the repo's size via the API before queueing and rejects oversized submissions up front with a clear error.
+### How does change detection work?
+Each archive records the source repo's latest commit hash in its metadata. On a re-archive, if the current commit matches the last one, the run is skipped — so the daily refresh job only creates releases for repos that actually changed.
 
-### Why does my submission say "no changes"?
-Because the SHA-256 of the newly built `.tar.gz` matches the previous archive's hash exactly — meaning nothing about the cloned contents has changed since last time. Rather than create a duplicate release, the workflow comments on the issue and closes it.
+### Why route reads through a worker instead of calling GitHub directly?
+The browser would be unauthenticated (60 requests/hour per IP, quickly exhausted) and would hit CORS issues on Release-asset redirects. The worker uses a server-side token (5,000/hour) and returns clean, cached JSON.
 
-### Can I trigger a re-archive of a repo someone else already archived?
-Yes — submitting the same URL again is fine. The workflow will run, hash the output, and either publish a new release (if content changed) or comment "no changes" (if it didn't).
-
-### Is there an API I can call directly?
-Yes. The Cloudflare Worker exposes:
-- `POST /submit` — submit a single URL
-- `POST /bulk-submit` — submit up to 20 URLs
-- `GET /index` — fetch the full index of archived repos
-- `GET /readme?owner=…&repo=…` — fetch an archived README
-- `GET /status?owner=…&repo=…` — check whether the original is still public
-
-### Can I run my own instance?
-Yes, the whole stack is open source. You'll need a GitHub account, a Cloudflare account, and a PAT with `repo` scope. The `scripts/setup.sh` helper walks through the secrets and the initial `index` release.
+### How is the frontend tested?
+`npm test` runs Vitest unit tests plus a CI-injection shell check; `npm run test:e2e` runs the Playwright browser smoke tests. Both run in CI on every frontend change.

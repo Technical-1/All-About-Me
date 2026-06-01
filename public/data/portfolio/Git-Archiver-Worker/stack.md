@@ -25,8 +25,8 @@
 
 ## Development Tools
 
-- **CLI**: Wrangler 3
-- **Testing**: Vitest with `@cloudflare/vitest-pool-workers` (runs tests inside a real `workerd` runtime, not a Node shim)
+- **CLI**: Wrangler 4
+- **Testing**: Vitest 4 in the Node environment; the worker uses only standard runtime globals (`fetch`/`Request`/`Response`/`crypto`), and a setup file stubs the Cloudflare Cache API. All external I/O (GitHub API, KV) is mocked, so the suite is fast and dependency-light.
 - **Package Manager**: npm
 
 ## Key Dependencies
@@ -34,6 +34,4 @@
 | Package | Purpose |
 |---------|---------|
 | `wrangler` | Local dev, deploy, log tailing for the worker |
-| `vitest` | Test runner |
-| `@cloudflare/vitest-pool-workers` | Executes tests in the Workers runtime so `fetch`/`Request`/`Response`/`caches` behave as in production |
-```
+| `vitest` | Test runner (Node environment) |

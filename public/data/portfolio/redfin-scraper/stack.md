@@ -44,7 +44,7 @@
 |---------|---------|
 | `puppeteer` | Headless Chrome automation for address search and fallback scraping |
 | `puppeteer-extra` | Plugin system wrapper for Puppeteer |
-| `puppeteer-extra-plugin-stealth` | Anti-bot detection evasion (patches automation fingerprints) |
+| `puppeteer-extra-plugin-stealth` | Makes headless Chrome behave like a standard desktop browser for consistent rendering |
 | `csv-parse` | Parse input CSV files with flexible column detection |
 | `csv-stringify` | Generate enriched output CSV files |
 | `electron` | Desktop application framework (Chromium + Node.js) |

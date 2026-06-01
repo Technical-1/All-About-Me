@@ -4,115 +4,41 @@
 
 | Category | Technology | Version | Why this choice |
 |----------|------------|---------|-----------------|
-| Frontend language | JavaScript (ES2020+) | — | No build step, no transpile pipeline, works in every modern browser |
-| Frontend markup/style | HTML5 + CSS3 (custom, no framework) | — | The UI is small; a framework would be heavier than the app |
-| Edge runtime | Cloudflare Workers (V8) | — | Free tier covers traffic, sub-5ms cold starts, built-in secrets |
-| Worker tooling | Wrangler | ^3.0.0 | Cloudflare's official CLI; only worker dev dependency |
-| CI/CD + compute | GitHub Actions | — | Unlimited minutes on public repos; native triggers from Issues |
-| Storage | GitHub Releases | — | Free, CDN-backed, supports per-archive versioning |
+| Frontend | Vanilla JavaScript | ES2020+ | No build step, no framework overhead for a small app |
+| Hosting (frontend) | GitHub Pages | — | Free static hosting, integrates with the repo |
+| Archive engine | GitHub Actions | — | Free compute, native GitHub integration |
+| Storage | GitHub Releases | — | Free, durable, CDN-backed |
+| API proxy | Cloudflare Worker | — | Lives in [Git-Archiver-Worker](https://github.com/Technical-1/Git-Archiver-Worker); keeps the GitHub token server-side |
 
 ## Frontend
 
-- **Framework**: none — plain HTML + a few vanilla-JS modules
-- **State management**: a single in-memory store inside `app.js`
-- **Styling**: handwritten CSS with custom properties for theming; dark theme by default; mobile-first breakpoints
-- **Build tool**: none — files are served as-is from `frontend/` by GitHub Pages
+- **Framework**: None (vanilla JS, no build step)
+- **State Management**: Module-level state in `app.js`
+- **Styling**: Hand-written CSS (`css/styles.css`)
+- **Markdown rendering**: `marked` + `DOMPurify` (loaded from CDN, used only in the archive detail modal)
 
-### Frontend modules
+## Archive Engine
 
-| File | Lines | Role |
-|------|-------|------|
-| `frontend/js/app.js` | ~860 | App state, event handlers, rendering of the repo grid and detail modal |
-| `frontend/js/api.js` | ~430 | Fetch wrappers around the Worker's endpoints |
-| `frontend/js/utils.js` | ~440 | Formatters, URL parsers, DOM helpers, validation |
-
-## Backend (Cloudflare Worker)
-
-- **Runtime**: Cloudflare Workers V8 isolates
-- **Entry point**: `worker/src/index.js` (~1,200 lines)
-- **Dependencies at runtime**: none — only the Workers API and `fetch`
-- **Auth model**: Worker holds the GitHub PAT in Wrangler secrets; the frontend is unauthenticated
-
-### Worker endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/submit` | POST | Submit a single repo URL |
-| `/bulk-submit` | POST | Submit up to 20 URLs at once |
-| `/index` | GET | Proxy fetch of the master `index.json` |
-| `/readme` | GET | Proxy fetch of an archived README |
-| `/status` | GET | Check whether the original repo is still public |
-| `/health` | GET | Health check |
-
-## Processing (GitHub Actions)
-
-| Workflow | Trigger | Role |
-|----------|---------|------|
-| `archive.yml` | `issues.opened` with label `archive-request` | Clone, hash, dedupe, publish release, update index |
-| `update-archives.yml` | Scheduled cron | Dispatch `archive.yml` against the oldest entries |
-| `pages.yml` | Push to `main` | Build and publish `frontend/` to GitHub Pages |
-
-Key external Actions used:
-
-| Action | Version | Why |
-|--------|---------|-----|
-| `actions/checkout` | v4 | Clone the archive repo for workflow context |
-| `softprops/action-gh-release` | v1 | Create releases and upload assets in one step |
-| `actions/github-script` | v7 | Issue parsing, commenting, closing |
-| `actions/configure-pages` | v4 | Pages build config |
-| `actions/upload-pages-artifact` | v3 | Stage `frontend/` for deploy |
-| `actions/deploy-pages` | v4 | Publish the Pages artifact |
-
-## Storage layout
-
-```
-Releases/
-  index (tag)
-    index.json            # master index of all archived repos
-  owner__repo__YYYY-MM-DD (tag)
-    owner_repo.tar.gz     # archive file
-    metadata.json         # size, sha256, stars, default branch, archive date
-    README.md             # extracted README
-```
+- **Runtime**: GitHub Actions (bash + `jq`)
+- **Trigger**: issue opened with the `archive-request` label
+- **Output**: a GitHub Release per archive plus a master `index.json`
 
 ## Infrastructure
 
-- **Hosting (frontend)**: GitHub Pages
-- **Hosting (API)**: Cloudflare Workers
-- **Compute**: GitHub Actions (`ubuntu-latest`, 2-core, 7 GB RAM)
-- **CI/CD**: GitHub Actions (`pages.yml`, plus Wrangler for the Worker)
-- **Monitoring**: none — `wrangler tail` for live Worker logs; Actions run logs for the archive workflow
+- **Hosting**: GitHub Pages (frontend)
+- **CI/CD**: GitHub Actions — `pages.yml` (deploy), `archive.yml` (archive engine), `update-archives.yml` (daily refresh), `e2e.yml` (frontend tests)
+- **Monitoring**: none
 
-## Development tools
+## Development Tools
 
-- **Package manager**: npm (only used inside `worker/`)
-- **Linting / formatting**: none configured — the codebase is small enough to review by hand
-- **Testing**: none — primary verification is running an archive end-to-end through the workflow
+- **Package Manager**: npm
+- **Testing**: Vitest (unit, node environment) + Playwright (browser smoke tests) + a bash test asserting the archive workflow is injection-safe
+- **Test command**: `npm test` (unit + CI-injection check), `npm run test:e2e` (Playwright)
 
-## Key dependencies
+## Key Dependencies
 
 | Package | Purpose |
 |---------|---------|
-| `wrangler` (^3.0.0) | Cloudflare Worker CLI — local dev, deploy, tail logs, secrets management |
-
-The Worker itself has zero runtime dependencies; it only uses the Workers runtime APIs.
-
-## Secrets
-
-| Variable | Stored in | Description |
-|----------|-----------|-------------|
-| `GITHUB_TOKEN` | Cloudflare Worker secret | PAT with `repo` scope used by the Worker |
-| `GITHUB_OWNER` | Cloudflare Worker secret | Owner of the archive repo |
-| `GITHUB_REPO` | Cloudflare Worker secret | Name of the archive repo |
-
-## Performance and limits
-
-| Metric | Value |
-|--------|-------|
-| Frontend total payload | ~40 KB |
-| Worker cold start | <5 ms |
-| Archive build time | 2–10 minutes typical |
-| `index.json` fetch | <100 ms (CDN-cached) |
-| Worker free tier | 100K requests/day |
-| Concurrent archives | Bounded by GitHub Actions concurrency (~20) |
-| Archive asset size | 2 GB hard cap (GitHub Releases) |
+| `vitest` | Unit test runner for the pure JS helpers |
+| `@playwright/test` | Browser smoke tests that load the real page against a stubbed backend |
+| `marked` / `dompurify` | Safe markdown rendering for archived READMEs (CDN, runtime-only) |

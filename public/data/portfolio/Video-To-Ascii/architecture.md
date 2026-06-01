@@ -15,7 +15,7 @@ flowchart TD
         FP["frameProcessor<br/>canvas downscale + Sobel"]
         AC["asciiConverter<br/>pixels → characters + color"]
         RE["renderEngine<br/>DOM render + FPS overlay"]
-        EM["exportManager<br/>recording + JSON/HTML/PNG"]
+        EM["exportManager<br/>recording + JSON/HTML/GIF<br/>per-frame PNG/TXT"]
         GW["public/gif.worker.js<br/>(gif.js worker)"]
         LS[("localStorage<br/>settings")]
     end
@@ -39,8 +39,9 @@ flowchart TD
   button flow.
 - **Location**: `src/main.js`
 - **Key responsibilities**: settings persistence (localStorage), preset
-  application (`applyPreset`), UI sync (sliders → processor config), and
-  invoking `exportManager` for downloads.
+  application (`applyPreset`), resolution math (aspect-locked grid sizing via
+  `heightForWidth`/`widthForHeight`, `% of max` presets), UI sync (sliders →
+  processor config), and invoking `exportManager` for downloads.
 
 ### `videoController` — Playback & adaptive frame loop
 - **Purpose**: Owns the `<video>` element and the per-frame `requestAnimationFrame`
@@ -75,9 +76,12 @@ flowchart TD
 
 ### `exportManager` — Recording + exports
 - **Purpose**: Buffers frames during playback (hard cap of 1,800 frames to
-  prevent tab OOM), then exports them as JSON, a self-contained HTML player,
-  animated GIF, or a PNG screenshot. GIF export samples down to ≤120 frames
-  and emits drawing/encoding progress through an `onProgress` callback.
+  prevent tab OOM), then exports the recording as JSON, a self-contained HTML
+  player, or an animated GIF. It also exports the single current frame as a PNG
+  screenshot or a plain `.txt` file (`exportFrameAsText`); the orchestrator
+  handles clipboard copy of the same frame text directly. GIF export samples
+  down to ≤120 frames and emits drawing/encoding progress through an
+  `onProgress` callback.
 - **Location**: `src/modules/exportManager.js`
 
 ## Data Flow
@@ -138,6 +142,24 @@ flowchart TD
 - **Rationale**: Predictable memory ceiling, and GIF exports finish in
   seconds-to-tens-of-seconds with visible progress instead of appearing
   to hang.
+
+### Single resolution path with aspect-aware sizing
+- **Context**: The output grid can be set four ways — a fixed dropdown preset,
+  a `% of max` preset, two manual sliders, and an aspect-ratio lock — and all of
+  them must stay in sync with the dropdown label, the slider positions, the
+  processor's target size, and persisted settings. Earlier the dropdown handler,
+  each slider handler, and `applyPreset` all mutated those pieces independently,
+  which let the UI drift out of sync (e.g. sliders showing one size while the
+  processor rendered another).
+- **Decision**: Funnel every resolution change through one method,
+  `applyGridResolution(width, height)`, which clamps to 20–200, writes both
+  sliders and labels, sets the processor resolution, persists, and re-fits.
+  Aspect math lives in `heightForWidth`/`widthForHeight` off a remembered
+  `videoAspect`; `% of max` and the aspect-lock toggle both derive a width and
+  hand the pair to that single method.
+- **Rationale**: One writer for the resolution state means the four entry points
+  can't disagree. Deriving height from the real video aspect (not a fixed 4:3)
+  keeps ASCII output un-stretched across portrait and landscape sources.
 
 ### Overlay-safe wrapper for the FPS badge
 - **Context**: The FPS overlay needs to visually sit over the ASCII output,

@@ -68,7 +68,7 @@ flowchart TD
 ### PuppeteerScraper - Browser Automation
 - **Purpose**: Headless Chrome automation for address search and fallback scraping
 - **Location**: `Redfin-Gui/scraper-v4.js` (class `PuppeteerScraper`)
-- **Key responsibilities**: Address-to-propertyId resolution via search, full page scraping as fallback, stealth plugin for anti-bot evasion, user-agent rotation
+- **Key responsibilities**: Address-to-propertyId resolution via search, full page scraping as fallback, stealth plugin for stable headless rendering, user-agent rotation
 
 ### FileLogger - Logging System
 - **Purpose**: Dual-output logging to both console and timestamped log files
@@ -101,7 +101,7 @@ flowchart TD
 ### API-First with Browser Fallback
 - **Context**: Early versions relied entirely on Puppeteer browser scraping, which was slow (~30s/address) and fragile
 - **Decision**: Use Redfin's internal Stingray API for data extraction, Puppeteer only for initial address resolution
-- **Rationale**: API calls are 10x faster, more reliable, and return structured JSON. Browser fallback ensures resilience when API endpoints change or get blocked
+- **Rationale**: API calls are 10x faster, more reliable, and return structured JSON. Browser fallback ensures resilience when API endpoints change or stop responding
 
 ### Parallel API Calls
 - **Context**: Multiple API endpoints needed per property (AVM + historical data)
@@ -114,6 +114,6 @@ flowchart TD
 - **Rationale**: On resume, scraper detects checkpoint, loads partial output, and continues from last completed index
 
 ### Stealth Plugin + User-Agent Rotation
-- **Context**: Redfin's anti-bot detection blocks obvious automation
+- **Context**: Headless browsers render some pages inconsistently compared to normal desktop browsers
 - **Decision**: Use `puppeteer-extra-plugin-stealth` and rotate user agents between addresses
-- **Rationale**: Stealth plugin patches common automation fingerprints. Rotating UA and randomized delays create human-like browsing patterns
+- **Rationale**: The stealth plugin makes the headless browser behave like a standard desktop browser so pages load consistently. Rotating UA and modest randomized delays keep rendering stable across a batch
