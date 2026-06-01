@@ -26,6 +26,7 @@ flowchart TD
             SP[sync-provider.js<br>WebSocket Transport]
             CRY[crypto.js<br>AES-GCM + ECDSA]
             CERT[room-cert.js<br>Epoch Certificates]
+            SNAP[snapshot-store.js<br>Per-Epoch Snapshot Cache]
         end
 
         subgraph Storage["Local Storage"]
@@ -54,7 +55,9 @@ flowchart TD
     SDS --> CERT
     PROTO --> CRY
     SDS --> SP
+    SDS --> SNAP
     SP --> CRY
+    SNAP --> LS
     YJS --> IDB
 
     SP <-->|WebSocket<br>Ciphertext / Plain| PK
@@ -142,6 +145,11 @@ sequenceDiagram
 - **Location**: `js/room-cert.js`
 - **Key responsibilities**: `mintCert` — the owner key signs a statement binding `{room, epoch, editorPub}`; `verifyCert` — checks a cert against the owner public key and returns the bound epoch/editor key or null (rejecting anything not owner-signed, malformed, or tampered, never throwing).
 
+### snapshot-store.js — Per-Epoch Snapshot Cache
+- **Purpose**: A localStorage-backed cache of the latest signed full-state snapshot, used to bootstrap a freshly joined or reconnecting peer without waiting on a live editor
+- **Location**: `js/snapshot-store.js`
+- **Key responsibilities**: Read/write a snapshot keyed by `room + epoch` (base64 in localStorage), and prune snapshots from superseded epochs on construction so rotated rooms don't accumulate stale blobs. The primary document store stays in IndexedDB; this is only a relay-bootstrap cache. `pruneOldSnapshots` is written pure over a `Storage`-like object so it's unit-testable without a browser.
+
 ### sync-provider.js — WebSocket Transport
 - **Purpose**: The PartyKit WebSocket transport that carries typed, optionally-encrypted messages and user presence
 - **Location**: `js/sync-provider.js`
@@ -160,12 +168,12 @@ sequenceDiagram
 ### crypto.js — Confidentiality + Authorization Primitives
 - **Purpose**: All Web Crypto usage — both the encryption layer and the signing layer
 - **Location**: `js/crypto.js`
-- **Key responsibilities**: AES-256-GCM authenticated encryption with PBKDF2 key derivation (100K iterations, SHA-256, room-ID salt) and random IV per message; ECDSA P-256 keypair generation, export/import (raw public, PKCS8 private), raw `signData`/`verifyData` (64-byte r‖s, never throws), and `signStatement`/`verifyStatement` over a canonical JSON serialization for certs and rotation notices.
+- **Key responsibilities**: AES-256-GCM authenticated encryption with PBKDF2 key derivation (600K iterations for new rooms, SHA-256, random per-room salt — both the count and salt are caller-supplied from the capability link, with a legacy 100K / room-ID-salt fallback for pre-hardening links) and random IV per message; ECDSA P-256 keypair generation, export/import (raw public, PKCS8 private), raw `signData`/`verifyData` (64-byte r‖s, never throws), and `signStatement`/`verifyStatement` over a canonical JSON serialization for certs and rotation notices.
 
 ### room-manager.js — Capabilities & Access Control
 - **Purpose**: Encodes and decodes the capability links that grant owner / editor / viewer access
 - **Location**: `js/room-manager.js`
-- **Key responsibilities**: Minting a fresh owner capability (owner root key + first editor key + epoch-1 cert), encoding role-scoped links (owner carries both private keys, editor carries the editor key, viewer carries no private key), strict v3 token decode that downgrades any claimed role lacking the matching key, owner-only `rotateCapability` (new epoch + editor key + cert), and shareable-link generation that never emits an owner link.
+- **Key responsibilities**: Minting a fresh owner capability (owner root key + first editor key + epoch-1 cert, plus a random per-room PBKDF2 salt and iteration count), encoding role-scoped links (owner carries both private keys, editor carries the editor key, viewer carries no private key), strict v3 token decode that downgrades any claimed role lacking the matching key and clamps the attacker-supplied `kdf` count to `[legacy, max]`, fail-closed hash parsing (`parseCapabilityHash` throws on a tampered/truncated link rather than silently dropping into open-room editor mode), owner-only `rotateCapability` (new epoch + editor key + cert), and shareable-link generation that never emits an owner link.
 
 ### undo-redo.js — History Manager
 - **Purpose**: CRDT-aware undo/redo using Y.js UndoManager
@@ -241,6 +249,12 @@ sequenceDiagram
 - **Options**: Keep `y-protocols` doc sync and try to bolt auth on around it, or replace just the document-sync layer with a thin custom protocol while keeping Y.js's CRDT core and the awareness protocol.
 - **Decision**: A small custom layer (`signed-doc-sync.js` + `protocol.js`) that exchanges signed `{epoch, update, sig}` envelopes and full-state snapshots for bootstrap; awareness still rides the standard channel.
 - **Rationale**: Owning the doc-sync envelope is what makes per-update signing, epoch tagging (replay protection), and fail-closed verification possible. Y.js still does all the conflict resolution and offline merging — only the transport framing is custom.
+
+### Strict CSP + allow-list sanitization over ad-hoc escaping (XSS)
+- **Context**: The untrusted input in a P2P whiteboard is the shared document itself — peer-supplied shape fields, names, and presence state, several of which get interpolated into `innerHTML`. Per-call escaping is easy to forget, and three modules had in fact drifted into separate `escapeHtml` copies (one missing quote-escaping).
+- **Options**: Keep hand-escaping at each sink, or layer a centralized sanitization API behind a CSP that fails safe if a sink is ever missed.
+- **Decision**: A single shared `escapeHtml` plus type-narrowing allow-list helpers (`safeColor` for `#hex` only, `safeNumber`, `safeToolName`, and `sanitizeShape` in `shape-schema.js`), behind a `script-src 'self'` CSP (no `unsafe-inline`, plus `base-uri 'none'` / `form-action 'self'`).
+- **Rationale**: The sanitizers reject anything outside the narrow set of values the app actually produces, so injected markup collapses to an inert fallback rather than executing. The CSP is the backstop — a missed sink still can't run an injected script — and dropping `'unsafe-inline'` forced the previously inline page bootstraps into real modules (`index-home.js`, `boards-home.js`).
 
 ### Multi-Page Application (MPA) over SPA
 - **Context**: The app has three distinct pages (landing, boards list, whiteboard room)

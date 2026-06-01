@@ -28,7 +28,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-27T16:03:14Z",
+      "pushed_at": "2026-06-01T09:50:09Z",
       "topics": []
     },
     "languages": [
@@ -85,7 +85,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-19T18:13:00Z",
+      "pushed_at": "2026-06-01T11:37:16Z",
       "topics": [
         "blackjack",
         "card-counting",
@@ -102,8 +102,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 1096577,
-      "JavaScript": 37144,
+      "TypeScript": 1123158,
+      "JavaScript": 39817,
       "CSS": 9467,
       "HTML": 7349
     },
@@ -165,7 +165,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-12-11T19:23:52Z",
+      "pushed_at": "2026-06-01T09:52:32Z",
       "topics": [
         "blues-brothers",
         "framer-motion",
@@ -179,8 +179,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 49595,
-      "CSS": 33925,
+      "JavaScript": 53839,
+      "CSS": 34721,
       "HTML": 2888
     },
     "primary_language": "JavaScript",
@@ -318,7 +318,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-01T01:52:48Z",
+      "pushed_at": "2026-06-01T12:13:58Z",
       "topics": [
         "csny",
         "framer-motion",
@@ -333,13 +333,20 @@
       "HTML"
     ],
     "language_bytes": {
-      "CSS": 37236,
-      "JavaScript": 26093,
-      "HTML": 2305
+      "CSS": 36776,
+      "JavaScript": 27666,
+      "HTML": 6683
     },
     "primary_language": "CSS",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/csny/preview.png"
+    ]
   },
   {
     "repo": {
@@ -388,7 +395,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:28:54Z",
+      "pushed_at": "2026-06-01T03:21:40Z",
       "topics": [
         "algorithmic-art",
         "canvas",
@@ -415,10 +422,10 @@
       "GLSL"
     ],
     "language_bytes": {
-      "TypeScript": 693918,
+      "TypeScript": 693997,
       "HTML": 9342,
       "CSS": 3812,
-      "JavaScript": 1968,
+      "JavaScript": 2402,
       "GLSL": 975
     },
     "primary_language": "TypeScript",
@@ -427,6 +434,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/differential-growth/preview.png"
     ]
   },
   {
@@ -439,7 +449,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T20:02:45Z",
+      "pushed_at": "2026-06-01T12:14:56Z",
       "topics": [
         "luxury",
         "nextjs",
@@ -455,13 +465,17 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 115650,
+      "TypeScript": 127675,
       "CSS": 2167,
       "JavaScript": 605
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -717,7 +731,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:24:27Z",
+      "pushed_at": "2026-05-31T23:56:41Z",
       "topics": [
         "ambient-music",
         "audio-visualization",
@@ -736,7 +750,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 542207,
+      "TypeScript": 555539,
       "Python": 46284,
       "JavaScript": 9237,
       "HTML": 7869
@@ -809,7 +823,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:43:21Z",
+      "pushed_at": "2026-06-01T00:01:16Z",
       "topics": []
     },
     "languages": [
@@ -817,8 +831,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 54429,
-      "HTML": 4212
+      "JavaScript": 56997,
+      "HTML": 5014
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -826,6 +840,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-archiver-worker/preview.png"
     ]
   },
   {
@@ -1253,23 +1270,23 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-06-20T21:57:05Z",
+      "pushed_at": "2026-06-01T12:14:24Z",
       "topics": []
     },
     "languages": [
       "Swift",
       "TypeScript",
-      "Shell",
       "JavaScript",
+      "Shell",
       "Kotlin",
       "Batchfile",
       "Ruby"
     ],
     "language_bytes": {
       "Swift": 391380,
-      "TypeScript": 326661,
+      "TypeScript": 333426,
+      "JavaScript": 10596,
       "Shell": 8801,
-      "JavaScript": 2857,
       "Kotlin": 2340,
       "Batchfile": 2068,
       "Ruby": 1618
@@ -1288,7 +1305,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:29:05Z",
+      "pushed_at": "2026-06-01T08:30:39Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1314,7 +1331,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 621318,
+      "TypeScript": 675899,
       "JavaScript": 16805,
       "HTML": 11747,
       "CSS": 3095
@@ -1343,7 +1360,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:06Z",
+      "pushed_at": "2026-06-01T09:05:19Z",
       "topics": [
         "budget-tracker",
         "indexeddb",
@@ -1361,7 +1378,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 532690,
+      "JavaScript": 591770,
       "CSS": 155803,
       "HTML": 8492
     },
@@ -1491,7 +1508,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:11:56Z",
+      "pushed_at": "2026-06-01T11:30:08Z",
       "topics": []
     },
     "languages": [
@@ -1501,7 +1518,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 259206,
+      "TypeScript": 313040,
       "HTML": 30333,
       "CSS": 7409,
       "JavaScript": 559
@@ -1716,7 +1733,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:13:06Z",
+      "pushed_at": "2026-06-01T09:19:51Z",
       "topics": [
         "electron",
         "nodejs",
@@ -1730,8 +1747,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 98897,
-      "HTML": 26909
+      "JavaScript": 277439,
+      "HTML": 35576
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1754,7 +1771,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:32:42Z",
+      "pushed_at": "2026-06-01T11:05:52Z",
       "topics": [
         "cron",
         "free-tier",
@@ -1871,7 +1888,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:53Z",
+      "pushed_at": "2026-06-01T09:22:01Z",
       "topics": [
         "ai",
         "local-l",
@@ -1892,9 +1909,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 715708,
+      "TypeScript": 747959,
       "CSS": 222073,
-      "JavaScript": 209988,
+      "JavaScript": 208354,
       "HTML": 9317
     },
     "primary_language": "TypeScript",
@@ -2120,15 +2137,17 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:24:46Z",
+      "pushed_at": "2026-06-01T09:12:27Z",
       "topics": []
     },
     "languages": [
       "Swift",
+      "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 290504,
+      "Swift": 283011,
+      "JavaScript": 9669,
       "HTML": 9127
     },
     "primary_language": "Swift",
@@ -2181,7 +2200,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T09:58:56Z",
+      "pushed_at": "2026-06-01T10:52:42Z",
       "topics": []
     },
     "languages": [
@@ -2248,7 +2267,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:48:30Z",
+      "pushed_at": "2026-06-01T08:56:05Z",
       "topics": []
     },
     "languages": [
@@ -2259,9 +2278,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 727262,
-      "CSS": 310641,
-      "Astro": 55022,
+      "TypeScript": 769059,
+      "CSS": 311028,
+      "Astro": 55133,
       "JavaScript": 43086,
       "HTML": 11507
     },
@@ -2302,12 +2321,25 @@
       "full_name": "Technical-1/Video-To-Ascii",
       "html_url": "https://github.com/Technical-1/Video-To-Ascii",
       "homepage": "https://video-ascii-converter.vercel.app",
-      "description": null,
+      "description": "Real-time, browser-based video → ASCII art converter. Vanilla JS + Vite, fully client-side — 6 charsets, 4 color modes, GIF/PNG/HTML/TXT export.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:11:39Z",
-      "topics": []
+      "pushed_at": "2026-06-01T12:16:13Z",
+      "topics": [
+        "ascii",
+        "ascii-art",
+        "canvas",
+        "client-side",
+        "frontend",
+        "gif",
+        "javascript",
+        "vanilla-javascript",
+        "video",
+        "video-converter",
+        "vite",
+        "web-workers"
+      ]
     },
     "languages": [
       "JavaScript",
@@ -2315,7 +2347,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 86320,
+      "JavaScript": 100919,
       "HTML": 11835,
       "CSS": 10893
     },
@@ -2465,7 +2497,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T07:34:58Z",
+      "pushed_at": "2026-05-31T09:39:18Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2588,6 +2620,57 @@
   },
   {
     "repo": {
+      "name": "Cplories-and-More",
+      "full_name": "Technical-1/Cplories-and-More",
+      "html_url": "https://github.com/Technical-1/Cplories-and-More",
+      "homepage": null,
+      "description": "CLI meal planner over the USDA Nutrient Database, powered by an ordered map (BST) and unordered map (hash table) implemented from scratch in C++ and benchmarked head-to-head. COP3530 DSA project.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-06-01T08:53:09Z",
+      "topics": [
+        "algorithms",
+        "benchmark",
+        "binary-search-tree",
+        "cli",
+        "cmake",
+        "cpp",
+        "data-structures",
+        "hash-map",
+        "hash-table",
+        "meal-planning",
+        "nutrition",
+        "usda"
+      ]
+    },
+    "languages": [
+      "Makefile",
+      "C++",
+      "C",
+      "CMake",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Makefile": 64866,
+      "C++": 55382,
+      "C": 24939,
+      "CMake": 12404,
+      "HTML": 9310
+    },
+    "primary_language": "Makefile",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/cplories-and-more/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "Crypto-Price-Tracker",
       "full_name": "Technical-1/Crypto-Price-Tracker",
       "html_url": "https://github.com/Technical-1/Crypto-Price-Tracker",
@@ -2657,17 +2740,45 @@
       "description": "Multithreaded python eBay view bot. Can generate as many views as the user wants to hopefully \"naturally\" generate interest and move the item up in the search results.",
       "private": false,
       "fork": false,
-      "archived": false,
-      "pushed_at": "2022-05-24T22:46:52Z",
+      "archived": true,
+      "pushed_at": "2026-06-01T09:20:15Z",
       "topics": []
     },
     "languages": [
+      "HTML",
       "Python"
     ],
     "language_bytes": {
+      "HTML": 5559,
       "Python": 747
     },
-    "primary_language": "Python",
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ebayviews/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "EbayViews-Desktop",
+      "full_name": "Technical-1/EbayViews-Desktop",
+      "html_url": "https://github.com/Technical-1/EbayViews-Desktop",
+      "homepage": null,
+      "description": null,
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-01T09:57:07Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -2876,7 +2987,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:30:07Z",
+      "pushed_at": "2026-06-01T01:21:21Z",
       "topics": [
         "archive",
         "backup",
@@ -2892,9 +3003,9 @@
       "Shell"
     ],
     "language_bytes": {
-      "JavaScript": 116717,
+      "JavaScript": 69405,
       "CSS": 42266,
-      "HTML": 39520,
+      "HTML": 39630,
       "Shell": 11212
     },
     "primary_language": "JavaScript",
@@ -2918,26 +3029,35 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-11-21T17:50:17Z",
+      "pushed_at": "2026-06-01T12:00:50Z",
       "topics": []
     },
     "languages": [
-      "CSS",
-      "Python",
       "HTML",
+      "Python",
+      "CSS",
       "JavaScript",
+      "Dockerfile",
       "Procfile"
     ],
     "language_bytes": {
+      "HTML": 12326,
+      "Python": 8092,
       "CSS": 7830,
-      "Python": 6909,
-      "HTML": 6328,
-      "JavaScript": 5919,
-      "Procfile": 20
+      "JavaScript": 6144,
+      "Dockerfile": 568,
+      "Procfile": 55
     },
-    "primary_language": "CSS",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/image-to-ascii-flask/preview.png"
+    ]
   },
   {
     "repo": {
@@ -2971,6 +3091,38 @@
     ],
     "screenshots": [
       "/screenshots/image-to-ascii-vite/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "img2ascii",
+      "full_name": "Technical-1/img2ascii",
+      "html_url": "https://github.com/Technical-1/img2ascii",
+      "homepage": null,
+      "description": "Standalone command-line tool to convert images to ASCII art",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-01T11:43:47Z",
+      "topics": []
+    },
+    "languages": [
+      "HTML",
+      "Python"
+    ],
+    "language_bytes": {
+      "HTML": 5228,
+      "Python": 4232
+    },
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/img2ascii/preview.png"
     ]
   },
   {
@@ -3078,7 +3230,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:27:16Z",
+      "pushed_at": "2026-06-01T04:18:04Z",
       "topics": [
         "frame-creator",
         "led",
@@ -3089,13 +3241,13 @@
     },
     "languages": [
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 87637,
-      "CSS": 30754,
-      "HTML": 29920
+      "JavaScript": 117255,
+      "HTML": 36313,
+      "CSS": 35117
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -3196,7 +3348,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T08:26:02Z",
+      "pushed_at": "2026-06-01T01:12:53Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -3212,14 +3364,14 @@
     },
     "languages": [
       "JavaScript",
-      "HTML",
       "CSS",
+      "HTML",
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 219277,
-      "HTML": 51097,
-      "CSS": 48384,
+      "JavaScript": 262863,
+      "CSS": 54821,
+      "HTML": 30208,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
@@ -3467,23 +3619,89 @@
       "name": "Shopify-ATC",
       "full_name": "Technical-1/Shopify-ATC",
       "html_url": "https://github.com/Technical-1/Shopify-ATC",
-      "homepage": "",
-      "description": "Shopify Add To Cart link generator. Grabs 250 products from the given Shopify site and prints out each one with its respective link if that item is still in stock.",
+      "homepage": "https://pypi.org/project/shopify-atc/",
+      "description": "Command-line tool that turns any Shopify storefront's public products.json into direct add-to-cart permalinks (text/JSON/CSV).",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-31T12:26:23Z",
-      "topics": []
+      "pushed_at": "2026-06-01T08:33:29Z",
+      "topics": [
+        "add-to-cart",
+        "argparse",
+        "cli",
+        "command-line-tool",
+        "ecommerce",
+        "permalink",
+        "products-json",
+        "pypi",
+        "python",
+        "requests",
+        "scraper",
+        "shopify"
+      ]
     },
     "languages": [
-      "Python"
+      "Python",
+      "HTML"
     ],
     "language_bytes": {
-      "Python": 961
+      "Python": 20688,
+      "HTML": 4963
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shopify-atc/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "shopify-atc-gui",
+      "full_name": "Technical-1/shopify-atc-gui",
+      "html_url": "https://github.com/Technical-1/shopify-atc-gui",
+      "homepage": "https://shopify-atc-gui.vercel.app",
+      "description": "Filterable web GUI for building Shopify add-to-cart links (Next.js, Vercel).",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-01T08:54:14Z",
+      "topics": [
+        "add-to-cart",
+        "ecommerce",
+        "nextjs",
+        "react",
+        "shopify",
+        "typescript",
+        "vercel"
+      ]
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 65449,
+      "CSS": 28689,
+      "HTML": 4948,
+      "JavaScript": 465
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shopify-atc-gui/preview.png"
+    ]
   },
   {
     "repo": {
@@ -3651,7 +3869,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T07:48:49Z",
+      "pushed_at": "2026-06-01T09:31:10Z",
       "topics": []
     },
     "languages": [

@@ -39,8 +39,8 @@ Builds for macOS (DMG), Windows (NSIS/Portable), and Linux (AppImage/DEB) via Gi
 ### API-First Pipeline in `scraper-v4.js`
 The scraper runs a 3-step pipeline for each address: Puppeteer resolves the address to a `propertyId` (the only step that truly needs a browser), two parallel HTTPS requests fetch valuation and historical JSON, and Puppeteer only runs full-page scraping if the API returned no estimate. `Promise.all` runs the AVM and historical-data fetches concurrently, which is the single biggest win in throughput.
 
-### Anti-Bot Evasion Layers
-Redfin actively blocks obvious automation. `PuppeteerScraper` in `scraper-v4.js` combines `puppeteer-extra-plugin-stealth` (patches the WebDriver flag and other automation fingerprints), an 8-string user-agent rotation, randomized per-character typing speed, jittered navigation delays, and slight random offsets on viewport dimensions. Exponential backoff handles transient 403 blocks.
+### Browser Reliability Layers
+Automated browsers behave differently from real ones, which makes page loads flaky. `PuppeteerScraper` in `scraper-v4.js` uses `puppeteer-extra-plugin-stealth` to make the headless browser behave like a normal desktop browser, plus user-agent rotation, modest randomized typing/navigation timing, and small viewport variation to keep page rendering consistent. Exponential backoff retries transient request failures.
 
 ### Resilient Selector Fallbacks
 Redfin's DOM varies by property type, listing status, and the day of the week. Rather than chasing every redesign, the browser-fallback path keeps an ordered array of selectors for each field (e.g., six different selectors for beds) and a `trySelectors` helper that returns the first match. This isolates DOM churn to one small file change.
@@ -52,7 +52,7 @@ Redfin's internal endpoints prefix every response with `{}&&` — a JSONP-style 
 
 ### API-first over pure browser scraping
 - **Constraint**: Pure Puppeteer scraping was ~30s/address and broke on every Redfin layout tweak
-- **Options**: Stick with browser scraping and harden selectors, find a third-party real-estate API, or reverse-engineer Redfin's own internal API
+- **Options**: Stick with browser scraping and harden selectors, find a third-party real-estate API, or use the same public JSON endpoints the Redfin website itself calls
 - **Choice**: Use Redfin's internal Stingray API for data, keep Puppeteer only for address-to-propertyId resolution
 - **Why**: 10x faster, returns structured JSON instead of scraped DOM, and the API surface changes less often than the visible HTML. Browser fallback covers the case where the API does change
 
@@ -85,8 +85,8 @@ The first address pays the Puppeteer cold-start cost — launching headless Chro
 ### Can I run this on a server or in CI?
 Technically yes, but it's not the design target. The app expects a desktop user to drop a CSV onto the window. For headless use you'd need to invoke `scraper-v4.js` directly from Node with the input path, and bypass the Electron GUI layer.
 
-### What happens if Redfin blocks my IP?
-The scraper detects 403 responses and applies exponential backoff with jitter before retrying. If blocks persist across retries, the row is marked as failed in the output CSV and the job continues. Stealth fingerprinting and user-agent rotation reduce but don't eliminate the chance of a block on long runs.
+### What happens if a request fails or is rate-limited?
+The scraper detects 403 responses and applies exponential backoff with jitter before retrying. If failures persist across retries, the row is marked as failed in the output CSV and the job continues. Requests are paced conservatively to stay well within reasonable usage.
 
 ### How do I know which rows came from the API vs. the browser fallback?
 The output CSV includes a "Data Source" column showing `api` or `browser` per row. This is useful when auditing accuracy — API responses are structured and consistent, while browser-scraped rows are subject to selector quirks.
@@ -95,7 +95,7 @@ The output CSV includes a "Data Source" column showing `api` or `browser` per ro
 Yes. The macOS build is a universal DMG covering both x64 and arm64. The bundled Chromium binary is downloaded for the host architecture by the `download-chrome` prebuild script.
 
 ### What's the Stingray API and is it documented?
-Stingray is Redfin's internal data service that powers their own website. It is not publicly documented — the endpoints used here (`/stingray/api/home/details/avm`, `avmHistoricalData`, `propertyParcelInfo`) were identified by inspecting network traffic from `redfin.com`. They can change without notice, which is exactly why the browser fallback exists.
+Stingray is the data service that powers Redfin's own website. The endpoints used here (`/stingray/api/home/details/avm`, `avmHistoricalData`, `propertyParcelInfo`) are the same public JSON endpoints the site's pages load in a normal browser. They are not a stable published API and can change without notice, which is exactly why the browser fallback exists.
 
 ### Why does the macOS build show a security warning?
-Unless the app is signed and notarized with an Apple Developer ID, macOS Gatekeeper warns on first launch. The repo includes `docs/CODE_SIGNING.md` with instructions for signing and notarizing your own build. Pre-built releases are unsigned by default.
+Unless the app is signed and notarized with an Apple Developer ID, macOS Gatekeeper warns on first launch. The release workflow signs and notarizes automatically when Apple Developer credentials are configured as GitHub Actions secrets; otherwise builds are produced unsigned. Pre-built releases are unsigned by default.

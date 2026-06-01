@@ -10,7 +10,7 @@ Flux is a generative art and ambient sound studio built with React Native and Ex
 - **Dual Audio Engine**: Web gets full procedural synthesis (white/pink/brown noise, FM oscillators, binaural beats, solfeggio frequencies) via Web Audio API; native gets high-quality file playback via expo-audio with background audio support
 - **Bottom-Sheet UI Architecture**: All controls live in peek/expanded bottom sheets on mobile, with a smooth cross-fade transition system — the visualization stays visible at all times
 - **Custom Sound Import**: Users can upload their own audio files with a full trim interface, duration validation, and automatic integration into the sound library
-- **30+ Built-in Sounds**: Nature recordings, noise generators, tonal drones, and ambient textures sourced from Freesound.org and BBC Sound Effects
+- **34 Built-in Sound Layers**: Nature recordings, noise generators, tonal drones, and ambient textures across four categories (nature, noise, tonal, ambient) — 24 backed by CC-licensed MP3s from Freesound.org and BBC Sound Effects, plus 10 web-synthesized layers (white/pink/brown noise and tonal drones including binaural beats and solfeggio frequencies)
 - **Real-Time Amplitude Analysis**: FFT-based on web (AnalyserNode), category-estimated on native — both feed the same visual reactivity pipeline
 
 ## Technical Highlights
@@ -24,8 +24,11 @@ The particle visualization uses golden angle distribution (`π × (3 - √5)`) f
 ### Sheet Transition System
 I built a custom `SheetContentWrapper` component that renders both peek and expanded content simultaneously as overlapping layers, using Reanimated's `useSharedValue` interpolation on the sheet's `animatedIndex`. This avoids the flash/pop artifacts you get from conditional rendering when a sheet crosses snap points. The cross-fade midpoint is calculated dynamically from the sheet's snap point positions.
 
-### SVG Thumbnail Consistency
-Saved creations include a static SVG thumbnail generated with the exact same Fibonacci distribution algorithm as the live visualization. The same math runs in three places (live render, thumbnail generator, card preview), ensuring what users see in their gallery matches what they created.
+### SVG Thumbnail Consistency from a Shared Module
+Saved creations include a static SVG thumbnail generated with the exact same Fibonacci distribution as the live visualization. Rather than copy the algorithm into each consumer, the golden-angle math lives in one module (`lib/fibonacciSphere.ts`) imported by the live render, the thumbnail generator, and the gallery card preview — so a thumbnail can never drift from what the user actually created. Centralizing it also made the math unit-testable, including the `numPoints = 1` edge case where the distribution denominator has to be clamped to keep the points finite.
+
+### Pure-Function Core, Testable Without a Renderer
+The correctness-critical logic — audio gain mixing, FFT band normalization, soundscape layer resolution, custom-sound persistence, preview-playback state, and reactive-background color derivation — is extracted into dependency-free modules under `lib/` (`audioEngine.ts`, `customSoundsStore.ts`, `soundscapeColors.ts`, `soundscapeSelection.ts`, `previewPlayback.ts`, `fibonacciSphere.ts`). Each has a matching Jest suite in `__tests__/lib/`. Because these functions take inputs and return outputs with no hooks or platform APIs, the bulk of the app's logic can be verified deterministically and fast, leaving the React components thin and focused on rendering.
 
 ## Engineering Decisions
 
@@ -33,7 +36,7 @@ Saved creations include a static SVG thumbnail generated with the exact same Fib
 - **Constraint**: Particles needed to render consistently across iOS, Android, and web — including older Android devices and varied web browsers — at 60fps
 - **Options**: `@react-three/fiber` + Three.js for WebGL rendering, raw Skia via `@shopify/react-native-skia`, or React Native SVG
 - **Choice**: React Native SVG with Reanimated driving rotation on the UI thread
-- **Why**: WebGL had inconsistent GL context behavior across the target platforms during prototyping. SVG renders identically everywhere, the bundle stays smaller, and ~1200 particles still hit 60fps — well above the visual budget. The ceiling is lower than WebGL could reach, but the visual quality inside that range is strong enough that the simpler renderer wins.
+- **Why**: WebGL had inconsistent GL context behavior across the target platforms during prototyping. SVG renders identically everywhere, the bundle stays smaller, and ~1200 particles still hit 60fps — well above the visual budget. The ceiling is lower than WebGL could reach, but the visual quality inside that range is strong enough that the simpler renderer wins. The Three.js prototype dependencies were since removed entirely from the project.
 
 ### Amplitude simulation on native instead of a native FFT module
 - **Constraint**: The native audio stack (`expo-audio`) exposes file playback but no real-time frequency analysis, while the visualization needs bass/mid/treble values to drive reactivity
@@ -78,3 +81,6 @@ All app data is stored in AsyncStorage with a `flux_` key prefix. Export collect
 
 ### What are the Python scripts for?
 The `scripts/` directory contains Python tools for processing audio assets: analyzing duration/format, trimming long files (>5 min to 2 min with fade), and creating seamless loops via crossfade. They use ffmpeg/ffprobe (no Python audio libraries) and auto-backup originals before modifying. These are development-time tools, not part of the app runtime.
+
+### How is an audiovisual app like this tested?
+The decision logic is deliberately separated from rendering. Audio gain math, FFT band normalization, soundscape layer resolution, custom-sound storage rules, preview-playback state, and Fibonacci point generation all live in pure modules under `lib/`, each with a matching Jest suite in `__tests__/lib/`. That makes the parts most likely to break — a divide-by-zero when master volume is 0, a thumbnail that no longer matches the live sphere, a custom sound that fails to persist — verifiable without spinning up a renderer or mocking platform audio APIs. Component tests cover `ParticleSphere` and `AudioReactiveBackground` on top of that.

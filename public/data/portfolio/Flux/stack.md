@@ -38,7 +38,7 @@
 
 - **Web Hosting**: Vercel (static export)
 - **Native Builds**: EAS Build (development, preview, production profiles)
-- **Audio Assets**: Git LFS (26 audio files, WAV/FLAC/MP3)
+- **Audio Assets**: Git LFS (24 MP3 files, CC-licensed)
 - **Deep Linking**: Custom URL scheme (`flux://`)
 
 ## Development Tools
@@ -48,7 +48,7 @@
 - **Transpiler**: Babel with `babel-preset-expo` + `react-native-reanimated/plugin`
 - **Linting**: ESLint (flat config, extends `eslint-config-expo`)
 - **Type Checking**: TypeScript 5.9.3 (strict mode, path aliases `@/*`)
-- **Testing**: Jest 29 + jest-expo + @testing-library/react-native
+- **Testing**: Jest 29 + jest-expo + @testing-library/react-native — the correctness-critical logic lives in dependency-free modules under `lib/`, each with a matching test in `__tests__/lib/` (audio gain math, FFT band normalization, soundscape resolution, custom-sound storage, Fibonacci point generation)
 - **Audio Processing**: Python 3 scripts using ffmpeg/ffprobe (analysis, trimming, loop creation)
 
 ## Key Dependencies
@@ -66,12 +66,4 @@
 | `expo-file-system` | Local file management for custom sounds |
 | `expo-sharing` | Data export sharing |
 
-## Unused Dependencies (Candidates for Removal)
-
-| Package | Notes |
-|---------|-------|
-| `@react-three/fiber` | Three.js React renderer — from earlier 3D prototype, replaced by SVG approach |
-| `@react-three/drei` | Three.js helpers — unused alongside fiber |
-| `three` | Three.js core — unused |
-| `expo-gl` | OpenGL ES context — unused after Three.js removal |
-| `expo-gl-cpp` | Native GL bindings — unused |
+The visualization was originally prototyped on Three.js (`three`, `@react-three/fiber`, `@react-three/drei`, `expo-gl`). Those dependencies were removed once the SVG + Reanimated renderer proved sufficient across all three platforms, keeping the dependency tree lean.

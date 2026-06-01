@@ -13,14 +13,20 @@ performance so that long videos don't degrade the experience.
 
 - **Real-time conversion** of MP4/WebM/OGG/MOV/AVI/MKV with adaptive frame
   rate that throttles on slow devices.
-- **Five character sets** (standard, blocks, binary, dots, custom) and
-  **four color modes** (grayscale, ANSI xterm 256-cube, RGB, full-RGB).
+- **Six character sets** (standard, detailed ~70-level ramp, blocks, binary,
+  dots, custom) and **four color modes** (grayscale, ANSI xterm 256-cube, RGB,
+  full-RGB).
+- **Flexible resolution**: fixed grid presets, `% of max` presets, or manual
+  sliders, with an optional **aspect-ratio lock** that derives height from the
+  source video so output is never stretched.
 - **Sobel edge detection** plus brightness / contrast / invert controls.
 - **Playback controls**: play/pause/stop, ±5s skip, seek, volume, mute, and
   0.5× / 1× / 2× speed.
+- **Per-frame export**: copy the current frame's text to the clipboard,
+  download it as a `.txt`, or save a PNG screenshot (per-cell colors honored).
 - **Recording with a hard 1,800-frame cap** to keep memory bounded, plus
-  exports as JSON, a self-contained HTML player, animated GIF (sampled +
-  progress UI), and PNG screenshot (per-cell colors honored).
+  recording exports as JSON, a self-contained HTML player, and animated GIF
+  (sampled + progress UI).
 - **Settings persisted** in `localStorage`.
 
 ## Technical Highlights
@@ -137,6 +143,31 @@ samples to ≤120 frames before encoding, keeping export time tractable.
 and emits an inline `rgb()` CSS color on the span. Because it's a real CSS
 color (not a class name), it renders in the browser, exports correctly to
 PNG/GIF, and survives copy/paste of the HTML.
+
+### What is the "Detailed" charset for?
+The standard ramp is 10 characters (` .:-=+*#%@`); the detailed ramp is roughly
+70 (` .'^:;!i><~+...@$`), ordered dark→light. More characters mean finer tonal
+gradation, so gradients and soft shading read more smoothly — at the cost of a
+busier image that can look noisy on low-resolution grids. It's the best choice
+when the output grid is large and the source has subtle lighting.
+
+### How does aspect-ratio lock keep the output from stretching?
+ASCII cells aren't square — a monospace glyph is taller than it is wide — and a
+video can be any aspect ratio, so a naive `width × height` grid distorts the
+image. When the lock is on, the app remembers the loaded video's
+`width / height` and derives one grid dimension from the other
+(`heightForWidth` / `widthForHeight`), clamped to 20–200. The `% of max`
+presets do the same: they pick a width as a fraction of 200 and compute height
+from the real aspect, so 50% of a portrait clip and 50% of a landscape clip
+both stay proportioned.
+
+### Can I grab a single frame without recording?
+Yes. The playback bar has copy, `.txt`, and screenshot buttons that act on the
+current frame independent of the recording buffer. Copy writes the frame's
+plain text to the clipboard (with a `document.execCommand` fallback for
+insecure contexts), `.txt` downloads that same text, and the screenshot
+rasterizes it to PNG honoring per-cell colors. None of them require pressing
+record first.
 
 ### Why was the Share feature removed?
 The deployed Vercel project couldn't provision another free-tier Upstash

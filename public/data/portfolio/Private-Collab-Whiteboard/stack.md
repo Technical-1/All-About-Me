@@ -10,7 +10,7 @@
 | Sync Engine | Y.js | ^13.6.0 | CRDT library for conflict-free real-time collaboration |
 | Real-time | PartyKit | ^0.0.115 | WebSocket server for message relay |
 | Build Tool | Vite | ^5.0.0 | Fast dev server and production bundler |
-| Tests | Vitest | ^2.1.0 | Unit tests for crypto, protocol, sync, and link logic |
+| Tests | Vitest | ^2.1.0 | ~100 unit tests over crypto, KDF, protocol, sync, snapshot, and link logic |
 
 ## Frontend
 
@@ -33,7 +33,7 @@
 - **Hosting**: Vercel (static site) + PartyKit (WebSocket relay)
 - **CI/CD**: GitHub Actions — every PR/push to `main` runs Vitest + the Vite build; the PartyKit relay deploys on push to `main`, path-filtered to server changes and gated behind that same job. The Vercel frontend auto-deploys from Git.
 - **URL Routing**: Vercel rewrites (`/room/:id` → `room.html`)
-- **Security headers**: Content-Security-Policy and related headers set in `vercel.json` (Google Fonts allow-listed)
+- **Security headers**: strict Content-Security-Policy in `vercel.json` — `script-src 'self'` only (no `unsafe-inline`; all page scripts are real ES modules), `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`, plus HSTS, `Referrer-Policy: no-referrer`, and a locked-down `Permissions-Policy`. Google Fonts is the only cross-origin allow-list.
 - **Caching**: Immutable caching for JS bundles, must-revalidate for HTML
 
 ## Development Tools
@@ -41,7 +41,7 @@
 - **Package Manager**: npm
 - **Bundler**: Vite (Rollup-based production builds)
 - **Dev Server**: Vite dev server with custom middleware for room routing
-- **Testing**: Vitest (`npm test`) — 40+ unit tests over the crypto, certificate, protocol, signed-sync, and capability-link modules
+- **Testing**: Vitest (`npm test`) — ~100 unit tests across the crypto, key-derivation, certificate, protocol, signed-sync, snapshot-store, color/shape sanitization, and capability-link modules
 - **Image Generation**: Sharp (for favicon/icon generation via `scripts/generate-icons.js`)
 - **Concurrent Dev**: concurrently (run Vite + PartyKit dev servers together)
 
@@ -65,9 +65,9 @@
 
 | Component | Technology | Configuration |
 |-----------|-----------|---------------|
-| Key Derivation | PBKDF2 | 100,000 iterations, SHA-256 |
+| Key Derivation | PBKDF2 | 600,000 iterations (SHA-256) for new rooms; the count travels in the capability link's `kdf` field, clamped to `[100k legacy, 5M]` on decode so a tampered link can't downgrade below the legacy floor or pin a victim to a multi-second derivation. Pre-hardening links fall back to 100,000. |
 | Encryption (confidentiality) | AES-256-GCM | Authenticated encryption with 12-byte random IV |
-| Salt | Room ID | Room-specific keys (same password = different keys per room) |
+| Salt | Random per-room, carried in link | 16 random bytes minted per room and embedded in the capability link, so the same password no longer maps to a precomputable key (the room ID alone is public). Pre-salt links fall back to the legacy `whiteboard-{roomId}` salt. |
 | Signing (authorization) | ECDSA P-256 / SHA-256 | Raw r‖s (64-byte) signatures over `epoch ‖ update`; chosen over Ed25519 for universal Web Crypto support |
 | Owner certificates | ECDSA P-256 over canonical JSON | Owner key signs `{room, epoch, editorPub}` to vouch for each epoch's editor key |
 | API | Web Crypto API | Hardware-accelerated, browser-native; non-extractable verify keys |

@@ -14,7 +14,7 @@ I deliberately chose not to use any frontend framework (React, Vue, Angular, etc
 
 1. **Zero Build Complexity**: No webpack, no Babel, no npm scripts. Users can fork the repo and immediately start modifying.
 
-2. **Instant Deployment**: The entire application is three files. Drop them on any web server or use GitHub Pages.
+2. **Instant Deployment**: The entire application is a handful of static files (two HTML pages, one stylesheet, two scripts). Drop them on any web server or use GitHub Pages.
 
 3. **Appropriate Scope**: This is a focused, single-purpose tool. A framework would add overhead without proportional benefit.
 
@@ -63,9 +63,23 @@ Each pixel stores its own color, enabling multi-color designs within a single fr
 2. GitHub Pages automatically deploys
 3. No CI/CD pipeline needed (no build step)
 
+## Architecture: Pure-Logic Library + DOM Layer
+
+The non-trivial logic is split out of the UI into `lib.js`, a **DOM-free** module: coordinate geometry, import validation/clamping, GIF palette and LZW encoding, megaframe layout, GIF export sizing, the pixel-preserving reorient/resize transforms, and the first-visit landing-page redirect decision (`shouldRedirectHome`). It attaches to `window` in the browser and is `require()`-d directly by the Node test suite. The DOM/UI glue lives in `script.js`. This split is what makes a zero-build, browser-only app genuinely testable.
+
+## Testing
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| `node:test` | Node 18+ built-in | Test runner (`npm test`), zero extra runtime deps |
+| `jsdom` | ^29.1.1 (dev) | Headless DOM for integration tests of real handlers |
+| `canvas` | ^3.2.1 (dev) | Backs the Canvas 2D API in GIF render tests + asset gen |
+
+The suite is **82 tests across 14 files**: pure-logic units (geometry round-trips, palette overflow past 256 colors, malformed-autosave clamping, out-of-bounds import trimming, reorient/resize, first-visit redirect rule) plus jsdom integration tests that drive the actual DOM event handlers.
+
 ## Key Dependencies
 
-**Zero runtime dependencies** — The application itself has no external dependencies. The only dev dependency is `canvas` (v3.2.1) used by `generate-pngs.js` for server-side PNG asset generation (favicons, OG images).
+**Zero runtime dependencies** — The shipped application has no external dependencies. The only dev dependencies are `jsdom` (^29.1.1) and `canvas` (^3.2.1): `jsdom` powers the DOM integration tests, and `canvas` backs the Canvas API in tests and `generate-pngs.js` server-side PNG asset generation (favicons, OG images).
 
 ### Why Zero Runtime Dependencies?
 
@@ -82,7 +96,7 @@ Each pixel stores its own color, enabling multi-color designs within a single fr
 | Lodash | Native array methods (`map`, `filter`, `forEach`) |
 | FileSaver.js | Native Blob API with `URL.createObjectURL` |
 | Clipboard.js | Native `navigator.clipboard.writeText` |
-| gif.js / gifenc | Custom `GifEncoder` class with LZW compression (~190 lines) |
+| gif.js / gifenc | Custom `GifEncoder` (`script.js`) + palette/LZW encoding in `lib.js`, capped at 256 colors |
 
 ## Browser Compatibility
 
@@ -107,8 +121,9 @@ I did not include polyfills for older browsers. The target audience (engineering
 | Tool | Purpose |
 |------|---------|
 | Any text editor | Code editing (VS Code recommended) |
-| Any modern browser | Testing and debugging |
+| Any modern browser | Manual testing and debugging |
+| Node.js + `npm test` | Running the automated `node:test` suite (dev only) |
 | Git | Version control |
 | GitHub | Repository hosting and deployment |
 
-No special tooling required. This intentional simplicity means anyone can contribute without environment setup friction.
+Editing the app itself needs no toolchain — open `app.html` (the editor) or `index.html` (the landing page) and refresh. Node is only required to run the test suite (`npm install` once for the `jsdom`/`canvas` dev dependencies, then `npm test`), so contributors can iterate on the UI without any setup friction.
