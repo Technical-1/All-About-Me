@@ -26,16 +26,16 @@
 
 ## Infrastructure
 
-- **Hosting**: Render (Docker web service)
-- **Containerization**: Docker on `python:3.12-slim` with `libcairo2` installed
-- **CI/CD**: Render auto-deploy on push
+- **Hosting**: Render (Python web service)
+- **Build**: `pip install -r requirements.txt`; Python 3.12 pinned via `runtime.txt`
+- **CI/CD**: GitHub Actions (`deploy.yml`) triggers a Render Deploy Hook on every push to `main`
 - **Monitoring**: None (server-side exception logging via Flask's logger)
 
 ## Development Tools
 
 - **Package Manager**: pip (`requirements.txt`)
 - **Testing**: None — small enough to verify by hand
-- **Process model**: gunicorn with 2 workers (`Procfile` / Docker `CMD`)
+- **Process model**: gunicorn with 2 workers (start command in `render.yaml`, mirrored in `Procfile`)
 
 ## Key Dependencies
 

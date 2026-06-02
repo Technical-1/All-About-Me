@@ -19,7 +19,7 @@ People want to turn an image into ASCII art without installing anything. A hoste
 Changing the width/height sliders or character set re-runs the conversion automatically, debounced in `script.js` so rapid slider drags don't flood the server with requests.
 
 ### Multiple character sets plus custom ramps
-Presets (standard, extended, simple, blocks, detailed) cover different detail/contrast trade-offs, and a custom field lets users supply any ramp.
+Presets (standard, extended, simple, blocks, detailed) cover different detail/contrast trade-offs. They're checkboxes rather than a single choice, so selecting several concatenates their characters into one richer ramp, and a custom field overrides everything when filled in.
 
 ### Broad format support including SVG
 PNG, JPG, GIF, BMP, and WEBP are decoded directly by Pillow; SVG uploads are rasterized to PNG by cairosvg first, so vector art works too.
@@ -49,11 +49,11 @@ Because the image is resized to the requested grid with LANCZOS, an unbounded di
 - **Choice**: Server-side conversion with Pillow + cairosvg.
 - **Why**: Native SVG rasterization and consistent Pillow output are easier server-side; the browser only has to POST a file and render text. (A separate client-side build exists for the offline/zero-latency use case.)
 
-### Docker on Render instead of the default buildpack
-- **Constraint**: cairosvg needs `libcairo2`, which the stock Python buildpack lacks — SVG conversion failed in production.
-- **Options**: Hope the platform base image ships cairo, or pin it ourselves.
-- **Choice**: A Dockerfile that installs `libcairo2`, wired up via `render.yaml`.
-- **Why**: Pinning the system dependency in the image is the only reliable fix; it makes the production environment reproducible.
+### gunicorn over the Flask dev server in production
+- **Constraint**: Flask's built-in `app.run()` server is single-threaded and not meant for production traffic.
+- **Options**: Ship the dev server, or run a real WSGI server.
+- **Choice**: gunicorn with 2 workers, set as the Render start command (and mirrored in `Procfile`).
+- **Why**: Handles concurrent requests properly and is production-grade, while a low worker count keeps it within a small free-tier instance.
 
 ### No upload directory
 - **Constraint**: Uploaded files are only needed transiently.
@@ -70,10 +70,16 @@ The server converts the image to grayscale, resizes it to the requested characte
 The front-end debounces slider and character-set changes and re-POSTs to `/convert`, so the ASCII refreshes shortly after you stop adjusting without a manual "convert" click.
 
 ### How are SVG files handled?
-SVGs can't be decoded by Pillow directly, so cairosvg rasterizes them to PNG bytes in memory first; the rest of the pipeline is identical to raster uploads. This is why the production image installs `libcairo2`.
+SVGs can't be decoded by Pillow directly, so cairosvg rasterizes them to PNG bytes in memory first; the rest of the pipeline is identical to raster uploads. The `import cairosvg` is done lazily inside the SVG branch, so it's only loaded when an SVG is actually uploaded.
 
 ### Is there a file size or dimension limit?
 Yes — uploads are capped at 16 MB, and the output width/height are clamped to 1–300 characters to keep each conversion cheap and prevent memory exhaustion.
+
+### Can I combine character sets?
+Yes — the presets are checkboxes, so checking several joins their characters into a single ramp (`getSelectedChars` concatenates the selected values). Typing into the custom-characters field overrides the checkboxes entirely.
+
+### How are new commits deployed?
+A GitHub Actions workflow runs on every push to `main` and POSTs to a Render Deploy Hook, which kicks off a fresh build and rollout. The hook URL is stored as the `RENDER_DEPLOY_HOOK` repository secret, so no Render API key lives in the repo, and `workflow_dispatch` allows a manual redeploy from the Actions tab.
 
 ### Why run on port 5001 locally?
 macOS often uses port 5000 for AirPlay, so the dev server defaults to 5001; you can pass a different port as a CLI argument.

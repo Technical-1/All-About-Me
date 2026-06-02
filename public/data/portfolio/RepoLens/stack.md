@@ -57,6 +57,14 @@ I added GraphQL alongside REST to optimize the most expensive operation — comm
 - Falls back to REST automatically if GraphQL fails
 - Pages history with cursor-based `after`/`endCursor` (GitHub caps `history(first:)` at 100 per page) to deepen up to ~2,500 commits when GitHub won't serve `/stats/code_frequency` — used to compute accurate line totals for repos where the statistics API returns 422
 
+### Cloudflare Worker GitHub proxy (optional)
+
+When `NEXT_PUBLIC_GITHUB_PROXY_URL` is set, unauthenticated and embed requests are routed through a [companion Cloudflare Worker](https://github.com/Technical-1/Git-Cloudflare-Proxy) instead of calling GitHub directly:
+
+- Lifts anonymous users from GitHub's 60/hr cap to the authenticated 5,000/hr limit without exposing a token
+- The token lives only as a Worker secret; the worker enforces an origin allowlist, a per-IP Durable Object rate limit, and read-only access
+- Server-side callers authenticate with the server-only `GITHUB_PROXY_SECRET` via `proxyAuthHeaders()` (`lib/proxy-auth.ts`); browser callers are authorized by Origin, so the secret never enters the client bundle
+
 ### next-auth (v5.0.0-beta.25)
 
 I'm using the v5 beta of NextAuth (now Auth.js) because:
@@ -120,6 +128,8 @@ Lucide provides the iconography because:
 | `AUTH_GITHUB_SECRET` | Yes | GitHub OAuth App Client Secret |
 | `AUTH_SECRET` | Yes | Random string for JWT signing |
 | `NEXT_PUBLIC_SITE_URL` | No | Site URL for OpenGraph metadata |
+| `NEXT_PUBLIC_GITHUB_PROXY_URL` | No | Cloudflare Worker proxy URL; routes unauthenticated requests for a 5,000/hr shared limit |
+| `GITHUB_PROXY_SECRET` | No | Server-only shared secret for proxy auth (must match the worker); never `NEXT_PUBLIC` |
 
 ## Build & Runtime
 

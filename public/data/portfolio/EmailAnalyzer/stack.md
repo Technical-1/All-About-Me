@@ -83,7 +83,7 @@ For email archives with tens of thousands of messages, rendering all items would
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | date-fns | 4.1 | Date formatting and manipulation |
-| DOMPurify | 3.3 | HTML sanitization |
+| DOMPurify | 3.4 | HTML sanitization |
 | lucide-react | 0.561 | Icon library |
 | react-dnd | 16.0 | Drag and drop (email organization) |
 

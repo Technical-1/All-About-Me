@@ -12,8 +12,10 @@ flowchart TD
     Core --> Pillow["Pillow: grayscale + LANCZOS resize"]
     Pillow --> JSON["JSON response: ascii + lines[]"]
     JSON --> Browser
-    Gunicorn["gunicorn (2 workers)"] -.serves.-> Flask
-    Docker["Docker image (libcairo2)"] -.runs.-> Gunicorn
+    Gunicorn["gunicorn (2 workers) on Render"] -.serves.-> Flask
+    Push["push to main"] --> GHA["GitHub Actions (deploy.yml)"]
+    GHA -.->|"POST Render Deploy Hook"| Render["Render deploy"]
+    Render -.starts.-> Gunicorn
 ```
 
 ## Component Descriptions
@@ -34,9 +36,9 @@ flowchart TD
 - **Key responsibilities**: Width/height sliders synced to number inputs (clamped 10–200), character-set presets plus a custom field, debounced re-conversion, and copy/download of the result.
 
 ### Runtime / deployment
-- **Purpose**: Run the app in production.
-- **Location**: `Dockerfile`, `render.yaml`, `Procfile`
-- **Key responsibilities**: Build a `python:3.12-slim` image with `libcairo2` installed, run gunicorn with 2 workers bound to Render's injected `$PORT`.
+- **Purpose**: Run the app in production and ship new commits to it.
+- **Location**: `render.yaml`, `Procfile`, `runtime.txt`, `.github/workflows/deploy.yml`
+- **Key responsibilities**: Run on Render as a Python web service (Python 3.12 pinned in `runtime.txt`), installing dependencies with `pip install -r requirements.txt` and serving via gunicorn with 2 workers bound to Render's injected `$PORT`. A GitHub Actions workflow triggers a Render deploy via the service's Deploy Hook on every push to `main`, with the hook URL stored in the `RENDER_DEPLOY_HOOK` repository secret.
 
 ## Data Flow
 
@@ -51,8 +53,9 @@ flowchart TD
 | Service | Purpose | Notes |
 |---------|---------|-------|
 | Pillow | Decode, grayscale, resize images | Core dependency |
-| cairosvg | Rasterize SVG uploads to PNG | Needs `libcairo2` system library at runtime |
-| Render | Hosting | Deployed as a Docker web service; injects `$PORT` |
+| cairosvg | Rasterize SVG uploads to PNG | Relies on the cairo library available in Render's Python runtime |
+| Render | Hosting | Python web service; injects `$PORT`; deploys triggered via its Deploy Hook |
+| GitHub Actions | Deploy automation | `deploy.yml` POSTs the Render Deploy Hook on push to `main` (hook in `RENDER_DEPLOY_HOOK` secret) |
 
 ## Key Architectural Decisions
 
@@ -61,15 +64,20 @@ flowchart TD
 - **Decision**: Read the file stream directly (and SVG → PNG bytes via `BytesIO`) without writing to disk.
 - **Rationale**: Avoids temp-file cleanup, race conditions, and a writable-disk requirement on the host. A `MAX_CONTENT_LENGTH` of 16 MB and a max dimension of 300 cap memory use per request.
 
-### Docker over a plain buildpack on Render
-- **Context**: SVG conversion failed in production because cairosvg needs the native `libcairo2` library, which the default Python buildpack doesn't provide.
-- **Decision**: Ship a Dockerfile that installs `libcairo2`, and point `render.yaml` at it.
-- **Rationale**: Pinning the system dependency in the image is the only reliable way to make SVG uploads work in production; the alternative (hoping the platform's base image includes cairo) is brittle.
+### Lazy SVG import to keep the rasterizer off the hot path
+- **Context**: Only SVG uploads need cairosvg; raster formats (PNG/JPG/…) go straight to Pillow.
+- **Decision**: `import cairosvg` lives inside the `if ext == 'svg'` branch in `app.py`, not at module top.
+- **Rationale**: The app boots and serves every non-SVG request without touching cairosvg, so the rasterizer is only exercised when an SVG actually arrives — and the conversion path converges on the same `image_to_ascii` call for both input types.
 
 ### gunicorn instead of the Flask dev server
 - **Context**: `app.run()` is single-threaded and explicitly not for production.
-- **Decision**: Serve via gunicorn with 2 workers in both `Procfile` and the Docker `CMD`.
+- **Decision**: Serve via gunicorn with 2 workers, declared in `render.yaml`'s start command (and mirrored in `Procfile`).
 - **Rationale**: Concurrent request handling and a production-grade WSGI server, with worker count kept low to fit a small instance.
+
+### CI-driven deploys via a Render Deploy Hook
+- **Context**: Pushes to `main` should reach production without a manual step, and the deploy should be visible in the repo's CI history.
+- **Decision**: A GitHub Actions workflow POSTs to a Render Deploy Hook on every push to `main`, with the hook URL kept in the `RENDER_DEPLOY_HOOK` secret.
+- **Rationale**: Routing the deploy through Actions gives a single audit trail (and a `workflow_dispatch` manual trigger) instead of relying solely on Render's opaque branch watcher, while the Deploy Hook keeps no Render API key in the repo — the hook URL is its own scoped credential.
 
 ### Safe-by-default error and input handling
 - **Context**: A public endpoint accepting file uploads and free-form parameters is an attack surface.

@@ -28,14 +28,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:50:09Z",
+      "pushed_at": "2026-06-02T00:25:58Z",
       "topics": []
     },
     "languages": [
-      "JavaScript"
+      "JavaScript",
+      "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 57590
+      "JavaScript": 47852,
+      "HTML": 3576
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
@@ -85,7 +87,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T11:37:16Z",
+      "pushed_at": "2026-06-01T22:21:00Z",
       "topics": [
         "blackjack",
         "card-counting",
@@ -98,18 +100,22 @@
     "languages": [
       "TypeScript",
       "JavaScript",
-      "CSS",
-      "HTML"
+      "HTML",
+      "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 1123158,
-      "JavaScript": 39817,
-      "CSS": 9467,
-      "HTML": 7349
+      "TypeScript": 1193797,
+      "JavaScript": 80272,
+      "HTML": 35215,
+      "CSS": 9467
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -165,7 +171,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:52:32Z",
+      "pushed_at": "2026-06-02T00:09:06Z",
       "topics": [
         "blues-brothers",
         "framer-motion",
@@ -179,8 +185,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 53839,
-      "CSS": 34721,
+      "JavaScript": 54306,
+      "CSS": 34810,
       "HTML": 2888
     },
     "primary_language": "JavaScript",
@@ -449,7 +455,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T12:14:56Z",
+      "pushed_at": "2026-06-01T12:32:35Z",
       "topics": [
         "luxury",
         "nextjs",
@@ -461,11 +467,13 @@
     },
     "languages": [
       "TypeScript",
+      "HTML",
       "CSS",
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 127675,
+      "TypeScript": 128469,
+      "HTML": 3998,
       "CSS": 2167,
       "JavaScript": 605
     },
@@ -475,6 +483,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/e350-transportation/preview.png"
     ]
   },
   {
@@ -855,7 +866,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T18:12:01Z",
+      "pushed_at": "2026-06-02T00:31:15Z",
       "topics": [
         "caching",
         "cloudflare-workers",
@@ -869,11 +880,18 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "TypeScript": 8824
+      "TypeScript": 21149
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-cloudflare-proxy/preview.png"
+    ]
   },
   {
     "repo": {
@@ -1145,7 +1163,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-03-16T18:44:36Z",
+      "pushed_at": "2026-06-02T00:39:08Z",
       "topics": []
     },
     "languages": [
@@ -1157,8 +1175,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "Svelte": 44568,
-      "Rust": 21721,
+      "Svelte": 44845,
+      "Rust": 29578,
       "CSS": 2660,
       "TypeScript": 777,
       "JavaScript": 291,
@@ -1270,28 +1288,30 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T12:14:24Z",
+      "pushed_at": "2026-06-02T00:12:30Z",
       "topics": []
     },
     "languages": [
-      "Swift",
       "TypeScript",
+      "Swift",
       "JavaScript",
+      "HTML",
       "Shell",
+      "Ruby",
       "Kotlin",
-      "Batchfile",
-      "Ruby"
+      "Batchfile"
     ],
     "language_bytes": {
-      "Swift": 391380,
-      "TypeScript": 333426,
-      "JavaScript": 10596,
+      "TypeScript": 486122,
+      "Swift": 391429,
+      "JavaScript": 77886,
+      "HTML": 11053,
       "Shell": 8801,
-      "Kotlin": 2340,
-      "Batchfile": 2068,
-      "Ruby": 1618
+      "Ruby": 3484,
+      "Kotlin": 2348,
+      "Batchfile": 2068
     },
-    "primary_language": "Swift",
+    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": []
   },
@@ -1305,7 +1325,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T08:30:39Z",
+      "pushed_at": "2026-06-02T00:10:21Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1331,7 +1351,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 675899,
+      "TypeScript": 702778,
       "JavaScript": 16805,
       "HTML": 11747,
       "CSS": 3095
@@ -1360,7 +1380,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:05:19Z",
+      "pushed_at": "2026-06-02T00:15:27Z",
       "topics": [
         "budget-tracker",
         "indexeddb",
@@ -1378,7 +1398,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 591770,
+      "JavaScript": 605717,
       "CSS": 155803,
       "HTML": 8492
     },
@@ -1457,7 +1477,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-27T19:10:25Z",
+      "pushed_at": "2026-06-01T16:13:15Z",
       "topics": [
         "claude-code",
         "desktop-app",
@@ -1481,9 +1501,9 @@
       "CSS"
     ],
     "language_bytes": {
-      "Rust": 387894,
-      "TypeScript": 310347,
-      "JavaScript": 10867,
+      "Rust": 399414,
+      "TypeScript": 310715,
+      "JavaScript": 11573,
       "HTML": 5331,
       "CSS": 1720
     },
@@ -1508,7 +1528,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T11:30:08Z",
+      "pushed_at": "2026-06-02T00:48:50Z",
       "topics": []
     },
     "languages": [
@@ -1518,8 +1538,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 313040,
-      "HTML": 30333,
+      "TypeScript": 512946,
+      "HTML": 48098,
       "CSS": 7409,
       "JavaScript": 559
     },
@@ -2020,7 +2040,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-23T07:38:22Z",
+      "pushed_at": "2026-06-02T11:06:02Z",
       "topics": [
         "business-management",
         "crm",
@@ -2047,10 +2067,10 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 5687639,
+      "TypeScript": 5845027,
       "HTML": 932682,
       "CSS": 72471,
-      "JavaScript": 54985,
+      "JavaScript": 55117,
       "MDX": 6655
     },
     "primary_language": "TypeScript",
@@ -2137,17 +2157,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:12:27Z",
+      "pushed_at": "2026-06-01T23:58:51Z",
       "topics": []
     },
     "languages": [
       "Swift",
+      "TypeScript",
       "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 283011,
-      "JavaScript": 9669,
+      "Swift": 274813,
+      "TypeScript": 34860,
+      "JavaScript": 9778,
       "HTML": 9127
     },
     "primary_language": "Swift",
@@ -2200,7 +2222,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T10:52:42Z",
+      "pushed_at": "2026-06-01T14:47:22Z",
       "topics": []
     },
     "languages": [
@@ -2210,7 +2232,7 @@
     ],
     "language_bytes": {
       "Liquid": 962445,
-      "CSS": 382602,
+      "CSS": 382622,
       "JavaScript": 193984
     },
     "primary_language": "Liquid",
@@ -2267,7 +2289,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T08:56:05Z",
+      "pushed_at": "2026-06-02T00:43:45Z",
       "topics": []
     },
     "languages": [
@@ -2278,8 +2300,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 769059,
-      "CSS": 311028,
+      "TypeScript": 804954,
+      "CSS": 312704,
       "Astro": 55133,
       "JavaScript": 43086,
       "HTML": 11507
@@ -2497,7 +2519,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T09:39:18Z",
+      "pushed_at": "2026-06-01T12:28:05Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2769,18 +2791,40 @@
       "full_name": "Technical-1/EbayViews-Desktop",
       "html_url": "https://github.com/Technical-1/EbayViews-Desktop",
       "homepage": null,
-      "description": null,
+      "description": "PyQt6 desktop app for controlled eBay seller listing discovery, selectable request generation, settings, logging, and tests.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:57:07Z",
-      "topics": []
+      "pushed_at": "2026-06-01T15:42:48Z",
+      "topics": [
+        "beautifulsoup",
+        "desktop-app",
+        "ebay",
+        "portfolio",
+        "pyqt6",
+        "pytest",
+        "python",
+        "requests"
+      ]
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": []
+    "languages": [
+      "Python",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 40218,
+      "HTML": 10679
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ebayviews-desktop/preview.png"
+    ]
   },
   {
     "repo": {
@@ -2847,7 +2891,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-06T22:33:54Z",
+      "pushed_at": "2026-06-02T00:37:47Z",
       "topics": [
         "email-archive",
         "email-parser",
@@ -2860,14 +2904,23 @@
       ]
     },
     "languages": [
-      "TypeScript"
+      "TypeScript",
+      "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 215686
+      "TypeScript": 257471,
+      "HTML": 6159
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/email-archive-parser/preview.png"
+    ]
   },
   {
     "repo": {
@@ -2879,7 +2932,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T19:46:50Z",
+      "pushed_at": "2026-06-02T00:39:43Z",
       "topics": [
         "browser-based",
         "email-analyzer",
@@ -2900,7 +2953,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 877150,
+      "TypeScript": 879511,
       "CSS": 10446,
       "HTML": 6886,
       "JavaScript": 616
@@ -3028,8 +3081,8 @@
       "description": "Convert images to ASCII art with an interactive web UI. Real-time preview, customizable dimensions, and multiple character sets.",
       "private": false,
       "fork": false,
-      "archived": false,
-      "pushed_at": "2026-06-01T12:00:50Z",
+      "archived": true,
+      "pushed_at": "2026-06-01T13:10:38Z",
       "topics": []
     },
     "languages": [
@@ -3037,7 +3090,6 @@
       "Python",
       "CSS",
       "JavaScript",
-      "Dockerfile",
       "Procfile"
     ],
     "language_bytes": {
@@ -3045,7 +3097,6 @@
       "Python": 8092,
       "CSS": 7830,
       "JavaScript": 6144,
-      "Dockerfile": 568,
       "Procfile": 55
     },
     "primary_language": "HTML",
@@ -3348,7 +3399,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T01:12:53Z",
+      "pushed_at": "2026-06-02T00:20:39Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -3369,9 +3420,9 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 262863,
-      "CSS": 54821,
-      "HTML": 30208,
+      "JavaScript": 314427,
+      "CSS": 55905,
+      "HTML": 33314,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
@@ -3533,7 +3584,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T18:07:10Z",
+      "pushed_at": "2026-06-02T00:22:42Z",
       "topics": [
         "github",
         "github-api",
@@ -3548,7 +3599,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 253149,
+      "TypeScript": 253900,
       "CSS": 5885,
       "JavaScript": 672
     },
@@ -3669,7 +3720,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T08:54:14Z",
+      "pushed_at": "2026-06-01T12:26:22Z",
       "topics": [
         "add-to-cart",
         "ecommerce",
@@ -3869,7 +3920,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:31:10Z",
+      "pushed_at": "2026-06-02T08:42:54Z",
       "topics": []
     },
     "languages": [

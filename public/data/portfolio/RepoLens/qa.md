@@ -19,7 +19,7 @@ Generate SVG images that can be embedded directly in README files. Three widget 
 A public `/about` page documents what RepoLens is, how its stats are computed (including the honest accuracy caveats for large repositories), and the engineering choices behind it. Its centerpiece is an interactive widget gallery: the three badges render live for a sample repository, a dark/light toggle re-themes them instantly, and a per-widget "Show code" disclosure reveals copy-paste Markdown and HTML snippets that work for any public repo. A collapsible FAQ rounds out the page.
 
 ### GitHub OAuth Integration
-Sign in with GitHub to access private repositories and increase API rate limits from 60 to 5,000 requests per hour. Authentication uses NextAuth v5 with JWT sessions - no credentials are stored on any server.
+Sign in with GitHub to access private repositories and get a dedicated 5,000 requests/hour limit. (Anonymous visitors already get a shared 5,000/hr through the proxy, but it's pooled and throttled per IP.) Authentication uses NextAuth v5 with JWT sessions - no credentials are stored on any server.
 
 ### User Dashboard
 Authenticated users get a dedicated dashboard at `/dashboard` showing their repositories sorted by last update, with quick-analyze buttons. The dashboard supports search, pagination, refresh, and includes private repositories.
@@ -48,7 +48,7 @@ The `/about` widget gallery shows the three embed badges working in real time, b
 Components are organized by domain: `layout/` for page structure, `ui/` for reusable primitives (Card with variant system, LoadingSkeleton), `features/` for domain-specific components (about, stats, commits, contributors, repos), and specialized directories for embed and effects. A barrel export enables clean imports from `@/components`.
 
 ### Typed Caching with TTL
-The caching layer uses a generic `Cache<T>` class with configurable TTL and max size. Pre-configured instances (`repoCache`, `statsCache`) handle unauthenticated request caching to stay within GitHub's 60 req/hr limit. Expired entries are cleaned up automatically.
+The caching layer uses a generic `Cache<T>` class with configurable TTL and max size. Pre-configured instances (`repoCache`, `statsCache`) cache unauthenticated requests to ease pressure on the proxy's shared, per-IP-throttled budget. Expired entries are cleaned up automatically.
 
 ### Server-Side Route Protection
 The dashboard uses a Next.js server-side layout guard (`dashboard/layout.tsx`) that checks authentication via `auth()` and redirects unauthenticated users. This pattern keeps the auth check on the server, avoiding client-side flash.
@@ -103,7 +103,11 @@ A: It depends on what GitHub will serve. When GitHub provides the full `/stats/c
 
 ### Q: Why should I sign in with GitHub?
 
-A: Signing in provides three benefits: access to your private repositories, a much higher API rate limit (5,000 requests/hour vs 60 requests/hour), and a personal dashboard showing all your repos with quick-analyze buttons.
+A: Signing in provides three benefits: access to your private repositories, a *dedicated* 5,000 requests/hour limit (anonymous use shares a pooled, per-IP-throttled 5,000/hr through the proxy), and a personal dashboard showing all your repos with quick-analyze buttons.
+
+### Q: How can anonymous visitors analyze repos without hitting GitHub's 60/hour limit?
+
+A: When configured, unauthenticated requests are routed through a companion Cloudflare Worker proxy that fronts GitHub with a read-only token, so anonymous visitors share the authenticated 5,000/hour budget. The token never reaches the browser — it lives only as a Worker secret — and the worker enforces an origin allowlist, a per-IP rate limit, and read-only access so it can't be abused as an open relay. Signing in still gives you your own dedicated limit and private-repo access.
 
 ### Q: Is my GitHub data stored anywhere?
 
@@ -144,7 +148,7 @@ A: The public page at `/` lets anyone analyze a repo by URL. The dashboard at `/
 ## Limitations
 
 - **Large repos**: GitHub's statistics API can struggle with repositories over 10,000 commits, though the GraphQL fallback handles most cases
-- **Rate limiting**: Heavy use without authentication will hit GitHub's 60 requests/hour limit
+- **Rate limiting**: Unauthenticated traffic shares the proxy's pooled 5,000/hr budget and is throttled per IP; without the proxy configured it falls back to GitHub's 60/hr anonymous limit
 - **Stats computation time**: First-time analysis of a repository may require waiting for GitHub to compute statistics
 - **Embed privacy**: Widgets only work for public repositories
 - **Chart window**: The code-frequency chart displays the last 52 weeks for readability — line totals are computed over full history, but the visualization is intentionally scoped to the past year
