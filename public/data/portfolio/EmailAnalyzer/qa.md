@@ -2,7 +2,7 @@
 
 ## Overview
 
-Email Archive Explorer is a privacy-first web application that lets users analyze their email archives entirely in the browser. It parses exports from Outlook (.olm), Gmail/Thunderbird (.mbox), and Gmail Takeout (.zip), automatically detecting account signups, purchases, subscriptions, and newsletters. The application stores all data locally in IndexedDB, ensuring no email content ever leaves the user's device. It's designed for anyone who wants to understand their digital footprint, audit their online accounts, track spending from receipts, or manage newsletter subscriptions.
+Email Archive Explorer is a privacy-first web application that lets users analyze their email archives entirely in the browser. It parses exports from Outlook (.olm), Gmail/Thunderbird (.mbox), and Gmail Takeout (.zip), automatically detecting account signups, purchases, subscriptions, and newsletters. The application stores all data locally in IndexedDB, ensuring no email content ever leaves the user's device. It's designed for anyone who wants to understand their digital footprint, review their online accounts, track spending from receipts, or manage newsletter subscriptions.
 
 ## Key Features
 
@@ -107,6 +107,14 @@ Pattern matching with per-service rules. For known senders (Netflix, Amazon, Git
 ### How does threading work without server-side message IDs?
 
 Two-tier. First pass looks for explicit `Thread-Topic` / `References` / `In-Reply-To` headers, which well-behaved clients include. Second pass normalizes subjects (strips `Re:`, `Fwd:`, locale prefixes, list tags) and groups remaining messages by the cleaned subject plus participant set. Not perfect — long-running threads that drift subjects will fragment — but it covers the common case for export-only data.
+
+### How does it handle malformed or international emails?
+
+Defensively, at the parsing boundary. Header text is decoded through `web/src/services/mimeUtils.ts`, which handles RFC 2047 encoded-words (`=?UTF-8?B?...?=` and the quoted-printable `?Q?` form) and decodes bytes charset-aware via `TextDecoder` with common charset aliases normalized, so accented and non-Latin subjects survive. Quoted-printable and base64 bodies decode the same way. The mbox parser also un-escapes mboxrd `>From ` body lines so quoted message text isn't corrupted. Sender addresses run through `cleanEmailAddress` (`web/src/utils/emailUtils.ts`), which prefers a fully-qualified address, accepts bare forms like `user@localhost`, and strips trailing list-separator punctuation. Anything genuinely unparseable logs a warning rather than aborting the import.
+
+### How does it dedupe senders when an address is missing?
+
+A message with no recoverable sender address is the awkward case — echoing the raw display-name into the address field would scatter one person across dozens of pseudo-addresses. Instead `cleanEmailAddress` returns a single stable sentinel (`unknown@example.com`) whenever no real address can be extracted, never leaking display-name text. Downstream code keys on that sentinel: the import pipeline skips contact creation for it and domain extraction returns empty, so all sender-less mail collapses into one predictable bucket instead of polluting the contacts list and top-senders chart.
 
 ### Can I export everything back out?
 

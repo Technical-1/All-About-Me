@@ -162,13 +162,13 @@ sequenceDiagram
         alt Cache Hit
             Cache-->>API: Return cached data
         else Cache Miss
-            API->>GitHub: Fetch repo data (60 req/hr limit)
+            API->>GitHub: Fetch via Cloudflare proxy (shared 5000 req/hr, per-IP throttled)
             Note over API,GitHub: REST for repo info + GraphQL for commits
             GitHub-->>API: Repository stats
             API->>Cache: Store result (10 min TTL)
         end
     else Authenticated Request
-        API->>GitHub: Fetch repo data (5000 req/hr limit)
+        API->>GitHub: Fetch directly with user token (5000 req/hr limit)
         Note over API,GitHub: REST for repo info + GraphQL for commits
         GitHub-->>API: Repository stats + private repos
     end
@@ -253,7 +253,16 @@ The GitHub integration now uses both REST and GraphQL APIs:
 - **Fallback chain**: GraphQL → REST → calculated approximation for code frequency
 - This hybrid approach dramatically reduces API rate limit consumption
 
-### 4. Edge Runtime for Embed Image Generation
+### 4. Cloudflare Worker Proxy for Unauthenticated Access
+
+Anonymous visitors would otherwise hit GitHub's 60 requests/hour cap almost immediately. When `NEXT_PUBLIC_GITHUB_PROXY_URL` is configured, the GitHub client (`lib/github.ts`) and the embed data layer route unauthenticated calls through a [companion Cloudflare Worker](https://github.com/Technical-1/Git-Cloudflare-Proxy) that fronts GitHub with a read-only token:
+
+- Anonymous users share the authenticated **5,000/hr** limit (the worker throttles per IP via a Durable Object) instead of 60/hr
+- The token never reaches the client — it lives only as a Worker secret
+- `useProxy = !accessToken && !!GITHUB_PROXY_URL`, so authenticated users still call GitHub directly with their own token
+- Server-side calls (API routes, embed/OG generation) authenticate to the proxy with the **server-only** `GITHUB_PROXY_SECRET`, attached by `proxyAuthHeaders()` (`lib/proxy-auth.ts`); browser calls are authorized by Origin instead, so the secret never ships in the client bundle
+
+### 5. Edge Runtime for Embed Image Generation
 
 The embed routes (`/api/embed/*`) use the Edge runtime with `next/og` (Satori) for SVG-to-image generation. I made this choice because:
 
@@ -262,16 +271,16 @@ The embed routes (`/api/embed/*`) use the Edge runtime with `next/og` (Satori) f
 - CDN caching at the edge reduces API calls significantly
 - The 1-hour cache (`s-maxage=3600`) balances freshness with performance
 
-### 5. Typed In-Memory Caching with TTL
+### 6. Typed In-Memory Caching with TTL
 
 The caching layer was extracted into a dedicated generic `Cache<T>` class in `lib/cache.ts`:
 
 - Type-safe with generics — `repoCache` and `statsCache` are pre-configured instances
 - Configurable TTL (10 min for repos, 10 min for stats) and max size (100/50 entries)
 - Automatic cleanup of expired entries
-- Only used for unauthenticated requests to respect GitHub's 60 req/hr limit
+- Only used for unauthenticated requests, easing pressure on the proxy's shared, per-IP-throttled budget
 
-### 6. Zod Validation at API Boundaries
+### 7. Zod Validation at API Boundaries
 
 All API route inputs are validated with Zod schemas in `lib/validations.ts`:
 
@@ -280,7 +289,7 @@ All API route inputs are validated with Zod schemas in `lib/validations.ts`:
 - Clear, user-friendly error messages via `formatZodError()`
 - Validation at the boundary only — internal code trusts validated data
 
-### 7. Client-Side Authentication State with NextAuth v5
+### 8. Client-Side Authentication State with NextAuth v5
 
 I use NextAuth v5 (Auth.js) with the GitHub provider for authentication. The access token is stored in the JWT and passed to the client session. Key reasons:
 
@@ -289,11 +298,11 @@ I use NextAuth v5 (Auth.js) with the GitHub provider for authentication. The acc
 - The `repo` scope allows access to private repositories
 - Session data is available on both client and server via `SessionProvider`
 
-### 8. Parallel Data Fetching
+### 9. Parallel Data Fetching
 
 In `lib/github.ts`, I fetch repository data, languages, commits, code frequency, and contributors in parallel using `Promise.all()`. This significantly reduces total request time compared to sequential fetching, though it increases API usage per request.
 
-### 9. Progressive Enhancement for Statistics
+### 10. Progressive Enhancement for Statistics
 
 GitHub's statistics API returns 202 while stats compute (and 422 for very large repos). Rather than blocking the UI or showing an empty chart, I:
 
@@ -302,7 +311,7 @@ GitHub's statistics API returns 202 while stats compute (and 422 for very large 
 - Deepen line totals by paginating GraphQL commit history up to 2,500 commits when GitHub won't serve `/stats/code_frequency`
 - Use a fallback endpoint for contributors if stats aren't ready
 
-### 10. URL-Based State Management
+### 11. URL-Based State Management
 
 Repository selection is reflected in the URL via dynamic routes (`/repo/[owner]/[name]`) and query params (`?repo=owner/repo`). This enables:
 
@@ -311,7 +320,7 @@ Repository selection is reflected in the URL via dynamic routes (`/repo/[owner]/
 - Bookmarkable results
 - SEO benefits for public repository pages
 
-### 11. SEO Infrastructure
+### 12. SEO Infrastructure
 
 I added a comprehensive SEO layer to improve discoverability:
 

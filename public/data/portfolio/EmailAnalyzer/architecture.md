@@ -172,7 +172,13 @@ Each email format (OLM, MBOX, Gmail Takeout) has its own dedicated parser. This 
 
 ### 8. Web Worker for Parsing
 
-Large email archives are parsed in a dedicated Web Worker (`workers/parserWorker.ts`) to keep the main thread responsive. The worker handles file reading and parsing in the background, sending progress updates and parsed emails back to the UI thread via message passing. This prevents the browser from freezing during imports of large archives.
+Large email archives are parsed in a dedicated Web Worker (`workers/parserWorker.ts`) to keep the main thread responsive. The worker reads the file in fixed-size chunks and only splits on `From ` separator lines that fall inside the current chunk, carrying any partial trailing message over to the next chunk. This keeps peak memory bounded on multi-gigabyte mbox files instead of loading the whole archive at once. Parsed batches and progress updates flow back to the UI thread via message passing, so the import never freezes the browser.
+
+MIME decoding is centralized in `services/mimeUtils.ts`: RFC 2047 encoded-word headers (`=?charset?B|Q?...?=`) and quoted-printable/base64 bodies are decoded charset-aware through `TextDecoder`, with common charset aliases normalized, so accented and non-Latin subjects and bodies survive intact. The mbox parser also reverses mboxrd `>From ` body-line escaping so quoted text isn't corrupted.
+
+### 8a. Robust Email-Address Normalization
+
+Real-world archives contain malformed sender fields, and a naive parser can leak display-name text into the address field or drop valid messages. `cleanEmailAddress` in `utils/emailUtils.ts` normalizes addresses in tiers: prefer a fully-qualified address (dotted TLD), fall back to a bare address like `user@localhost`, and strip trailing list-separator punctuation that rides along from headers. When no address can be recovered it returns a single stable sentinel (`unknown@example.com`) rather than echoing the raw header text. Downstream code keys on that sentinel — `importPipeline.ts` skips contact creation for sentinel senders, and `extractDomain` returns an empty domain — so sender-less mail dedupes to one bucket instead of fragmenting into noise. File-size formatting (`formatFileSize`) was likewise hardened to support TB/PB units and guard non-finite or out-of-range input.
 
 ### 9. Split Header Rows from Heavy Payloads
 
