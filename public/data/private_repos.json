@@ -171,7 +171,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:09:06Z",
+      "pushed_at": "2026-06-02T11:36:33Z",
       "topics": [
         "blues-brothers",
         "framer-motion",
@@ -187,11 +187,15 @@
     "language_bytes": {
       "JavaScript": 54306,
       "CSS": 34810,
-      "HTML": 2888
+      "HTML": 8670
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -572,7 +576,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-13T15:24:55Z",
+      "pushed_at": "2026-06-03T11:26:15Z",
       "topics": [
         "nextjs",
         "react",
@@ -588,7 +592,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 143121,
+      "TypeScript": 171709,
       "CSS": 3158,
       "JavaScript": 559
     },
@@ -742,7 +746,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T23:56:41Z",
+      "pushed_at": "2026-06-03T05:22:56Z",
       "topics": [
         "ambient-music",
         "audio-visualization",
@@ -955,7 +959,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-09T17:30:06Z",
+      "pushed_at": "2026-06-03T05:18:37Z",
       "topics": []
     },
     "languages": [
@@ -1050,7 +1054,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-01-14T22:37:18Z",
+      "pushed_at": "2026-06-03T05:13:23Z",
       "topics": [
         "aws",
         "bedrock",
@@ -1070,7 +1074,7 @@
       "Dockerfile"
     ],
     "language_bytes": {
-      "Python": 874934,
+      "Python": 876773,
       "Shell": 20193,
       "Dockerfile": 1896
     },
@@ -1128,7 +1132,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:22:22Z",
+      "pushed_at": "2026-06-03T05:21:35Z",
       "topics": []
     },
     "languages": [
@@ -1163,7 +1167,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:39:08Z",
+      "pushed_at": "2026-06-03T00:59:10Z",
       "topics": []
     },
     "languages": [
@@ -1175,8 +1179,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "Svelte": 44845,
-      "Rust": 29578,
+      "Svelte": 46783,
+      "Rust": 41215,
       "CSS": 2660,
       "TypeScript": 777,
       "JavaScript": 291,
@@ -1288,7 +1292,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:12:30Z",
+      "pushed_at": "2026-06-03T04:31:31Z",
       "topics": []
     },
     "languages": [
@@ -1302,10 +1306,10 @@
       "Batchfile"
     ],
     "language_bytes": {
-      "TypeScript": 486122,
+      "TypeScript": 487857,
       "Swift": 391429,
-      "JavaScript": 77886,
-      "HTML": 11053,
+      "JavaScript": 156054,
+      "HTML": 45029,
       "Shell": 8801,
       "Ruby": 3484,
       "Kotlin": 2348,
@@ -1325,7 +1329,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:10:21Z",
+      "pushed_at": "2026-06-02T23:39:01Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1351,7 +1355,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 702778,
+      "TypeScript": 734663,
       "JavaScript": 16805,
       "HTML": 11747,
       "CSS": 3095
@@ -1380,7 +1384,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:15:27Z",
+      "pushed_at": "2026-06-03T01:21:06Z",
       "topics": [
         "budget-tracker",
         "indexeddb",
@@ -1398,9 +1402,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 605717,
-      "CSS": 155803,
-      "HTML": 8492
+      "JavaScript": 672204,
+      "CSS": 156232,
+      "HTML": 8658
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1528,7 +1532,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:48:50Z",
+      "pushed_at": "2026-06-02T11:42:27Z",
       "topics": []
     },
     "languages": [
@@ -1538,7 +1542,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 512946,
+      "TypeScript": 525774,
       "HTML": 48098,
       "CSS": 7409,
       "JavaScript": 559
@@ -1908,7 +1912,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T09:22:01Z",
+      "pushed_at": "2026-06-02T19:03:37Z",
       "topics": [
         "ai",
         "local-l",
@@ -1929,9 +1933,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 747959,
+      "TypeScript": 779358,
       "CSS": 222073,
-      "JavaScript": 208354,
+      "JavaScript": 208585,
       "HTML": 9317
     },
     "primary_language": "TypeScript",
@@ -1952,7 +1956,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-02-25T20:15:30Z",
+      "pushed_at": "2026-06-03T05:10:50Z",
       "topics": []
     },
     "languages": [
@@ -2040,7 +2044,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T11:06:02Z",
+      "pushed_at": "2026-06-03T11:19:09Z",
       "topics": [
         "business-management",
         "crm",
@@ -2067,10 +2071,10 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 5845027,
+      "TypeScript": 5924092,
       "HTML": 932682,
       "CSS": 72471,
-      "JavaScript": 55117,
+      "JavaScript": 55036,
       "MDX": 6655
     },
     "primary_language": "TypeScript",
@@ -2087,7 +2091,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:12:25Z",
+      "pushed_at": "2026-06-03T05:24:13Z",
       "topics": [
         "apple-music",
         "claude-ai",
@@ -2103,7 +2107,7 @@
       "Swift"
     ],
     "language_bytes": {
-      "Swift": 424277
+      "Swift": 431019
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -2157,7 +2161,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T23:58:51Z",
+      "pushed_at": "2026-06-03T01:40:25Z",
       "topics": []
     },
     "languages": [
@@ -2167,9 +2171,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 274813,
-      "TypeScript": 34860,
-      "JavaScript": 9778,
+      "Swift": 283942,
+      "TypeScript": 65135,
+      "JavaScript": 13330,
       "HTML": 9127
     },
     "primary_language": "Swift",
@@ -2394,7 +2398,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T05:18:15Z",
+      "pushed_at": "2026-06-03T11:20:41Z",
       "topics": [
         "aws",
         "aws-bedrock-agents",
@@ -2410,8 +2414,8 @@
     ],
     "language_bytes": {
       "HTML": 8977514,
-      "Python": 57246,
-      "Shell": 10260
+      "Python": 69528,
+      "Shell": 8759
     },
     "primary_language": "HTML",
     "has_portfolio": true,
@@ -2519,7 +2523,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T12:28:05Z",
+      "pushed_at": "2026-06-02T11:11:47Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2701,14 +2705,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-25T05:52:50Z",
+      "pushed_at": "2026-06-03T05:19:58Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 1779
+      "Python": 7649
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -2891,7 +2895,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:37:47Z",
+      "pushed_at": "2026-06-02T13:38:52Z",
       "topics": [
         "email-archive",
         "email-parser",
@@ -2908,7 +2912,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 257471,
+      "TypeScript": 267872,
       "HTML": 6159
     },
     "primary_language": "TypeScript",
@@ -2932,7 +2936,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:39:43Z",
+      "pushed_at": "2026-06-02T18:39:49Z",
       "topics": [
         "browser-based",
         "email-analyzer",
@@ -2979,14 +2983,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-06-02T14:59:56Z",
+      "pushed_at": "2026-06-03T05:24:08Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 575
+      "Python": 10832
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -3120,7 +3124,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-28T18:13:48Z",
+      "pushed_at": "2026-06-03T05:12:28Z",
       "topics": []
     },
     "languages": [
@@ -3211,7 +3215,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2025-03-06T21:14:48Z",
+      "pushed_at": "2026-06-03T05:19:45Z",
       "topics": [
         "applescript",
         "automation",
@@ -3220,10 +3224,12 @@
       ]
     },
     "languages": [
-      "Python"
+      "Python",
+      "AppleScript"
     ],
     "language_bytes": {
-      "Python": 11221
+      "Python": 19960,
+      "AppleScript": 4479
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -3399,7 +3405,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:20:39Z",
+      "pushed_at": "2026-06-03T00:25:06Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -3897,14 +3903,14 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2022-05-25T06:30:57Z",
+      "pushed_at": "2026-06-03T05:12:52Z",
       "topics": []
     },
     "languages": [
       "JavaScript"
     ],
     "language_bytes": {
-      "JavaScript": 1490
+      "JavaScript": 10957
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
@@ -3920,7 +3926,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T08:42:54Z",
+      "pushed_at": "2026-06-03T08:59:40Z",
       "topics": []
     },
     "languages": [
