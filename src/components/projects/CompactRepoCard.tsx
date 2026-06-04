@@ -112,14 +112,27 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
           </div>
         )}
 
-        {/* Private badge */}
-        {repo.private && (
-          <span
-            className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] font-medium backdrop-blur-sm"
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}
-          >
-            Private
-          </span>
+        {/* Status badges — Archived and/or Private, same top-right spot. A repo
+            can be both, so they share one flex row instead of stacking. */}
+        {(repo.archived || repo.private) && (
+          <div className="absolute top-2 right-2 flex gap-1">
+            {repo.archived && (
+              <span
+                className="px-1.5 py-0.5 rounded text-[10px] font-medium backdrop-blur-sm"
+                style={{ backgroundColor: 'rgba(180,120,20,0.7)', color: 'white' }}
+              >
+                Archived
+              </span>
+            )}
+            {repo.private && (
+              <span
+                className="px-1.5 py-0.5 rounded text-[10px] font-medium backdrop-blur-sm"
+                style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}
+              >
+                Private
+              </span>
+            )}
+          </div>
         )}
       </div>
 
