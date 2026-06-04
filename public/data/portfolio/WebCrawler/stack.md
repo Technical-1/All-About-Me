@@ -5,7 +5,7 @@
 | Category | Technology | Version | Why this choice |
 |---|---|---|---|
 | Language | Python | 3.11+ | Mature scraping ecosystem (Selenium, BeautifulSoup) and first-class boto3 support |
-| Browser | Chromium (headless) | apt latest | Needed to render JS-heavy miami.gov pages and bypass CloudFlare bot checks |
+| Browser | Chromium (headless) | apt latest | Needed to render JS-heavy municipal-government pages and bypass CloudFlare bot checks |
 | Container runtime | Docker on ECS Fargate | n/a | Right size for a 2–3 minute weekly job; no Lambda image/time caps |
 | Orchestration | AWS Step Functions | n/a | Sequencing scrape → wait → Bedrock ingestion → notify with built-in retries |
 | Index | AWS Bedrock Knowledge Base | n/a | Managed RAG store consumed by the downstream chatbot |
@@ -13,7 +13,7 @@
 ## Backend
 
 - **Runtime**: Python 3.11 on `python:3.11-slim` base image
-- **Entry point**: `standalone_selenium/standalone_miami_scraper_selenium.py`
+- **Entry point**: the scraper module in `standalone_selenium/`
 - **API style**: None — this is a scheduled batch job, not a service
 - **Auth**: IAM task role (no static credentials)
 
@@ -29,9 +29,9 @@
 
 ## Development Tools
 
-- **Package manager**: `pip` with pinned requirements files (`requirements_standalone.txt`, `standalone_selenium/requirements.txt`)
+- **Package manager**: `pip` with pinned requirements files (`requirements_standalone.txt`, `standalone_selenium/requirements.txt`); `requirements-dev.txt` adds the test toolchain
 - **Build / deploy scripts**: `scripts/build_docker_images.sh`, `scripts/push_to_ecr.sh`, `scripts/run_fargate_scraper.sh`, `scripts/monitor_current_task.sh`, `scripts/monitor_bedrock_ingestion.sh`
-- **Testing**: None — single-purpose batch job, verified by re-running locally and inspecting Markdown output
+- **Testing**: `pytest` suite under `tests/` that exercises the pure logic — frontmatter serialization, the content-length extraction gate, per-URL depth resolution, paginated S3 freshness counting, and config-load error handling — by calling functions directly and mocking boto3/the driver, so no Chromium or AWS access is needed to run it
 
 ## Key Dependencies
 
@@ -41,6 +41,7 @@
 | `beautifulsoup4` | 4.12.2 | Parse rendered HTML into a tree the extractor walks |
 | `lxml` | 4.9.3 | Fast parser backend for BeautifulSoup |
 | `boto3` / `botocore` | 1.34.14 | S3 upload, S3 config load, SNS publish |
+| `PyYAML` | 6.0.1 | Serialize document frontmatter so quotes/colons/newlines in page titles can't corrupt the YAML metadata |
 | `requests` | 2.31.0 | Lightweight HTTP for any non-Selenium fetches |
 | `httpx`, `cloudscraper`, `curl_cffi` | various | Available as anti-bot fallbacks; not active in the current Selenium-only path |
 
@@ -54,7 +55,7 @@ The scraper hydrates a `Config` object from defaults in code, then overlays valu
   "enabled": true,
   "urls": {
     "start_urls": [
-      {"url": "https://www.miami.gov/...", "max_depth": 1}
+      {"url": "https://www.citygov.example/...", "max_depth": 1}
     ]
   },
   "crawler_settings": {
@@ -71,7 +72,7 @@ This means URL changes, delay tuning, and the kill switch are all JSON edits —
 | Variable | Purpose | Default |
 |---|---|---|
 | `S3_BUCKET_NAME` | Target bucket | required in AWS |
-| `S3_PREFIX` | Path prefix inside the bucket | `miami-code-compliance/` |
+| `S3_PREFIX` | Path prefix inside the bucket | `code-compliance/` |
 | `SNS_TOPIC_ARN` | Run-summary email topic | optional |
 | `OUTPUT_DIR` | Local output dir | `data/` |
 | `LOG_DIR` | Local log dir | `logs/` |
@@ -83,7 +84,7 @@ Each page becomes one Markdown file:
 ```yaml
 ---
 title: "Page Title"
-source_url: https://www.miami.gov/...
+source_url: https://www.citygov.example/...
 description: "Meta description"
 scraped_date: 2025-11-17
 content_type: webpage
@@ -95,7 +96,7 @@ document_format: markdown
 [Markdown body...]
 ```
 
-Bedrock's ingestion treats the frontmatter as metadata, so the chatbot can cite `source_url` directly in its answers.
+Bedrock's ingestion treats the frontmatter as metadata, so the chatbot can cite `source_url` directly in its answers. The frontmatter is built with `yaml.safe_dump` rather than string interpolation, so a page title containing quotes, colons, or newlines stays valid YAML instead of breaking the metadata block.
 
 ## Cost Profile
 

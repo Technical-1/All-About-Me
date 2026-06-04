@@ -5,10 +5,10 @@
 ```mermaid
 flowchart TD
     EB[EventBridge cron<br/>Sunday 07:00 UTC]
-    SF[Step Functions<br/>miami-scraper-weekly-sync]
+    SF[Step Functions<br/>codecompliance-weekly-sync]
     ECS[ECS Fargate task<br/>Python 3.11 + Chromium]
     Cfg[/S3: scraper_config.json/]
-    Site[(miami.gov<br/>Code Compliance pages)]
+    Site[(Municipal gov site<br/>Code Compliance pages)]
     MD[/S3: html_text/*.md/]
     KB[(AWS Bedrock<br/>Knowledge Base)]
     SNS[SNS topic → email]
@@ -26,17 +26,17 @@ flowchart TD
 
 ## Component Descriptions
 
-### `Config` (`standalone_selenium/standalone_miami_scraper_selenium.py`)
+### `Config` (`standalone_selenium/`)
 - **Purpose**: Carry all runtime knobs (start URLs, per-URL depth, delay, page cap, kill switch).
 - **Key responsibilities**: Hydrate defaults, then overlay values from the S3-loaded JSON via `_apply_config()`; log the effective configuration at startup so CloudWatch shows exactly what ran.
 
-### `SeleniumCrawler` (`standalone_selenium/standalone_miami_scraper_selenium.py`)
+### `SeleniumCrawler` (`standalone_selenium/`)
 - **Purpose**: Drive Chromium through each start URL, extract content, and ship Markdown to S3.
-- **Key responsibilities**: Maintain `visited_urls` + `to_visit` BFS state, hold a per-URL `url_depths` map so each seed obeys its own `max_depth`, render pages, run the HTML-to-Markdown extractor, and upload one file per page.
+- **Key responsibilities**: Maintain `visited_urls` + `to_visit` BFS state; resolve each link's depth budget by longest-prefix match against the originating start URL (`start_url_depths`) so seeds obey their own `max_depth`; render pages; run the HTML-to-Markdown extractor and flag a page as extracted only when its body clears `min_content_chars`; upload one file per page; and quit the driver if initialization fails after the browser launches.
 
 ### `HTMLTextValidationManager`
-- **Purpose**: Post-run sanity check.
-- **Key responsibilities**: Compare extracted page count against a minimum threshold and confirm S3 objects are dated today; produce a report that the SNS notification embeds.
+- **Purpose**: Post-run sanity check that produces an honest success/failure signal.
+- **Key responsibilities**: Compare the extracted-page count against a minimum threshold and confirm S3 Markdown objects are dated today — paging through `list_objects_v2` so the freshness check holds beyond the 1,000-object response cap; produce the report that the SNS notification embeds.
 
 ### S3 layout
 - `{prefix}config/scraper_config.json` — runtime config
@@ -62,7 +62,7 @@ flowchart TD
 
 | Service | Purpose | Notes |
 |---|---|---|
-| miami.gov | Source of the content being indexed | Public site, CloudFlare-protected; stealth Chromium options are used to render JS and avoid bot blocks |
+| Municipal gov site | Source of the content being indexed | Public site, CloudFlare-protected; stealth Chromium options are used to render JS and avoid bot blocks |
 | AWS S3 | Config input + Markdown output | One bucket, separate prefixes for config / html_text / results |
 | AWS Bedrock Knowledge Base | Vector index for the downstream chatbot | Triggered as an ingestion job; the chatbot itself lives outside this repo |
 | AWS SNS | Notification fan-out | Plain email subscription for the run summary |

@@ -98,6 +98,20 @@ All three have been dispatched to a background queue with explicit hops back
 to main for `@State` assignment. The shared `ColorExtraction.extractAsync`
 helper bundles the off-main discipline so call sites don't have to remember.
 
+### Thread-safe analyzer and off-main optimization
+
+The track-characteristics cache and the per-source counters are written from
+concurrent analysis callbacks and read from the UI. They're funneled through a
+single serial `stateQueue` (the same pattern the API clients use), and each
+optimize run carries a generation token so a superseded run's late callbacks
+can't corrupt the current run's state.
+
+The scoring matrix, greedy construction, and 2-opt pass run on a dedicated
+serial queue off the main thread, with results delivered back on main — so
+optimizing a large playlist never freezes the UI. The 2-opt pass is skipped
+above 250 tracks (the greedy ordering is kept) to bound worst-case runtime on
+the asymmetric cost function.
+
 ### iOS Keychain for API keys with safe migration
 
 User-entered API keys live in iOS Keychain at
@@ -195,8 +209,9 @@ all `(i, j)` pairs and reverses the segment between them if doing so
 improves the total tour score; capped at 5 passes to bound runtime.
 
 For 200-track playlists that's about 8M operations per pass — fast enough
-on-device. For dramatically larger playlists, the matrix construction
-becomes a bottleneck.
+on-device. The whole scoring/reorder/2-opt phase runs off the main thread so
+the UI stays responsive, and 2-opt is skipped above 250 tracks (the greedy
+ordering is kept) to bound runtime on very large playlists.
 
 ### Where are API keys stored?
 
@@ -205,6 +220,13 @@ and an account name per provider. Accessible after first device unlock;
 not synced to iCloud Keychain. Settings views read through the API client
 classes rather than the keychain directly, so there's a single
 authoritative source per provider.
+
+### What happens if some tracks can't be added when I export to Apple Music?
+
+Export reports a partial result rather than failing silently. If the playlist
+is created but some tracks couldn't be added — for example, they're unavailable
+in your region or library — the app tells you how many of the total landed, and
+the created playlist still appears in your library instead of being orphaned.
 
 ### Can I use the app without any API keys?
 

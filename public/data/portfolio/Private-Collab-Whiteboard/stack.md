@@ -9,8 +9,9 @@
 | Rendering | HTML5 Canvas | — | High-performance 2D drawing surface |
 | Sync Engine | Y.js | ^13.6.0 | CRDT library for conflict-free real-time collaboration |
 | Real-time | PartyKit | ^0.0.115 | WebSocket server for message relay |
-| Build Tool | Vite | ^5.0.0 | Fast dev server and production bundler |
-| Tests | Vitest | ^2.1.0 | ~100 unit tests over crypto, KDF, protocol, sync, snapshot, and link logic |
+| Build Tool | Vite | ^8.0.16 | Fast dev server and production bundler |
+| Tests | Vitest | ^4.1.8 | Unit tests over crypto, KDF, protocol, sync, snapshot, geometry, text-wrap, and link logic |
+| Export | jsPDF | ^4.2.1 | Generate a single-page PDF from a rendered canvas snapshot |
 
 ## Frontend
 
@@ -41,7 +42,7 @@
 - **Package Manager**: npm
 - **Bundler**: Vite (Rollup-based production builds)
 - **Dev Server**: Vite dev server with custom middleware for room routing
-- **Testing**: Vitest (`npm test`) — ~100 unit tests across the crypto, key-derivation, certificate, protocol, signed-sync, snapshot-store, color/shape sanitization, and capability-link modules
+- **Testing**: Vitest (`npm test`) — unit tests across the crypto, key-derivation, certificate, protocol, signed-sync, snapshot-store, color/shape sanitization, capability-link, draw/connector geometry, text-wrap, laser-trail, and keyboard-intent modules. Logic is deliberately factored into pure, browser-free modules so it can be tested without a DOM.
 - **Image Generation**: Sharp (for favicon/icon generation via `scripts/generate-icons.js`)
 - **Concurrent Dev**: concurrently (run Vite + PartyKit dev servers together)
 
@@ -56,6 +57,7 @@
 | `partykit` | Server runtime for the WebSocket relay |
 | `partysocket` | Client-side WebSocket with auto-reconnect for PartyKit |
 | `lib0` | Binary encoding/decoding — used to frame the signed update envelopes |
+| `jspdf` | Render the chosen canvas view into a downloadable single-page PDF |
 | `vite` | Build tool and dev server |
 | `vitest` | Test runner for the crypto, protocol, and sync units |
 | `concurrently` | Run Vite + PartyKit dev servers in parallel |

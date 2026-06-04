@@ -2,15 +2,15 @@
 
 ## Overview
 
-The Miami Code Compliance Web Scraper extracts content from Miami's code compliance pages, turns it into Markdown, and feeds an AWS Bedrock Knowledge Base that powers a citizen-facing chatbot. It runs once a week on Fargate, walks 19 starting URLs (expanding to 22 pages via per-URL depth limits), and the interesting parts sit in the JavaScript-aware stealth crawler, the HTML-to-Markdown extractor that survives a CMS-heavy government site, and an S3-loaded config that includes a live kill switch.
+The Municipal Code Compliance Web Scraper extracts content from a municipal government's code-compliance pages, turns it into Markdown, and feeds an AWS Bedrock Knowledge Base that powers a citizen-facing chatbot. It runs once a week on Fargate, walks 19 starting URLs (expanding to 22 pages via per-URL depth limits), and the interesting parts sit in the JavaScript-aware stealth crawler, the HTML-to-Markdown extractor that survives a CMS-heavy government site, and an S3-loaded config that includes a live kill switch.
 
 ## Problem Solved
 
-Miami's Code Compliance documentation is spread across dozens of pages on permits, inspections, business licenses, and enforcement. Citizens have to know where to look, and that's the bottleneck. By pulling the content into a structured Markdown corpus and indexing it in Bedrock, the chatbot can answer plain-language questions and link back to the original source page.
+The city's Code Compliance documentation is spread across dozens of pages on permits, inspections, business licenses, and enforcement. Citizens have to know where to look, and that's the bottleneck. By pulling the content into a structured Markdown corpus and indexing it in Bedrock, the chatbot can answer plain-language questions and link back to the original source page.
 
 ## Target Users
 
-- **City of Miami residents and business owners** — ask the downstream chatbot in plain English instead of navigating a sitemap.
+- **City residents and business owners** — ask the downstream chatbot in plain English instead of navigating a sitemap.
 - **City staff** — get quick answers when fielding inbound questions.
 - **The operator of this pipeline** — gets a one-email-per-week summary of what was scraped and indexed.
 
@@ -34,7 +34,7 @@ The state machine runs the Fargate task, waits five minutes for S3 consistency, 
 ## Technical Highlights
 
 ### Multi-pass HTML extractor for CMS-heavy pages
-Government CMS pages reuse the same navigation, banner, and template blocks across every URL, and naive `BeautifulSoup.get_text()` produces a wall of duplicated boilerplate. The extractor strips `<script>`, `<style>`, `<nav>`, `<header>`, `<footer>`; filters elements whose text matches known CMS markers (`"DO NOT REMOVE"`, template directives); tracks short phrases already emitted to skip cross-page repeats; and walks remaining nodes in DOM order so heading hierarchy survives. Logic lives in the HTML-to-Markdown path of `standalone_selenium/standalone_miami_scraper_selenium.py`.
+Government CMS pages reuse the same navigation, banner, and template blocks across every URL, and naive `BeautifulSoup.get_text()` produces a wall of duplicated boilerplate. The extractor strips `<script>`, `<style>`, `<nav>`, `<header>`, `<footer>`; filters elements whose text matches known CMS markers (`"DO NOT REMOVE"`, template directives); tracks short phrases already emitted to skip cross-page repeats; and walks remaining nodes in DOM order so heading hierarchy survives. Logic lives in the HTML-to-Markdown path of the scraper module in `standalone_selenium/`.
 
 ### Stealth Chromium configuration
 CloudFlare's bot heuristics pick up on automation flags, missing `chrome.runtime`, and `navigator.webdriver=true`. The crawler sets `--disable-blink-features=AutomationControlled`, removes the `enable-automation` switch, and runs an `execute_script` that defines `navigator.webdriver` as `undefined` and stubs `window.chrome.runtime`. With this configuration the site serves pages normally; without it, several pages return interstitials.
@@ -44,6 +44,12 @@ Crawl state is kept in `visited_urls`, a `to_visit` queue, and a `url_depths` di
 
 ### S3 config overlay on code defaults
 `Config._apply_config()` starts from in-code defaults, then deep-merges the JSON pulled from `s3://{bucket}/{prefix}config/scraper_config.json`. Missing keys fall through to defaults, so a partial config file (e.g., updating only `delay_seconds`) is safe. The full effective configuration is logged at startup, which makes CloudWatch the ground truth for "what just ran".
+
+### Run validation that can actually fail
+A weekly unattended job is only useful if its "success" signal is honest. Three things back that up: a page counts as *extracted* only when its Markdown body clears a configurable character threshold (`min_content_chars`), so an empty or blocked page can't inflate the extraction rate; the run summary reports the real crawled/failed counts rather than an assumed zero; and the S3 freshness check pages through `list_objects_v2` so the "all files updated today" assertion stays correct beyond the 1,000-object response cap. The result that lands in the SNS email reflects what really happened.
+
+### Failing safely without leaking a browser
+The crawler initializes headless Chromium and then applies stealth scripting and timeouts. If any of that post-launch setup throws, the constructor quits the already-created driver before re-raising, so a startup failure doesn't strand a Chromium process in the container. Config loading is similarly defensive: a missing `scraper_config.json` (`NoSuchKey`) is an expected fall-through to defaults logged at INFO, while any other S3 error (e.g., `AccessDenied`) is logged at ERROR so a real misconfiguration is visible in CloudWatch instead of silently masquerading as "no config".
 
 ## Engineering Decisions
 
@@ -73,7 +79,7 @@ Crawl state is kept in `visited_urls`, a `to_visit` queue, and a `url_depths` di
 
 ## Frequently Asked Questions
 
-### How does the scraper get past CloudFlare on miami.gov?
+### How does the scraper get past CloudFlare on the target site?
 By looking like a regular Chromium session. The crawler launches headless Chrome with `--disable-blink-features=AutomationControlled`, removes the `enable-automation` switch, and runs an `execute_script` that hides `navigator.webdriver` and stubs `window.chrome.runtime`. CloudFlare's challenge then resolves normally and the page renders.
 
 ### Why is each starting URL allowed its own depth instead of a global setting?
@@ -83,7 +89,7 @@ Some seeds are leaf pages — only the page itself is useful. Others have a hand
 Yes. Edit `scraper_config.json` in S3 at `{prefix}config/scraper_config.json`. The next scheduled run picks up the change. Same path for tuning `max_pages`, `delay_seconds`, or flipping the `enabled` kill switch.
 
 ### What happens to pages that fail mid-run?
-They're logged, recorded in the JSON run summary, and the crawler moves on. The choice is deliberate: aggressive retries on a CloudFlare-protected site invite IP blocks, and the next weekly run will pick them up if the failure was transient. The SNS email surfaces any drop below the validation threshold.
+They're logged, counted, recorded in the JSON run summary, and the crawler moves on. The choice is deliberate: aggressive retries on a CloudFlare-protected site invite IP blocks, and the next weekly run will pick them up if the failure was transient. The summary reports the true failure count, and the SNS email surfaces any drop below the validation threshold — so a run that quietly degraded doesn't look like a clean success.
 
 ### Why Markdown output instead of raw HTML or JSON?
 Bedrock's chunker handles Markdown well — headings become section boundaries, lists stay grouped — and the YAML frontmatter gives the chatbot a clean `source_url` for citations. Raw HTML wastes tokens on tags; JSON loses the document structure that makes retrieval coherent.
@@ -92,7 +98,10 @@ Bedrock's chunker handles Markdown well — headings become section boundaries, 
 Step Functions doesn't trigger the ingestion job until five minutes after the Fargate task finishes (an S3 consistency buffer), then calls `StartIngestionJob` against the Knowledge Base data source. The ingestion job itself is asynchronous; the state machine reports its job id in the SNS email so the operator can confirm it completed.
 
 ### Why weekly instead of nightly?
-Government documentation changes on the order of months, not days. Weekly keeps content fresh enough for the chatbot, keeps the cost at roughly fifty cents a month, and keeps the request rate to miami.gov polite. EventBridge can move the schedule without code changes if that ever needs to flip.
+Government documentation changes on the order of months, not days. Weekly keeps content fresh enough for the chatbot, keeps the cost at roughly fifty cents a month, and keeps the request rate to the municipal site polite. EventBridge can move the schedule without code changes if that ever needs to flip.
+
+### Is there a test suite, given it drives a real browser?
+Yes. The logic that's worth protecting — frontmatter serialization, the content-length extraction gate, per-URL depth resolution, the paginated S3 freshness count, and config-load error handling — is factored into functions that don't depend on a live browser or AWS, so the `pytest` suite calls them directly and mocks boto3 and the WebDriver. That keeps the tests fast and runnable anywhere, without standing up Chromium or hitting S3.
 
 ### How would scaling to many more URLs look?
 The current single-task architecture handles around 200 pages comfortably inside one run. Past that point the natural shape is to split the URL list across parallel Fargate tasks (one queue, multiple workers) and add a small DynamoDB table to track content hashes so only changed pages are re-extracted. None of that is needed today.
