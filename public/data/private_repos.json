@@ -20,38 +20,6 @@
   },
   {
     "repo": {
-      "name": "Ascii-React-Native",
-      "full_name": "Technical-1/Ascii-React-Native",
-      "html_url": "https://github.com/Technical-1/Ascii-React-Native",
-      "homepage": null,
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-06-04T19:28:57Z",
-      "topics": []
-    },
-    "languages": [
-      "JavaScript",
-      "HTML"
-    ],
-    "language_bytes": {
-      "JavaScript": 47852,
-      "HTML": 12217
-    },
-    "primary_language": "JavaScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "screenshots": [
-      "/screenshots/ascii-react-native/preview.png"
-    ]
-  },
-  {
-    "repo": {
       "name": "BitcoinTreasuries-Proxy",
       "full_name": "Technical-1/BitcoinTreasuries-Proxy",
       "html_url": "https://github.com/Technical-1/BitcoinTreasuries-Proxy",
@@ -1286,7 +1254,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T17:42:54Z",
+      "pushed_at": "2026-06-04T20:31:28Z",
       "topics": []
     },
     "languages": [
@@ -1300,10 +1268,10 @@
       "Batchfile"
     ],
     "language_bytes": {
-      "TypeScript": 497566,
+      "TypeScript": 563607,
       "Swift": 391429,
-      "JavaScript": 183772,
-      "HTML": 45029,
+      "JavaScript": 241838,
+      "HTML": 127443,
       "Shell": 8801,
       "Ruby": 3484,
       "Kotlin": 2348,
@@ -1526,7 +1494,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T20:04:23Z",
+      "pushed_at": "2026-06-04T22:02:33Z",
       "topics": []
     },
     "languages": [
@@ -1536,8 +1504,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 645853,
-      "HTML": 54581,
+      "TypeScript": 694655,
+      "HTML": 75103,
       "CSS": 7409,
       "JavaScript": 559
     },
@@ -2528,7 +2496,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T10:32:29Z",
+      "pushed_at": "2026-06-04T20:09:15Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2608,6 +2576,51 @@
     ],
     "screenshots": [
       "/screenshots/apcomputersciencea2019-2020/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Ascii-React-Native",
+      "full_name": "Technical-1/Ascii-React-Native",
+      "html_url": "https://github.com/Technical-1/Ascii-React-Native",
+      "homepage": null,
+      "description": "Turn any photo into ASCII art — a React Native + Expo app (web + iOS/Android from one codebase) with live resolution, character-set, color-mode, and tone controls. Abandoned in favor of the standalone website variants.",
+      "private": false,
+      "fork": false,
+      "archived": true,
+      "pushed_at": "2026-06-04T19:28:57Z",
+      "topics": [
+        "ascii",
+        "ascii-art",
+        "ascii-converter",
+        "cross-platform",
+        "expo",
+        "image-processing",
+        "image-to-ascii",
+        "mobile-app",
+        "react-native",
+        "react-native-skia",
+        "react-native-web",
+        "web-app"
+      ]
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 47852,
+      "HTML": 12217
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ascii-react-native/preview.png"
     ]
   },
   {
@@ -3301,6 +3314,40 @@
   },
   {
     "repo": {
+      "name": "GoogleFormsAutoFiller",
+      "full_name": "Technical-1/GoogleFormsAutoFiller",
+      "html_url": "https://github.com/Technical-1/GoogleFormsAutoFiller",
+      "homepage": null,
+      "description": "Browser extension for auto filling google forms",
+      "private": false,
+      "fork": true,
+      "archived": false,
+      "pushed_at": "2026-06-04T22:23:45Z",
+      "topics": []
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 39185,
+      "HTML": 21330,
+      "CSS": 2559
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/googleformsautofiller/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "homebrew-tap",
       "full_name": "Technical-1/homebrew-tap",
       "html_url": "https://github.com/Technical-1/homebrew-tap",
@@ -3309,18 +3356,27 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T17:45:51Z",
+      "pushed_at": "2026-06-04T20:39:10Z",
       "topics": []
     },
     "languages": [
+      "HTML",
       "Ruby"
     ],
     "language_bytes": {
-      "Ruby": 704
+      "HTML": 5167,
+      "Ruby": 2598
     },
-    "primary_language": "Ruby",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "primary_language": "HTML",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/homebrew-tap/preview.png"
+    ]
   },
   {
     "repo": {

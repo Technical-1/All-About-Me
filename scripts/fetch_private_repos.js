@@ -226,8 +226,12 @@ async function fetchAllRepos(visibility) {
   // sensitive content (SAA) or archives that shouldn't be public-facing.
   const EXCLUDED_REPOS = ['SAA', 'Snowballs'];
 
+  // Forks are dropped by default, but these are the user's own work that
+  // GitHub happens to flag as a fork. Allowlist them back in by name.
+  const INCLUDED_FORKS = ['GoogleFormsAutoFiller'];
+
   return repos.filter(r => {
-    if (r.fork) return false;
+    if (r.fork && !INCLUDED_FORKS.includes(r.name)) return false;
     if (EXCLUDED_REPOS.includes(r.name)) return false;
     return true;
   });
