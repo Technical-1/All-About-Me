@@ -2,7 +2,7 @@
 
 ## Overview
 
-Blues Brothers Live is a single-page promotional and booking site for a long-running musical tribute act. It walks a visitor through the act's track record, performance videos, a photo gallery, and a venue technical rider, then funnels them into a booking form. The interesting technical angle is that it does all of this as a pure static React bundle — no backend — while still handling email delivery, spam, media playback, and accessibility correctly on the client.
+Blues Brothers Live is a single-page promotional and booking site for a long-running musical tribute act. It walks a visitor through the act's track record, performance videos, a photo gallery, and a venue technical rider, then funnels them into a booking form. The interesting technical angle is that it does all of this as a pure static React bundle — no backend — while still handling email delivery, spam, media playback, and accessibility correctly on the client. Built for a client.
 
 ## Problem Solved
 

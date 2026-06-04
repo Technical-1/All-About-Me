@@ -2,7 +2,7 @@
 
 ## Overview
 
-Emissary Risk Ops is the website for an Ohio Class A licensed security and investigative services firm in the Cincinnati area. Beyond the usual brochure pages, it ships an interactive crime heatmap that reads the visitor's approximate location from their IP and plots recent reported crimes and police activity nearby, pulled live from city open-data APIs. The interesting engineering is in turning three inconsistent public datasets into one trustworthy map and doing all third-party I/O safely from the server.
+Emissary Risk Ops is the website for an Ohio Class A licensed security and investigative services firm in the Cincinnati area. Beyond the usual brochure pages, it ships an interactive crime heatmap that reads the visitor's approximate location from their IP and plots recent reported crimes and police activity nearby, pulled live from city open-data APIs. The interesting engineering is in turning three inconsistent public datasets into one trustworthy map and doing all third-party I/O safely from the server. Built for a client.
 
 ## Problem Solved
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Deja Vu is the official website for a 7-piece Crosby, Stills, Nash & Young tribute band. It's a React single-page app with a retro-70s aesthetic that presents the band's bios, performance videos and photos, show calendar, and a booking form. The interesting technical angle is how little it needs to run: all content lives in a small data layer, the only dynamic feature talks to a third-party API, and the whole thing deploys as static files.
+Deja Vu is the official website for a 7-piece Crosby, Stills, Nash & Young tribute band. It's a React single-page app with a retro-70s aesthetic that presents the band's bios, performance videos and photos, show calendar, and a booking form. The interesting technical angle is how little it needs to run: all content lives in a small data layer, the only dynamic feature talks to a third-party API, and the whole thing deploys as static files. Built for a client.
 
 ## Problem Solved
 
