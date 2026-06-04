@@ -2,7 +2,7 @@
 
 ## Overview
 
-E350 Transportation is the marketing and booking website for a luxury ground-transportation company in the Cincinnati / Northern Kentucky area. It showcases the fleet and services and converts visitors into leads through a single booking form that emails the business and auto-replies to the customer. The interesting technical angle is how much reliability and spam resistance is packed into one serverless endpoint — no database, no third-party form service, just a carefully ordered request pipeline.
+E350 Transportation is the marketing and booking website for a luxury ground-transportation company in the Cincinnati / Northern Kentucky area. It showcases the fleet and services and converts visitors into leads through a single booking form that emails the business and auto-replies to the customer. The interesting technical angle is how much reliability and spam resistance is packed into one serverless endpoint — no database, no third-party form service, just a carefully ordered request pipeline. Built for a client.
 
 ## Problem Solved
 
