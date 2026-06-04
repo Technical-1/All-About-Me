@@ -7,7 +7,8 @@ Private Collab Whiteboard is a real-time collaborative drawing app that prioriti
 ## Key Features
 
 - **Real-time Collaboration**: CRDT-based sync via Y.js with live cursor tracking, live drawing previews, and user presence indicators
-- **Drawing Tools**: Freehand pencil, lines, rectangles, circles, text tool, shape eraser, and brush eraser with configurable stroke widths and fill colors
+- **Drawing Tools**: Freehand pencil and highlighter; lines, arrows, rectangles, circles, ellipses, diamonds, and triangles with solid/dashed/dotted strokes and optional fills; a text tool; color-coded sticky notes with wrapped, scrollable text; shape connectors that stay bound to the shapes they link; and an ephemeral laser pointer for presentations
+- **Save as PNG / PDF**: An interactive export modal renders the board to an off-screen canvas and lets you pan/zoom to frame the export before saving a retina-resolution PNG or a single-page PDF
 - **Infinite Canvas**: Pan (Space+drag), zoom (scroll wheel or buttons), and fit-to-content with a virtual coordinate system
 - **End-to-End Encryption**: Optional password protection using AES-256-GCM with PBKDF2 key derivation (600K iterations) and a random per-room salt carried in the capability link
 - **Capability-Based Roles**: Encrypted rooms issue owner / editor / viewer links; the role is carried (and enforced) by which signing keys the link contains, not a flag the client can flip
@@ -15,7 +16,7 @@ Private Collab Whiteboard is a real-time collaborative drawing app that prioriti
 - **Owner-Controlled Rotation**: Only the owner can rotate the room to a new epoch (via change-password), instantly invalidating older links
 - **Select & Manipulate**: Select, move, resize shapes; multi-select with Shift+click; copy/paste/duplicate; lock shapes
 - **Undo/Redo**: CRDT-aware undo that only affects your own changes, never other users'
-- **Multiple Boards**: Organize content across separate boards within a single room
+- **Multiple Boards**: Create, switch between, clear, and delete separate boards within a single room
 - **Offline Support**: Full offline drawing with automatic sync when reconnected via IndexedDB persistence
 - **Board History**: "My Boards" page tracks all rooms you've visited with role badges and access counts
 
@@ -35,6 +36,12 @@ In a P2P app the dangerous input isn't a form field — it's the shared document
 
 ### Owner Root-of-Trust and P2P Revocation
 The hard problem in a serverless system is revocation: if the editor key is just embedded in links, there's no authority to ask "is this link still allowed?" My answer is a two-tier PKI rooted in a per-room owner ECDSA keypair (`room-cert.js`). The owner key signs an *epoch certificate* binding the current editor public key to an epoch number, and peers only trust an editor key that a valid owner cert vouches for (`signed-doc-sync.js` verifies this once on start and fails closed if the cert doesn't pin the exact editor key it's verifying against). Because only the owner holds the owner private key, only the owner can mint a new epoch. Rotating the room mints epoch N+1 with a fresh editor key and broadcasts an owner-signed rotate notice; peers mark the old epoch superseded and stop applying its updates, so anyone holding an old link can no longer produce edits anyone will accept — real revocation with no central server. The owner link itself is never shared, so editors can draw but can't rotate.
+
+### Relationship-Bound Connectors over a CRDT Shape Array
+Connectors are the one shape that isn't self-contained: an arrow between two boxes has to follow those boxes as they move, across clients, with no shared mutable pointer. I store a connector as `{fromId, toId}` referencing the IDs of the shapes it links, and resolve the actual endpoint geometry at render time (`connector-geometry.js`): `nearestAnchors` picks the closest pair of edge anchors between the two bounding boxes so the line attaches sensibly, and the renderer re-derives those points every frame. Because endpoints are computed, not stored, a peer moving a box on another client just changes that box's coordinates — every connector touching it re-routes automatically when the CRDT update lands, with no separate "update the connector" message. `danglingConnectorIndices` finds connectors whose referenced shapes were deleted so they can be cleaned up, and connectors are forbidden from binding to other connectors to avoid resolution recursion. Keeping all of this geometry in a pure, DOM-free module means it's exhaustively unit-tested (`connector-geometry.test.js`) without a canvas.
+
+### Pure, Browser-Free Logic Modules for Testability
+A canvas app tempts you to bury arithmetic inside event handlers and `requestAnimationFrame` callbacks where it can only be tested by driving a real browser. Instead, the non-trivial logic is extracted into pure modules that take plain values and return plain values: `draw-geometry.js` (hit-testing, polygon point generation, arrowhead math, dash patterns, a spatial shape index), `text-wrap.js` (word-wrap and scroll-extent math shared by the text tool and sticky notes), `connector-geometry.js`, `keyboard-intent.js` (the decision of whether a Delete keypress should consume the event), and `laser-trail.js` (trail pruning by timestamp). Each has a focused Vitest file and runs with no DOM. The impure shell — `drawing.js`, `app.js` — wires these to the canvas and the Y.Doc. This is what lets the test suite cover real behavior (does a point fall inside this rotated triangle? does a tampered tool name collapse to an inert literal?) instead of just crypto round-trips.
 
 ## Engineering Decisions
 
@@ -110,4 +117,10 @@ PartyKit provides a Cloudflare Workers-based WebSocket runtime with built-in roo
 The boards page (`boards.html`) shows all rooms you've previously visited, stored in localStorage. Each entry tracks your role (owner/collaborator/viewer), whether the room is encrypted, when you last accessed it, and how many times. This makes it easy to return to a room without bookmarking the URL.
 
 ### How is the canvas performance with many shapes?
-The drawing engine redraws the entire canvas on every frame using `requestAnimationFrame`. For typical whiteboard usage (dozens to low hundreds of shapes), this is fast enough. The infinite canvas viewport culling ensures only visible shapes are rendered. For very large boards, performance could be improved with spatial indexing or canvas layers, but this hasn't been necessary in practice.
+The drawing engine redraws via `requestAnimationFrame` and only renders shapes inside the current viewport. Two things keep the hot paths cheap on larger boards: a spatial shape index (`buildShapeIndex` in `draw-geometry.js`) avoids repeated `O(n)` array scans when resolving hit-tests and connector endpoints, and connector geometry is derived only for connectors actually being drawn rather than recomputed for every shape. For typical whiteboard usage (dozens to low hundreds of shapes) interaction stays smooth; very large boards could still benefit from canvas layering, which hasn't been necessary in practice.
+
+### Can I export or save a board as an image?
+Yes. The Save action opens an interactive export modal that renders the board to an off-screen canvas and lets you pan and zoom to frame exactly what you want. From there you can save a PNG (rendered at 2× for retina sharpness via the canvas `toDataURL` API) or a single-page PDF (the same canvas snapshot placed into a `jsPDF` document sized to match). The export uses a separate render pass, so what you save is independent of your current on-screen zoom and pan.
+
+### How do connectors stay attached when I move a shape?
+A connector stores the IDs of the two shapes it links (`fromId`/`toId`), not fixed coordinates. The endpoints are recomputed every frame from the live bounding boxes of those shapes, picking the nearest pair of edge anchors. So when any peer moves a connected shape, the CRDT update changes that shape's position and the connector re-routes on the next render with no extra bookkeeping. If a linked shape is deleted, the now-dangling connector is detected and cleaned up.

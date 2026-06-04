@@ -123,7 +123,22 @@ sequenceDiagram
 ### drawing.js — Canvas Rendering Engine
 - **Purpose**: Handles all HTML5 Canvas drawing, hit-testing, shape manipulation, and live drawing previews
 - **Location**: `js/drawing.js`
-- **Key responsibilities**: Rendering shapes from Y.Array data, mouse/touch interaction handling, shape selection (single and multi-select), move/resize operations, copy/paste/duplicate, read-only mode enforcement, remote cursor rendering
+- **Key responsibilities**: Rendering every tool from Y.Array data (freehand/highlighter, line/arrow, rect/circle/ellipse/diamond/triangle, text, sticky notes, connectors), mouse/touch interaction handling, shape selection (single and multi-select), move/resize operations, copy/paste/duplicate, sticky-note text scrolling, relationship-bound connector creation and re-routing, the ephemeral laser-pointer trail, read-only mode enforcement, remote cursor rendering, and an off-screen `renderBoardToCanvas` pass used by the PNG/PDF export
+
+### draw-geometry.js, connector-geometry.js, text-wrap.js — Pure Geometry & Layout
+- **Purpose**: Browser-free math extracted from the canvas engine so it can be unit-tested without a DOM
+- **Location**: `js/draw-geometry.js`, `js/connector-geometry.js`, `js/text-wrap.js`
+- **Key responsibilities**: `draw-geometry.js` — hit-testing, polygon point generation for diamonds/triangles, arrowhead points, dash patterns, degenerate-shape detection, and a spatial shape index that avoids `O(n)` scans. `connector-geometry.js` — resolving a connector's endpoints to the nearest edge anchors of its two bound shapes, and finding dangling connectors whose targets were deleted. `text-wrap.js` — word-wrap and scroll-extent math shared by the text tool and sticky notes.
+
+### laser-trail.js — Ephemeral Pointer Trail
+- **Purpose**: The laser-pointer presence effect that is never persisted as a shape
+- **Location**: `js/laser-trail.js`
+- **Key responsibilities**: Prune trail points older than a fixed age so the laser fades; broadcast over awareness (presence), never written to the Y.Array. `safeToolName` deliberately rejects `laser` so it can't be smuggled in as a stored shape.
+
+### keyboard-intent.js — Shortcut Intent
+- **Purpose**: Pure decisions about keyboard handling, kept out of `app.js` so they're testable and never `preventDefault` a no-op
+- **Location**: `js/keyboard-intent.js`
+- **Key responsibilities**: Decide whether a Delete/Backspace keypress should consume the event and delete the selection (only when not read-only and something is selected).
 
 ### yjs-setup.js — Y.js Initialization & Rotation
 - **Purpose**: Wires the Y.Doc to local persistence, the WebSocket transport, and the signed sync layer, and drives owner-only room rotation

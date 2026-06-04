@@ -86,6 +86,8 @@ flowchart TD
   - Queue reorder / remove with playback-position preservation across `setQueue`
   - Notification observers for `MPMusicPlayerControllerNowPlayingItemDidChange`
     and `MPMusicPlayerControllerPlaybackStateDidChange`
+  - Reuses already-resolved `MPMediaItem`s when starting a known playlist
+    instead of re-running a per-track `MPMediaQuery`
 
 ### `SongTransitionAnalyzer`
 - **Purpose**: The "smart" part. Resolves track characteristics via the analysis
@@ -100,6 +102,15 @@ flowchart TD
     segment cost when reversing, since `cost(A→B) ≠ cost(B→A)` for our scorer)
   - FNV-1a `stableHash` for reproducible-per-seed determinism (Swift's built-in
     `Hasher` is per-process-seeded; would have defeated reproducibility)
+  - Thread-safe shared state: a serial `stateQueue` guards the characteristics
+    cache and analysis counters; an `analysisGeneration` token makes a
+    superseded run's late callbacks no-op instead of corrupting the new run
+  - Seed-aware caching: seed-independent characteristics (real audio / API
+    results) are reused across runs, while synthesized fallback values are
+    recomputed when the random seed changes — so re-rolling produces a new mix
+  - The scoring + reorder + 2-opt phase runs on a dedicated serial queue off
+    the main thread (completion delivered on main); 2-opt is skipped above 250
+    tracks to bound worst-case cost
 
 ### `AudioAnalyzer`
 - **Purpose**: Real signal processing for DRM-free local files.
@@ -123,6 +134,8 @@ flowchart TD
   - `testConnection` returns `(success, message)` so the settings UI shows
     real failure reasons instead of a generic "Test failed"
   - `Retry-After` header parsed and preserved on 429
+  - `ObservableObject` with a published `isConfigured` flag so the settings UI
+    reflects key changes live (no manual refresh)
 
 ### `KeychainStore`
 - **Purpose**: Generic-password Keychain wrapper.
@@ -159,7 +172,8 @@ flowchart TD
    `DispatchGroup`.
 7. After all tracks have characteristics, `calculateTransitionScores()` builds
    the O(n²) score matrix.
-8. `reorderTracksForOptimalFlow` runs greedy nearest-neighbor + 2-opt.
+8. `reorderTracksForOptimalFlow` runs greedy nearest-neighbor + 2-opt on a
+   background queue (off the main thread), with the result delivered on main.
 9. User taps Save → `MusicKitManager.saveOptimizedPlaylistLocally` writes JSON
    to `Documents/`.
 10. User taps a track → `PlayerManager.setCustomPlaybackQueue` + `playTrack`.
@@ -230,6 +244,21 @@ flowchart TD
 - **Rationale**: Textbook 2-opt would "improve" the boundary while making the
   interior strictly worse on asymmetric cost functions.
 
+### Thread-safe analyzer + off-main optimization
+- **Context**: The analyzer's characteristics cache and counters are written
+  from concurrent per-track analysis callbacks and read from the UI, and the
+  scoring + 2-opt pass is heavy — running it on the main thread froze the UI on
+  large playlists.
+- **Decision**: Funnel all shared analyzer state through one serial `stateQueue`
+  (the same pattern the API clients use) with a per-run generation token, and
+  run the scoring/reorder/2-opt phase on a separate serial queue with the
+  completion delivered back on main. Cap 2-opt at 250 tracks.
+- **Rationale**: A single serial queue is simpler and deadlock-free versus
+  fine-grained locks, and a snapshot-then-compute approach keeps the hot loop
+  lock-free. Moving the compute off-main keeps the UI responsive, and the size
+  cap bounds worst-case runtime instead of letting an asymmetric 2-opt run away
+  on very large playlists.
+
 ### Native full-queue + parallel custom queue
 - **Context**: Need auto-advance through optimized order, but also need to
   display "Up Next" and support manual reorder.
@@ -252,6 +281,8 @@ XCTest target at `PlaylistMixerTests/` covers the pure-function layer:
 | `KeyScoringTests` | Camelot-wheel mode-aware key compatibility |
 | `GenreLookupTests` | `findMatchingGenre` containment direction (catches "pop" → "bubblegum pop" regression) |
 | `KeychainTests` | `KeychainStore.read/write/delete` round-trip (XCTSkip on unsigned CI) |
+| `FallbackSeedCacheTests` | Seed-dependent fallback characteristics recompute on a new seed, reproduce on the same seed |
+| `EnergyAnalysisTests` | Short-track energy guard — no false-zero energy on sub-second clips |
 
 CI (`.github/workflows/ci.yml`) runs `xcodebuild test` on iOS Simulator on
 every push, alongside the build gate. Pure-function tests cover the most

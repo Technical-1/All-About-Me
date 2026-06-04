@@ -9,7 +9,7 @@
 | Audio API (primary) | MediaPlayer | iOS framework | Local-library playlists, playback, artwork |
 | Audio API (fallback) | MusicKit | iOS framework | Apple Music catalog when MediaPlayer is unauthorized |
 | DSP | AVFoundation + Accelerate (vDSP) | iOS framework | FFT, RMS, chroma features for real-audio analysis |
-| Test | XCTest | iOS framework | 30 test cases covering pure-function layer |
+| Test | XCTest | iOS framework | 43 test cases across the pure-function, concurrency, and DSP layers |
 | CI | GitHub Actions + `xcodebuild` | macos-15 runner | Build + test gate on push/PR |
 | Build | Xcode | 16.2+ | iOS 18.2 SDK required |
 
@@ -21,8 +21,10 @@
 - **Persistence**: `Codable` JSON to `Documents/saved_optimized_playlists.json`;
   API keys to iOS Keychain (`SecItem*`)
 - **Concurrency**: `async`/`await` + `DispatchGroup` + `DispatchQueue.global` for
-  off-main work. `stateQueue` (`DispatchQueue`) for thread-safe mutable state in
-  API client singletons.
+  off-main work. A serial `stateQueue` guards thread-safe mutable state in the
+  API client singletons and `SongTransitionAnalyzer`; the analyzer's expensive
+  optimize phase (scoring + reorder + 2-opt) runs on its own serial queue, off
+  the main thread.
 
 ## Frontend
 
@@ -120,7 +122,9 @@ PlaylistMixerTests/
 ├── TempoScoreTests.swift          # Lorentzian falloff (7)
 ├── KeyScoringTests.swift          # Mode-aware Camelot (10)
 ├── GenreLookupTests.swift         # findMatchingGenre direction (8)
-└── KeychainTests.swift            # Round-trip; XCTSkip if unsigned (7)
+├── KeychainTests.swift            # Round-trip; XCTSkip if unsigned (7)
+├── FallbackSeedCacheTests.swift   # Seed-dependent fallback caching (2)
+└── EnergyAnalysisTests.swift      # Short-track energy guard (4)
 ```
 
 ## Notable Build Settings

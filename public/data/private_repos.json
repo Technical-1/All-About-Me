@@ -5,7 +5,7 @@
       "full_name": "Technical-1/ai-talent-platform",
       "html_url": "https://github.com/Technical-1/ai-talent-platform",
       "homepage": null,
-      "description": "Research notes for an AI-driven talent platform",
+      "description": "Research notes for an AI-driven talent platform.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -49,7 +49,7 @@
       "full_name": "Technical-1/BitcoinTreasuries-Proxy",
       "html_url": "https://github.com/Technical-1/BitcoinTreasuries-Proxy",
       "homepage": "",
-      "description": "Cloudflare Worker proxy for BitcoinTreasuries.net corporate Bitcoin treasuries data with caching and CORS support",
+      "description": "Cloudflare Worker that proxies BitcoinTreasuries.net corporate Bitcoin treasury data with caching and CORS.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -83,11 +83,11 @@
       "full_name": "Technical-1/Blackjack-Trainer",
       "html_url": "https://github.com/Technical-1/Blackjack-Trainer",
       "homepage": "https://blackjacktrainer.pro/",
-      "description": "Professional blackjack card counting trainer with 5 counting systems, Vegas-accurate rules, strategy feedback, and performance analytics. Built with React & TypeScript.",
+      "description": "Blackjack card-counting trainer with 5 counting systems, Vegas rules, strategy feedback, and performance analytics. Built with React and TypeScript.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T22:21:00Z",
+      "pushed_at": "2026-06-03T17:38:35Z",
       "topics": [
         "blackjack",
         "card-counting",
@@ -104,8 +104,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 1193797,
-      "JavaScript": 80272,
+      "TypeScript": 1208406,
+      "JavaScript": 84167,
       "HTML": 35215,
       "CSS": 9467
     },
@@ -123,7 +123,7 @@
       "full_name": "Technical-1/BTC-Explorer",
       "html_url": "https://github.com/Technical-1/BTC-Explorer",
       "homepage": "https://btcexplorer.io/",
-      "description": "A comprehensive Bitcoin blockchain explorer and educational platform with real-time data visualization, market analysis, and corporate holdings tracking.",
+      "description": "Bitcoin blockchain explorer and learning tool with real-time data, market analysis, and corporate-holdings tracking.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -167,7 +167,7 @@
       "full_name": "Technical-1/Carmen",
       "html_url": "https://github.com/Technical-1/Carmen",
       "homepage": "https://blues-brothers-live.vercel.app",
-      "description": "Official website for Blues Brothers Live – featuring Carmen Romano as Jake Blues & Russ Peters as Elwood. Built with React, Vite, and Framer Motion.",
+      "description": "Website for Blues Brothers Live, featuring Carmen Romano as Jake Blues and Russ Peters as Elwood. Built with React, Vite, and Framer Motion.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -287,7 +287,7 @@
       "full_name": "Technical-1/Crypto-Proxy-coingecko",
       "html_url": "https://github.com/Technical-1/Crypto-Proxy-coingecko",
       "homepage": "https://btcexplorer.io",
-      "description": "Cloudflare Worker proxy for CoinGecko corporate Bitcoin treasuries data with caching and CORS support",
+      "description": "Cloudflare Worker that proxies CoinGecko corporate Bitcoin treasury data with caching and CORS.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -324,7 +324,7 @@
       "full_name": "Technical-1/CSNY",
       "html_url": "https://github.com/Technical-1/CSNY",
       "homepage": "https://dejavu-csny.vercel.app",
-      "description": "Official website for Déjà Vu, a Crosby, Stills, Nash & Young tribute band. Built with React and Vite.",
+      "description": "Website for Déjà Vu, a Crosby, Stills, Nash & Young tribute band. Built with React and Vite.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -364,7 +364,7 @@
       "full_name": "Technical-1/DailySMS",
       "html_url": "https://github.com/Technical-1/DailySMS",
       "homepage": null,
-      "description": "Daily SMS wellness check and affirmation messaging system built with Twilio. Sends automated texts to subscribers for mental health support.",
+      "description": "Twilio system that sends daily wellness check-ins and affirmations to subscribers by SMS.",
       "private": true,
       "fork": false,
       "archived": true,
@@ -401,7 +401,7 @@
       "full_name": "Technical-1/Differential-Growth",
       "html_url": "https://github.com/Technical-1/Differential-Growth",
       "homepage": "https://differential-growth2.vercel.app",
-      "description": "A Next.js 15 PWA for creating organic, coral-like generative art from text, images, and shapes using differential growth algorithms. Features WebGL rendering, multi-format export, interactive brush tools, force fields, and real-time parameter animation.",
+      "description": "Next.js 15 PWA that generates coral-like art from text, images, and shapes using differential-growth algorithms. WebGL rendering, brush tools, force fields, parameter animation, and multi-format export.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -455,7 +455,7 @@
       "full_name": "Technical-1/E350-Transportation",
       "html_url": "https://github.com/Technical-1/E350-Transportation",
       "homepage": "https://e350-transportation.vercel.app",
-      "description": "E350 Transportation - Luxury transportation services in Cincinnati/Northern Kentucky. Built with Next.js 16, React 19, TypeScript, and Tailwind CSS.",
+      "description": "Website for E350 Transportation, a luxury car service in Cincinnati and Northern Kentucky. Built with Next.js 16, React 19, TypeScript, and Tailwind CSS.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -527,7 +527,7 @@
       "full_name": "Technical-1/Emailer",
       "html_url": "https://github.com/Technical-1/Emailer",
       "homepage": null,
-      "description": "Native iOS email client for IMAP access and automatic verification code extraction. Built with SwiftUI, OAuth2 authentication, and pattern-based 2FA code detection for automation workflows.",
+      "description": "Native iOS email client for IMAP with automatic verification-code extraction. SwiftUI, OAuth2, and pattern-based 2FA detection for automation workflows.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -572,11 +572,11 @@
       "full_name": "Technical-1/emissary-risk-ops",
       "html_url": "https://github.com/Technical-1/emissary-risk-ops",
       "homepage": "https://emissary-risk-ops.vercel.app",
-      "description": "Professional security company website for Emissary Risk Ops - Ohio's premier Class A licensed security and investigative services",
+      "description": "Website for Emissary Risk Ops, an Ohio Class A licensed security and investigative services firm.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T11:26:15Z",
+      "pushed_at": "2026-06-03T14:59:12Z",
       "topics": [
         "nextjs",
         "react",
@@ -588,17 +588,26 @@
     },
     "languages": [
       "TypeScript",
+      "HTML",
       "CSS",
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 171709,
+      "TypeScript": 172661,
+      "HTML": 6097,
       "CSS": 3158,
       "JavaScript": 559
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emissary-risk-ops/preview.png"
+    ]
   },
   {
     "repo": {
@@ -633,7 +642,7 @@
       "full_name": "Technical-1/ETH-Explorer",
       "html_url": "https://github.com/Technical-1/ETH-Explorer",
       "homepage": "https://eth-explorer-kanfer.vercel.app/",
-      "description": "Interactive educational Ethereum blockchain explorer featuring live network stats, 3D visualizations, DeFi protocols, NFT collections, staking calculator, Layer 2 solutions, and treasury tracking. Built with React, Three.js, and TailwindCSS.",
+      "description": "Ethereum explorer and learning tool with live network stats, 3D visualizations, DeFi and NFT data, a staking calculator, Layer 2 info, and treasury tracking. Built with React, Three.js, and Tailwind CSS.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -697,7 +706,7 @@
       "full_name": "Technical-1/FISH-THEME",
       "html_url": "https://github.com/Technical-1/FISH-THEME",
       "homepage": null,
-      "description": "Custom Shopify storefront for FISH Apparel — custom Liquid/JS replacing $700-1,800/yr in paid extensions. Variant image filtering, B2B wholesale system, infinite scroll gallery, shipping progress bar, and more.",
+      "description": "Custom Shopify storefront for FISH Apparel, replacing $700-1,800/yr of paid extensions with custom Liquid/JS. Variant image filtering, B2B wholesale, infinite-scroll gallery, and a shipping progress bar.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -742,11 +751,11 @@
       "full_name": "Technical-1/Flux",
       "html_url": "https://github.com/Technical-1/Flux",
       "homepage": "https://flux-app-eight.vercel.app",
-      "description": "Generative particle art studio with ambient soundscapes. React Native + Expo for iOS, Android & Web.",
+      "description": "Generative particle-art studio with ambient soundscapes. React Native and Expo for iOS, Android, and Web.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:22:56Z",
+      "pushed_at": "2026-06-03T13:48:47Z",
       "topics": [
         "ambient-music",
         "audio-visualization",
@@ -765,7 +774,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 555539,
+      "TypeScript": 536465,
       "Python": 46284,
       "JavaScript": 9237,
       "HTML": 7869
@@ -787,7 +796,7 @@
       "full_name": "Technical-1/GimmeThat",
       "html_url": "https://github.com/Technical-1/GimmeThat",
       "homepage": "https://gimmethat.io/",
-      "description": "A Progressive Web App for curating and sharing wish lists. Paste any product link to auto-scrape details into rich cards, organize into lists, and share with friends and family.",
+      "description": "PWA for building and sharing wish lists. Paste a product link to auto-scrape it into a card, organize into lists, and share with friends and family.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -834,7 +843,7 @@
       "full_name": "Technical-1/Git-Archiver-Worker",
       "html_url": "https://github.com/Technical-1/Git-Archiver-Worker",
       "homepage": null,
-      "description": "Cloudflare Worker backend for Git-Archiver Web (API proxy: submit, status, index, readme)",
+      "description": "Cloudflare Worker backend for Git-Archiver Web (submit, status, index, and readme endpoints).",
       "private": true,
       "fork": false,
       "archived": false,
@@ -866,7 +875,7 @@
       "full_name": "Technical-1/Git-Cloudflare-Proxy",
       "html_url": "https://github.com/Technical-1/Git-Cloudflare-Proxy",
       "homepage": "https://repolens.io",
-      "description": "Cloudflare Worker proxy for GitHub API - provides authenticated rate limits (5,000/hr) for RepoLens users without requiring sign-in",
+      "description": "Cloudflare Worker that proxies the GitHub API to give RepoLens users authenticated rate limits (5,000/hr) without signing in.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -959,7 +968,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:18:37Z",
+      "pushed_at": "2026-06-03T17:51:52Z",
       "topics": []
     },
     "languages": [
@@ -967,12 +976,16 @@
       "Makefile"
     ],
     "language_bytes": {
-      "Python": 96001,
-      "Makefile": 585
+      "Python": 202716,
+      "Makefile": 869
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1007,7 +1020,7 @@
       "full_name": "Technical-1/Kanfer-D-Toolkit",
       "html_url": "https://github.com/Technical-1/Kanfer-D-Toolkit",
       "homepage": null,
-      "description": "Automation suite for the repetitive browser-based work tasks that fill your week. Runs scheduled scripts against your authenticated web tools, unattended, from your desktop.",
+      "description": "Automation suite for repetitive browser-based work tasks. Runs scheduled scripts against your authenticated web tools, unattended, from your desktop.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1050,11 +1063,11 @@
       "full_name": "Technical-1/Kendra-who",
       "html_url": "https://github.com/Technical-1/Kendra-who",
       "homepage": null,
-      "description": "AWS Kendra alternative - Enterprise web scraping platform with 15 AWS integrations. Save 99.7% vs Kendra ($810/mo → $1-5/mo). ML-powered retries, natural language config, real-time monitoring.",
+      "description": "Self-hosted alternative to AWS Kendra. Web-scraping search platform with 15 AWS integrations, ML-backed retries, natural-language config, and real-time monitoring, at roughly $1-5/mo vs Kendra's $810.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:13:23Z",
+      "pushed_at": "2026-06-03T13:40:12Z",
       "topics": [
         "aws",
         "bedrock",
@@ -1074,13 +1087,17 @@
       "Dockerfile"
     ],
     "language_bytes": {
-      "Python": 876773,
+      "Python": 893496,
       "Shell": 20193,
       "Dockerfile": 1896
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1088,7 +1105,7 @@
       "full_name": "Technical-1/Kid-Talk-Translator",
       "html_url": "https://github.com/Technical-1/Kid-Talk-Translator",
       "homepage": "https://kid-talk-translator.vercel.app/",
-      "description": "The ultimate Gen Alpha & Gen Z slang translator for confused parents, grandparents, and teachers. Features dictionary browser, quizzes, chat translator, and Urban Dictionary integration.",
+      "description": "Gen Alpha and Gen Z slang translator for parents, grandparents, and teachers. Dictionary browser, quizzes, chat translator, and Urban Dictionary integration.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1128,11 +1145,11 @@
       "full_name": "Technical-1/Limitimer-Pro",
       "html_url": "https://github.com/Technical-1/Limitimer-Pro",
       "homepage": "https://technical-1.github.io/OpenSource-Limitimer/",
-      "description": "A simple, mobile-friendly HTML webpage that functions as a countdown timer (\"Limitimer\"). Users can set a desired time in minutes, start the countdown, optionally enable a finish alert sound, and stop or refresh the page without losing the timer state.",
+      "description": "Mobile-friendly HTML countdown timer. Set minutes, start the countdown, optionally play a finish alert, and refresh without losing timer state.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:21:35Z",
+      "pushed_at": "2026-06-03T14:59:37Z",
       "topics": []
     },
     "languages": [
@@ -1143,11 +1160,11 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 290733,
+      "JavaScript": 318550,
       "Astro": 63935,
       "HTML": 40729,
       "CSS": 36430,
-      "TypeScript": 3046
+      "TypeScript": 4811
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1159,44 +1176,11 @@
   },
   {
     "repo": {
-      "name": "Local-Hoster",
-      "full_name": "Technical-1/Local-Hoster",
-      "html_url": "https://github.com/Technical-1/Local-Hoster",
-      "homepage": null,
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-06-03T00:59:10Z",
-      "topics": []
-    },
-    "languages": [
-      "Svelte",
-      "Rust",
-      "CSS",
-      "TypeScript",
-      "JavaScript",
-      "HTML"
-    ],
-    "language_bytes": {
-      "Svelte": 46783,
-      "Rust": 41215,
-      "CSS": 2660,
-      "TypeScript": 777,
-      "JavaScript": 291,
-      "HTML": 286
-    },
-    "primary_language": "Svelte",
-    "has_portfolio": false,
-    "portfolio_files": []
-  },
-  {
-    "repo": {
       "name": "MasterCode",
       "full_name": "Technical-1/MasterCode",
       "html_url": "https://github.com/Technical-1/MasterCode",
       "homepage": "https://mastercode-three.vercel.app",
-      "description": "Master code systems: NATO phonetic alphabet, Morse code, Braille, ASL, military acronyms. Spaced repetition, multiple study modes, progress tracking. React + TypeScript PWA.",
+      "description": "Learn code systems: NATO phonetic alphabet, Morse, Braille, ASL, and military acronyms. Spaced repetition, multiple study modes, and progress tracking. React and TypeScript PWA.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1247,7 +1231,7 @@
       "full_name": "Technical-1/MultiAgent",
       "html_url": "https://github.com/Technical-1/MultiAgent",
       "homepage": "",
-      "description": "Enterprise-ready multi-agent AI automation platform—React/TypeScript frontend, domain-specialized agents, Nixtla forecasting, Azure cloud integration, and interactive data dashboards for rapid finance, marketing, and operations analytics.",
+      "description": "Multi-agent AI automation platform with a React/TypeScript frontend, domain-specific agents, Nixtla forecasting, Azure integration, and interactive dashboards for finance, marketing, and operations analytics.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1292,7 +1276,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T04:31:31Z",
+      "pushed_at": "2026-06-03T17:42:54Z",
       "topics": []
     },
     "languages": [
@@ -1306,9 +1290,9 @@
       "Batchfile"
     ],
     "language_bytes": {
-      "TypeScript": 487857,
+      "TypeScript": 497566,
       "Swift": 391429,
-      "JavaScript": 156054,
+      "JavaScript": 183772,
       "HTML": 45029,
       "Shell": 8801,
       "Ruby": 3484,
@@ -1325,7 +1309,7 @@
       "full_name": "Technical-1/Orbit",
       "html_url": "https://github.com/Technical-1/Orbit",
       "homepage": "",
-      "description": "Personal relationship knowledge graph built from your iMessage history. Two MCP servers + Next.js + Cytoscape, all local.",
+      "description": "Relationship knowledge graph built from your iMessage history. Two MCP servers plus Next.js and Cytoscape, fully local.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1379,12 +1363,12 @@
       "name": "Personal-Budget-Tool",
       "full_name": "Technical-1/Personal-Budget-Tool",
       "html_url": "https://github.com/Technical-1/Personal-Budget-Tool",
-      "homepage": "https://budget-tracker-kappa-fawn.vercel.app",
-      "description": "Paycheck-centric personal budget tracker — a Progressive Web App built with React 19, Zustand, and IndexedDB. Organize expenses around actual pay dates, track spending across payment methods, and export to PDF or calendar.",
+      "homepage": "https://mybudgetflow.pro",
+      "description": "Paycheck-centric budget tracker as a PWA built with React 19, Zustand, and IndexedDB. Organize expenses around pay dates, track spending by payment method, and export to PDF or calendar.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T01:21:06Z",
+      "pushed_at": "2026-06-04T00:19:29Z",
       "topics": [
         "budget-tracker",
         "indexeddb",
@@ -1402,9 +1386,9 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 672204,
-      "CSS": 156232,
-      "HTML": 8658
+      "JavaScript": 692778,
+      "CSS": 172082,
+      "HTML": 10288
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -1423,7 +1407,7 @@
       "full_name": "Technical-1/PixScan",
       "html_url": "https://github.com/Technical-1/PixScan",
       "homepage": null,
-      "description": "Photo Helper is a powerful image processing app that helps you efficiently manage your photo library by combining OCR (Optical Character Recognition) with an intuitive swipe-based interface.",
+      "description": "Image-processing app that helps you sort your photo library by pairing OCR with a swipe-based interface.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1477,7 +1461,7 @@
       "full_name": "Technical-1/Project-Hub",
       "html_url": "https://github.com/Technical-1/Project-Hub",
       "homepage": null,
-      "description": "One command center for every GitHub repo. Your git activity becomes a daily workflow with task management, Claude Code integration, and more.",
+      "description": "Command center for your GitHub repos that turns git activity into a daily workflow with task management and Claude Code integration.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1532,7 +1516,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T11:42:27Z",
+      "pushed_at": "2026-06-03T18:08:11Z",
       "topics": []
     },
     "languages": [
@@ -1542,7 +1526,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 525774,
+      "TypeScript": 538776,
       "HTML": 48098,
       "CSS": 7409,
       "JavaScript": 559
@@ -1644,7 +1628,7 @@
       "full_name": "Technical-1/QuickPass-v2",
       "html_url": "https://github.com/Technical-1/QuickPass-v2",
       "homepage": null,
-      "description": "Desktop password manager built with Tauri v2 + React + Rust. Forked from QuickPass (pure Rust) with a modern UI.",
+      "description": "Desktop password manager built with Tauri v2, React, and Rust. A modern-UI rework of the pure-Rust QuickPass.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1753,7 +1737,7 @@
       "full_name": "Technical-1/redfin-scraper",
       "html_url": "https://github.com/Technical-1/redfin-scraper",
       "homepage": null,
-      "description": "Electron GUI app for scraping Redfin property data using Puppeteer",
+      "description": "Electron app that scrapes Redfin property data with Puppeteer.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1791,11 +1775,11 @@
       "full_name": "Technical-1/Redis-Upstasher",
       "html_url": "https://github.com/Technical-1/Redis-Upstasher",
       "homepage": null,
-      "description": "Keep free-tier Upstash Redis databases (Vercel Marketplace) alive forever. A GitHub Actions cron pings every DB every 3 days to reset the 14-day inactivity timer, and commits a status log that doubles as the activity signal preventing Actions itself from auto-suspending.",
+      "description": "Keeps free-tier Upstash Redis databases (Vercel Marketplace) from expiring. A GitHub Actions cron pings each database every 3 days to reset the 14-day inactivity timer and commits a status log that also keeps Actions itself from auto-suspending.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T11:05:52Z",
+      "pushed_at": "2026-06-04T09:40:49Z",
       "topics": [
         "cron",
         "free-tier",
@@ -1836,7 +1820,7 @@
       "full_name": "Technical-1/RepoGuard",
       "html_url": "https://github.com/Technical-1/RepoGuard",
       "homepage": null,
-      "description": "Browser extension to scan GitHub repositories for malware patterns",
+      "description": "Browser extension that scans GitHub repositories for malware patterns.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1863,7 +1847,7 @@
       "full_name": "Technical-1/restauranthub",
       "html_url": "https://github.com/Technical-1/restauranthub",
       "homepage": "https://restauranthub-two.vercel.app",
-      "description": "A production-ready white-label restaurant website template. Firebase-powered with runtime theming, full admin panel, reservations, catering, events, and mobile-first design.",
+      "description": "White-label restaurant website template. Firebase-backed, with runtime theming, an admin panel, reservations, catering, events, and a mobile-first layout.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -1908,11 +1892,11 @@
       "full_name": "Technical-1/Resume-Local-LLM",
       "html_url": "https://github.com/Technical-1/Resume-Local-LLM",
       "homepage": "",
-      "description": "Privacy-first AI resume optimizer that runs 100% in your browser. 6 career modes, ATS scoring, cover letters, LinkedIn optimization - all powered by WebLLM with no server, no tracking, no data ever leaving your device.",
+      "description": "Privacy-first resume optimizer that runs entirely in your browser on WebLLM. 6 career modes, ATS scoring, cover letters, and LinkedIn optimization, with no server and no data leaving your device.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T19:03:37Z",
+      "pushed_at": "2026-06-03T13:32:47Z",
       "topics": [
         "ai",
         "local-l",
@@ -1928,14 +1912,14 @@
     },
     "languages": [
       "TypeScript",
-      "CSS",
       "JavaScript",
+      "CSS",
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 779358,
-      "CSS": 222073,
+      "TypeScript": 753102,
       "JavaScript": 208585,
+      "CSS": 207030,
       "HTML": 9317
     },
     "primary_language": "TypeScript",
@@ -1956,7 +1940,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:10:50Z",
+      "pushed_at": "2026-06-03T13:52:22Z",
       "topics": []
     },
     "languages": [
@@ -1967,15 +1951,19 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 379414,
-      "Rust": 350354,
+      "TypeScript": 385915,
+      "Rust": 368332,
       "Shell": 371,
       "HTML": 361,
       "CSS": 23
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1983,7 +1971,7 @@
       "full_name": "Technical-1/security-doc-analyzer",
       "html_url": "https://github.com/Technical-1/security-doc-analyzer",
       "homepage": "",
-      "description": "A serverless Azure Functions system that automates security document analysis using OCR text processing and AI-powered risk assessment. Processes uploaded documents against guidelines, with automated batching and archiving capabilities.",
+      "description": "Serverless Azure Functions pipeline that analyzes security documents. Runs OCR and AI risk assessment against guidelines, with batching and archiving.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -2040,11 +2028,11 @@
       "full_name": "Technical-1/ServiceHub",
       "html_url": "https://github.com/Technical-1/ServiceHub",
       "homepage": "https://smart-hub-manager.vercel.app",
-      "description": "A comprehensive, real-time service business management platform. Built with Next.js 15, React 19, Firebase, Mantine UI. Features job management, scheduling, CRM, inventory, RBAC permissions, and mobile-first responsive design.",
+      "description": "Real-time service business management platform with job management, scheduling, CRM, inventory, and RBAC permissions. Built with Next.js 15, React 19, Firebase, and Mantine UI.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T11:19:09Z",
+      "pushed_at": "2026-06-04T00:37:07Z",
       "topics": [
         "business-management",
         "crm",
@@ -2071,15 +2059,19 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 5924092,
+      "TypeScript": 6077820,
       "HTML": 932682,
       "CSS": 72471,
       "JavaScript": 55036,
       "MDX": 6655
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -2087,11 +2079,11 @@
       "full_name": "Technical-1/SmoothQueue",
       "html_url": "https://github.com/Technical-1/SmoothQueue",
       "homepage": null,
-      "description": "iOS app that uses AI to optimize Apple Music playlists for smooth DJ-style transitions",
+      "description": "iOS app that uses AI to reorder Apple Music playlists for smooth, DJ-style transitions.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:24:13Z",
+      "pushed_at": "2026-06-03T13:50:44Z",
       "topics": [
         "apple-music",
         "claude-ai",
@@ -2107,7 +2099,7 @@
       "Swift"
     ],
     "language_bytes": {
-      "Swift": 431019
+      "Swift": 440162
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -2123,7 +2115,7 @@
       "full_name": "Technical-1/SmoothQueue-Website",
       "html_url": "https://github.com/Technical-1/SmoothQueue-Website",
       "homepage": "https://smoothqueue-landing.vercel.app",
-      "description": "Landing page for SmoothQueue - AI-powered playlist optimization for Apple Music",
+      "description": "Landing page for SmoothQueue, AI-powered playlist optimization for Apple Music.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -2157,7 +2149,7 @@
       "full_name": "Technical-1/SnapDragon",
       "html_url": "https://github.com/Technical-1/SnapDragon",
       "homepage": "",
-      "description": "A modern iOS card game built with SwiftUI featuring local multiplayer, intelligent AI opponent, and real-time online play via Firebase",
+      "description": "iOS card game built with SwiftUI, with local multiplayer, an AI opponent, and real-time online play over Firebase.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -2253,7 +2245,7 @@
       "full_name": "Technical-1/Themed-Crossword-Gen",
       "html_url": "https://github.com/Technical-1/Themed-Crossword-Gen",
       "homepage": "https://themed-crossword-gen.vercel.app",
-      "description": "AI-powered crossword puzzle generator with themed puzzles. Enter any topic and get a unique, playable crossword instantly. Features timer, hints, dark mode, sharing, and print support.",
+      "description": "Crossword generator that builds a playable themed puzzle from any topic you enter. Timer, hints, dark mode, sharing, and printing.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -2347,7 +2339,7 @@
       "full_name": "Technical-1/Video-To-Ascii",
       "html_url": "https://github.com/Technical-1/Video-To-Ascii",
       "homepage": "https://video-ascii-converter.vercel.app",
-      "description": "Real-time, browser-based video → ASCII art converter. Vanilla JS + Vite, fully client-side — 6 charsets, 4 color modes, GIF/PNG/HTML/TXT export.",
+      "description": "Browser-based video-to-ASCII converter. Vanilla JS and Vite, fully client-side, with 6 charsets, 4 color modes, and GIF/PNG/HTML/TXT export.",
       "private": true,
       "fork": false,
       "archived": false,
@@ -2394,11 +2386,11 @@
       "full_name": "Technical-1/WebCrawler",
       "html_url": "https://github.com/Technical-1/WebCrawler",
       "homepage": "",
-      "description": "Automated web scraper that extracts HTML content from website, converts it to Markdown format, and syncs to AWS Bedrock Knowledge Base for AI chatbot access.",
+      "description": "Web scraper that extracts page HTML, converts it to Markdown, and syncs it to an AWS Bedrock Knowledge Base for chatbot retrieval.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T11:20:41Z",
+      "pushed_at": "2026-06-03T15:16:04Z",
       "topics": [
         "aws",
         "aws-bedrock-agents",
@@ -2413,8 +2405,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "HTML": 8977514,
-      "Python": 69528,
+      "HTML": 8981720,
+      "Python": 71032,
       "Shell": 8759
     },
     "primary_language": "HTML",
@@ -2423,6 +2415,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/webcrawler/preview.png"
     ]
   },
   {
@@ -2464,7 +2459,7 @@
       "full_name": "Technical-1/AHSR-senior-design-archive",
       "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
       "homepage": "",
-      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher). Full git history preserved.",
+      "description": "Archive of the CD1-ARHS senior design team's 21 repos (Autonomous Robotic Hospital Stretcher), with full git history.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2519,11 +2514,11 @@
       "full_name": "Technical-1/All-About-Me",
       "html_url": "https://github.com/Technical-1/All-About-Me",
       "homepage": "https://JacobKanfer.com",
-      "description": "A Resume Website with all of my experience, projects, and contact information!",
+      "description": "My personal resume site: experience, projects, and contact info.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T11:11:47Z",
+      "pushed_at": "2026-06-03T11:49:35Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2570,7 +2565,7 @@
       "full_name": "Technical-1/APComputerScienceA2019-2020",
       "html_url": "https://github.com/Technical-1/APComputerScienceA2019-2020",
       "homepage": null,
-      "description": "AP Computer Science A coursework (Java) — 8 modules from primitives to OO design, with Monte Carlo sims, file I/O, and a 156-row hurricane dataset analyzer.",
+      "description": "AP Computer Science A coursework in Java. 8 modules from primitives to OO design, including Monte Carlo simulations, file I/O, and a hurricane-data analyzer.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2611,7 +2606,7 @@
       "full_name": "Technical-1/CAP4770-Final_Project",
       "html_url": "https://github.com/Technical-1/CAP4770-Final_Project",
       "homepage": null,
-      "description": "Neural network model for predicting NYC taxi fares - CAP4770 Final Project",
+      "description": "Neural network that predicts NYC taxi fares. CAP4770 final project.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2646,11 +2641,51 @@
   },
   {
     "repo": {
+      "name": "coinbasis",
+      "full_name": "Technical-1/coinbasis",
+      "html_url": "https://github.com/Technical-1/coinbasis",
+      "homepage": "https://crates.io/crates/coinbasis",
+      "description": "Crypto tax-lot cost-basis accounting (FIFO/LIFO/HIFO/Average/Specific-ID) as a pure Rust library. Per-wallet lots with capital-gains and income tax-year reports.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-03T18:40:12Z",
+      "topics": [
+        "accounting",
+        "capital-gains",
+        "cost-basis",
+        "crypto",
+        "cryptocurrency",
+        "fifo",
+        "finance",
+        "portfolio",
+        "rust",
+        "rust-library",
+        "tax",
+        "taxes"
+      ]
+    },
+    "languages": [
+      "Rust"
+    ],
+    "language_bytes": {
+      "Rust": 132961
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
       "name": "Cplories-and-More",
       "full_name": "Technical-1/Cplories-and-More",
       "html_url": "https://github.com/Technical-1/Cplories-and-More",
       "homepage": null,
-      "description": "CLI meal planner over the USDA Nutrient Database, powered by an ordered map (BST) and unordered map (hash table) implemented from scratch in C++ and benchmarked head-to-head. COP3530 DSA project.",
+      "description": "CLI meal planner over the USDA Nutrient Database, backed by an ordered map (BST) and a hash table built from scratch in C++ and benchmarked head-to-head. COP3530 project.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2701,22 +2736,33 @@
       "full_name": "Technical-1/Crypto-Price-Tracker",
       "html_url": "https://github.com/Technical-1/Crypto-Price-Tracker",
       "homepage": "",
-      "description": "Easy to use crypto tracker that pull current prices from coingecko's api. Can be utilized by anyone holding crypto to see a comprehensive profit analysis that isn't offered on many wallets.",
+      "description": "Crypto portfolio tracker that pulls live prices from the CoinGecko API and shows profit analysis most wallets don't offer.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:19:58Z",
+      "pushed_at": "2026-06-03T21:52:08Z",
       "topics": []
     },
     "languages": [
-      "Python"
+      "Python",
+      "HTML",
+      "JavaScript"
     ],
     "language_bytes": {
-      "Python": 7649
+      "Python": 129444,
+      "HTML": 7212,
+      "JavaScript": 775
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/crypto-price-tracker/preview.png"
+    ]
   },
   {
     "repo": {
@@ -2724,7 +2770,7 @@
       "full_name": "Technical-1/Easy-Time-Blocking",
       "html_url": "https://github.com/Technical-1/Easy-Time-Blocking",
       "homepage": "https://technical-1.github.io/Easy-Time-Blocking/",
-      "description": "Easy Time-Blocking is a lightweight, web-based scheduling tool that helps you visually plan your day. Simply drag or tap time slots to create blocks, add tasks and notes.",
+      "description": "Lightweight web scheduling tool for planning your day. Drag or tap time slots to create blocks and add tasks and notes.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -2763,7 +2809,7 @@
       "full_name": "Technical-1/EbayViews",
       "html_url": "https://github.com/Technical-1/EbayViews",
       "homepage": "",
-      "description": "Multithreaded python eBay view bot. Can generate as many views as the user wants to hopefully \"naturally\" generate interest and move the item up in the search results.",
+      "description": "Multithreaded Python bot that generates eBay listing views to raise an item's search ranking.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2795,7 +2841,7 @@
       "full_name": "Technical-1/EbayViews-Desktop",
       "html_url": "https://github.com/Technical-1/EbayViews-Desktop",
       "homepage": null,
-      "description": "PyQt6 desktop app for controlled eBay seller listing discovery, selectable request generation, settings, logging, and tests.",
+      "description": "PyQt6 desktop app for eBay seller listing discovery, with selectable request generation, settings, logging, and tests.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -2836,7 +2882,7 @@
       "full_name": "Technical-1/EEL4599-Final-Project",
       "html_url": "https://github.com/Technical-1/EEL4599-Final-Project",
       "homepage": null,
-      "description": "Multi-node wireless sensor network: XBee/802.15.4 temperature & light nodes report to a WiFi coordinator that logs readings to ThingSpeak. EEL4599 final project.",
+      "description": "Multi-node wireless sensor network. XBee/802.15.4 temperature and light nodes report to a WiFi coordinator that logs to ThingSpeak. EEL4599 final project.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -2891,7 +2937,7 @@
       "full_name": "Technical-1/email-archive-parser",
       "html_url": "https://github.com/Technical-1/email-archive-parser",
       "homepage": "https://www.npmjs.com/package/@technical-1/email-archive-parser",
-      "description": "Parse OLM & MBOX email archives with TypeScript. Extract emails, contacts, calendars + detect accounts, purchases, subscriptions. Memory-efficient streaming for multi-GB files.",
+      "description": "Parse OLM and MBOX email archives in TypeScript. Extracts emails, contacts, and calendars, detects accounts, purchases, and subscriptions, and streams multi-GB files efficiently.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -2932,7 +2978,7 @@
       "full_name": "Technical-1/EmailAnalyzer",
       "html_url": "https://github.com/Technical-1/EmailAnalyzer",
       "homepage": "https://email-analyzer-eta.vercel.app",
-      "description": "A privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, automatically detect accounts and purchases, track subscriptions, visualize email patterns, and manage contacts—all offline with zero data uploads. Built with React, TypeScript, and IndexedDB.",
+      "description": "Privacy-first email archive analyzer that runs entirely in your browser. Import .olm and .mbox files, detect accounts and purchases, track subscriptions, and manage contacts offline. Built with React, TypeScript, and IndexedDB.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -2979,22 +3025,26 @@
       "full_name": "Technical-1/FBI-API",
       "html_url": "https://github.com/Technical-1/FBI-API",
       "homepage": "",
-      "description": "Random FBI API script to try it out. Wanted to see how it worked after stumbling into it. Grabs the most wanted after looping through the pages of results and puts them into an html file.",
+      "description": "Script that explores the FBI Most Wanted API, paging through results and writing them to an HTML file.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:24:08Z",
+      "pushed_at": "2026-06-03T13:40:30Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 10832
+      "Python": 15791
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -3002,7 +3052,7 @@
       "full_name": "Technical-1/Git-Archiver",
       "html_url": "https://github.com/Technical-1/Git-Archiver",
       "homepage": null,
-      "description": "A tool for automatically tracking and archiving GitHub repositories. It periodically checks for updates, compresses older versions, and ensures that even deleted or archived repositories are preserved locally.",
+      "description": "Automatically tracks and archives GitHub repositories. Checks for updates, compresses older versions, and preserves even deleted or archived repos locally.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3040,7 +3090,7 @@
       "full_name": "Technical-1/Git-Archiver-Web",
       "html_url": "https://github.com/Technical-1/Git-Archiver-Web",
       "homepage": "https://technical-1.github.io/Git-Archiver-Web/",
-      "description": "Free GitHub repository archive service - backup any public repo forever",
+      "description": "Free service to back up any public GitHub repository permanently.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3082,7 +3132,7 @@
       "full_name": "Technical-1/Image-To-Ascii-Flask",
       "html_url": "https://github.com/Technical-1/Image-To-Ascii-Flask",
       "homepage": "https://image-to-ascii-erfs.onrender.com",
-      "description": "Convert images to ASCII art with an interactive web UI. Real-time preview, customizable dimensions, and multiple character sets.",
+      "description": "Convert images to ASCII art in the browser, with live preview, adjustable dimensions, and multiple character sets. Earlier Flask version.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -3120,11 +3170,11 @@
       "full_name": "Technical-1/Image-To-Ascii-Vite",
       "html_url": "https://github.com/Technical-1/Image-To-Ascii-Vite",
       "homepage": "https://image-to-ascii-nine.vercel.app",
-      "description": "Convert images to ASCII art with an interactive web UI. Real-time preview, customizable dimensions, and multiple character sets.",
+      "description": "Convert images to ASCII art in the browser, with live preview, adjustable dimensions, and multiple character sets.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:12:28Z",
+      "pushed_at": "2026-06-03T21:45:41Z",
       "topics": []
     },
     "languages": [
@@ -3133,8 +3183,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 99893,
-      "HTML": 12489,
+      "JavaScript": 122917,
+      "HTML": 12634,
       "CSS": 8000
     },
     "primary_language": "JavaScript",
@@ -3154,7 +3204,7 @@
       "full_name": "Technical-1/img2ascii",
       "html_url": "https://github.com/Technical-1/img2ascii",
       "homepage": null,
-      "description": "Standalone command-line tool to convert images to ASCII art",
+      "description": "Command-line tool that converts images to ASCII art.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3211,11 +3261,11 @@
       "full_name": "Technical-1/iPhone-Mirroring-Auto-Scripts",
       "html_url": "https://github.com/Technical-1/iPhone-Mirroring-Auto-Scripts",
       "homepage": "",
-      "description": "A set of AppleScript and Python tools to automate the iPhone Mirroring macOS app. Gives users a toolbox to generate AppleScript for automated clicking and typing—ideal for automation tasks.",
+      "description": "AppleScript and Python tools to automate the macOS iPhone Mirroring app. Generates AppleScript for automated clicking and typing.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:19:45Z",
+      "pushed_at": "2026-06-03T13:41:01Z",
       "topics": [
         "applescript",
         "automation",
@@ -3232,8 +3282,66 @@
       "AppleScript": 4479
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Local-Hoster",
+      "full_name": "Technical-1/Local-Hoster",
+      "html_url": "https://github.com/Technical-1/Local-Hoster",
+      "homepage": null,
+      "description": "macOS menu-bar app that auto-discovers running dev servers and previews them in an embedded tray popup. Rust + Tauri v2 + SvelteKit; Developer ID-signed, notarized, and self-updating.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T00:08:01Z",
+      "topics": [
+        "auto-update",
+        "code-signing",
+        "dev-server",
+        "developer-tools",
+        "macos",
+        "menubar",
+        "notarization",
+        "rust",
+        "svelte",
+        "sveltekit",
+        "tauri",
+        "tauri-v2",
+        "typescript"
+      ]
+    },
+    "languages": [
+      "Rust",
+      "Svelte",
+      "HTML",
+      "CSS",
+      "TypeScript",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Rust": 53052,
+      "Svelte": 51107,
+      "HTML": 11778,
+      "CSS": 2660,
+      "TypeScript": 2127,
+      "JavaScript": 291
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/local-hoster/preview.png"
+    ]
   },
   {
     "repo": {
@@ -3241,7 +3349,7 @@
       "full_name": "Technical-1/MyVoteProject-V1",
       "html_url": "https://github.com/Technical-1/MyVoteProject-V1",
       "homepage": "https://myvoteproject.com/",
-      "description": "Nonpartisan voter education platform for the 2020 U.S. Presidential Election - candidate profiles and policy breakdowns",
+      "description": "Nonpartisan voter-education site for the 2020 U.S. presidential election, with candidate profiles and policy breakdowns.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -3283,7 +3391,7 @@
       "full_name": "Technical-1/NeoMatrix-FrameCreator",
       "html_url": "https://github.com/Technical-1/NeoMatrix-FrameCreator",
       "homepage": "https://technical-1.github.io/NeoMatrix-FrameCreator/",
-      "description": "The NeoMatrix Frame Creator is a web-based tool that simplifies the process of designing frames for LED animations on NeoMatrix and WS2812 LED matrices.",
+      "description": "Web tool for designing frames for LED animations on NeoMatrix and WS2812 LED matrices.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3323,7 +3431,7 @@
       "full_name": "Technical-1/PLC_Project",
       "html_url": "https://github.com/Technical-1/PLC_Project",
       "homepage": null,
-      "description": "A complete compiler implementation with lexer, parser, semantic analyzer, interpreter, and Java code generator",
+      "description": "Compiler built from scratch: lexer, parser, semantic analyzer, interpreter, and Java code generator.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -3363,7 +3471,7 @@
       "full_name": "Technical-1/Pluribus-Text-Gen",
       "html_url": "https://github.com/Technical-1/Pluribus-Text-Gen",
       "homepage": "https://pluribus-text-gen.vercel.app/",
-      "description": "Interactive particle text effect inspired by the Pluribus TV show intro. Fingerprint-style text with wave animations using HTML5 Canvas.",
+      "description": "Particle text effect inspired by the Pluribus title sequence. Fingerprint-style text with wave animations on HTML5 Canvas.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3401,11 +3509,11 @@
       "full_name": "Technical-1/Private-Collab-Whiteboard",
       "html_url": "https://github.com/Technical-1/Private-Collab-Whiteboard",
       "homepage": "https://private-collab-whiteboard.vercel.app",
-      "description": "Real-time collaborative whiteboard with P2P sync, end-to-end encryption, and infinite canvas",
+      "description": "Collaborative whiteboard with peer-to-peer sync, end-to-end encryption, and an infinite canvas.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T00:25:06Z",
+      "pushed_at": "2026-06-04T00:08:27Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -3426,9 +3534,9 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 314427,
-      "CSS": 55905,
-      "HTML": 33314,
+      "JavaScript": 360332,
+      "CSS": 63465,
+      "HTML": 58791,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
@@ -3451,7 +3559,7 @@
       "full_name": "Technical-1/pythonforge",
       "html_url": "https://github.com/Technical-1/pythonforge",
       "homepage": "https://pypi.org/project/quickforge/",
-      "description": "Modern Python project bootstrapper with 2025's best toolchain (uv, ruff, basedpyright)",
+      "description": "Python project bootstrapper using a current toolchain: uv, ruff, and basedpyright.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3496,7 +3604,7 @@
       "full_name": "Technical-1/QuickPass",
       "html_url": "https://github.com/Technical-1/QuickPass",
       "homepage": "",
-      "description": "A secure, cross-platform desktop password manager built in Rust with AES-256-GCM encryption, dual authentication (password + pattern lock), TOTP/2FA support, and brute-force protection.",
+      "description": "Cross-platform desktop password manager in Rust with AES-256-GCM encryption, password and pattern-lock auth, TOTP/2FA, and brute-force protection.",
       "private": false,
       "fork": false,
       "archived": true,
@@ -3542,7 +3650,7 @@
       "full_name": "Technical-1/Remote-Preview",
       "html_url": "https://github.com/Technical-1/Remote-Preview",
       "homepage": "https://happy-preview.vercel.app",
-      "description": "CLI-to-mobile preview proxy. Send HTML or images from Claude Code to a live Vercel URL.",
+      "description": "CLI-to-mobile preview proxy. Sends HTML or images from Claude Code to a live Vercel URL.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3586,7 +3694,7 @@
       "full_name": "Technical-1/RepoLens",
       "html_url": "https://github.com/Technical-1/RepoLens",
       "homepage": "https://repolens.io/",
-      "description": "Analyze GitHub repositories with beautiful visualizations. View language breakdowns, commit history, code frequency, contributors, and generate embeddable stats widgets for your README.",
+      "description": "Analyze any GitHub repository: language breakdowns, commit history, code frequency, contributors, and embeddable README stat widgets.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3629,7 +3737,7 @@
       "full_name": "Technical-1/Rust-Dashboard",
       "html_url": "https://github.com/Technical-1/Rust-Dashboard",
       "homepage": "",
-      "description": "Rust-Dashboard is a cross-platform system monitoring tool built with sysinfo and eframe/egui. It tracks CPU, memory, disk, and network usage in real time, showing top processes by CPU and memory consumption.",
+      "description": "Cross-platform system monitor built with sysinfo and eframe/egui. Tracks CPU, memory, disk, and network in real time and lists top processes by CPU and memory.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3677,7 +3785,7 @@
       "full_name": "Technical-1/Shopify-ATC",
       "html_url": "https://github.com/Technical-1/Shopify-ATC",
       "homepage": "https://pypi.org/project/shopify-atc/",
-      "description": "Command-line tool that turns any Shopify storefront's public products.json into direct add-to-cart permalinks (text/JSON/CSV).",
+      "description": "Command-line tool that turns any Shopify storefront's public products.json into direct add-to-cart links (text/JSON/CSV).",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3722,7 +3830,7 @@
       "full_name": "Technical-1/shopify-atc-gui",
       "html_url": "https://github.com/Technical-1/shopify-atc-gui",
       "homepage": "https://shopify-atc-gui.vercel.app",
-      "description": "Filterable web GUI for building Shopify add-to-cart links (Next.js, Vercel).",
+      "description": "Web GUI for building filterable Shopify add-to-cart links. Next.js on Vercel.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3766,7 +3874,7 @@
       "full_name": "Technical-1/Signature-Studio",
       "html_url": "https://github.com/Technical-1/Signature-Studio",
       "homepage": "https://signature-studio-nu.vercel.app",
-      "description": "Create animated signature SVGs — draw freehand or type with single-stroke calligraphic fonts",
+      "description": "Create animated signature SVGs by drawing freehand or typing with single-stroke calligraphic fonts.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3810,7 +3918,7 @@
       "full_name": "Technical-1/Simple-Backgammon",
       "html_url": "https://github.com/Technical-1/Simple-Backgammon",
       "homepage": "https://simple-backgammon.vercel.app/",
-      "description": "A modern backgammon game with AI opponents and 3D animated dice, built with Next.js and Three.js",
+      "description": "Backgammon game with AI opponents and 3D animated dice. Built with Next.js and Three.js.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3856,7 +3964,7 @@
       "full_name": "Technical-1/Snorlax-Tracker",
       "html_url": "https://github.com/Technical-1/Snorlax-Tracker",
       "homepage": "https://snorlax-tracker.vercel.app",
-      "description": "Track every Snorlax Pokémon TCG card across every era, language, and variant — live prices, owned tracking, manual image/price overrides, CSV export/import, and a printable checklist.",
+      "description": "Track every Snorlax Pokémon TCG card across eras, languages, and variants. Live prices, owned tracking, image/price overrides, CSV import/export, and a printable checklist.",
       "private": false,
       "fork": false,
       "archived": false,
@@ -3895,26 +4003,80 @@
   },
   {
     "repo": {
+      "name": "Supernatural-Speed-Racer",
+      "full_name": "Technical-1/Supernatural-Speed-Racer",
+      "html_url": "https://github.com/Technical-1/Supernatural-Speed-Racer",
+      "homepage": "https://supernatural-speed-racer.vercel.app",
+      "description": "Neon browser typing game: race a fixed passage against a deterministic ghost opponent on a split-screen track. Live WPM/CPM, vanilla HTML/CSS/ES modules, no build step.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-03T18:28:54Z",
+      "topics": [
+        "browser-game",
+        "es-modules",
+        "game",
+        "html5-game",
+        "no-build",
+        "racing-game",
+        "typing-game",
+        "typing-test",
+        "vanilla-javascript",
+        "wpm"
+      ]
+    },
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 19252,
+      "HTML": 13410,
+      "CSS": 9264
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/supernatural-speed-racer/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "Supernatural-Speed-Typer",
       "full_name": "Technical-1/Supernatural-Speed-Typer",
       "html_url": "https://github.com/Technical-1/Supernatural-Speed-Typer",
       "homepage": "",
-      "description": "https://thetypingcat.com typing speedtest cheater. Uses Puppeteer to emulate a user typing each character to get insanely fast scores. Can be altered to have more believable results by adding delays.",
+      "description": "Typing-test bot for thetypingcat.com. Uses Puppeteer to type each character automatically for very fast scores; add delays for more believable results.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T05:12:52Z",
+      "pushed_at": "2026-06-03T17:57:25Z",
       "topics": []
     },
     "languages": [
-      "JavaScript"
+      "JavaScript",
+      "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 10957
+      "JavaScript": 25974,
+      "HTML": 7203
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/supernatural-speed-typer/preview.png"
+    ]
   },
   {
     "repo": {
@@ -3922,11 +4084,11 @@
       "full_name": "Technical-1/Technical-1",
       "html_url": "https://github.com/Technical-1/Technical-1",
       "homepage": "https://jacobkanfer.com",
-      "description": "Full-stack developer passionate about building scalable applications across cloud platforms (AWS, Azure, GCP), modern web frameworks (React, Vue, Next.js), and AI/ML solutions. Experienced in automation, enterprise tools, and DevOps practices.",
+      "description": "Full-stack developer working across AWS, Azure, and GCP, modern web frameworks (React, Vue, Next.js), and AI/ML. Focused on automation, enterprise tools, and DevOps.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T08:59:40Z",
+      "pushed_at": "2026-06-04T08:25:41Z",
       "topics": []
     },
     "languages": [
@@ -3954,7 +4116,7 @@
       "full_name": "Technical-1/UCF_DecisionChecker",
       "html_url": "https://github.com/Technical-1/UCF_DecisionChecker",
       "homepage": "",
-      "description": "First project I ever pushed to GitHub. Script to check UCF acceptance status every 12 hours and texts the user once a decision has been made or if it is still waiting.",
+      "description": "My first GitHub project. Checks UCF admission status every 12 hours and texts me when the decision changes.",
       "private": false,
       "fork": false,
       "archived": true,
