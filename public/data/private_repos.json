@@ -28,7 +28,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T00:25:58Z",
+      "pushed_at": "2026-06-04T19:28:57Z",
       "topics": []
     },
     "languages": [
@@ -37,11 +37,18 @@
     ],
     "language_bytes": {
       "JavaScript": 47852,
-      "HTML": 3576
+      "HTML": 12217
     },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ascii-react-native/preview.png"
+    ]
   },
   {
     "repo": {
@@ -87,7 +94,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T17:38:35Z",
+      "pushed_at": "2026-06-04T17:46:13Z",
       "topics": [
         "blackjack",
         "card-counting",
@@ -104,10 +111,10 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 1208406,
+      "TypeScript": 1212558,
       "JavaScript": 84167,
-      "HTML": 35215,
-      "CSS": 9467
+      "HTML": 44809,
+      "CSS": 14071
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -115,6 +122,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/blackjack-trainer/preview.png"
     ]
   },
   {
@@ -1516,7 +1526,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T18:08:11Z",
+      "pushed_at": "2026-06-04T20:04:23Z",
       "topics": []
     },
     "languages": [
@@ -1526,8 +1536,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 538776,
-      "HTML": 48098,
+      "TypeScript": 645853,
+      "HTML": 54581,
       "CSS": 7409,
       "JavaScript": 559
     },
@@ -2032,7 +2042,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T00:37:07Z",
+      "pushed_at": "2026-06-04T18:17:09Z",
       "topics": [
         "business-management",
         "crm",
@@ -2059,8 +2069,8 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 6077820,
-      "HTML": 932682,
+      "TypeScript": 6186349,
+      "HTML": 1854513,
       "CSS": 72471,
       "JavaScript": 55036,
       "MDX": 6655
@@ -2518,7 +2528,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T11:49:35Z",
+      "pushed_at": "2026-06-04T10:32:29Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2641,15 +2651,49 @@
   },
   {
     "repo": {
-      "name": "coinbasis",
-      "full_name": "Technical-1/coinbasis",
-      "html_url": "https://github.com/Technical-1/coinbasis",
+      "name": "coinbasis-py",
+      "full_name": "Technical-1/coinbasis-py",
+      "html_url": "https://github.com/Technical-1/coinbasis-py",
+      "homepage": null,
+      "description": "Pure-Python crypto tax-lot cost-basis accounting: FIFO/LIFO/HIFO/Average/Specific-ID, per-wallet lots, capital gains, income, valuation, tax-bracket estimates, and portfolio stats — zero runtime dependencies",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T17:03:58Z",
+      "topics": []
+    },
+    "languages": [
+      "Python",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 172457,
+      "HTML": 5474,
+      "JavaScript": 775
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinbasis-py/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "coinbasis-rs",
+      "full_name": "Technical-1/coinbasis-rs",
+      "html_url": "https://github.com/Technical-1/coinbasis-rs",
       "homepage": "https://crates.io/crates/coinbasis",
       "description": "Crypto tax-lot cost-basis accounting (FIFO/LIFO/HIFO/Average/Specific-ID) as a pure Rust library. Per-wallet lots with capital-gains and income tax-year reports.",
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T18:40:12Z",
+      "pushed_at": "2026-06-04T16:45:46Z",
       "topics": [
         "accounting",
         "capital-gains",
@@ -2666,10 +2710,12 @@
       ]
     },
     "languages": [
-      "Rust"
+      "Rust",
+      "HTML"
     ],
     "language_bytes": {
-      "Rust": 132961
+      "Rust": 146230,
+      "HTML": 6295
     },
     "primary_language": "Rust",
     "has_portfolio": true,
@@ -2677,6 +2723,43 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinbasis-rs/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "coinlytics-py",
+      "full_name": "Technical-1/coinlytics-py",
+      "html_url": "https://github.com/Technical-1/coinlytics-py",
+      "homepage": null,
+      "description": "Crypto portfolio analytics + market data for Python (CoinGecko keyed-fallback client, rebalancing, staking, news, history) — builds on coinbasis",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T17:21:07Z",
+      "topics": []
+    },
+    "languages": [
+      "Python",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 166351,
+      "HTML": 5585,
+      "JavaScript": 775
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinlytics-py/preview.png"
     ]
   },
   {
@@ -2740,7 +2823,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T21:52:08Z",
+      "pushed_at": "2026-06-04T17:57:48Z",
       "topics": []
     },
     "languages": [
@@ -2749,8 +2832,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "Python": 129444,
-      "HTML": 7212,
+      "Python": 157947,
+      "HTML": 7262,
       "JavaScript": 775
     },
     "primary_language": "Python",
@@ -2762,6 +2845,96 @@
     ],
     "screenshots": [
       "/screenshots/crypto-price-tracker/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "Crypto-Price-Tracker-V2",
+      "full_name": "Technical-1/Crypto-Price-Tracker-V2",
+      "html_url": "https://github.com/Technical-1/Crypto-Price-Tracker-V2",
+      "homepage": "https://crates.io/crates/crypto-price-tracker-v2",
+      "description": "Terminal UI (TUI) for tracking a crypto portfolio: live prices, cost-basis tax lots, tax estimates, rebalancing analytics, and performance history. Install via cargo or Homebrew.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T17:45:40Z",
+      "topics": [
+        "cost-basis",
+        "crypto",
+        "cryptocurrency",
+        "finance",
+        "portfolio",
+        "ratatui",
+        "rebalancing",
+        "rust",
+        "tax",
+        "terminal",
+        "tui"
+      ]
+    },
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 152974,
+      "HTML": 7106
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/crypto-price-tracker-v2/preview.png"
+    ]
+  },
+  {
+    "repo": {
+      "name": "cryptolytics-rs",
+      "full_name": "Technical-1/cryptolytics-rs",
+      "html_url": "https://github.com/Technical-1/cryptolytics-rs",
+      "homepage": "https://crates.io/crates/cryptolytics",
+      "description": "Pure portfolio risk & allocation analytics as a Rust library: returns, volatility, correlation matrices, portfolio volatility, Sharpe/drawdown ratios, target-weight strategies, rebalancing trades, and buy & hold backtesting. No network, no I/O.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T16:42:54Z",
+      "topics": [
+        "analytics",
+        "backtesting",
+        "correlation",
+        "crypto",
+        "cryptocurrency",
+        "finance",
+        "portfolio",
+        "rebalancing",
+        "risk",
+        "rust",
+        "rust-library",
+        "sharpe-ratio",
+        "volatility"
+      ]
+    },
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 49469,
+      "HTML": 8440
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/cryptolytics-rs/preview.png"
     ]
   },
   {
@@ -3125,6 +3298,29 @@
     "screenshots": [
       "/screenshots/git-archiver-web/preview.png"
     ]
+  },
+  {
+    "repo": {
+      "name": "homebrew-tap",
+      "full_name": "Technical-1/homebrew-tap",
+      "html_url": "https://github.com/Technical-1/homebrew-tap",
+      "homepage": null,
+      "description": "Homebrew tap for Jacob Kanfer's command-line tools",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-04T17:45:51Z",
+      "topics": []
+    },
+    "languages": [
+      "Ruby"
+    ],
+    "language_bytes": {
+      "Ruby": 704
+    },
+    "primary_language": "Ruby",
+    "has_portfolio": false,
+    "portfolio_files": []
   },
   {
     "repo": {
@@ -3513,7 +3709,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T00:08:27Z",
+      "pushed_at": "2026-06-04T20:02:18Z",
       "topics": [
         "canvas",
         "collaboration",
@@ -3534,9 +3730,9 @@
       "TypeScript"
     ],
     "language_bytes": {
-      "JavaScript": 360332,
-      "CSS": 63465,
-      "HTML": 58791,
+      "JavaScript": 366470,
+      "CSS": 63954,
+      "HTML": 58813,
       "TypeScript": 1142
     },
     "primary_language": "JavaScript",
