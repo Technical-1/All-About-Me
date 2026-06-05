@@ -24,6 +24,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import { categoryFor } from './repo-categories.js';
+
 const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'data');
 const PRIVATE_REPOS_PATH = path.join(OUTPUT_DIR, 'private_repos.json');
 const FEATURED_REPOS_PATH = path.join(OUTPUT_DIR, 'featured_repos.json');
@@ -302,7 +304,7 @@ async function processRepo(repo) {
     portfolio_files: portfolioData ? Object.keys(portfolioData) : [],
     screenshots: screenshots.length > 0 ? screenshots : undefined
   };
-  if (metadata) result.metadata = metadata;
+  result.metadata = { ...(metadata || {}), category: categoryFor(repo.name) };
   return result;
 }
 
