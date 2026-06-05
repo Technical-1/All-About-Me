@@ -120,6 +120,20 @@ the winning combination; the toggles are then stripped and only the winner's cod
 - Changing the project detail page (`projects/[slug].astro`).
 - GitHub topics-based auto-categorization (categories are doc-derived and explicit).
 
+## Update (post-gate refinement, 2026-06-05)
+
+After the categorization review, two status shelves were added below the 10 domains:
+
+- **Academic Coursework** — an explicit 4-repo shelf: `AHSR-senior-design-archive` (also
+  featured), `APComputerScienceA2019-2020`, `Cplories-and-More`, `EEL4599-Final-Project`.
+  Stored as `metadata.category: 'academic'`; always wins (even for featured AHSR).
+- **Work in Progress** — derived at render time, not stored: any repo (outside Academic)
+  **without a `.portfolio/preview.png`** lands here (~34 visible). The preview image is the
+  showcase bar. `Technical-1` → Dev Tools; `Private-Collab-Whiteboard` and
+  `Personal-Budget-Tool` confirmed in Web Apps & Utilities.
+
+Shelf order: 10 domains → `other` → Academic Coursework → Work in Progress.
+
 ## Success criteria
 
 - All 116 repos render under a domain shelf; none orphaned.
