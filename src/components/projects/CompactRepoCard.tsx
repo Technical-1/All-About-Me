@@ -17,9 +17,11 @@ import { getLanguageColor, getRepoSlug } from '../../lib/github';
 
 interface CompactRepoCardProps {
   repo: GitHubRepo;
+  /** When true, the OG image enlarges ~1.6× on desktop hover. Off for the featured band. */
+  bigHover?: boolean;
 }
 
-export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
+export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoCardProps) {
   const [revealed, setRevealed] = useState(false);
   const slug = getRepoSlug(repo);
   const hasScreenshot = repo.screenshots && repo.screenshots.length > 0;
@@ -51,7 +53,6 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
   const initials = repo.name.substring(0, 2).toUpperCase();
 
   const isFeatured = repo.metadata?.featured === true;
-  const isArchived = repo.archived === true;
 
   return (
     <a
@@ -59,7 +60,7 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
       className="group relative block"
-      style={{ textDecoration: 'none', opacity: isArchived ? 0.55 : 1 }}
+      style={{ textDecoration: 'none' }}
       onClick={(e) => {
         // No-hover (touch) devices have no way to see the hover popover, so a
         // tap on the card toggles it instead of navigating — tap to reveal,
@@ -73,11 +74,11 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
     >
       {/* Resting state: the OG image IS the card */}
       <div
-        className="card overflow-hidden relative aspect-[1200/630]
+        className={`card overflow-hidden relative aspect-[1200/630]
                    transition-[transform,box-shadow,border-color] duration-300 ease-out
-                   group-hover:scale-[1.04] group-hover:z-20
+                   group-hover:scale-[1.04] ${bigHover ? 'lg:group-hover:scale-[1.6]' : ''} group-hover:z-30
                    group-hover:border-[color:var(--accent-secondary)]
-                   group-hover:shadow-[0_15px_35px_-12px_rgba(0,0,0,0.3)]"
+                   group-hover:shadow-[0_15px_35px_-12px_rgba(0,0,0,0.3)]`}
         style={{ padding: 0, transformOrigin: 'center top', backgroundColor: 'var(--bg-surface)' }}
       >
         {isFeatured && (
@@ -149,7 +150,7 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
 
       {/* Hover popover — the "description and rest", below the image box */}
       <div
-        className={`absolute top-full left-0 right-0 mt-2 z-30
+        className={`absolute top-full left-0 right-0 mt-2 z-40 ${bigHover ? 'lg:group-hover:top-[160%]' : ''}
                    ${revealed ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}
                    group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto
                    transition-all duration-300 ease-out
