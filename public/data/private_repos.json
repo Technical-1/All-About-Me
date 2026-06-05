@@ -16,7 +16,10 @@
     "language_bytes": {},
     "primary_language": null,
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -50,7 +53,10 @@
     ],
     "screenshots": [
       "/screenshots/bitcointreasuries-proxy/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -93,7 +99,10 @@
     ],
     "screenshots": [
       "/screenshots/blackjack-trainer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -136,7 +145,8 @@
       "/screenshots/btc-explorer/preview.png"
     ],
     "metadata": {
-      "featured": true
+      "featured": true,
+      "category": "crypto-fintech"
     }
   },
   {
@@ -176,7 +186,10 @@
     ],
     "screenshots": [
       "/screenshots/carmen/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -212,7 +225,10 @@
     ],
     "screenshots": [
       "/screenshots/claude-tax-toolkit/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -235,7 +251,10 @@
     },
     "primary_language": "Python",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -272,7 +291,10 @@
     ],
     "screenshots": [
       "/screenshots/crypto-proxy-coingecko/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -312,7 +334,10 @@
     ],
     "screenshots": [
       "/screenshots/csny/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -349,7 +374,10 @@
     ],
     "screenshots": [
       "/screenshots/dailysms/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -403,7 +431,10 @@
     ],
     "screenshots": [
       "/screenshots/differential-growth/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -446,7 +477,10 @@
     ],
     "screenshots": [
       "/screenshots/e350-transportation/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -475,7 +509,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -520,7 +557,10 @@
     ],
     "screenshots": [
       "/screenshots/emailer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -563,7 +603,10 @@
     ],
     "screenshots": [
       "/screenshots/emissary-risk-ops/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -590,7 +633,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -631,7 +677,10 @@
     ],
     "screenshots": [
       "/screenshots/eth-explorer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -654,7 +703,10 @@
     },
     "primary_language": "Python",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -699,7 +751,10 @@
     ],
     "screenshots": [
       "/screenshots/fish-theme/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -744,7 +799,10 @@
     ],
     "screenshots": [
       "/screenshots/flux/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -791,7 +849,10 @@
     ],
     "screenshots": [
       "/screenshots/gimmethat/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -823,7 +884,10 @@
     ],
     "screenshots": [
       "/screenshots/git-archiver-worker/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -860,7 +924,10 @@
     ],
     "screenshots": [
       "/screenshots/git-cloudflare-proxy/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -883,7 +950,10 @@
     },
     "primary_language": "Swift",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -912,7 +982,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -939,7 +1012,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -982,7 +1058,10 @@
     ],
     "screenshots": [
       "/screenshots/kanfer-d-toolkit/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -1024,7 +1103,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -1064,7 +1146,10 @@
     ],
     "screenshots": [
       "/screenshots/kid-talk-translator/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1099,7 +1184,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1150,7 +1238,10 @@
     ],
     "screenshots": [
       "/screenshots/mastercode/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1191,7 +1282,10 @@
     },
     "primary_language": "Python",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -1228,7 +1322,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -1282,7 +1379,8 @@
       "/screenshots/orbit/preview.png"
     ],
     "metadata": {
-      "featured": true
+      "featured": true,
+      "category": "ai-ml"
     }
   },
   {
@@ -1326,7 +1424,10 @@
     ],
     "screenshots": [
       "/screenshots/personal-budget-tool/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1360,7 +1461,8 @@
       "/screenshots/pixscan/preview.png"
     ],
     "metadata": {
-      "featured": true
+      "featured": true,
+      "category": "mobile"
     }
   },
   {
@@ -1380,7 +1482,10 @@
     "language_bytes": {},
     "primary_language": null,
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -1431,7 +1536,10 @@
     ],
     "screenshots": [
       "/screenshots/project-hub/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -1460,7 +1568,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1491,7 +1602,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -1516,7 +1630,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -1552,7 +1669,10 @@
     ],
     "screenshots": [
       "/screenshots/quickpass-v2/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "security"
+    }
   },
   {
     "repo": {
@@ -1581,7 +1701,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -1606,7 +1729,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -1644,7 +1770,10 @@
     ],
     "screenshots": [
       "/screenshots/redfin-scraper/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -1689,7 +1818,10 @@
     ],
     "screenshots": [
       "/screenshots/redis-upstasher/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -1716,7 +1848,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "security"
+    }
   },
   {
     "repo": {
@@ -1761,7 +1896,10 @@
     ],
     "screenshots": [
       "/screenshots/restauranthub/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -1805,7 +1943,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -1840,7 +1981,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -1867,7 +2011,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "security"
+    }
   },
   {
     "repo": {
@@ -1908,7 +2055,10 @@
     ],
     "screenshots": [
       "/screenshots/serverless-document-pipeline/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -1959,7 +2109,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -1995,7 +2148,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -2029,7 +2185,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -2065,7 +2224,10 @@
     ],
     "screenshots": [
       "/screenshots/snapdragon/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "mobile"
+    }
   },
   {
     "repo": {
@@ -2094,7 +2256,10 @@
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2141,7 +2306,10 @@
     ],
     "screenshots": [
       "/screenshots/terra-moda-rewrite/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "client-sites"
+    }
   },
   {
     "repo": {
@@ -2177,7 +2345,10 @@
     ],
     "screenshots": [
       "/screenshots/themed-crossword-gen/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2212,7 +2383,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2235,7 +2409,10 @@
     },
     "primary_language": "Python",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2282,7 +2459,10 @@
     ],
     "screenshots": [
       "/screenshots/video-to-ascii/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -2322,7 +2502,10 @@
     ],
     "screenshots": [
       "/screenshots/webcrawler/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -2376,7 +2559,8 @@
     "metadata": {
       "role": "Software Lead",
       "duration": "Jan 2023 - Dec 2024",
-      "featured": true
+      "featured": true,
+      "category": "academic"
     }
   },
   {
@@ -2428,7 +2612,10 @@
     ],
     "screenshots": [
       "/screenshots/all-about-me/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2469,7 +2656,10 @@
     ],
     "screenshots": [
       "/screenshots/apcomputersciencea2019-2020/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "academic"
+    }
   },
   {
     "repo": {
@@ -2514,7 +2704,10 @@
     ],
     "screenshots": [
       "/screenshots/ascii-react-native/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -2553,7 +2746,10 @@
     ],
     "screenshots": [
       "/screenshots/cap4770-final-project/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "ai-ml"
+    }
   },
   {
     "repo": {
@@ -2587,7 +2783,10 @@
     ],
     "screenshots": [
       "/screenshots/coinbasis-py/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2632,7 +2831,10 @@
     ],
     "screenshots": [
       "/screenshots/coinbasis-rs/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2666,7 +2868,10 @@
     ],
     "screenshots": [
       "/screenshots/coinlytics-py/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2717,7 +2922,10 @@
     ],
     "screenshots": [
       "/screenshots/cplories-and-more/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "academic"
+    }
   },
   {
     "repo": {
@@ -2751,7 +2959,10 @@
     ],
     "screenshots": [
       "/screenshots/crypto-price-tracker/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2795,7 +3006,10 @@
     ],
     "screenshots": [
       "/screenshots/crypto-price-tracker-v2/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2841,7 +3055,10 @@
     ],
     "screenshots": [
       "/screenshots/cryptolytics-rs/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "crypto-fintech"
+    }
   },
   {
     "repo": {
@@ -2880,7 +3097,10 @@
     ],
     "screenshots": [
       "/screenshots/easy-time-blocking/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -2912,7 +3132,10 @@
     ],
     "screenshots": [
       "/screenshots/ebayviews/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -2953,7 +3176,10 @@
     ],
     "screenshots": [
       "/screenshots/ebayviews-desktop/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -3008,7 +3234,10 @@
     ],
     "screenshots": [
       "/screenshots/eel4599-final-project/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "academic"
+    }
   },
   {
     "repo": {
@@ -3049,7 +3278,10 @@
     ],
     "screenshots": [
       "/screenshots/email-archive-parser/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3096,7 +3328,10 @@
     ],
     "screenshots": [
       "/screenshots/emailanalyzer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "security"
+    }
   },
   {
     "repo": {
@@ -3123,7 +3358,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3161,7 +3399,10 @@
     ],
     "screenshots": [
       "/screenshots/git-archiver/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3203,7 +3444,10 @@
     ],
     "screenshots": [
       "/screenshots/git-archiver-web/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3237,7 +3481,10 @@
     ],
     "screenshots": [
       "/screenshots/googleformsautofiller/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -3269,7 +3516,10 @@
     ],
     "screenshots": [
       "/screenshots/homebrew-tap/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3307,7 +3557,10 @@
     ],
     "screenshots": [
       "/screenshots/image-to-ascii-flask/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -3341,7 +3594,10 @@
     ],
     "screenshots": [
       "/screenshots/image-to-ascii-vite/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -3373,7 +3629,10 @@
     ],
     "screenshots": [
       "/screenshots/img2ascii/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -3398,7 +3657,10 @@
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
-    "portfolio_files": []
+    "portfolio_files": [],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -3432,7 +3694,10 @@
       "architecture.md",
       "stack.md",
       "qa.md"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -3486,7 +3751,10 @@
     ],
     "screenshots": [
       "/screenshots/local-hoster/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3528,7 +3796,10 @@
     ],
     "screenshots": [
       "/screenshots/myvoteproject-v1/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -3568,7 +3839,10 @@
     ],
     "screenshots": [
       "/screenshots/neomatrix-framecreator/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -3608,7 +3882,10 @@
     ],
     "screenshots": [
       "/screenshots/plc-project/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3646,7 +3923,10 @@
     ],
     "screenshots": [
       "/screenshots/pluribus-text-gen/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -3695,7 +3975,8 @@
       "/screenshots/private-collab-whiteboard/preview.png"
     ],
     "metadata": {
-      "featured": true
+      "featured": true,
+      "category": "web-utilities"
     }
   },
   {
@@ -3741,7 +4022,10 @@
     ],
     "screenshots": [
       "/screenshots/pythonforge/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3787,7 +4071,10 @@
     ],
     "screenshots": [
       "/screenshots/quickpass/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "security"
+    }
   },
   {
     "repo": {
@@ -3831,7 +4118,10 @@
     ],
     "screenshots": [
       "/screenshots/remote-preview/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3873,7 +4163,8 @@
       "/screenshots/repolens/preview.png"
     ],
     "metadata": {
-      "featured": true
+      "featured": true,
+      "category": "dev-tools"
     }
   },
   {
@@ -3922,7 +4213,10 @@
     ],
     "screenshots": [
       "/screenshots/rust-dashboard/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -3967,7 +4261,10 @@
     ],
     "screenshots": [
       "/screenshots/shopify-atc/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -4011,7 +4308,10 @@
     ],
     "screenshots": [
       "/screenshots/shopify-atc-gui/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "web-utilities"
+    }
   },
   {
     "repo": {
@@ -4055,7 +4355,10 @@
     ],
     "screenshots": [
       "/screenshots/signature-studio/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "creative"
+    }
   },
   {
     "repo": {
@@ -4101,7 +4404,10 @@
     ],
     "screenshots": [
       "/screenshots/simple-backgammon/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -4144,7 +4450,10 @@
     ],
     "screenshots": [
       "/screenshots/snorlax-tracker/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -4189,7 +4498,10 @@
     ],
     "screenshots": [
       "/screenshots/supernatural-speed-racer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "games"
+    }
   },
   {
     "repo": {
@@ -4221,7 +4533,10 @@
     ],
     "screenshots": [
       "/screenshots/supernatural-speed-typer/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   },
   {
     "repo": {
@@ -4253,7 +4568,10 @@
     ],
     "screenshots": [
       "/screenshots/technical-1/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
   },
   {
     "repo": {
@@ -4285,6 +4603,9 @@
     ],
     "screenshots": [
       "/screenshots/ucf-decisionchecker/preview.png"
-    ]
+    ],
+    "metadata": {
+      "category": "automation"
+    }
   }
 ]
