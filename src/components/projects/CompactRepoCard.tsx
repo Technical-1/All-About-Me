@@ -50,13 +50,16 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
 
   const initials = repo.name.substring(0, 2).toUpperCase();
 
+  const isFeatured = repo.metadata?.featured === true;
+  const isArchived = repo.archived === true;
+
   return (
     <a
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
       className="group relative block"
-      style={{ textDecoration: 'none' }}
+      style={{ textDecoration: 'none', opacity: isArchived ? 0.55 : 1 }}
       onClick={(e) => {
         // No-hover (touch) devices have no way to see the hover popover, so a
         // tap on the card toggles it instead of navigating — tap to reveal,
@@ -77,6 +80,14 @@ export default function CompactRepoCard({ repo }: CompactRepoCardProps) {
                    group-hover:shadow-[0_15px_35px_-12px_rgba(0,0,0,0.3)]"
         style={{ padding: 0, transformOrigin: 'center top', backgroundColor: 'var(--bg-surface)' }}
       >
+        {isFeatured && (
+          <span
+            className="absolute left-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-semibold"
+            style={{ background: 'var(--accent-primary)', color: '#fff' }}
+          >
+            ★ Featured
+          </span>
+        )}
         {hasScreenshot ? (
           <img
             src={pngPath}
