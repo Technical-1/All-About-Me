@@ -7,7 +7,8 @@
     "build": "npm run generate-embeddings && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "generate-embeddings": "tsx scripts/generate-embeddings.ts"
+    "generate-embeddings": "tsx scripts/generate-embeddings.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "puppeteer": "^24.36.1",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "vitest": "^4.1.8"
   }
 }
