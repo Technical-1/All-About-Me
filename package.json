@@ -34,8 +34,10 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "puppeteer": "^24.36.1",
     "tsx": "^4.7.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.8"
   }
 }
