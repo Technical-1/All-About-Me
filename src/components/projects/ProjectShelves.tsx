@@ -2,10 +2,12 @@
  * ProjectShelves
  *
  * Client island: fetches all shelf repos (featured included), groups them into
- * domain shelves, and renders each shelf. Includes a TEMPORARY toggle bar to
- * explore layout variants live (nav × density × shelf-style). Once a winning
- * combination is chosen, the toggle bar and the unused branches are stripped
- * (see the cleanup task).
+ * domain shelves, and renders each shelf as a wrapping grid. Navigation and
+ * shelf-style were decided (no jump-nav, wrapping grid). A small TEMPORARY
+ * toggle row remains for the still-open calls: card density (roomy vs dense),
+ * desktop hover size (original vs 2× OG float), and whether to show the
+ * Featured band above. The big-hover float is passed only to shelf cards, never
+ * the featured band. These toggles get removed once the calls are made.
  */
 import { useState, useEffect } from 'react';
 import { getShelfRepos } from '../../lib/github';
@@ -13,20 +15,26 @@ import { groupReposByCategory, type Shelf } from '../../lib/projectSections';
 import CompactRepoCard from './CompactRepoCard';
 
 type Density = 'roomy' | 'dense';
-type ShelfStyle = 'grid' | 'scroll';
 
 export default function ProjectShelves() {
   const [shelves, setShelves] = useState<Shelf[]>([]);
   const [loading, setLoading] = useState(true);
-  const [nav, setNav] = useState(true);
   const [density, setDensity] = useState<Density>('roomy');
-  const [style, setStyle] = useState<ShelfStyle>('grid');
+  const [bigHover, setBigHover] = useState(true);
+  const [showFeatured, setShowFeatured] = useState(true);
 
   useEffect(() => {
     getShelfRepos()
       .then((repos) => setShelves(groupReposByCategory(repos)))
       .finally(() => setLoading(false));
   }, []);
+
+  // The Featured band lives in the Astro page (id="featured-section"), outside
+  // this island — toggle its visibility directly so the prototype can compare.
+  useEffect(() => {
+    const el = document.getElementById('featured-section');
+    if (el) el.style.display = showFeatured ? '' : 'none';
+  }, [showFeatured]);
 
   if (loading) {
     return <div className="card animate-pulse h-64" />;
@@ -35,50 +43,33 @@ export default function ProjectShelves() {
   const sectionId = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
   const containerClass =
-    style === 'scroll'
-      ? 'flex gap-4 overflow-x-auto pb-4 snap-x'
-      : density === 'dense'
-        ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-        : 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3';
-
-  const itemClass = style === 'scroll' ? 'min-w-[280px] snap-start' : '';
+    density === 'dense'
+      ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+      : 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3';
 
   return (
     <div>
-      {/* TEMPORARY prototype toggle bar — removed once a layout is chosen */}
+      {/* TEMPORARY prototype toggles — removed once these calls are made */}
       <div className="card mb-8 flex flex-wrap items-center gap-4 text-sm">
-        <span className="font-semibold">Prototype:</span>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={nav} onChange={(e) => setNav(e.target.checked)} />
-          jump-nav
-        </label>
-        <label className="flex items-center gap-1">
+        <label className="flex items-center gap-2">
           density
           <select value={density} onChange={(e) => setDensity(e.target.value as Density)}>
             <option value="roomy">roomy</option>
             <option value="dense">dense</option>
           </select>
         </label>
-        <label className="flex items-center gap-1">
-          shelf
-          <select value={style} onChange={(e) => setStyle(e.target.value as ShelfStyle)}>
-            <option value="grid">grid</option>
-            <option value="scroll">scroll-row</option>
+        <label className="flex items-center gap-2">
+          OG hover
+          <select value={bigHover ? '2x' : 'original'} onChange={(e) => setBigHover(e.target.value === '2x')}>
+            <option value="2x">2× float</option>
+            <option value="original">original size</option>
           </select>
         </label>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={showFeatured} onChange={(e) => setShowFeatured(e.target.checked)} />
+          show featured band
+        </label>
       </div>
-
-      {nav && (
-        <nav className="sticky top-16 z-20 mb-8 flex flex-wrap gap-2 py-2"
-             style={{ background: 'var(--bg-base)' }}>
-          {shelves.map((s) => (
-            <a key={s.category} href={`#${sectionId(s.label)}`}
-               className="btn-secondary text-xs px-3 py-1">
-              {s.label} <span className="opacity-60">{s.repos.length}</span>
-            </a>
-          ))}
-        </nav>
-      )}
 
       {shelves.map((shelf) => (
         <section key={shelf.category} id={sectionId(shelf.label)} className="mb-12 scroll-mt-24">
@@ -88,9 +79,7 @@ export default function ProjectShelves() {
           </h3>
           <div className={containerClass}>
             {shelf.repos.map((repo) => (
-              <div key={repo.full_name} className={itemClass}>
-                <CompactRepoCard repo={repo} />
-              </div>
+              <CompactRepoCard key={repo.full_name} repo={repo} bigHover={bigHover} />
             ))}
           </div>
         </section>

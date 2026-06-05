@@ -7,8 +7,8 @@ export type CategorySlug =
 
 // Domains first; then the two status shelves and 'other' at the bottom.
 export const SECTION_ORDER: CategorySlug[] = [
-  'ai-ml', 'crypto-fintech', 'dev-tools', 'automation', 'mobile',
-  'creative', 'games', 'security', 'client-sites', 'web-utilities',
+  'ai-ml', 'crypto-fintech', 'dev-tools', 'automation', 'web-utilities',
+  'mobile', 'creative', 'games', 'security', 'client-sites',
   'other', 'academic', 'work-in-progress',
 ];
 

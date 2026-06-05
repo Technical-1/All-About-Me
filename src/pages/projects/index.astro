@@ -27,7 +27,7 @@ const featuredProjects = await fetchFeaturedRepos();
   </section>
 
   <!-- Featured Projects -->
-  <section class="section" style="background-color: var(--bg-surface);">
+  <section id="featured-section" class="section" style="background-color: var(--bg-surface);">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl 2xl:max-w-[1680px]">
       <h2 class="section-title flex items-center gap-3">
         Featured Projects
@@ -41,13 +41,9 @@ const featuredProjects = await fetchFeaturedRepos();
     </div>
   </section>
 
-  <!-- All Repositories -->
+  <!-- All Repositories, grouped into domain shelves -->
   <section class="section">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl 2xl:max-w-[1680px]">
-      <h2 class="section-title flex items-center gap-3">
-        Projects by Domain
-      </h2>
-
       <ProjectShelves client:load />
     </div>
   </section>
