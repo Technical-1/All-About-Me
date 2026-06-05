@@ -1,5 +1,7 @@
 # Tech Stack
 
+This is a Shopify theme, customized in place on top of stock Craft. We added one CSS file and a handful of `custom-liquid` components; everything else is platform features and Craft's own section library. The guiding rule for every choice below: nothing that adds a recurring monthly cost to a small boutique's margin.
+
 ## Core technologies
 
 | Category | Technology | Version | Why this choice |
@@ -8,13 +10,15 @@
 | Theme base | Craft | 15.3.0 | Customized in place. Stock theme with a wide enough section library to compose the new home without forking. |
 | Templating | Liquid | Shopify edition | Required by Shopify. No alternative. |
 | Client code | Vanilla JS | n/a | The existing Craft theme is already vanilla. Adding a framework would have meant a build step and a bundler against a hosted CDN, which Shopify deliberately doesn't run. |
-| Styling | Custom CSS | n/a | One additional stylesheet (`tm-nav.css`); the rest of the theme's CSS is Craft's. No preprocessor; Shopify serves CSS files as-is. |
+| Styling | Custom CSS | n/a | One additional stylesheet (`tm-nav.css`) plus scoped `<style>` blocks inside the custom-liquid sections; the rest of the theme's CSS is Craft's. No preprocessor; Shopify serves CSS files as-is. |
 | Type | Quattrocento + Quattrocento Sans | served via Shopify Font Library | Brand-consistent serif/sans pairing for editorial weight; both free Google fonts already cached on Shopify's CDN. |
 
 ## Frontend
 
 - **Templating**: Liquid + JSON section templates
-- **Section types in use**: `image-banner`, `collection-list`, `featured-collection`, `multicolumn`, `custom-liquid`, `rich-text`, `image-with-text`, plus the standard Craft layout sections (header, footer, announcement bar)
+- **Section types in use**: `image-banner`, `collection-list`, `featured-collection`, `multicolumn`, `testimonials`, `rich-text`, `image-with-text`, `custom-liquid`, plus the standard Craft layout sections (header, footer, announcement bar)
+- **Custom components**: a La Segreta women's-collection band and a Visit Us map band on the homepage, and a vendor-vetting standards grid + catalog stat band on the How-we-vet page — all shipped as `custom-liquid` instances rather than new section files
+- **Custom partial logic**: a locale-aware "One Size" badge in `snippets/card-product.liquid` (matches `size`/`taglia`/`talla` option names)
 - **Custom assets**: `assets/tm-nav.css` (single file; the rest of `assets/` is Craft)
 - **Build tool**: None. Shopify CLI's dev server hot-reloads CSS and section JSON; production assets are bundled by the Shopify CDN at request time.
 - **Maps**: Google Maps Embed via iframe (`/maps?q=...&output=embed`). No API key, no JS SDK.
@@ -49,10 +53,13 @@ This is a Shopify theme; there are no npm dependencies. The "dependencies" are t
 
 | Platform feature | Purpose |
 |---|---|
-| Shopify section schemas | JSON-driven section composition in `templates/index.json` |
-| Shopify Liquid filters (`image_url`, `escape`) | Responsive imagery and HTML escaping in the custom-liquid bands |
+| Shopify section schemas | JSON-driven section composition in `templates/index.json` and `templates/page.how-we-vet.json` |
+| Shopify stock `testimonials` section | Curated homepage social proof, editable in the admin, with no third-party reviews app |
+| Shopify Liquid filters (`image_url`, `escape`, `downcase`) | Responsive imagery, HTML escaping, and the locale-aware One Size badge logic |
 | Shopify `{{ collections[...] }}` access | Live collection imagery in the La Segreta band without hard-coding URLs |
-| Shopify metafields | Available for the future custom reviews component (Phase 2) |
-| Shopify `?view=<suffix>` query param | Forces alternate page templates at request time; used to preview the rebuilt Our Story page before the admin Page entity is reassigned |
+| Shopify `options_with_values` | Drives the derived "One Size" badge with no per-product metafield |
+| Shopify metafields | Available for the future verified-reviews component (Phase 2) |
+| Shopify `?view=<suffix>` query param | Forces alternate page templates at request time; used to preview the rebuilt Our Story and How-we-vet pages before the admin Page entity is reassigned |
 | Shopify `?preview_theme_id=<id>` | Shares unpublished theme previews via the production domain |
 | Shopify Customers (built-in) | Newsletter capture; replaces a paid email-marketing app |
+| Google Maps Embed | The Visit Us map; no API key, no SDK |

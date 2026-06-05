@@ -145,11 +145,11 @@
       "full_name": "Technical-1/Carmen",
       "html_url": "https://github.com/Technical-1/Carmen",
       "homepage": "https://blues-brothers-live.vercel.app",
-      "description": "Website for Blues Brothers Live, featuring Carmen Romano as Jake Blues and Russ Peters as Elwood. Built with React, Vite, and Framer Motion.",
+      "description": "Website for Blues Brothers Live, featuring Carmen Romano as Jake Blues and Russ Peters as Elwood. Created for a client. Built with React, Vite, and Framer Motion.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T11:36:33Z",
+      "pushed_at": "2026-06-05T03:40:20Z",
       "topics": [
         "blues-brothers",
         "framer-motion",
@@ -173,6 +173,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/carmen/preview.png"
     ]
   },
   {
@@ -302,11 +305,11 @@
       "full_name": "Technical-1/CSNY",
       "html_url": "https://github.com/Technical-1/CSNY",
       "homepage": "https://dejavu-csny.vercel.app",
-      "description": "Website for Déjà Vu, a Crosby, Stills, Nash & Young tribute band. Built with React and Vite.",
+      "description": "Website for Déjà Vu, a Crosby, Stills, Nash & Young tribute band. Created for a client. Built with React and Vite.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T12:13:58Z",
+      "pushed_at": "2026-06-04T22:58:43Z",
       "topics": [
         "csny",
         "framer-motion",
@@ -433,11 +436,11 @@
       "full_name": "Technical-1/E350-Transportation",
       "html_url": "https://github.com/Technical-1/E350-Transportation",
       "homepage": "https://e350-transportation.vercel.app",
-      "description": "Website for E350 Transportation, a luxury car service in Cincinnati and Northern Kentucky. Built with Next.js 16, React 19, TypeScript, and Tailwind CSS.",
+      "description": "Website for E350 Transportation, a luxury car service in Cincinnati and Northern Kentucky. Created for a client. Built with Next.js 16, React 19, TypeScript, and Tailwind CSS.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T12:32:35Z",
+      "pushed_at": "2026-06-04T22:58:43Z",
       "topics": [
         "luxury",
         "nextjs",
@@ -550,11 +553,11 @@
       "full_name": "Technical-1/emissary-risk-ops",
       "html_url": "https://github.com/Technical-1/emissary-risk-ops",
       "homepage": "https://emissary-risk-ops.vercel.app",
-      "description": "Website for Emissary Risk Ops, an Ohio Class A licensed security and investigative services firm.",
+      "description": "Website for Emissary Risk Ops, an Ohio Class A licensed security and investigative services firm. Created for a client.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T14:59:12Z",
+      "pushed_at": "2026-06-04T22:58:41Z",
       "topics": [
         "nextjs",
         "react",
@@ -1254,7 +1257,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T20:31:28Z",
+      "pushed_at": "2026-06-05T05:42:11Z",
       "topics": []
     },
     "languages": [
@@ -1268,10 +1271,10 @@
       "Batchfile"
     ],
     "language_bytes": {
-      "TypeScript": 563607,
+      "TypeScript": 582525,
       "Swift": 391429,
-      "JavaScript": 241838,
-      "HTML": 127443,
+      "JavaScript": 269152,
+      "HTML": 132130,
       "Shell": 8801,
       "Ruby": 3484,
       "Kotlin": 2348,
@@ -1346,7 +1349,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T00:19:29Z",
+      "pushed_at": "2026-06-05T06:09:13Z",
       "topics": [
         "budget-tracker",
         "indexeddb",
@@ -1364,8 +1367,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 692778,
-      "CSS": 172082,
+      "JavaScript": 763573,
+      "CSS": 186384,
       "HTML": 10288
     },
     "primary_language": "JavaScript",
@@ -1494,7 +1497,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T22:02:33Z",
+      "pushed_at": "2026-06-04T23:26:13Z",
       "topics": []
     },
     "languages": [
@@ -1504,8 +1507,8 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 694655,
-      "HTML": 75103,
+      "TypeScript": 713121,
+      "HTML": 75116,
       "CSS": 7409,
       "JavaScript": 559
     },
@@ -1523,20 +1526,26 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:23:48Z",
+      "pushed_at": "2026-06-05T06:10:55Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
-      "JavaScript"
+      "JavaScript",
+      "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 156054,
-      "JavaScript": 469
+      "TypeScript": 231675,
+      "JavaScript": 3865,
+      "HTML": 864
     },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": []
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ]
   },
   {
     "repo": {
@@ -1548,7 +1557,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-26T08:23:43Z",
+      "pushed_at": "2026-06-05T07:15:59Z",
       "topics": []
     },
     "languages": [
@@ -1556,8 +1565,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 17940,
-      "HTML": 2631
+      "JavaScript": 16599,
+      "HTML": 2899
     },
     "primary_language": "JavaScript",
     "has_portfolio": false,
@@ -1874,7 +1883,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T13:32:47Z",
+      "pushed_at": "2026-06-05T05:30:22Z",
       "topics": [
         "ai",
         "local-l",
@@ -1890,14 +1899,14 @@
     },
     "languages": [
       "TypeScript",
-      "JavaScript",
       "CSS",
+      "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 753102,
-      "JavaScript": 208585,
-      "CSS": 207030,
+      "TypeScript": 837686,
+      "CSS": 191588,
+      "JavaScript": 110887,
       "HTML": 9317
     },
     "primary_language": "TypeScript",
@@ -1945,36 +1954,6 @@
   },
   {
     "repo": {
-      "name": "security-doc-analyzer",
-      "full_name": "Technical-1/security-doc-analyzer",
-      "html_url": "https://github.com/Technical-1/security-doc-analyzer",
-      "homepage": "",
-      "description": "Serverless Azure Functions pipeline that analyzes security documents. Runs OCR and AI risk assessment against guidelines, with batching and archiving.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2025-12-09T21:37:04Z",
-      "topics": [
-        "ai-powered",
-        "azure",
-        "azure-functions",
-        "blob-storage",
-        "document-analysis",
-        "ocr-processing"
-      ]
-    },
-    "languages": [
-      "Python"
-    ],
-    "language_bytes": {
-      "Python": 40968
-    },
-    "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": []
-  },
-  {
-    "repo": {
       "name": "SecuritySite",
       "full_name": "Technical-1/SecuritySite",
       "html_url": "https://github.com/Technical-1/SecuritySite",
@@ -2002,6 +1981,47 @@
   },
   {
     "repo": {
+      "name": "serverless-document-pipeline",
+      "full_name": "Technical-1/serverless-document-pipeline",
+      "html_url": "https://github.com/Technical-1/serverless-document-pipeline",
+      "homepage": "",
+      "description": "Serverless, event-driven Azure Functions pipeline for document processing — decryption, OCR (PyMuPDF/Tesseract fallback), and rate-limit-aware Azure OpenAI analysis, with stages decoupled through blob storage.",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-06-05T05:06:37Z",
+      "topics": [
+        "ai-powered",
+        "azure",
+        "azure-functions",
+        "blob-storage",
+        "document-analysis",
+        "ocr-processing"
+      ]
+    },
+    "languages": [
+      "Python",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 185608,
+      "JavaScript": 68709,
+      "HTML": 17691
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/serverless-document-pipeline/preview.png"
+    ]
+  },
+  {
+    "repo": {
       "name": "ServiceHub",
       "full_name": "Technical-1/ServiceHub",
       "html_url": "https://github.com/Technical-1/ServiceHub",
@@ -2010,7 +2030,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T18:17:09Z",
+      "pushed_at": "2026-06-05T05:06:39Z",
       "topics": [
         "business-management",
         "crm",
@@ -2037,7 +2057,7 @@
       "MDX"
     ],
     "language_bytes": {
-      "TypeScript": 6186349,
+      "TypeScript": 6216623,
       "HTML": 1854513,
       "CSS": 72471,
       "JavaScript": 55036,
@@ -2191,23 +2211,36 @@
       "name": "Terra-Moda-Rewrite",
       "full_name": "Technical-1/Terra-Moda-Rewrite",
       "html_url": "https://github.com/Technical-1/Terra-Moda-Rewrite",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://theterramoda.com",
+      "description": "Evidence-backed Shopify storefront rebuild for Terra Moda, a sustainable-fashion boutique in Frederick, MD — a research-grade redesign proposal plus a custom Craft-theme build (homepage from 2 to 7 sections, a How We Vet transparency page, testimonials, and a One Size badge), with no paid apps added.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-01T14:47:22Z",
-      "topics": []
+      "pushed_at": "2026-06-05T04:11:39Z",
+      "topics": [
+        "case-study",
+        "craft-theme",
+        "css",
+        "ecommerce",
+        "javascript",
+        "liquid",
+        "shopify",
+        "shopify-theme",
+        "sustainable-fashion",
+        "web-design"
+      ]
     },
     "languages": [
       "Liquid",
       "CSS",
-      "JavaScript"
+      "JavaScript",
+      "HTML"
     ],
     "language_bytes": {
-      "Liquid": 962445,
+      "Liquid": 963370,
       "CSS": 382622,
-      "JavaScript": 193984
+      "JavaScript": 193984,
+      "HTML": 7349
     },
     "primary_language": "Liquid",
     "has_portfolio": true,
@@ -2215,6 +2248,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/terra-moda-rewrite/preview.png"
     ]
   },
   {
@@ -2496,7 +2532,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T22:31:01Z",
+      "pushed_at": "2026-06-04T23:00:07Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2518,8 +2554,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 134807,
-      "Astro": 88030,
+      "TypeScript": 135387,
+      "Astro": 88116,
       "HTML": 59128,
       "MDX": 40493,
       "JavaScript": 23252,
@@ -4340,7 +4376,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T08:25:41Z",
+      "pushed_at": "2026-06-05T08:13:10Z",
       "topics": []
     },
     "languages": [
