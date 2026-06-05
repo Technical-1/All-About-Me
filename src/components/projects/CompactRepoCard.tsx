@@ -46,10 +46,14 @@ export default function CompactRepoCard({ repo, bigHover = false, dense = false 
     .replace(/-/g, ' ')
     .replace(/\b\w/g, (l) => l.toUpperCase());
 
+  // Pin to UTC so the server (Vercel = UTC) and the client (viewer's timezone)
+  // always format the same string — otherwise repos pushed near midnight UTC
+  // produce a hydration text mismatch (React #418).
   const lastUpdated = new Date(repo.pushed_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    timeZone: 'UTC',
   });
 
   const initials = repo.name.substring(0, 2).toUpperCase();
