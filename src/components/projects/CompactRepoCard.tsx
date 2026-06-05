@@ -17,11 +17,13 @@ import { getLanguageColor, getRepoSlug } from '../../lib/github';
 
 interface CompactRepoCardProps {
   repo: GitHubRepo;
-  /** When true, the OG image enlarges ~1.6× on desktop hover. Off for the featured band. */
+  /** When true, the OG image enlarges on desktop hover. Off for the featured band. */
   bigHover?: boolean;
+  /** Dense grids use smaller cards, so they get a larger (3×) hover float. */
+  dense?: boolean;
 }
 
-export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoCardProps) {
+export default function CompactRepoCard({ repo, bigHover = false, dense = false }: CompactRepoCardProps) {
   const [revealed, setRevealed] = useState(false);
   const slug = getRepoSlug(repo);
   const hasScreenshot = repo.screenshots && repo.screenshots.length > 0;
@@ -54,6 +56,20 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
 
   const isFeatured = repo.metadata?.featured === true;
 
+  // Desktop hover float grows the card's real size (crisp). Dense cards are
+  // smaller, so they float larger (2.5×, via -inset-75%) than roomy cards
+  // (1.6×, via -inset-30%). The info popover sits just below the grown image.
+  const growClass = bigHover
+    ? dense
+      ? 'lg:group-hover:-inset-[75%]'
+      : 'lg:group-hover:-inset-[30%]'
+    : '';
+  const popoverGrowOffset = bigHover
+    ? dense
+      ? 'lg:group-hover:top-[180%]'
+      : 'lg:group-hover:top-[135%]'
+    : '';
+
   return (
     <a
       href={href}
@@ -82,7 +98,7 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
         className={`card overflow-hidden absolute inset-0
                    transition-all duration-300 ease-out
                    group-hover:scale-[1.04] group-hover:z-30
-                   ${bigHover ? 'lg:group-hover:scale-100 lg:group-hover:-inset-[30%]' : ''}
+                   ${bigHover ? 'lg:group-hover:scale-100' : ''} ${growClass}
                    group-hover:border-[color:var(--accent-secondary)]
                    group-hover:shadow-[0_15px_35px_-12px_rgba(0,0,0,0.3)]`}
         style={{ padding: 0, transformOrigin: 'center top', backgroundColor: 'var(--bg-surface)' }}
@@ -157,7 +173,7 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
 
       {/* Hover popover — the "description and rest", below the image box */}
       <div
-        className={`absolute top-full left-0 right-0 mt-2 z-40 ${bigHover ? 'lg:group-hover:top-[135%]' : ''}
+        className={`absolute top-full left-1/2 -translate-x-1/2 w-[360px] max-w-[88vw] mt-2 z-40 ${popoverGrowOffset}
                    ${revealed ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}
                    group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto
                    transition-all duration-300 ease-out
