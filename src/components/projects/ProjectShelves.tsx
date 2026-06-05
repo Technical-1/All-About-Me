@@ -77,7 +77,7 @@ export default function ProjectShelves() {
           <h3 className="section-title">{shelf.label}</h3>
           <div className={containerClass}>
             {shelf.repos.map((repo) => (
-              <CompactRepoCard key={repo.full_name} repo={repo} bigHover={bigHover} dense={density === 'dense'} />
+              <CompactRepoCard key={repo.full_name} repo={repo} bigHover={bigHover} />
             ))}
           </div>
         </section>
