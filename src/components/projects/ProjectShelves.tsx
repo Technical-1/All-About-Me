@@ -49,8 +49,9 @@ export default function ProjectShelves() {
 
   return (
     <div>
-      {/* TEMPORARY prototype toggles — removed once these calls are made */}
-      <div className="card mb-8 flex flex-wrap items-center gap-4 text-sm">
+      {/* TEMPORARY prototype toggles — floating so they don't affect layout.
+          Removed once these calls are made. */}
+      <div className="fixed bottom-4 right-4 z-50 card flex flex-wrap items-center gap-3 text-sm shadow-xl">
         <label className="flex items-center gap-2">
           density
           <select value={density} onChange={(e) => setDensity(e.target.value as Density)}>
@@ -73,10 +74,7 @@ export default function ProjectShelves() {
 
       {shelves.map((shelf) => (
         <section key={shelf.category} id={sectionId(shelf.label)} className="mb-12 scroll-mt-24">
-          <h3 className="section-title flex items-center gap-3">
-            {shelf.label}
-            <span className="text-sm opacity-60">{shelf.repos.length}</span>
-          </h3>
+          <h3 className="section-title">{shelf.label}</h3>
           <div className={containerClass}>
             {shelf.repos.map((repo) => (
               <CompactRepoCard key={repo.full_name} repo={repo} bigHover={bigHover} />

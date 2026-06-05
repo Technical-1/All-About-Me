@@ -72,11 +72,17 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
         }
       }}
     >
-      {/* Resting state: the OG image IS the card */}
+      {/* Resting state: the OG image IS the card. A fixed-aspect spacer reserves
+          the grid cell so the card can grow into it on hover. The big-hover float
+          grows the card's REAL size via `inset` (the <img> re-samples crisply from
+          the 1200px source) instead of a blurry transform upscale, and overlays
+          neighbors without reflowing them. */}
+      <div className="relative aspect-[1200/630]">
       <div
-        className={`card overflow-hidden relative aspect-[1200/630]
-                   transition-[transform,box-shadow,border-color] duration-300 ease-out
-                   group-hover:scale-[1.04] ${bigHover ? 'lg:group-hover:scale-[1.6]' : ''} group-hover:z-30
+        className={`card overflow-hidden absolute inset-0
+                   transition-all duration-300 ease-out
+                   group-hover:scale-[1.04] group-hover:z-30
+                   ${bigHover ? 'lg:group-hover:scale-100 lg:group-hover:-inset-[30%]' : ''}
                    group-hover:border-[color:var(--accent-secondary)]
                    group-hover:shadow-[0_15px_35px_-12px_rgba(0,0,0,0.3)]`}
         style={{ padding: 0, transformOrigin: 'center top', backgroundColor: 'var(--bg-surface)' }}
@@ -93,7 +99,7 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
           <img
             src={pngPath}
             alt={`${repo.name} preview`}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${bigHover ? 'lg:group-hover:scale-100' : ''}`}
             loading="lazy"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
@@ -147,10 +153,11 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
           </div>
         )}
       </div>
+      </div>
 
       {/* Hover popover — the "description and rest", below the image box */}
       <div
-        className={`absolute top-full left-0 right-0 mt-2 z-40 ${bigHover ? 'lg:group-hover:top-[160%]' : ''}
+        className={`absolute top-full left-0 right-0 mt-2 z-40 ${bigHover ? 'lg:group-hover:top-[135%]' : ''}
                    ${revealed ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}
                    group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto
                    transition-all duration-300 ease-out
