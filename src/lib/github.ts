@@ -18,7 +18,10 @@
 /** Extended metadata for featured/highlighted projects */
 export interface GitHubRepoMetadata {
   featured?: boolean;
-  category?: 'web' | 'mobile' | 'cli' | 'ai' | 'automation' | 'other';
+  category?:
+    | 'ai-ml' | 'crypto-fintech' | 'dev-tools' | 'automation' | 'mobile'
+    | 'creative' | 'games' | 'security' | 'client-sites' | 'web-utilities'
+    | 'academic' | 'other';
   highlights?: string[];
   impact?: string;
   role?: string;
@@ -368,6 +371,25 @@ export async function getAllRepos(useCache = true): Promise<GitHubRepo[]> {
   return allRepos;
 }
 
+/**
+ * Like getAllRepos, but does NOT exclude featured repos — shelves repeat
+ * featured cards (badged, sorted first). Still drops hidden repos.
+ */
+export async function getShelfRepos(): Promise<GitHubRepo[]> {
+  const [publicRepos, privateRepos] = await Promise.all([
+    fetchPublicRepos(),
+    fetchPrivateRepos(),
+  ]);
+
+  const repoMap = new Map<string, GitHubRepo>();
+  for (const repo of publicRepos) repoMap.set(repo.full_name, repo);
+  for (const repo of privateRepos) repoMap.set(repo.full_name, repo);
+
+  return Array.from(repoMap.values())
+    .filter((repo) => !HIDDEN_REPOS.includes(repo.name))
+    .sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
+}
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -416,19 +438,33 @@ export function getLanguageColor(language: string): string {
 }
 
 export const categoryIcons: Record<string, string> = {
-  web: 'globe',
-  mobile: 'smartphone',
-  cli: 'terminal',
-  ai: 'brain',
-  automation: 'zap',
-  other: 'code',
+  'ai-ml': 'brain',
+  'crypto-fintech': 'bitcoin',
+  'dev-tools': 'terminal',
+  'automation': 'zap',
+  'mobile': 'smartphone',
+  'creative': 'sparkles',
+  'games': 'gamepad-2',
+  'security': 'shield',
+  'client-sites': 'globe',
+  'web-utilities': 'layout',
+  'academic': 'graduation-cap',
+  'work-in-progress': 'construction',
+  'other': 'code',
 };
 
 export const categoryLabels: Record<string, string> = {
-  web: 'Web Application',
-  mobile: 'Mobile App',
-  cli: 'CLI Tool',
-  ai: 'AI / ML',
-  automation: 'Automation',
-  other: 'Other',
+  'ai-ml': 'AI & ML',
+  'crypto-fintech': 'Crypto & Fintech',
+  'dev-tools': 'Developer Tools & Infrastructure',
+  'automation': 'Automation & Scraping',
+  'mobile': 'iOS & Mobile',
+  'creative': 'Creative & Generative',
+  'games': 'Games & Puzzles',
+  'security': 'Security & Privacy',
+  'client-sites': 'Client & Commercial Sites',
+  'web-utilities': 'Web Apps & Utilities',
+  'academic': 'Academic Coursework',
+  'work-in-progress': 'Work in Progress',
+  'other': 'Other',
 };
