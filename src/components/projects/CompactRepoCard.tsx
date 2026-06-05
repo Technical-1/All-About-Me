@@ -17,11 +17,13 @@ import { getLanguageColor, getRepoSlug } from '../../lib/github';
 
 interface CompactRepoCardProps {
   repo: GitHubRepo;
-  /** When true, the OG image enlarges ~2× on desktop hover. Off for the featured band. */
+  /** When true, the OG image enlarges on desktop hover. Off for the featured band. */
   bigHover?: boolean;
+  /** Dense grids use smaller cards, so they float to 2×; roomy cards float to 1.6×. */
+  dense?: boolean;
 }
 
-export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoCardProps) {
+export default function CompactRepoCard({ repo, bigHover = false, dense = false }: CompactRepoCardProps) {
   const [revealed, setRevealed] = useState(false);
   const slug = getRepoSlug(repo);
   const hasScreenshot = repo.screenshots && repo.screenshots.length > 0;
@@ -54,10 +56,19 @@ export default function CompactRepoCard({ repo, bigHover = false }: CompactRepoC
 
   const isFeatured = repo.metadata?.featured === true;
 
-  // Desktop hover float grows the card's real size (crisp) to ~2× (via -inset-50%),
-  // so retina images stay sharp. The info popover sits just below the grown image.
-  const growClass = bigHover ? 'lg:group-hover:-inset-[50%]' : '';
-  const popoverGrowOffset = bigHover ? 'lg:group-hover:top-[155%]' : '';
+  // Desktop hover float grows the card's real size (crisp), so retina images stay
+  // sharp. Roomy cards are already large, so they float to 1.6× (-inset-30%); the
+  // smaller dense cards float to 2× (-inset-50%). Popover sits below the grown image.
+  const growClass = bigHover
+    ? dense
+      ? 'lg:group-hover:-inset-[50%]'
+      : 'lg:group-hover:-inset-[30%]'
+    : '';
+  const popoverGrowOffset = bigHover
+    ? dense
+      ? 'lg:group-hover:top-[155%]'
+      : 'lg:group-hover:top-[135%]'
+    : '';
 
   return (
     <a
