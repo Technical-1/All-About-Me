@@ -249,8 +249,13 @@ to:
 ```ts
   category?:
     | 'ai-ml' | 'crypto-fintech' | 'dev-tools' | 'automation' | 'mobile'
-    | 'creative' | 'games' | 'security' | 'client-sites' | 'web-utilities' | 'other';
+    | 'creative' | 'games' | 'security' | 'client-sites' | 'web-utilities'
+    | 'academic' | 'other';
 ```
+
+(Note: `'work-in-progress'` is NOT a stored category — it's derived at render time in
+`projectSections.ts` from preview-image presence. Only `'academic'` is stored, for the 4
+coursework repos.)
 
 - [ ] **Step 2: Update categoryLabels and categoryIcons**
 
@@ -269,6 +274,8 @@ export const categoryIcons: Record<string, string> = {
   'security': 'shield',
   'client-sites': 'globe',
   'web-utilities': 'layout',
+  'academic': 'graduation-cap',
+  'work-in-progress': 'construction',
   'other': 'code',
 };
 
@@ -283,6 +290,8 @@ export const categoryLabels: Record<string, string> = {
   'security': 'Security & Privacy',
   'client-sites': 'Client & Commercial Sites',
   'web-utilities': 'Web Apps & Utilities',
+  'academic': 'Academic Coursework',
+  'work-in-progress': 'Work in Progress',
   'other': 'Other',
 };
 ```
@@ -340,9 +349,11 @@ Create `src/lib/projectSections.test.ts`:
 
 ```ts
 import { describe, it, expect } from 'vitest';
-import { groupReposByCategory, sortWithinShelf, SECTION_ORDER } from './projectSections';
+import { groupReposByCategory, sortWithinShelf, shelfFor, SECTION_ORDER } from './projectSections';
 import type { GitHubRepo } from './github';
 
+// Repos have a preview image BY DEFAULT (so they land in their domain). Pass
+// `screenshots: []` to simulate an imageless repo (→ work-in-progress).
 function repo(partial: Partial<GitHubRepo> & { name: string }): GitHubRepo {
   return {
     full_name: `Technical-1/${partial.name}`,
@@ -350,6 +361,7 @@ function repo(partial: Partial<GitHubRepo> & { name: string }): GitHubRepo {
     private: false, fork: false, archived: false,
     pushed_at: '2024-01-01T00:00:00Z',
     languages: [], primary_language: null,
+    screenshots: partial.screenshots ?? ['/preview.png'],
     ...partial,
   } as GitHubRepo;
 }
@@ -376,8 +388,26 @@ describe('sortWithinShelf', () => {
   });
 });
 
+describe('shelfFor', () => {
+  it('routes a repo with an image to its stored domain', () => {
+    expect(shelfFor(repo({ name: 'a', metadata: { category: 'games' } }))).toBe('games');
+  });
+
+  it('routes a repo with NO preview image to work-in-progress', () => {
+    expect(shelfFor(repo({ name: 'b', metadata: { category: 'ai-ml' }, screenshots: [] }))).toBe('work-in-progress');
+  });
+
+  it('keeps academic repos on the academic shelf even with no image', () => {
+    expect(shelfFor(repo({ name: 'c', metadata: { category: 'academic' }, screenshots: [] }))).toBe('academic');
+  });
+
+  it('routes unknown/missing category (with an image) to other', () => {
+    expect(shelfFor(repo({ name: 'd' }))).toBe('other');
+  });
+});
+
 describe('groupReposByCategory', () => {
-  it('groups by metadata.category, drops empty shelves, preserves SECTION_ORDER', () => {
+  it('groups by shelf, drops empty shelves, preserves SECTION_ORDER', () => {
     const repos = [
       repo({ name: 'a', metadata: { category: 'games' } }),
       repo({ name: 'b', metadata: { category: 'ai-ml' } }),
@@ -388,14 +418,23 @@ describe('groupReposByCategory', () => {
     expect(shelves[0].repos.map((r) => r.name).sort()).toEqual(['b', 'c']);
   });
 
-  it('routes repos with no/unknown category to "other"', () => {
-    const shelves = groupReposByCategory([repo({ name: 'x' })]);
-    expect(shelves.map((s) => s.category)).toEqual(['other']);
+  it('places imageless repos under work-in-progress, after the domains', () => {
+    const repos = [
+      repo({ name: 'shiny', metadata: { category: 'ai-ml' } }),
+      repo({ name: 'wip', metadata: { category: 'crypto-fintech' }, screenshots: [] }),
+    ];
+    expect(groupReposByCategory(repos).map((s) => s.category)).toEqual([
+      'ai-ml', 'work-in-progress',
+    ]);
   });
 
-  it('orders shelves exactly per SECTION_ORDER', () => {
-    const repos = SECTION_ORDER.map((c, i) => repo({ name: `r${i}`, metadata: { category: c } }));
-    expect(groupReposByCategory(repos).map((s) => s.category)).toEqual([...SECTION_ORDER]);
+  it('orders produced shelves exactly per SECTION_ORDER', () => {
+    const repos = SECTION_ORDER
+      .filter((c) => c !== 'work-in-progress')
+      .map((c, i) => repo({ name: `r${i}`, metadata: { category: c } }));
+    repos.push(repo({ name: 'wip', metadata: { category: 'games' }, screenshots: [] }));
+    const got = groupReposByCategory(repos).map((s) => s.category);
+    expect(got).toEqual(SECTION_ORDER.filter((c) => got.includes(c)));
   });
 });
 ```
@@ -414,11 +453,14 @@ import type { GitHubRepo } from './github';
 
 export type CategorySlug =
   | 'ai-ml' | 'crypto-fintech' | 'dev-tools' | 'automation' | 'mobile'
-  | 'creative' | 'games' | 'security' | 'client-sites' | 'web-utilities' | 'other';
+  | 'creative' | 'games' | 'security' | 'client-sites' | 'web-utilities'
+  | 'academic' | 'work-in-progress' | 'other';
 
+// Domains first; then the two status shelves and 'other' at the bottom.
 export const SECTION_ORDER: CategorySlug[] = [
   'ai-ml', 'crypto-fintech', 'dev-tools', 'automation', 'mobile',
-  'creative', 'games', 'security', 'client-sites', 'web-utilities', 'other',
+  'creative', 'games', 'security', 'client-sites', 'web-utilities',
+  'other', 'academic', 'work-in-progress',
 ];
 
 export const SECTION_LABELS: Record<CategorySlug, string> = {
@@ -432,6 +474,8 @@ export const SECTION_LABELS: Record<CategorySlug, string> = {
   'security': 'Security & Privacy',
   'client-sites': 'Client & Commercial Sites',
   'web-utilities': 'Web Apps & Utilities',
+  'academic': 'Academic Coursework',
+  'work-in-progress': 'Work in Progress',
   'other': 'Other',
 };
 
@@ -441,9 +485,24 @@ export interface Shelf {
   repos: GitHubRepo[];
 }
 
-function repoCategory(repo: GitHubRepo): CategorySlug {
-  const c = repo.metadata?.category as CategorySlug | undefined;
-  return c && SECTION_ORDER.includes(c) ? c : 'other';
+const CATEGORY_SET = new Set<CategorySlug>(SECTION_ORDER);
+
+function hasPreviewImage(repo: GitHubRepo): boolean {
+  return !!(repo.screenshots && repo.screenshots.length > 0);
+}
+
+/**
+ * Which shelf a repo lands on:
+ *   - 'academic' is an explicit stored category — it always wins (even featured AHSR).
+ *   - Any other repo WITHOUT a preview image → 'work-in-progress'.
+ *   - Otherwise its stored domain category (or 'other' if unknown).
+ */
+export function shelfFor(repo: GitHubRepo): CategorySlug {
+  const stored = repo.metadata?.category as CategorySlug | undefined;
+  const category = stored && CATEGORY_SET.has(stored) ? stored : 'other';
+  if (category === 'academic') return 'academic';
+  if (!hasPreviewImage(repo)) return 'work-in-progress';
+  return category;
 }
 
 /** featured (0) → active (1) → archived (2); ties broken by pushed_at desc. */
@@ -459,7 +518,7 @@ export function sortWithinShelf(repos: GitHubRepo[]): GitHubRepo[] {
 export function groupReposByCategory(repos: GitHubRepo[]): Shelf[] {
   const buckets = new Map<CategorySlug, GitHubRepo[]>();
   for (const repo of repos) {
-    const c = repoCategory(repo);
+    const c = shelfFor(repo);
     if (!buckets.has(c)) buckets.set(c, []);
     buckets.get(c)!.push(repo);
   }
