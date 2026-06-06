@@ -46,8 +46,8 @@
       "/screenshots/private-collab-whiteboard/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "web-utilities"
+      "category": "web-utilities",
+      "featured": true
     }
   },
   {
@@ -102,8 +102,8 @@
       "/screenshots/orbit/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "ai-ml"
+      "category": "ai-ml",
+      "featured": true
     }
   },
   {
@@ -147,8 +147,8 @@
       "/screenshots/btc-explorer/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "crypto-fintech"
+      "category": "crypto-fintech",
+      "featured": true
     }
   },
   {
@@ -183,8 +183,8 @@
       "/screenshots/pixscan/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "mobile"
+      "category": "mobile",
+      "featured": true
     }
   },
   {
@@ -239,8 +239,8 @@
     "metadata": {
       "role": "Software Lead",
       "duration": "Jan 2023 - Dec 2024",
-      "featured": true,
-      "category": "academic"
+      "category": "academic",
+      "featured": true
     }
   },
   {
@@ -283,8 +283,8 @@
       "/screenshots/repolens/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "dev-tools"
+      "category": "dev-tools",
+      "featured": true
     }
   }
 ]
