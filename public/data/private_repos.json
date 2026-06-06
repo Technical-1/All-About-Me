@@ -145,8 +145,8 @@
       "/screenshots/btc-explorer/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "crypto-fintech"
+      "category": "crypto-fintech",
+      "featured": true
     }
   },
   {
@@ -1357,7 +1357,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T05:42:11Z",
+      "pushed_at": "2026-06-05T19:25:26Z",
       "topics": []
     },
     "languages": [
@@ -1371,9 +1371,9 @@
       "Batchfile"
     ],
     "language_bytes": {
-      "TypeScript": 582525,
+      "TypeScript": 679592,
       "Swift": 391429,
-      "JavaScript": 269152,
+      "JavaScript": 301994,
       "HTML": 132130,
       "Shell": 8801,
       "Ruby": 3484,
@@ -1439,8 +1439,8 @@
       "/screenshots/orbit/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "ai-ml"
+      "category": "ai-ml",
+      "featured": true
     }
   },
   {
@@ -1521,8 +1521,8 @@
       "/screenshots/pixscan/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "mobile"
+      "category": "mobile",
+      "featured": true
     }
   },
   {
@@ -1643,7 +1643,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T06:10:55Z",
+      "pushed_at": "2026-06-05T15:54:54Z",
       "topics": []
     },
     "languages": [
@@ -1652,7 +1652,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 231675,
+      "TypeScript": 231411,
       "JavaScript": 3865,
       "HTML": 864
     },
@@ -1677,7 +1677,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T07:15:59Z",
+      "pushed_at": "2026-06-05T14:45:44Z",
       "topics": []
     },
     "languages": [
@@ -1685,7 +1685,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 16599,
+      "JavaScript": 26151,
       "HTML": 2899
     },
     "primary_language": "JavaScript",
@@ -2033,7 +2033,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T05:30:22Z",
+      "pushed_at": "2026-06-05T16:13:51Z",
       "topics": [
         "ai",
         "local-l",
@@ -2054,10 +2054,10 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 837686,
-      "CSS": 191588,
-      "JavaScript": 110887,
-      "HTML": 9317
+      "TypeScript": 997214,
+      "CSS": 192319,
+      "JavaScript": 112426,
+      "HTML": 9938
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -2717,8 +2717,8 @@
     "metadata": {
       "role": "Software Lead",
       "duration": "Jan 2023 - Dec 2024",
-      "featured": true,
-      "category": "academic"
+      "category": "academic",
+      "featured": true
     }
   },
   {
@@ -2731,7 +2731,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T23:00:07Z",
+      "pushed_at": "2026-06-05T19:28:01Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2753,11 +2753,11 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 135387,
-      "Astro": 88116,
+      "TypeScript": 148977,
+      "Astro": 88069,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 23252,
+      "JavaScript": 29494,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -4133,8 +4133,8 @@
       "/screenshots/private-collab-whiteboard/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "web-utilities"
+      "category": "web-utilities",
+      "featured": true
     }
   },
   {
@@ -4321,8 +4321,8 @@
       "/screenshots/repolens/preview.png"
     ],
     "metadata": {
-      "featured": true,
-      "category": "dev-tools"
+      "category": "dev-tools",
+      "featured": true
     }
   },
   {
@@ -4706,7 +4706,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T08:13:10Z",
+      "pushed_at": "2026-06-06T06:56:51Z",
       "topics": []
     },
     "languages": [
