@@ -142,10 +142,12 @@ export default function CompactRepoCard({ repo, bigHover = false, dense = false 
       >
         {isFeatured && (
           <span
-            className="absolute left-2 top-2 z-10 rounded-full px-2 py-0.5 text-xs font-semibold"
+            className="absolute left-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold"
             style={{ background: 'var(--accent-primary)', color: '#fff' }}
+            aria-label="Featured"
+            title="Featured"
           >
-            ★ Featured
+            ★
           </span>
         )}
         {hasScreenshot ? (
