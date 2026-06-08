@@ -15,6 +15,7 @@ export const REPO_CATEGORIES = {
   // AI & ML
   'ai-talent-platform': 'ai-ml',
   'CAP4770-Final_Project': 'ai-ml',
+  'Claude-Tax-Toolkit': 'ai-ml',
   'ebay_ai_dashboard': 'ai-ml',
   'MultiAgent': 'ai-ml',
   'Orbit': 'ai-ml',
@@ -26,7 +27,6 @@ export const REPO_CATEGORIES = {
   // Crypto & Fintech
   'BitcoinTreasuries-Proxy': 'crypto-fintech',
   'BTC-Explorer': 'crypto-fintech',
-  'Claude-Tax-Toolkit': 'crypto-fintech',
   'coinbasis-py': 'crypto-fintech',
   'coinbasis-rs': 'crypto-fintech',
   'coinlytics-py': 'crypto-fintech',
