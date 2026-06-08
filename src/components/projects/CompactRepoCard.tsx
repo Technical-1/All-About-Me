@@ -11,7 +11,7 @@
  * The box (image) is the "top", the popover is the "rest after". Pure CSS hover,
  * no JS state.
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { GitHubRepo } from '../../lib/github';
 import { getLanguageColor, getRepoSlug } from '../../lib/github';
 
@@ -73,14 +73,47 @@ export default function CompactRepoCard({ repo, bigHover = false, dense = false 
       ? 'lg:group-hover:top-[155%]'
       : 'lg:group-hover:top-[135%]'
     : '';
+  // The popover under the image matches the grown image's width (2× dense / 1.6× roomy).
+  const popoverWidthClass = bigHover
+    ? dense
+      ? 'lg:group-hover:w-[200%]'
+      : 'lg:group-hover:w-[160%]'
+    : '';
+
+  // Edge-aware nudge: when a card near the viewport edge floats, shift the whole
+  // card (image + popover) just enough to stay fully on-screen. Only edge cards
+  // move; middle cards compute a shift of 0. Desktop (lg, hover-capable) only.
+  const growFactor = dense ? 2 : 1.6;
+  const anchorRef = useRef<HTMLAnchorElement>(null);
+  const [hoverShift, setHoverShift] = useState(0);
+
+  const handleEnter = () => {
+    if (!bigHover) return;
+    if (!window.matchMedia('(min-width: 1024px) and (hover: hover)').matches) return;
+    const el = anchorRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const extra = r.width * (growFactor - 1);
+    const grownLeft = r.left - extra / 2;
+    const grownRight = r.right + extra / 2;
+    const margin = 12;
+    let shift = 0;
+    if (grownLeft < margin) shift = margin - grownLeft;
+    else if (grownRight > window.innerWidth - margin) shift = window.innerWidth - margin - grownRight;
+    setHoverShift(Math.round(shift));
+  };
+  const handleLeave = () => setHoverShift(0);
 
   return (
     <a
+      ref={anchorRef}
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="group relative block"
-      style={{ textDecoration: 'none' }}
+      className="group relative block transition-transform duration-300 ease-out"
+      style={{ textDecoration: 'none', transform: hoverShift ? `translateX(${hoverShift}px)` : undefined }}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
       onClick={(e) => {
         // No-hover (touch) devices have no way to see the hover popover, so a
         // tap on the card toggles it instead of navigating — tap to reveal,
@@ -177,7 +210,7 @@ export default function CompactRepoCard({ repo, bigHover = false, dense = false 
 
       {/* Hover popover — the "description and rest", below the image box */}
       <div
-        className={`absolute top-full left-1/2 -translate-x-1/2 w-[360px] max-w-[88vw] mt-2 z-40 ${popoverGrowOffset}
+        className={`absolute top-full left-1/2 -translate-x-1/2 w-full ${popoverWidthClass} mt-2 z-40 ${popoverGrowOffset}
                    ${revealed ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}
                    group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto
                    transition-all duration-300 ease-out
