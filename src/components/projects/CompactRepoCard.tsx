@@ -110,7 +110,7 @@ export default function CompactRepoCard({ repo, bigHover = false, dense = false 
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="group relative block transition-transform duration-300 ease-out"
+      className="group relative block transition-transform duration-300 ease-out hover:z-40"
       style={{ textDecoration: 'none', transform: hoverShift ? `translateX(${hoverShift}px)` : undefined }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
