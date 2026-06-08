@@ -27,7 +27,8 @@ const featuredProjects = await fetchFeaturedRepos();
   </section>
 
   <!-- Featured Projects -->
-  <section id="featured-section" class="section" style="background-color: var(--bg-surface);">
+  <!-- Hidden by default (decided: no featured band). The ?controls toggle re-shows it. -->
+  <section id="featured-section" class="section" style="background-color: var(--bg-surface); display: none;">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl 2xl:max-w-[1680px]">
       <h2 class="section-title flex items-center gap-3">
         Featured Projects

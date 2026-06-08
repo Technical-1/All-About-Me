@@ -19,9 +19,16 @@ type Density = 'roomy' | 'dense';
 export default function ProjectShelves() {
   const [shelves, setShelves] = useState<Shelf[]>([]);
   const [loading, setLoading] = useState(true);
-  const [density, setDensity] = useState<Density>('roomy');
+  const [density, setDensity] = useState<Density>('dense');
   const [bigHover, setBigHover] = useState(true);
-  const [showFeatured, setShowFeatured] = useState(true);
+  const [showFeatured, setShowFeatured] = useState(false);
+  // Controls stay wired in but hidden by default — append ?controls to the URL to
+  // reveal the floating toggle bar (density / OG hover / featured band).
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('controls')) setShowControls(true);
+  }, []);
 
   useEffect(() => {
     getShelfRepos()
@@ -49,8 +56,9 @@ export default function ProjectShelves() {
 
   return (
     <div>
-      {/* TEMPORARY prototype toggles — floating so they don't affect layout.
-          Removed once these calls are made. */}
+      {/* Prototype toggles — wired in but hidden unless ?controls is in the URL.
+          Floating so they don't affect layout. */}
+      {showControls && (
       <div className="fixed bottom-4 right-4 z-50 card flex flex-wrap items-center gap-3 text-sm shadow-xl">
         <label className="flex items-center gap-2">
           density
@@ -71,6 +79,7 @@ export default function ProjectShelves() {
           show featured band
         </label>
       </div>
+      )}
 
       {shelves.map((shelf) => (
         <section key={shelf.category} id={sectionId(shelf.label)} className="mb-12 scroll-mt-24">
