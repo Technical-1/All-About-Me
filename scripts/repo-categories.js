@@ -7,7 +7,7 @@
 //
 // A repo missing from this map falls to 'other'. The "Academic Coursework" and
 // "Work in Progress" shelves are NOT pure categories:
-//   - 'academic' is assigned explicitly here (6 coursework repos).
+//   - 'academic' is assigned explicitly here (5 coursework repos).
 //   - "Work in Progress" is derived at render time (repos with no preview image);
 //     it is not a value in this map. See src/lib/projectSections.ts.
 
@@ -16,6 +16,7 @@ export const REPO_CATEGORIES = {
   'ai-talent-platform': 'ai-ml',
   'Claude-Tax-Toolkit': 'ai-ml',
   'ebay_ai_dashboard': 'ai-ml',
+  'Kid-Talk-Translator': 'ai-ml',
   'MultiAgent': 'ai-ml',
   'Orbit': 'ai-ml',
   'Resume-Local-LLM': 'ai-ml',
@@ -146,7 +147,6 @@ export const REPO_CATEGORIES = {
   'CAP4770-Final_Project': 'academic',
   'Cplories-and-More': 'academic',
   'EEL4599-Final-Project': 'academic',
-  'Kid-Talk-Translator': 'academic',
 
   // Other (no clear domain; renders under Work in Progress if it lacks an image)
   'Rainwater': 'other',
