@@ -13,7 +13,7 @@ export const SECTION_ORDER: CategorySlug[] = [
 ];
 
 export const SECTION_LABELS: Record<CategorySlug, string> = {
-  'ai-ml': 'AI & ML',
+  'ai-ml': 'AI',
   'crypto-fintech': 'Crypto & Fintech',
   'dev-tools': 'Developer Tools & Infrastructure',
   'automation': 'Automation & Scraping',

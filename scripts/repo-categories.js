@@ -12,7 +12,7 @@
 //     it is not a value in this map. See src/lib/projectSections.ts.
 
 export const REPO_CATEGORIES = {
-  // AI & ML
+  // AI
   'ai-talent-platform': 'ai-ml',
   'Claude-Tax-Toolkit': 'ai-ml',
   'ebay_ai_dashboard': 'ai-ml',

@@ -454,7 +454,7 @@ export const categoryIcons: Record<string, string> = {
 };
 
 export const categoryLabels: Record<string, string> = {
-  'ai-ml': 'AI & ML',
+  'ai-ml': 'AI',
   'crypto-fintech': 'Crypto & Fintech',
   'dev-tools': 'Developer Tools & Infrastructure',
   'automation': 'Automation & Scraping',
