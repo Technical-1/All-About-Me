@@ -98,7 +98,6 @@ export const REPO_CATEGORIES = {
   'ClubGG': 'games',
   'PokerManager': 'games',
   'Simple-Backgammon': 'games',
-  'Snorlax-Tracker': 'games',
   'Supernatural-Speed-Racer': 'games',
   'Themed-Crossword-Gen': 'games',
 
@@ -134,6 +133,7 @@ export const REPO_CATEGORIES = {
   'PropertyProbeV2': 'web-utilities',
   'ServiceHub': 'web-utilities',
   'shopify-atc-gui': 'web-utilities',
+  'Snorlax-Tracker': 'web-utilities',
   'Snowball': 'web-utilities',
   'Valentines': 'web-utilities',
   'Venmo-POS': 'web-utilities',
