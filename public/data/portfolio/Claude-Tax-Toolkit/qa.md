@@ -2,20 +2,28 @@
 
 ## Overview
 
-A privacy-first CLI for preparing US federal tax-prep worksheets from bank
-statement PDFs. Supports US C-corporations (Form 1120 + Form 1125-A + state
-form + Other Deductions statement) and sole proprietors / single-member LLCs
-(Schedule C + Schedule SE + Form 8829 Simplified Method). Outputs a
-multi-sheet Excel workbook plus a printable PDF labeled "Tax Preparation
-Worksheet — Not An Official Tax Return," intended to be reviewed by a CPA
-before filing. The interesting engineering angle is the four-layer privacy
-posture: real tax data is structurally impossible to commit even with a
-careless `git add .`.
+A Claude Code skill for preparing US federal tax-prep worksheets from bank
+statement PDFs, backed by a deterministic Python engine. You open the repo in
+Claude Code and invoke `prepare-1120` (C-corp) or `prepare-schedule-c` (sole
+prop); the model orchestrates a five-phase flow, extraction, categorization
+with user-gated learning, summary review, output generation, and a pre-flight
+checklist, while every dollar of tax-law math stays in versioned Python form
+modules. Supports US C-corporations (Form 1120 + Form 1125-A + state form +
+Other Deductions statement) and sole proprietors / single-member LLCs
+(Schedule C + Schedule SE + Form 8829 Simplified Method). Outputs a multi-sheet
+Excel workbook plus a printable PDF labeled "Tax Preparation Worksheet, Not An
+Official Tax Return," intended to be reviewed by a CPA before filing.
+
+The interesting engineering angle is the division of labor: the model decides
+*when* to run each step and explains the numbers, but never computes them, so
+the output stays auditable. A close second is the four-layer privacy posture:
+real tax data is structurally impossible to commit even with a careless
+`git add .`.
 
 ## Problem Solved
 
 A US small business owner with a year of bank statements still needs to do a
-lot of mechanical work to file federal taxes — extract every transaction,
+lot of mechanical work to file federal taxes, extract every transaction,
 categorize it, sum by category, map those sums to specific IRS form line
 numbers, and produce the right attachments for any line that needs an
 itemized breakdown. The work is largely deterministic; it just hasn't been
@@ -26,10 +34,10 @@ inside a public-repo clone.
 
 ## Target Users
 
-- **Small business owners filing their own return** — sole props or
+- **Small business owners filing their own return**: sole props or
   small-corp owners who'd otherwise build a one-off spreadsheet from scratch.
   They get a deterministic, line-by-line worksheet a CPA can review.
-- **CPAs reviewing a client's bookkeeping** — the Audit sheet inside the
+- **CPAs reviewing a client's bookkeeping**: the Audit sheet inside the
   workbook records every transaction's rule provenance, which makes
   spot-checking the categorization much faster than re-deriving it.
 - **Engineers wanting an honest, working example** of how to structure a
@@ -38,33 +46,45 @@ inside a public-repo clone.
 
 ## Key Features
 
+### Skill-driven, five-phase workflow
+The primary interface is a pair of Claude Code skills (`prepare-1120`,
+`prepare-schedule-c`). Invoking one runs a fixed five-phase flow: setup
+(locate the year's statements), categorize (propose a category for every
+merchant the rules don't match, batch it to the user for confirmation, and
+write back only what's confirmed), review the summary, generate the workbook
+and worksheet, then a pre-flight checklist. The model orchestrates and
+explains; the engine does the math. A raw CLI drives the same engine for
+anyone not in a Claude Code session.
+
 ### Two entity types, explicit switch
 C-corp returns (Form 1120) and Schedule C returns (sole prop) are two
 separate CLI subcommands and two separate output paths. The
 `entity_type` field in `vault/<year>/config.yaml` is the per-vault
 declaration; the subcommands check it and error out clearly if the user
-runs the wrong one. No magical inference — explicit by design.
+runs the wrong one. No magical inference, explicit by design.
 
-### Three-stage bank-statement extraction
+### Bank-statement extraction with a typed hand-off
 The deterministic `pdfplumber`-based parser handles the format the toolkit
-ships with. When it returns zero transactions on an unknown layout, the
-toolkit checks for `ANTHROPIC_API_KEY` and, if set, falls back to
-Anthropic Claude in two stages — text-mode (cheap) then multimodal PDF
-(robust). When neither is available, a custom `ExtractionNeedsHelp`
-exception carries the PDF path; the CLI exits with code 3 so an outer
-process can substitute its own reader without conflating paths.
+ships with. On an unknown layout it returns zero transactions and raises a
+custom `ExtractionNeedsHelp` exception carrying the PDF path; the CLI exits
+with code 3 rather than crashing. That exit code is a hand-off seam. Under the
+skill, the model reads the unparseable PDF directly (its file reader is
+multimodal) and substitutes a transactions CSV, so no API key is involved. On
+the headless path, the CLI instead falls back to the Anthropic SDK in two
+stages, text-mode (cheap) then multimodal PDF (robust), when
+`ANTHROPIC_API_KEY` is set.
 
 ### Year-versioned form mapping
 Every form module lives under `forms/y2025/` and is a pure function
 from `CategoryTotals` to `{line_number: Decimal}`. When 2026 IRS forms
-ship, the next year is a sibling directory — `forms/y2026/` — copied
+ship, the next year is a sibling directory, `forms/y2026/`, copied
 and edited. The diff between two years' modules is the only place
 tax-law changes live.
 
 ### Decimal-only money with `float` rejection at the boundary
 Every pydantic money field has a `mode="before"` validator that
 rejects `float` and `bool`. The `bool` guard exists because `bool` is
-an `int` subclass and `Decimal(True) == Decimal(1)` silently — which
+an `int` subclass and `Decimal(True) == Decimal(1)` silently, which
 would manifest later as a cents-off line on the return.
 
 ### Four-layer privacy posture
@@ -75,7 +95,7 @@ are insufficient to leak data.
 
 ### Manual additions for non-bank line items
 A `manual_additions.yaml` file lets users add mileage deductions,
-expenses paid on a personal card, or year-end accrual adjustments —
+expenses paid on a personal card, or year-end accrual adjustments:
 line items that never appear in bank statements. These get merged
 into the pipeline as ghost transactions with `rule_id =
 "manual_addition"` for audit-trail provenance.
@@ -86,7 +106,7 @@ the return with the current engine, and diffs it against what the user
 actually filed (`filed_return.yaml`). Each line is classified match /
 minor / material, missed deductions and over-claims are surfaced, and
 every material discrepancy is traced back to the specific transactions
-that explain it — output as a workbook sheet, a PDF, and a terminal
+that explain it, output as a workbook sheet, a PDF, and a terminal
 summary.
 
 ### Carryforward engine
@@ -105,7 +125,7 @@ sheet, the worksheet PDF, and the terminal summary.
   the unparseable PDF's path and a human-readable message. When the
   deterministic parser returns nothing and no API key is configured,
   this exception is raised. `src/tax_toolkit/cli.py` catches it across
-  three subcommands and exits with code 3, never code 1 — so an
+  three subcommands and exits with code 3, never code 1, so an
   outer caller (a script, a CI runner, or a different process) can
   distinguish "the toolkit can't parse this format" from "the toolkit
   crashed." Exit code 3 became the contract for handing the PDF to a
@@ -123,19 +143,16 @@ sheet, the worksheet PDF, and the terminal summary.
   this $487 PayPal charge in Operating Expenses?" without re-running
   the engine.
 
-### Independent math verification caught three real bugs
-- After v0.3.0 (which had 141 passing tests) I wrote an out-of-band
-  verification that loads canonical synthetic transactions, applies
-  rules in a parallel implementation, and computes expected line
-  values from first principles — then compares to the toolkit's
-  workbook. It found three bugs the unit tests missed: insurance
-  double-counted in Form 1120 Line 26 and Schedule C Line 27a,
-  meals silently dropped on Schedule C (no `Category.MEALS` branch
-  in `summarize.py`). All three are now covered by regression tests
-  in `tests/unit/test_stmt_other_deductions.py`,
+### Out-of-band math verification independent of the engine
+- A second, from-first-principles checker loads the canonical synthetic
+  transactions, applies the rules in a parallel implementation, computes each
+  expected form line independently, and compares against the toolkit's
+  workbook. Because it shares no code with the engine, it catches design
+  errors that unit tests miss: insurance double-counted across Form 1120
+  Line 26 and Schedule C Line 27a, and meals dropped on Schedule C from a
+  missing `Category.MEALS` branch in `summarize.py`. Each finding is pinned by
+  a regression test in `tests/unit/test_stmt_other_deductions.py`,
   `tests/unit/test_schedule_c.py`, and `tests/unit/test_summarize.py`.
-  The lesson worth keeping: synthetic data tests the code; only
-  fresh-perspective verification tests the design.
 
 ### Pre-commit hook reads staged content, not the working tree
 - `.githooks/pre-commit` scans every staged file via `git show ":$f"`
@@ -151,14 +168,14 @@ sheet, the worksheet PDF, and the terminal summary.
 ### Year-versioned form modules vs. one parametrized file
 - **Constraint**: IRS form line numbers and rates change every tax year. Sometimes lines get renumbered, not just rate values.
 - **Options**: (a) One `form_1120.py` with `if year == 2025:` branches. (b) One sibling directory per tax year.
-- **Choice**: (b) — `forms/y2025/form_1120.py`, future `forms/y2026/form_1120.py`.
+- **Choice**: (b), `forms/y2025/form_1120.py`, future `forms/y2026/form_1120.py`.
 - **Why**: When 2026 forms ship, the work is a directory copy plus targeted edits. The diff between two years' modules is the only place tax-law changes live, which makes audit, testing, and CPA review tractable. Option (a) accumulates dozens of year-conditional branches over time.
 
-### Engine ↔ intelligence layer split
-- **Constraint**: Some users have an Anthropic API key and want full automation; others don't and shouldn't be blocked from running the toolkit; others use an agent runtime that does the AI work itself.
-- **Options**: (a) Hard-wire SDK calls into `extract.py` / `categorize.py`. (b) Make the engine math-and-storage-only; expose SDK calls and agent-driven flows as substitutable intelligence layers.
+### Model orchestrates, engine computes
+- **Constraint**: A tax tool can't let a language model do the arithmetic, a single hallucinated line number is a wrong return. But the parts that genuinely benefit from a model (reading an unfamiliar bank PDF, guessing what an unknown merchant is) shouldn't be hard-wired into the engine either.
+- **Options**: (a) Hard-wire SDK calls into `extract.py` / `categorize.py` and let the model touch numbers. (b) Make the engine math-and-storage-only, and let a Claude Code skill orchestrate it through a thin CLI seam.
 - **Choice**: (b).
-- **Why**: The `--emit-unmatched` flag writes the unmatched-transactions list to JSON without any SDK call; `--apply` writes back confirmed rules. An agent runtime calls these two CLI flags and does its own reasoning between them. The SDK path uses the same CLI subcommands with `--propose` / `--auto` and `ANTHROPIC_API_KEY`. Either substitutes cleanly for the other.
+- **Why**: The `--emit-unmatched` flag writes the unmatched-transactions list to JSON without any model call; `--apply` writes back confirmed rules. The `prepare-1120` / `prepare-schedule-c` skill calls these two flags and does its merchant reasoning in between, but never sees or edits a computed total. The headless CLI uses the same subcommands with `--propose` / `--auto` and `ANTHROPIC_API_KEY`. Either drives the identical engine, so the math is the same regardless of who's at the wheel.
 
 ### Decimal everywhere vs. float-with-discipline
 - **Constraint**: Floating-point arithmetic introduces small rounding errors that compound across thousands of transactions and surface as cents-off totals on the filed return.
@@ -172,11 +189,11 @@ sheet, the worksheet PDF, and the terminal summary.
 - **Choice**: (d).
 - **Why**: A single failure (gitignore typo, careless `git add -A`, IDE auto-stage, a copy-paste of a real account number into a comment) shouldn't be enough to leak data. The four layers cover different failure modes: `.gitignore` blocks tracked-files-by-default; the hook catches whatever gets through to staging including EIN-shaped content; the scanner is a release-time check before `git push`; the `vault/<year>/` convention is the human contract for where real data goes. Each layer is cheap; together they're robust.
 
-### CLI-first with optional agent-runtime integration
-- **Constraint**: The toolkit should work for a Python developer who runs it from a terminal, AND for someone driving it via an external agent runtime that prefers conversational workflows.
-- **Options**: (a) CLI-only. (b) Agent-runtime-only. (c) Both, with the runtime artifacts shipped in the repo and the CLI as the canonical entry.
+### Skill-first, with a headless CLI underneath
+- **Constraint**: The toolkit should be approachable for someone who just wants to talk their way through a return, AND usable by a Python developer running it from a terminal or a CI job.
+- **Options**: (a) CLI-only. (b) Skill-only. (c) Both, with the skill as the primary front end and the CLI as the engine seam underneath it.
 - **Choice**: (c).
-- **Why**: CLI is the canonical interface. An external agent runtime can drive the same engine through the `--emit-unmatched` / `--apply` CLI seam, so users on either path get the same math without forking the maintenance burden — fixes in the engine reach both audiences.
+- **Why**: The Claude Code skill is the interface a user reaches for first, conversational, no API key, with confirmation gates. It drives the same `--emit-unmatched` / `--apply` CLI seam the headless path uses, so the engine has exactly one implementation. A user who prefers the terminal, or wants to automate, loses nothing; both audiences get the same math without forking the maintenance burden.
 
 ## Frequently Asked Questions
 
@@ -188,14 +205,35 @@ toolkit on the right side of "software that helps you do taxes" vs.
 "licensed tax-preparation software," which carry meaningfully different
 legal frameworks in some US states.
 
+### How do I actually run it?
+Clone the repo, open it in Claude Code, drop your bank-statement PDFs into
+`vault/<year>/statements/`, and ask to prepare your return. The `prepare-1120`
+(C-corp) or `prepare-schedule-c` (sole prop) skill activates and walks you
+through setup, categorization, summary review, output, and a pre-flight
+checklist. If you'd rather stay in a terminal, the same engine is a plain CLI:
+`uv run tax-toolkit process --year <year>` (see the README for the full
+command set).
+
+### Why ship it as a Claude Code skill instead of just a CLI?
+Two reasons. First, the genuinely fuzzy parts of tax prep, reading a bank PDF
+in a layout you've never seen, deciding that "SQ *BLUE BOTTLE" is a coffee
+expense, are exactly what a model is good at, and a skill lets the model do
+them conversationally with a confirmation gate, no API key, and no glue code.
+Second, and more important, it keeps the model *out* of the arithmetic. The
+skill is explicitly an orchestrator: tax-law math lives in `src/tax_toolkit/forms/`,
+and the model's job is to run the right command at the right time and explain
+the result. That division is what makes a model-driven tax tool trustworthy:
+the AI never computes a number that ends up on a form.
+
 ### What banks does it support?
 The shipped deterministic parser handles the synthetic-example layout,
 which is similar to a date-prefixed line-per-transaction format common
 to large US retail banks. For real-world bank PDFs whose layout it
-doesn't recognize, the toolkit falls back to Anthropic Claude
-(text-mode then multimodal PDF) when `ANTHROPIC_API_KEY` is set; if
-not set, it exits with code 3 and a message pointing at the
-agent-runtime alternative.
+doesn't recognize, the engine exits with code 3 instead of guessing.
+Under the skill, the model then reads the PDF directly and builds the
+transactions table, no API key required. On the headless path, the CLI
+falls back to Anthropic Claude (text-mode then multimodal PDF) when
+`ANTHROPIC_API_KEY` is set.
 
 ### What entity types are supported?
 The toolkit supports US C-corporations (Form 1120 + Form 1125-A COGS + Form 4562
@@ -210,25 +248,25 @@ Three states are supported, selected by a `state:` field in the per-year
 `config.yaml`. The CLI dispatches one state form per vault based on that
 field:
 
-- **FL** — Florida F-1120 corporate income/franchise tax (C-corp only;
+- **FL**: Florida F-1120 corporate income/franchise tax (C-corp only;
   Florida has no personal income tax, so Schedule C produces no state form).
   Default for backward compatibility with pre-v0.5 vaults.
-- **TX** — Texas franchise (margin) tax. C-corps always produce this form.
-  On the Schedule C side it fires only when `tx_franchise.is_llc: true` —
+- **TX**: Texas franchise (margin) tax. C-corps always produce this form.
+  On the Schedule C side it fires only when `tx_franchise.is_llc: true`;
   bare sole proprietors without an LLC wrapper are exempt from Texas franchise
   tax.
-- **VA** — Virginia Form 500 corporate income tax at 6% flat (C-corp);
+- **VA**: Virginia Form 500 corporate income tax at 6% flat (C-corp);
   a VA Form 760 inclusion worksheet for Schedule C (Schedule C net profit
   and SE deductible half to report on the personal VA Form 760; doesn't
   compute full personal income tax).
 
 Setting `state: null` skips all state forms. Each state is a sibling module
-under `forms/y2025/` — adding a fourth state is a new file plus a dispatch
+under `forms/y2025/`, adding a fourth state is a new file plus a dispatch
 branch in `cli.py`.
 
 ### How does the toolkit handle equipment purchases and depreciation?
-Capital asset purchases — computers, cameras, vehicles, furniture, office
-equipment — are treated differently from regular operating expenses. A
+Capital asset purchases, computers, cameras, vehicles, furniture, office
+equipment, are treated differently from regular operating expenses. A
 categorization rule tags the bank transaction as `capital_asset`, which
 excludes it from all expense line totals (the same mechanism used to exclude
 inter-account transfers from revenue). The user then declares the asset in
@@ -251,7 +289,7 @@ section in the printable worksheet PDF. A runnable example is included in the
 repository: `uv run tax-toolkit process-schedule-c --example depreciation-demo-2025`.
 
 ### Can I check a past year's return for errors?
-Yes — that's what `tax-toolkit reconcile` does. You record what you actually
+Yes, that's what `tax-toolkit reconcile` does. You record what you actually
 filed in `vault/<year>/filed_return.yaml` (any subset of the form's lines),
 drop that year's statements in the vault, and run the command. The toolkit
 re-imports the statements, recomputes the return with the current engine, and
@@ -267,8 +305,8 @@ summary, with a headline delta on net profit (Schedule C) or taxable income
 One honest limitation: the toolkit ships only 2025 form modules, so a pre-2025
 reconciliation recomputes with 2025 rules. Year-independent checks
 (miscategorizations, omitted income, arithmetic) are accurate for any year, but
-year-specific provisions — bonus depreciation percentage, §179 caps, the
-standard mileage rate — differ, so the report prints a caveat for those lines
+year-specific provisions, bonus depreciation percentage, §179 caps, the
+standard mileage rate, differ, so the report prints a caveat for those lines
 when the year predates 2025.
 
 ### How do carryforwards from a prior year get applied?
@@ -278,7 +316,7 @@ deduction a prior year's income limit disallowed). On a run, the NOL fills Form
 1120 line 29a, capped at 80% of taxable income (the post-2017 rule), and the
 §179 carryforward is added to the current year's §179 elections and allowed up
 to the business-income limit. For a depreciable asset placed in service in an
-earlier year that is still being written off — a bonus or §179 asset — add a
+earlier year that is still being written off, a bonus or §179 asset, add a
 `remaining_basis` field to its `assets.yaml` entry (the post-first-year MACRS
 basis the depreciation table runs on, not net book value), and the toolkit
 continues its MACRS schedule. After the run, a "Carryforward" workbook sheet,
@@ -291,21 +329,33 @@ prior year's depreciation or limits. A runnable demo:
 
 ### How does the categorization actually work?
 A regex rule is `{pattern, category, subcategory, type_hint?}`. The
-engine walks rules in order — user rules first, then shipped defaults
-— and the first match wins. Unmatched transactions are listed in a
-JSON file via `tax-toolkit categorize --emit-unmatched`; the user (or
-an agent) reasons about each one and writes confirmations back, and
-`tax-toolkit categorize --apply` appends the confirmed rules to the
+engine walks rules in order (user rules first, then shipped defaults)
+and the first match wins. Unmatched transactions are listed in a
+JSON file via `tax-toolkit categorize --emit-unmatched`. Under the
+skill, the model reasons about each unmatched merchant, proposes a
+category, and presents the batch for confirmation; `tax-toolkit
+categorize --apply` then appends only the confirmed rules to the
 user's rules file. Over time, the user-scoped rules file grows to
-cover most of their recurring merchants and the next year's run
-needs minimal intervention.
+cover most recurring merchants and the next year's run needs minimal
+intervention.
 
 ### Does my bank data leave my machine?
-Not unless `ANTHROPIC_API_KEY` is set AND the deterministic parser
-fails on a PDF. In that case the toolkit sends the failing PDF (or
-its extracted text) to Anthropic for parsing. With no API key, all
-processing is local. The categorize step's `--propose` mode also
-uses the API; the alternative `--emit-unmatched` mode does not.
+It depends on the path and whether the deterministic parser succeeds:
+
+- **Deterministic parse (either path):** if the shipped parser recognizes
+  your statement layout, nothing leaves your machine: extraction,
+  categorization against your rules, and all math are local.
+- **Skill path, unknown layout:** the model reads the PDF inside your Claude
+  Code session, so that statement's contents go to Anthropic as part of the
+  conversation (no API key needed). Merchants it has to categorize are
+  likewise reasoned about in-session.
+- **Headless path, unknown layout:** with `ANTHROPIC_API_KEY` set, the CLI
+  sends the failing PDF or its extracted text to the Anthropic API; the
+  categorize `--propose` mode also calls the API, while `--emit-unmatched`
+  does not.
+
+In every case the engine's computations and your `vault/` files stay on disk.
+What can leave is statement content the model needs to read or categorize.
 
 ### Why YAML for the rules and config?
 Human-editable; supports comments; round-trips cleanly through
