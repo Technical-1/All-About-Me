@@ -103,6 +103,7 @@ export const REPO_CATEGORIES = {
   'Simple-Backgammon': 'games',
   'Snorlax-Tracker': 'games',
   'Supernatural-Speed-Racer': 'games',
+  'Themed-Crossword-Gen': 'games',
 
   // Security & Privacy
   'EmailAnalyzer': 'security',
@@ -137,7 +138,6 @@ export const REPO_CATEGORIES = {
   'ServiceHub': 'web-utilities',
   'shopify-atc-gui': 'web-utilities',
   'Snowball': 'web-utilities',
-  'Themed-Crossword-Gen': 'web-utilities',
   'Valentines': 'web-utilities',
   'Venmo-POS': 'web-utilities',
 
