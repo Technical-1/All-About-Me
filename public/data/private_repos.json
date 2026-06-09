@@ -197,11 +197,11 @@
       "full_name": "Technical-1/Claude-Tax-Toolkit",
       "html_url": "https://github.com/Technical-1/Claude-Tax-Toolkit",
       "homepage": null,
-      "description": null,
+      "description": "Claude Code skill that turns bank-statement PDFs into US business tax-prep worksheets (Form 1120 and Schedule C). Claude orchestrates; a deterministic Python engine does the parsing, categorization, and money math so the model never guesses numbers.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-31T07:37:43Z",
+      "pushed_at": "2026-06-08T14:41:35Z",
       "topics": []
     },
     "languages": [
@@ -2731,7 +2731,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-08T11:01:20Z",
+      "pushed_at": "2026-06-09T03:17:09Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2753,11 +2753,11 @@
       "Shell"
     ],
     "language_bytes": {
-      "TypeScript": 150850,
+      "TypeScript": 150923,
       "Astro": 88176,
       "HTML": 59128,
       "MDX": 40493,
-      "JavaScript": 29494,
+      "JavaScript": 29480,
       "CSS": 10581,
       "Shell": 7015
     },
@@ -4706,7 +4706,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-08T08:58:49Z",
+      "pushed_at": "2026-06-09T07:54:25Z",
       "topics": []
     },
     "languages": [
