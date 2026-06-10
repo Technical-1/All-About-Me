@@ -64,6 +64,17 @@ export function sortWithinShelf(repos: GitHubRepo[]): GitHubRepo[] {
   });
 }
 
+/**
+ * The featured repos across all shelves, newest-first. Backs the mobile
+ * "Featured" filter, which shows featured projects as one cross-shelf group.
+ */
+export function featuredFromShelves(shelves: Shelf[]): GitHubRepo[] {
+  return shelves
+    .flatMap((s) => s.repos)
+    .filter((r) => r.metadata?.featured === true)
+    .sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
+}
+
 export function groupReposByCategory(repos: GitHubRepo[]): Shelf[] {
   const buckets = new Map<CategorySlug, GitHubRepo[]>();
   for (const repo of repos) {
