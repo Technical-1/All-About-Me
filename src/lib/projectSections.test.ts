@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupReposByCategory, sortWithinShelf, shelfFor, SECTION_ORDER } from './projectSections';
+import { groupReposByCategory, sortWithinShelf, shelfFor, featuredFromShelves, SECTION_ORDER } from './projectSections';
 import type { GitHubRepo } from './github';
 
 // Repos have a preview image BY DEFAULT (so they land in their domain). Pass
@@ -85,5 +85,21 @@ describe('groupReposByCategory', () => {
     repos.push(repo({ name: 'wip', metadata: { category: 'games' }, screenshots: [] }));
     const got = groupReposByCategory(repos).map((s) => s.category);
     expect(got).toEqual(SECTION_ORDER.filter((c) => got.includes(c)));
+  });
+});
+
+describe('featuredFromShelves', () => {
+  it('collects featured repos across all shelves, newest-first', () => {
+    const shelves = groupReposByCategory([
+      repo({ name: 'ai-feat', metadata: { category: 'ai-ml', featured: true }, pushed_at: '2025-01-01T00:00:00Z' }),
+      repo({ name: 'ai-plain', metadata: { category: 'ai-ml' } }),
+      repo({ name: 'game-feat', metadata: { category: 'games', featured: true }, pushed_at: '2026-01-01T00:00:00Z' }),
+    ]);
+    expect(featuredFromShelves(shelves).map((r) => r.name)).toEqual(['game-feat', 'ai-feat']);
+  });
+
+  it('returns an empty array when nothing is featured', () => {
+    const shelves = groupReposByCategory([repo({ name: 'a', metadata: { category: 'games' } })]);
+    expect(featuredFromShelves(shelves)).toEqual([]);
   });
 });
