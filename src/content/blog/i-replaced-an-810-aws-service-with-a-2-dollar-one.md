@@ -1,7 +1,7 @@
 ---
 title: "I Replaced an $810/Month AWS Service With a $2/Month One"
 description: "AWS Kendra has an ~$810/month floor and its crawler kept getting blocked, so I built a drop-in replacement that runs as a scheduled Fargate task and costs about $2 a month."
-pubDate: 2026-06-16T10:00:00-04:00
+pubDate: 2026-06-26T11:00:00-04:00
 tags: ["AWS", "Cloud", "Cost Engineering", "Web Scraping", "RAG"]
 ---
 
