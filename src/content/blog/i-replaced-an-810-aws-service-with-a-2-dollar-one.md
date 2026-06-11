@@ -5,17 +5,17 @@ pubDate: 2026-06-16T10:00:00-04:00
 tags: ["AWS", "Cloud", "Cost Engineering", "Web Scraping", "RAG"]
 ---
 
-This one started with a bill I didn't want to pay, for an AWS service that wasn't even doing its job. Here's what I needed, what it was quietly costing me, and the small thing I built to replace it.
+This one started with a line on the AWS bill for a project I was working on, for a service that wasn't even doing its job. Here's what the project needed, what that service was quietly costing it, and the small thing I built to replace it.
 
-## What I actually needed
+## What the project actually needed
 
-The job was boring. I had a Bedrock Knowledge Base, an AI search index, and a handful of websites I wanted it to be able to answer questions about. So something needed to crawl those pages, turn them into clean text, and drop that text somewhere Bedrock could read it. That's the whole task.
+The job was boring. The project had a Bedrock Knowledge Base, an AI search index, and a handful of websites it needed to be able to answer questions about. So something had to crawl those pages, turn them into clean text, and drop that text somewhere Bedrock could read it. That's the whole task.
 
-AWS has a service for this called Kendra, and it ships with a built-in crawler that's supposed to handle exactly this. I tried it. It let me down twice.
+AWS has a service for this called Kendra, and it ships with a built-in crawler that's supposed to handle exactly this. We tried it. It let us down twice.
 
-First, the price. Kendra doesn't really charge you for what you use, it charges you for existing. There's a floor of around $810 a month whether you crawl once an hour or once a quarter. Second, and this is the part that actually got to me, it didn't even work. The sites I cared about run anti-bot defenses and render everything with JavaScript, and Kendra's crawler just bounced off them and came back with nothing. So I was staring at $810 a month for a crawler that returned empty pages.
+First, the price. Kendra doesn't really charge you for what you use, it charges you for existing. There's a floor of around $810 a month whether you crawl once an hour or once a quarter. Second, and this is the part that actually got to me, it didn't even work. The sites we cared about run anti-bot defenses and render everything with JavaScript, and Kendra's crawler just bounced off them and came back with nothing. So the project was on the hook for $810 a month for a crawler that returned empty pages.
 
-The longer I looked at it, the more I realized I didn't need most of what I was paying for. I didn't need a search index sitting there hot around the clock. Bedrock can already point straight at an S3 bucket and ingest whatever's in it. The only piece I was actually missing was the crawler, and the crawler was the easy part to build myself.
+The longer I looked at it, the more I realized the project didn't need most of what it was paying for. It didn't need a search index sitting there hot around the clock. Bedrock can already point straight at an S3 bucket and ingest whatever's in it. The only piece actually missing was the crawler, and the crawler was the easy part to build.
 
 ## So I built it
 
@@ -27,7 +27,7 @@ That last bit is the entire trick behind the price. Nothing sits around between 
 
 ## Why a real browser instead of something faster
 
-The cheaper, more obvious move would've been a plain HTTP crawler. Fire a request, parse the HTML, move on. I didn't, for the same reason Kendra failed me: the sites I wanted render everything with JavaScript and actively try to block bots. A bare HTTP fetcher is fast and cheap, and it would've come back with the same empty pages Kendra did.
+The cheaper, more obvious move would've been a plain HTTP crawler. Fire a request, parse the HTML, move on. I didn't, for the same reason Kendra failed us: the sites we needed render everything with JavaScript and actively try to block bots. A bare HTTP fetcher is fast and cheap, and it would've come back with the same empty pages Kendra did.
 
 So the crawler drives actual Chromium through Selenium, dressed up to look like a normal person browsing. It strips the `navigator.webdriver` flag that screams "I'm a bot," fakes the plugins and runtime so it reads like a real Chrome session, rotates the user agent, and waits a randomized beat between requests. Because it's a real browser, the JavaScript runs and the page renders the way it would for an actual human.
 
@@ -65,6 +65,6 @@ The whole thing deploys with one command. `kendra-who deploy` builds the contain
 
 ## The actual lesson
 
-To be clear, this isn't a "managed services bad" rant. Kendra is genuinely good if you need a hot, always-on search index and your target sites play nice. Mine didn't, on either count.
+To be clear, this isn't a "managed services bad" rant. Kendra is genuinely good if you need a hot, always-on search index and your target sites play nice. Ours didn't, on either count.
 
-The thing I keep coming back to is the decision in the middle. I looked at an $810 line item, asked what I was actually buying, and the honest answer was "one crawler I could write in a weekend, plus a pile of standing compute I'd never use." Once you see it that way, the fix is obvious: pull out the one piece you actually need, run it only when it's working, and point it at the bucket Bedrock already reads. Same content, a couple of dollars a month. The hard part was never the code. It was being willing to look at the bill and ask why I was paying to keep something idle.
+The thing I keep coming back to is the decision in the middle. I looked at the $810 line item on the project's bill, asked what it was actually buying, and the honest answer was "one crawler I could write in a weekend, plus a pile of standing compute the project would never use." Once you see it that way, the fix is obvious: pull out the one piece you actually need, run it only when it's working, and point it at the bucket Bedrock already reads. Same content, a couple of dollars a month. The hard part was never the code. It was being willing to look at the bill and ask why the project was paying to keep something idle.
