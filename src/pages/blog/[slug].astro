@@ -13,6 +13,10 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 
+// Scheduled posts (future pubDate) build a live URL for sharing, but should not
+// be indexed by search engines until they go live. See blog/index.astro.
+const isScheduled = post.data.pubDate.valueOf() > Date.now();
+
 const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
@@ -21,7 +25,7 @@ const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
 });
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout title={post.data.title} description={post.data.description} noindex={isScheduled}>
   <article class="section pt-8">
     <div class="container-narrow">
       <!-- Breadcrumb -->
