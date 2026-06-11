@@ -5,7 +5,7 @@ pubDate: 2026-06-30T10:00:00-04:00
 tags: ["Developer Tools", "Rust", "Tauri", "Git", "Productivity"]
 ---
 
-I'm on a mission to finish every project I've ever started, and that mission has a scaling problem. At any given moment I have dozens of projects in flight. Right now it's around forty. There is no holding that in my head. Which ones have drifted? Which have uncommitted changes sitting on disk that I forgot about? Out of all of them, what's the single most useful thing to do next? I kept losing that thread, and a project you've lost the thread on is a project that quietly dies.
+I'm on a mission to finish every project I've ever started, and that mission has a scaling problem. At any given moment I have a small mountain of them genuinely in flight. Right now 39 are active at the same time, with more than 70 already finished behind them and a stack more queued up. There is no holding that in my head. Which ones have drifted? Which have uncommitted changes sitting on disk that I forgot about? Out of all of them, what's the single most useful thing to do next? I kept losing that thread, and a project you've lost the thread on is a project that quietly dies.
 
 The obvious answer is a task board, and I tried that. The trouble is that a board at this scale is its own full-time job. Every card is something I have to remember to create, move, and close by hand, and the day I get busy and stop, the board starts lying. It tells me I'm "in progress" on something I shipped last month. Once a board lies to you a few times, you stop trusting it, you stop opening it, and now it's just one more dead project.
 
@@ -21,7 +21,7 @@ That sounds trivial until you try to make it not corrupt itself. Sync runs repea
 
 ## The Today view
 
-That work log isn't just an archive. It powers a daily "Today" page that's the first thing I open. One screen: an activity heatmap, per-project velocity sparklines, a standup digest of what I touched, an "Up Next" recommendation, stuck-task alerts, and the Stale Work Radar. The whole point is to answer "what should I work on" without me reconstructing it from memory across thirty repos.
+That work log isn't just an archive. It powers a daily "Today" page that's the first thing I open. One screen: an activity heatmap, per-project velocity sparklines, a standup digest of what I touched, an "Up Next" recommendation, stuck-task alerts, and the Stale Work Radar. The whole point is to answer "what should I work on" without me reconstructing it from memory across all of them.
 
 Getting Today right surfaced a bug that's a rite of passage for anyone doing date aggregation. The backend groups by `date(created_at, 'localtime')` in SQLite, but the frontend was originally keying dates with `toISOString()`, which is UTC. In any non-UTC timezone, those disagree, and the heatmap and streak would drift by a day. Late-night commits landed on tomorrow. I aligned both sides on a shared local-date key. It's a small thing that completely breaks trust when it's wrong, because a streak that's off by one is a streak you stop believing.
 
