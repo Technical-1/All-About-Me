@@ -5,54 +5,66 @@ pubDate: 2026-06-16T10:00:00-04:00
 tags: ["AWS", "Cloud", "Cost Engineering", "Web Scraping", "RAG"]
 ---
 
-AWS Kendra costs about $810 a month before you've crawled a single page. I replaced it with something that costs about $2.
-
-That gap is the whole story, so let me explain how I got there and why the cheap version is, for my use case, actually the better one.
+This one started with a bill I didn't want to pay, for an AWS service that wasn't even doing its job. Here's what I needed, what it was quietly costing me, and the small thing I built to replace it.
 
 ## What I actually needed
 
-I had a Bedrock Knowledge Base and a set of websites I wanted searchable inside it. That's it. The job is unglamorous: crawl some pages, turn them into clean text, drop that text somewhere Bedrock can ingest it. AWS's answer to this is Kendra, which ships a built-in web crawler that feeds the index for you.
+The job was boring. I had a Bedrock Knowledge Base, an AI search index, and a handful of websites I wanted it to be able to answer questions about. So something needed to crawl those pages, turn them into clean text, and drop that text somewhere Bedrock could read it. That's the whole task.
 
-Two problems. The first is the price. Kendra has a floor. You're paying for an always-on index whether you crawl once a day or once a quarter, and that floor lands around $810/month. The second problem is worse: in practice, Kendra's crawler gets blocked. Modern sites run anti-bot systems, and plenty of the content I cared about lived behind JavaScript that a plain HTTP fetcher never renders. So I'd be paying a premium for a crawler that quietly came back with nothing.
+AWS has a service for this called Kendra, and it ships with a built-in crawler that's supposed to handle exactly this. I tried it. It let me down twice.
 
-When you write out what you're actually buying, the value proposition falls apart. I didn't need a managed index sitting hot 24/7. I needed content to land in S3 on a schedule. Bedrock can already point at an S3 bucket as a data source. The crawler was the only piece I was missing, and it was the cheap piece to build.
+First, the price. Kendra doesn't really charge you for what you use, it charges you for existing. There's a floor of around $810 a month whether you crawl once an hour or once a quarter. Second, and this is the part that actually got to me, it didn't even work. The sites I cared about run anti-bot defenses and render everything with JavaScript, and Kendra's crawler just bounced off them and came back with nothing. So I was staring at $810 a month for a crawler that returned empty pages.
 
-So I built it. The project is called kendra-who, and it's a drop-in replacement for exactly that one expensive crawler.
+The longer I looked at it, the more I realized I didn't need most of what I was paying for. I didn't need a search index sitting there hot around the clock. Bedrock can already point straight at an S3 bucket and ingest whatever's in it. The only piece I was actually missing was the crawler, and the crawler was the easy part to build myself.
 
-## The design, in one sentence
+## So I built it
 
-Drive a real, stealth-hardened Chromium browser to crawl sites that block bots, convert each page to clean Markdown, and write the result to S3 so Bedrock ingests it. The crawl runs as a scheduled ECS Fargate task, so I pay only for the minutes it runs.
+It's called kendra-who, and it does one thing: it's a drop-in replacement for that one overpriced crawler.
 
-That last clause is where the $810 turns into $2. There are no always-on servers. EventBridge fires on whatever schedule I set, kicks off a Step Functions workflow, and that workflow runs the scraper as a Fargate task that exists only for the duration of the run. When the crawl finishes, the compute goes away. What's left standing is storage and notifications, which round to a couple of dollars a month. It's pay-per-run instead of pay-to-exist.
+Here's the whole design in a sentence. Drive a real, stealth-hardened Chromium browser to crawl sites that block bots, convert each page to clean Markdown, and write it to S3 so Bedrock can pick it up. The crawl runs as a scheduled Fargate task.
 
-## Why a real browser, not a fast fetcher
+That last bit is the entire trick behind the price. Nothing sits around between runs. EventBridge fires on whatever schedule I set, a Step Functions workflow spins up the scraper as a Fargate task, it runs for a few minutes, and then it disappears. The only things still standing between crawls are storage and a notification topic, and those round down to about two dollars a month. I stopped paying to keep something idle and started paying only for the minutes it's actually working.
 
-The obvious cheaper path is a requests-based crawler. Fire HTTP, parse HTML, done. I didn't do that, and the reason is the same reason Kendra's crawler failed me: the targets render content with JavaScript and actively block obvious bots. A fetcher is faster and cheaper per page, but it retrieves nothing useful from a JS app and it's trivially detected.
+## Why a real browser instead of something faster
 
-So the crawler drives real Chromium through Selenium, with fingerprint hardening so the client reads as a genuine browser. It removes the `navigator.webdriver` signal, mocks plugins and runtime to look like a normal Chrome session, randomizes the user agent, and applies configurable inter-request delays. Because it's actual Chromium, JavaScript executes and the page renders the way it would for a person.
+The cheaper, more obvious move would've been a plain HTTP crawler. Fire a request, parse the HTML, move on. I didn't, for the same reason Kendra failed me: the sites I wanted render everything with JavaScript and actively try to block bots. A bare HTTP fetcher is fast and cheap, and it would've come back with the same empty pages Kendra did.
 
-A real browser is heavier than an HTTP call, and normally that cost would scare me off. But running it on per-run Fargate tasks bounds the cost. I only pay for the browser while the scheduled crawl is actually happening, which is the same trick that kills the Kendra bill. The expensive choice and the cheap architecture cancel out.
+So the crawler drives actual Chromium through Selenium, dressed up to look like a normal person browsing. It strips the `navigator.webdriver` flag that screams "I'm a bot," fakes the plugins and runtime so it reads like a real Chrome session, rotates the user agent, and waits a randomized beat between requests. Because it's a real browser, the JavaScript runs and the page renders the way it would for an actual human.
 
-## Storage, and the boring bug that corrupts everything
+And yes, a real browser is heavier and slower than an HTTP call. Normally that's exactly the kind of cost that would make me back off. But it only ever runs inside those short, scheduled Fargate bursts, so the heaviness doesn't matter. The expensive way to crawl and the cheap way to run it cancel each other out.
 
-S3 is the default sink because that's what Bedrock reads, but the crawler doesn't hardcode S3. There's one storage interface with five interchangeable backends: S3, EFS, DynamoDB, RDS, and local filesystem, picked per job from a single config field. The scraper never knows which one it's writing to. Adding a new sink is a localized change instead of a rewrite, and the cost is a deliberately small interface: `save`, `save_json`, `save_structured`.
+## Markdown, not a wall of text
 
-One detail I'm glad I got right early: the crawler downloads PDFs and images, not just HTML. The classic mistake here is to treat everything as a string. Bytes get decoded into a string, then silently re-encoded as UTF-8 on the way to the backend, and your PDF is quietly corrupted. So `save()` accepts a `str` or `bytes`, and every backend writes bytes verbatim (binary file mode for the filesystem backends, raw body for S3), encoding only when it's actually handed a string. Correctness for binary payloads mattered more than a tidy string-only signature.
+Once the browser has the page, something has to turn that HTML into text the knowledge base can actually use. The lazy version is to strip the tags and dump whatever's left. That technically works, and it's also where a lot of retrieval quality quietly dies.
 
-The RDS backend has its own sharp edge. It builds an `INSERT` whose columns come from the scraped record's keys, which means the column identifiers are effectively untrusted input. Parameter binding protects values, but parameters can't cover identifiers. So every table and column name is validated against a strict allow-list (anything that isn't a plain identifier gets rejected) and then dialect-quoted before it goes near the query. Rejecting suspicious identifiers outright beats trying to sanitize them.
+When you flatten a page to raw text, you throw away the structure that gave the words meaning. A heading stops being a heading and becomes one more line in the pile. A table collapses into a run of numbers with no idea which value belonged to which column. Later, when Bedrock chunks that text and pulls a piece of it back for an answer, the chunk has lost the context it needed. You end up with answers that came from the right page and are still subtly wrong, because the model is reading a column of numbers with the headers stripped off.
 
-## Failing loud, because nobody's watching
+So the crawler doesn't flatten anything. It parses the HTML with BeautifulSoup and lxml and converts it to clean Markdown in `formatters.py`. Headings become real Markdown headings, so a chunk still knows what section it came from. Tables become Markdown tables, so a cell still lines up under its column. Lists stay lists. The output reads like a document instead of the wreckage of one.
 
-The deployed scraper composes around fourteen optional AWS services: messaging, change detection, cost tracking, and more, each gated on config. The dangerous failure mode for an unattended scheduled job isn't a crash. It's a job that reports success while notifications or change detection were silently disabled by one bad credential. You find out days later that the alerts never fired.
+That single choice does more for answer quality than anything else in the pipeline. Same crawl, same storage, but the content lands as marked-up text that carries its own structure, instead of raw text with context gaps the retriever has to guess across. Markdown is the default, but `formatters.py` can also emit JSON, HTML, or plain text if a backend wants something else.
 
-So service init fails fast. A shared helper skips anything unconfigured, but a service you *did* configure that fails to initialize aborts the whole run with a full traceback. A loud startup failure that names the problem is much cheaper to debug than silent degradation. For automation, that trade is not close.
+## The boring bug that quietly corrupts your files
 
-A couple of smaller things in the same spirit: constructed ARNs resolve the real account ID once via STS instead of a wildcard AWS would reject, so deploys work in any account. And the ECR login passes the registry password to `docker login` on stdin with `shell=False`, keeping the credential out of the process list and out of any shell.
+S3 is where things land by default, since that's what Bedrock reads, but I didn't hardcode it. There's one small storage interface with five backends behind it: S3, EFS, DynamoDB, RDS, or just your local disk, picked per job from a single line of config. The scraper has no idea which one it's writing to. Adding a new one later is a contained change instead of surgery, and the price of that flexibility is keeping the interface tiny: `save`, `save_json`, `save_structured`.
 
-## Deploying it
+One thing I'm glad I caught early: this thing downloads PDFs and images, not just HTML. The classic way to ruin that is to treat everything like text. You decode the bytes into a string, something quietly re-encodes it as UTF-8 on the way out, and now your PDF is corrupted and you have no idea why. So `save()` takes either a string or raw bytes, and every backend writes bytes exactly as they came in, only encoding when it's genuinely handed text. Slightly uglier signature, files that actually open. Easy trade.
 
-The whole pipeline goes up with one command. `kendra-who deploy` builds the container, pushes it to ECR, and provisions everything (ECS Fargate, Step Functions, EventBridge schedule, S3, SNS, IAM) through CloudFormation. `status` and `logs` inspect a run, `destroy` tears it down. If you don't want to hand-write YAML, there's a Streamlit GUI that builds configs, previews a local scrape, and monitors deployed runs. And you can skip AWS entirely: the local backend and `kendra-who scrape` run the full crawl on your machine and write to disk.
+The RDS backend had its own trap. It builds an `INSERT` where the column names come from the scraped record's own keys, which means those column names are effectively untrusted input. Parameter binding keeps the values safe, but you can't bind an identifier. So every table and column name gets checked against a strict allow-list (anything that isn't a clean identifier is rejected outright) and then properly quoted before it goes anywhere near the query. Reject anything malformed outright, don't try to clean it up.
 
-## The point
+## Failing loud, because no one's watching
 
-The lesson isn't "managed services bad." Kendra is fine if you need a hot, always-on search index and your sites cooperate. Mine didn't, on either count. The judgment that mattered was looking at an $810 line item, asking what I was actually buying, and noticing the answer was "one crawler I could write, plus a lot of standing compute I didn't need." Pull the crawler out, run it pay-per-run, point it at the S3 bucket Bedrock already reads, and the same content shows up for cents. Sometimes the senior move is just refusing to pay for the idle.
+The deployed version wires up around fourteen optional AWS services: messaging, change detection, cost tracking, all of it gated behind config. For a job that runs unattended on a schedule, the scary failure isn't a crash. A crash is loud, you notice a crash. The scary one is the job that cheerfully reports success while notifications were silently switched off by one bad credential, and you find out a week later that none of your alerts ever fired.
+
+So I made it fail loud on purpose. Anything you didn't configure gets skipped quietly. But anything you did configure that then fails to start kills the whole run with a full traceback. A noisy startup failure that tells me exactly what's wrong is so much cheaper than discovering silent rot days later. For something I'm not babysitting, that's not a close call.
+
+Two smaller things in the same spirit. The ARNs it builds resolve the real account ID once through STS instead of using a wildcard AWS would reject, so it deploys cleanly into any account. And the ECR login pipes the registry password into `docker login` over stdin with `shell=False`, so the credential never shows up in the process list or in some shell's history.
+
+## Shipping it
+
+The whole thing deploys with one command. `kendra-who deploy` builds the container, pushes it to ECR, and stands up everything (Fargate, Step Functions, the EventBridge schedule, S3, SNS, IAM) through CloudFormation. `status` and `logs` let me peek at a run, `destroy` tears it all back down. If you'd rather not touch YAML, there's a small Streamlit GUI for building configs, previewing a scrape locally, and watching deployed runs. And if you want nothing to do with AWS at all, the local backend plus `kendra-who scrape` runs the entire crawl on your own machine and writes to disk.
+
+## The actual lesson
+
+To be clear, this isn't a "managed services bad" rant. Kendra is genuinely good if you need a hot, always-on search index and your target sites play nice. Mine didn't, on either count.
+
+The thing I keep coming back to is the decision in the middle. I looked at an $810 line item, asked what I was actually buying, and the honest answer was "one crawler I could write in a weekend, plus a pile of standing compute I'd never use." Once you see it that way, the fix is obvious: pull out the one piece you actually need, run it only when it's working, and point it at the bucket Bedrock already reads. Same content, a couple of dollars a month. The hard part was never the code. It was being willing to look at the bill and ask why I was paying to keep something idle.
