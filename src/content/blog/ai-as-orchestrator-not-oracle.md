@@ -1,7 +1,7 @@
 ---
 title: "AI as Orchestrator, Not Oracle"
 description: "I did my own business taxes by hand, realized the whole thing was mechanical, and built a tool for it. The catch: the language model orchestrates, but a deterministic Python engine owns every number."
-pubDate: 2026-06-23T10:00:00-04:00
+pubDate: 2026-07-10T11:00:00-04:00
 tags: ["AI", "LLM", "Python", "Architecture", "Claude"]
 ---
 
