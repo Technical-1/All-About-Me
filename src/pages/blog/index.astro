@@ -2,7 +2,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft))
+// Scheduling: a post with a FUTURE pubDate is "scheduled". Its page is still
+// built (so the URL works for sharing/copying into a queued LinkedIn post), but
+// it stays hidden from this listing until its pubDate arrives. The site rebuilds
+// daily (nightly repo-snapshot sync), so a scheduled post surfaces on/after its
+// date automatically; trigger a redeploy on the day for exact timing. Use
+// draft:true to hide a post entirely (no page at all).
+const now = Date.now();
+const posts = (await getCollection('blog', ({ data }) => !data.draft && data.pubDate.valueOf() <= now))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
