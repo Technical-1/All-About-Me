@@ -1,7 +1,7 @@
 ---
 title: "My First Repo Texted Me About College. I Never Stopped."
 description: "My first GitHub project was a script that texted me when my college admission decision posted. Every project since has come from the same instinct: if something annoys me or I want to learn it, I build it, and I take it past the prototype to something real."
-pubDate: 2026-06-12T11:00:00-04:00
+pubDate: 2026-06-12
 tags: ["Automation", "Side Projects", "Learning by Building", "OCR", "Productivity"]
 ---
 
