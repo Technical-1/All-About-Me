@@ -24,7 +24,10 @@ An interactive chat interface that answers questions about my background, projec
 Semantic search over pre-computed embeddings ensures the AI provides accurate, grounded answers rather than making things up. Hybrid search combines vector similarity with keyword boosting for better accuracy.
 
 ### Project Showcase
-Interactive project cards with rich detail pages showing architecture diagrams, tech stack breakdowns, and Q&A content pulled from each project's documentation.
+Every repo is grouped into domain shelves (AI, Crypto & Fintech, Developer Tools, Automation, and so on). Repos without a preview image fall to a "Work in Progress" shelf so unfinished work never sits next to polished projects. Each project's detail page renders architecture diagrams, tech stack breakdowns, and Q&A pulled from that project's own `.portfolio/` docs. On mobile, a sticky pill bar filters to All, Featured, or a single shelf.
+
+### Technical Blog
+A blog built on Astro content collections, authored in Markdown and MDX. MDX lets richer posts embed interactive React (for example a tabbed guide). Posts support scheduled publishing: a future-dated post builds its page but stays out of the listing until its publish date arrives, which the nightly rebuild surfaces automatically.
 
 ### Dark/Light Theme
 System-aware theme switching with no flash on load. Persists preference across sessions.
@@ -109,10 +112,18 @@ Public projects are fetched from the GitHub API at build time. Private projects 
 
 Astro's island architecture is perfect for a mostly-static portfolio with a few interactive components. It ships zero JavaScript by default, only hydrating components that need interactivity. This results in faster page loads and better Core Web Vitals.
 
+### Q: How are projects sorted into shelves?
+
+A small pure function (`shelfFor` in `src/lib/projectSections.ts`) decides each repo's shelf. Academic coursework is an explicit category that always wins; any repo without a preview image is demoted to a "Work in Progress" shelf; everything else lands on its stored domain category. Within a shelf, projects sort featured → active → archived, newest push first. The logic is unit-tested so re-categorizing repos can't silently break placement.
+
+### Q: How does scheduled blog publishing work?
+
+Each post has a `pubDate` in its frontmatter. The listing query filters out any post whose `pubDate` is in the future, but the post's page is still built, so the slug is live and indexable the moment its date passes. Because the site rebuilds nightly, a queued post appears on schedule with no manual deploy. A separate `draft` flag hides a post entirely (no page at all).
+
 ### Q: How do I contact you?
 
 The Contact page has links to my email, GitHub, and LinkedIn. You can also ask the AI chat for contact information!
 
 ### Q: Is the source code available?
 
-The portfolio site code demonstrates modern web development practices but the repository is private since it contains personal information and project documentation.
+Yes. The repository is public on GitHub at [github.com/Technical-1/All-About-Me](https://github.com/Technical-1/All-About-Me). It aggregates the `.portfolio/` documentation from across my project repos, so the architecture, stack, and Q&A you read on each project detail page come straight from that project's own docs.

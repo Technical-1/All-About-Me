@@ -8,14 +8,16 @@ A modern portfolio site built with Astro and React featuring an interactive AI c
 
 - **AI Chat Assistant** - Interactive chat that answers questions about my portfolio using either local WebLLM or Claude API
 - **RAG-Powered Responses** - Semantic search over pre-computed embeddings ensures accurate, grounded answers
-- **Project Showcase** - Rich project cards with architecture diagrams, tech stack details, and Q&A content
+- **Project Showcase** - Domain-grouped shelves of every repo, with detail pages that render architecture diagrams, tech stack, and Q&A pulled from each project's own docs
+- **Technical Blog** - Markdown/MDX posts with scheduled publishing (future-dated posts stay hidden until their date arrives)
 - **Dark/Light Theme** - System-aware theme with instant switching and persistence
 - **Responsive Design** - Optimized for mobile, tablet, and desktop
 
 ## Tech Stack
 
 - **Framework**: Astro 5 with React islands
-- **AI**: WebLLM (SmolLM2-1.7B), Anthropic Claude API, Xenova Transformers
+- **AI**: WebLLM (SmolLM2-1.7B) for local inference, Claude Haiku 4.5 for cloud fallback, Xenova Transformers for embeddings
+- **Content**: Astro content collections (Markdown/MDX blog)
 - **3D Graphics**: Three.js with React Three Fiber
 - **Styling**: Tailwind CSS with custom theme variables
 - **State**: Zustand with persistence
@@ -62,16 +64,17 @@ ANTHROPIC_API_KEY=your_api_key_here
 ```
 All-About-Me/
 ├── src/
-│   ├── components/     # React components (chat, projects, global)
+│   ├── components/     # React/Astro islands (chat, projects, blog, global)
+│   ├── content/        # Blog content collection (Markdown/MDX) + schema
 │   ├── layouts/        # Astro layouts
-│   ├── lib/            # Utilities (GitHub API, RAG system)
-│   ├── pages/          # Astro pages and API routes
+│   ├── lib/            # GitHub API, RAG, project categorization
+│   ├── pages/          # Astro pages, blog/project routes, chat API
 │   ├── stores/         # Zustand state management
 │   └── styles/         # Global CSS and theme
 ├── public/
-│   ├── data/           # JSON data and portfolio files
+│   ├── data/           # JSON repo data and generated embeddings
 │   └── og/             # OpenGraph images
-├── scripts/            # Build scripts (embedding generation)
+├── scripts/            # Build scripts (embeddings, OG images, repo sync)
 └── docs/               # Documentation and prompts
 ```
 
@@ -81,7 +84,7 @@ All-About-Me/
 
 The chat automatically detects WebGPU support:
 - **WebGPU available**: Offers local mode (no data sent to servers)
-- **No WebGPU**: Uses Claude API with rate limiting and input validation
+- **No WebGPU**: Uses Claude Haiku 4.5 via the API, with rate limiting and input validation
 
 ### RAG System
 
@@ -100,7 +103,7 @@ Embeddings are generated at build time from portfolio markdown files. At runtime
 
 ## License
 
-Private repository - All rights reserved.
+Unlicensed (personal project). The source is public on GitHub for reference.
 
 ## Author
 
