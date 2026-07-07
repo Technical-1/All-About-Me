@@ -1,7 +1,7 @@
 ---
 title: "I Built the Same App Five Times to Learn Five Stacks"
 description: "I picked one problem I understood cold, image to ASCII art, and rebuilt it across Flask, Vite, a video version, React Native, and a CLI. When the algorithm is boring and known, the stack is the teacher."
-pubDate: 2026-07-14T10:00:00-04:00
+pubDate: 2026-08-07T11:00:00-04:00
 tags: ["Web Development", "React Native", "Learning by Building", "Performance"]
 ---
 

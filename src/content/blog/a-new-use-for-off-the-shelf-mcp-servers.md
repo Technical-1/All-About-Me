@@ -1,7 +1,7 @@
 ---
 title: "You Don't Have to Build MCP Servers to Do Something New With Them"
 description: "I built a personal relationship knowledge graph from my own iMessage history by wiring together two off-the-shelf MCP servers. The novelty isn't a server I wrote, it's the combination."
-pubDate: 2026-07-07T10:00:00-04:00
+pubDate: 2026-07-24T11:00:00-04:00
 tags: ["MCP", "AI", "Local-First", "Knowledge Graph", "Privacy"]
 ---
 
