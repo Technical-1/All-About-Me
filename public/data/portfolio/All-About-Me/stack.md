@@ -30,7 +30,7 @@
 I implemented a hybrid approach:
 
 - **Local inference**: WebLLM runs SmolLM2-1.7B-Instruct entirely in the browser via WebGPU. No data leaves the device.
-- **Cloud fallback**: Anthropic Claude 3 Haiku provides faster, higher-quality responses when WebGPU isn't available.
+- **Cloud fallback**: Anthropic Claude Haiku 4.5 provides faster, higher-quality responses when WebGPU isn't available.
 - **RAG embeddings**: Xenova's MiniLM-L6-v2 generates 384-dimensional embeddings for semantic search over portfolio content.
 
 ## 3D Graphics
@@ -89,6 +89,7 @@ I chose Zustand over Context for its simplicity and built-in persistence support
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **tsx** | 4.7.0 | TypeScript execution for build scripts |
+| **Vitest** | 4.1.8 | Unit tests for the pure logic (project categorization in `projectSections.ts`) |
 | **Puppeteer** | 24.36.1 | OG image generation |
 
 ## Key Dependencies Deep Dive
