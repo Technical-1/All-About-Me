@@ -24,9 +24,16 @@ graph TB
     end
 
     subgraph "Project Components"
-        CSC[CaseStudyCard]
-        GHR[GitHubRepos]
+        PS[ProjectShelves]
+        CRC[CompactRepoCard]
+        PSEC[projectSections]
         PD[Project Detail Page]
+    end
+
+    subgraph "Blog"
+        BC[Content Collection]
+        BS[blog/index + slug]
+        TG[TabbedGuide]
     end
 
     subgraph "Chat System"
@@ -70,14 +77,19 @@ graph TB
     TS --> ZS
 
     HP --> HS
-    PP --> CSC
-    PP --> GHR
+    PP --> PS
+    PP --> CRC
     PP --> PD
+    PS --> PSEC
 
-    CSC --> FR
-    CSC --> PF
-    GHR --> GHA
-    GHR --> PR
+    PSEC --> FR
+    PD --> PF
+    PS --> GHA
+    PS --> PR
+
+    BP --> BS
+    BS --> BC
+    BS --> TG
 
     CH --> CI
     CI --> WLP
@@ -129,7 +141,7 @@ sequenceDiagram
 I implemented a dual-mode chat system that can run either locally in the browser or via cloud API:
 
 - **Local Mode**: Uses WebLLM with SmolLM2-1.7B model running on WebGPU. The model is preloaded in the background when the user hovers over navigation links, reducing perceived latency.
-- **Cloud Mode**: Falls back to Anthropic's Claude 3 Haiku for devices without WebGPU support or when the user prefers faster responses.
+- **Cloud Mode**: Falls back to Anthropic's Claude Haiku 4.5 for devices without WebGPU support or when the user prefers faster responses.
 
 The mode toggle is only shown when WebGPU is detected, otherwise cloud mode is used automatically.
 
@@ -169,7 +181,26 @@ Project data comes from multiple sources:
 - **Featured projects**: Subset with rich portfolio documentation
 - **Portfolio files**: Markdown docs in `.portfolio/` directories provide architecture/stack/Q&A content
 
-### 6. Rate Limiting & Security
+### 6. Project Shelves & Categorization
+
+The projects page groups every repo into domain shelves (AI, Crypto & Fintech, Developer Tools, Automation, and so on) rather than a flat wall. The placement logic lives in `src/lib/projectSections.ts` and is deliberately small:
+
+- **`shelfFor(repo)`**: maps a repo to a shelf. `academic` is an explicit stored category that always wins. Any repo without a preview image is demoted to a `work-in-progress` shelf, so unfinished work never sits next to polished projects. Otherwise the repo lands on its stored domain category.
+- **`sortWithinShelf`**: orders each shelf featured → active → archived, breaking ties by most-recent push.
+- **`featuredFromShelves`**: collects featured repos across every shelf into one cross-shelf group that backs the mobile "Featured" filter.
+
+`ProjectShelves` is a client island; on narrow screens it renders a sticky pill bar (All / Featured / per-shelf) so mobile visitors can filter instead of scrolling every shelf. The categorization is pure and unit-tested in `projectSections.test.ts`.
+
+### 7. Scheduled Blog Publishing
+
+The blog is an Astro content collection (`src/content/blog`, schema in `src/content/config.ts`) that accepts both Markdown and MDX, so richer posts can embed React (for example the `TabbedGuide` island). Each post's frontmatter carries a `pubDate` and a `draft` flag:
+
+- A `draft: true` post has no page at all.
+- A post with a future `pubDate` still builds a page but is filtered out of the listing until its date arrives.
+
+Because the repo rebuilds nightly (the same job that snapshots repo data), a scheduled post surfaces on its publish date with no manual step. This lets me queue a slate of posts ahead of time.
+
+### 8. Rate Limiting & Security
 
 The chat API implements defensive measures:
 
@@ -178,23 +209,25 @@ The chat API implements defensive measures:
 - **Input validation**: Message length, count, and total conversation size limits
 - **Error sanitization**: Internal errors are logged but generic messages returned to clients
 
-### 7. Component Organization
+### 9. Component Organization
 
 ```
 src/
 ├── components/
+│   ├── blog/         # TabbedGuide (MDX-embedded React island)
 │   ├── chat/         # ChatInterface - AI chat functionality
 │   ├── global/       # Shared components (Navbar, Footer, ThemeToggle)
 │   ├── hero/         # Landing page hero section
-│   └── projects/     # Project cards and GitHub repos display
+│   └── projects/     # ProjectShelves, CompactRepoCard, GitHubReposWall
+├── content/          # Blog content collection + schema
 ├── layouts/          # BaseLayout wraps all pages
-├── lib/              # Utilities (github.ts, rag.ts, rag-server.ts)
-├── pages/            # Astro pages and API routes
+├── lib/              # github.ts, rag.ts, rag-server.ts, projectSections.ts
+├── pages/            # Astro pages, blog/project routes, chat API
 ├── stores/           # Zustand state management
 └── styles/           # Global CSS with theme variables
 ```
 
-### 8. Build Pipeline
+### 10. Build Pipeline
 
 The build process generates embeddings before Astro builds:
 
