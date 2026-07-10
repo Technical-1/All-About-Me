@@ -175,7 +175,6 @@
     "primary_language": "Swift",
     "has_portfolio": true,
     "portfolio_files": [
-      "architecture.md",
       "stack.md",
       "qa.md"
     ],
