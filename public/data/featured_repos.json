@@ -60,7 +60,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T23:39:01Z",
+      "pushed_at": "2026-07-10T16:12:49Z",
       "topics": [
         "anthropic",
         "claude",
@@ -175,6 +175,7 @@
     "primary_language": "Swift",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],

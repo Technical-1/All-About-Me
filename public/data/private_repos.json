@@ -1067,7 +1067,9 @@
     "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
-      "stack.md"
+      "architecture.md",
+      "stack.md",
+      "qa.md"
     ],
     "metadata": {
       "category": "automation"
@@ -1221,7 +1223,8 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
-      "stack.md"
+      "stack.md",
+      "qa.md"
     ],
     "metadata": {
       "category": "automation"
@@ -1456,7 +1459,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-02T23:39:01Z",
+      "pushed_at": "2026-07-10T16:12:49Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1572,6 +1575,7 @@
     "primary_language": "Swift",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -1648,6 +1652,7 @@
     "primary_language": "Rust",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -1700,14 +1705,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-10T00:08:47Z",
+      "pushed_at": "2026-07-10T15:40:33Z",
       "topics": []
     },
     "languages": [
       "HTML"
     ],
     "language_bytes": {
-      "HTML": 1425181
+      "HTML": 1793155
     },
     "primary_language": "HTML",
     "has_portfolio": false,
@@ -1972,6 +1977,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "screenshots": [
@@ -2313,6 +2319,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "metadata": {
@@ -2836,7 +2843,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-09T10:21:26Z",
+      "pushed_at": "2026-07-10T15:04:32Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -3387,8 +3394,12 @@
       "Python": 747
     },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "screenshots": [
       "/screenshots/ebayviews/preview.png"
     ],
@@ -3532,6 +3543,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "screenshots": [
@@ -3581,7 +3593,11 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailanalyzer/preview.png"
     ],
     "metadata": {
       "category": "security"
@@ -4044,7 +4060,6 @@
     "primary_language": "HTML",
     "has_portfolio": true,
     "portfolio_files": [
-      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -4171,6 +4186,7 @@
     "primary_language": "JavaScript",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -4272,6 +4288,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pythonforge/preview.png"
     ],
     "metadata": {
       "category": "dev-tools"
@@ -4798,7 +4817,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-10T07:39:58Z",
+      "pushed_at": "2026-07-11T06:18:20Z",
       "topics": []
     },
     "languages": [
