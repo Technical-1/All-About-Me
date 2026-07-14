@@ -342,6 +342,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "screenshots": [
@@ -609,6 +610,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailer/preview.png"
     ],
     "metadata": {
       "category": "mobile"
@@ -1049,17 +1053,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-12T17:27:01Z",
+      "pushed_at": "2026-07-13T15:32:43Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
       "JavaScript",
+      "HTML",
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 108013,
-      "JavaScript": 8128,
+      "TypeScript": 268096,
+      "JavaScript": 8817,
+      "HTML": 8385,
       "CSS": 2936
     },
     "primary_language": "TypeScript",
@@ -2458,6 +2464,7 @@
     "primary_language": "Swift",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -2641,6 +2648,7 @@
     "primary_language": "TypeScript",
     "has_portfolio": true,
     "portfolio_files": [
+      "architecture.md",
       "stack.md",
       "qa.md"
     ],
@@ -2714,7 +2722,8 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
-      "stack.md"
+      "stack.md",
+      "qa.md"
     ],
     "screenshots": [
       "/screenshots/video-to-ascii/preview.png"
@@ -2868,7 +2877,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-12T09:06:14Z",
+      "pushed_at": "2026-07-13T10:31:56Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -2902,7 +2911,8 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
-      "stack.md"
+      "stack.md",
+      "qa.md"
     ],
     "screenshots": [
       "/screenshots/all-about-me/preview.png"
@@ -3071,7 +3081,9 @@
     "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
-      "stack.md"
+      "architecture.md",
+      "stack.md",
+      "qa.md"
     ],
     "screenshots": [
       "/screenshots/coinbasis-py/preview.png"
@@ -3565,6 +3577,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "screenshots": [
@@ -3687,6 +3700,9 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-archiver/preview.png"
     ],
     "metadata": {
       "category": "dev-tools"
@@ -4544,6 +4560,7 @@
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
+      "stack.md",
       "qa.md"
     ],
     "screenshots": [
@@ -4835,7 +4852,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-13T06:58:10Z",
+      "pushed_at": "2026-07-14T06:14:44Z",
       "topics": []
     },
     "languages": [
