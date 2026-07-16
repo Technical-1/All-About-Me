@@ -267,7 +267,7 @@ export async function fetchFeaturedReposWithPortfolio(): Promise<GitHubRepo[]> {
       const portfolio = await fetchPortfolioData(repo.name);
       return {
         ...repo,
-        portfolio,
+        portfolio: portfolio ?? undefined,
         has_portfolio: !!portfolio,
       };
     })
@@ -299,7 +299,7 @@ export async function fetchAllReposWithPortfolio(): Promise<GitHubRepo[]> {
         const portfolio = await fetchPortfolioData(repo.name);
         return {
           ...repo,
-          portfolio,
+          portfolio: portfolio ?? undefined,
           has_portfolio: !!portfolio,
         };
       })

@@ -9,7 +9,7 @@
 
 import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pipeline } from '@xenova/transformers';
+import { pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
 import { chunkMarkdown, type Chunk } from './lib/chunker.js';
 
 const MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
@@ -134,7 +134,7 @@ async function getBlogFiles(
  */
 async function generateEmbeddings(
   chunks: Chunk[],
-  embedder: Awaited<ReturnType<typeof pipeline>>
+  embedder: FeatureExtractionPipeline
 ): Promise<EmbeddedChunk[]> {
   const embeddedChunks: EmbeddedChunk[] = [];
 
@@ -199,7 +199,7 @@ async function main() {
 
   // Load the embedding model
   console.log('Loading embedding model...');
-  const embedder = await pipeline('feature-extraction', MODEL_NAME);
+  const embedder = (await pipeline('feature-extraction', MODEL_NAME)) as FeatureExtractionPipeline;
 
   // Process each file
   const allChunks: EmbeddedChunk[] = [];
