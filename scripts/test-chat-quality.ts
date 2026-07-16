@@ -11,7 +11,7 @@
  *   npx tsx scripts/test-chat-quality.ts [--local-only] [--cloud-only]
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer';
 
 const BASE_URL = 'http://localhost:4321';
 const CHAT_URL = `${BASE_URL}/chat`;
@@ -102,7 +102,7 @@ async function initializeLocalChat(page: Page): Promise<boolean> {
     const buttons = Array.from(document.querySelectorAll('button'));
     return buttons.find(b => b.textContent?.includes('Start Chat')) || null;
   });
-  const startButtonElement = startButton.asElement();
+  const startButtonElement = startButton.asElement() as ElementHandle<Element> | null;
 
   if (startButtonElement) {
     console.log('  Initializing WebLLM (this may take a few minutes on first run)...');

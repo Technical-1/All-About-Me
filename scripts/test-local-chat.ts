@@ -8,7 +8,7 @@
  * Supports streaming responses in both modes.
  */
 
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer';
 
 const BASE_URL = 'http://localhost:4321';
 const CHAT_URL = `${BASE_URL}/chat`;
@@ -116,7 +116,7 @@ async function initializeLocalChat(page: Page): Promise<boolean> {
     const buttons = Array.from(document.querySelectorAll('button'));
     return buttons.find(b => b.textContent?.includes('Start Chat')) || null;
   });
-  const startButtonElement = startButton.asElement();
+  const startButtonElement = startButton.asElement() as ElementHandle<Element> | null;
   if (startButtonElement) {
     console.log('  Clicking "Start Chat" to initialize WebLLM...');
     await startButtonElement.click();
@@ -390,7 +390,7 @@ async function main() {
       }
     });
     page.on('pageerror', err => {
-      console.log(`  [Page Error]: ${err.message}`);
+      console.log(`  [Page Error]: ${err instanceof Error ? err.message : String(err)}`);
     });
 
     // Navigate to chat page to check WebGPU support
