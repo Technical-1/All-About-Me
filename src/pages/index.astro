@@ -89,7 +89,7 @@ import headshot from '../../public/headshot.jpg';
         <div class="card card-hover">
           <h3 class="text-lg font-display font-bold mb-4" style="color: var(--accent-primary);">Languages</h3>
           <div class="flex flex-wrap gap-2">
-            {['Python', 'JavaScript', 'TypeScript', 'Rust', 'Go', 'Java', 'C++', 'C', 'Swift', 'SQL', 'HTML/CSS'].map((skill) => (
+            {['Python', 'JavaScript', 'TypeScript', 'Rust', 'Go', 'Java', 'C++', 'C', 'Swift', 'VHDL', 'Matlab', 'R', 'Assembly', 'SQL', 'HTML/CSS', 'AppleScript'].map((skill) => (
               <span class="tag">{skill}</span>
             ))}
           </div>
@@ -148,6 +148,11 @@ import headshot from '../../public/headshot.jpg';
             issuer: 'University of Florida',
             variant: 'red',
             certs: ['Engineering Innovation', 'Engineering Leadership', 'Engineering Project Management'],
+          },
+          {
+            issuer: 'CompTIA',
+            variant: 'teal',
+            certs: ['Security+'],
           },
         ].map((group) => (
           <div class="card p-5">

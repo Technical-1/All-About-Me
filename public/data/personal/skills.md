@@ -4,7 +4,7 @@
 
 ### What programming languages does Jacob know?
 
-Jacob is proficient in a wide range of programming languages. His primary languages include Python for AI/ML development, JavaScript and TypeScript for web development, and Rust for systems programming.
+Jacob is proficient in a wide range of programming languages. His primary languages include Python for AI/ML development, JavaScript and TypeScript for web development, and Rust for systems programming. From his computer engineering background he also works in VHDL, Matlab, R, Assembly, and AppleScript.
 
 Jacob knows the following programming languages:
 - **Python** - Primary language for AI/ML development, automation, and data science
@@ -16,8 +16,13 @@ Jacob knows the following programming languages:
 - **C++** - Systems and performance-critical applications
 - **C** - Low-level systems programming
 - **Swift** - iOS and macOS development
+- **VHDL** - Hardware description for digital circuit design
+- **Matlab** - Numerical computing and engineering analysis
+- **R** - Statistical computing and data analysis
+- **Assembly** - Low-level programming and embedded systems
 - **SQL** - Database querying and management
 - **HTML/CSS** - Web markup and styling
+- **AppleScript** - macOS scripting and automation
 
 ## Frameworks and Tools
 
@@ -69,9 +74,21 @@ Jacob specializes in cutting-edge AI technologies:
 
 What certifications does Jacob have? Jacob holds the following professional certifications:
 
+From Amazon Web Services:
 - **AWS Certified Cloud Practitioner** - Validates foundational understanding of AWS cloud services, architecture, and deployment
+- **AWS Partner: Agentic AI Essentials** - Covers building agentic AI systems on AWS
+
+From CompTIA:
+- **Security+** - Validates core cybersecurity skills across threats, architecture, operations, and risk management
+
+From the Deloitte AI Academy:
+- **GenAI 101 & Prompt Engineering** - Foundations of generative AI and prompt design
+- **Advanced Prompt Engineer With Coding** - Advanced prompt engineering applied to code generation
+- **AI Strategist** - Strategic application of AI to business and client problems
+
+From the University of Florida:
 - **Engineering Innovation** - Demonstrates expertise in innovative engineering practices and methodologies
 - **Engineering Leadership** - Certifies leadership capabilities in engineering team management and project execution
 - **Engineering Project Management** - Validates skills in managing engineering projects from conception to delivery
 
-Jacob's AWS Cloud Practitioner certification demonstrates his cloud computing knowledge and AWS expertise.
+Jacob's AWS Cloud Practitioner certification demonstrates his cloud computing knowledge and AWS expertise. His CompTIA Security+ certification demonstrates his cybersecurity fundamentals.
