@@ -1792,13 +1792,19 @@
       "name": "Puppeteer-Packages",
       "full_name": "Technical-1/Puppeteer-Packages",
       "html_url": "https://github.com/Technical-1/Puppeteer-Packages",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://www.npmjs.com/org/technical-1",
+      "description": "A monorepo of small, focused, independently-versioned npm packages for browser automation with puppeteer-core.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-18T08:08:07Z",
-      "topics": []
+      "pushed_at": "2026-07-18T13:32:39Z",
+      "topics": [
+        "browser-automation",
+        "monorepo",
+        "npm-packages",
+        "puppeteer",
+        "typescript"
+      ]
     },
     "languages": [
       "TypeScript",
@@ -1806,7 +1812,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 330627,
+      "TypeScript": 353682,
       "JavaScript": 3865,
       "HTML": 864
     },
@@ -1831,7 +1837,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-18T08:07:14Z",
+      "pushed_at": "2026-07-18T15:36:17Z",
       "topics": []
     },
     "languages": [],
@@ -1848,20 +1854,26 @@
       "name": "Puppeteer-Template",
       "full_name": "Technical-1/Puppeteer-Template",
       "html_url": "https://github.com/Technical-1/Puppeteer-Template",
-      "homepage": null,
-      "description": null,
+      "homepage": "https://github.com/Technical-1/Puppeteer-Packages",
+      "description": "Starter templates (CLI + Electron GUI) for the @technical-1 Puppeteer suite.",
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-05T14:45:44Z",
-      "topics": []
+      "pushed_at": "2026-07-18T13:31:56Z",
+      "topics": [
+        "cli",
+        "electron",
+        "puppeteer",
+        "template",
+        "typescript"
+      ]
     },
     "languages": [
       "JavaScript",
       "HTML"
     ],
     "language_bytes": {
-      "JavaScript": 26151,
+      "JavaScript": 27100,
       "HTML": 2899
     },
     "primary_language": "JavaScript",
@@ -2085,7 +2097,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-16T07:52:07Z",
+      "pushed_at": "2026-07-19T07:55:07Z",
       "topics": [
         "cron",
         "free-tier",
@@ -2961,7 +2973,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-17T09:02:15Z",
+      "pushed_at": "2026-07-18T08:30:40Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -4936,7 +4948,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-18T06:08:49Z",
+      "pushed_at": "2026-07-19T06:34:01Z",
       "topics": []
     },
     "languages": [
