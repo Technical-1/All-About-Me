@@ -1523,7 +1523,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-18T06:17:48Z",
+      "pushed_at": "2026-07-21T05:07:15Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1789,46 +1789,6 @@
   },
   {
     "repo": {
-      "name": "Puppeteer-Packages",
-      "full_name": "Technical-1/Puppeteer-Packages",
-      "html_url": "https://github.com/Technical-1/Puppeteer-Packages",
-      "homepage": "https://www.npmjs.com/org/technical-1",
-      "description": "A monorepo of small, focused, independently-versioned npm packages for browser automation with puppeteer-core.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-07-18T13:32:39Z",
-      "topics": [
-        "browser-automation",
-        "monorepo",
-        "npm-packages",
-        "puppeteer",
-        "typescript"
-      ]
-    },
-    "languages": [
-      "TypeScript",
-      "JavaScript",
-      "HTML"
-    ],
-    "language_bytes": {
-      "TypeScript": 353682,
-      "JavaScript": 3865,
-      "HTML": 864
-    },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
-    "metadata": {
-      "category": "dev-tools"
-    }
-  },
-  {
-    "repo": {
       "name": "Puppeteer-Suite-Planning",
       "full_name": "Technical-1/Puppeteer-Suite-Planning",
       "html_url": "https://github.com/Technical-1/Puppeteer-Suite-Planning",
@@ -1837,7 +1797,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-18T15:36:17Z",
+      "pushed_at": "2026-07-20T14:31:43Z",
       "topics": []
     },
     "languages": [],
@@ -1847,40 +1807,6 @@
     "portfolio_files": [],
     "metadata": {
       "category": "other"
-    }
-  },
-  {
-    "repo": {
-      "name": "Puppeteer-Template",
-      "full_name": "Technical-1/Puppeteer-Template",
-      "html_url": "https://github.com/Technical-1/Puppeteer-Template",
-      "homepage": "https://github.com/Technical-1/Puppeteer-Packages",
-      "description": "Starter templates (CLI + Electron GUI) for the @technical-1 Puppeteer suite.",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-07-18T13:31:56Z",
-      "topics": [
-        "cli",
-        "electron",
-        "puppeteer",
-        "template",
-        "typescript"
-      ]
-    },
-    "languages": [
-      "JavaScript",
-      "HTML"
-    ],
-    "language_bytes": {
-      "JavaScript": 27100,
-      "HTML": 2899
-    },
-    "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
-    "metadata": {
-      "category": "dev-tools"
     }
   },
   {
@@ -2973,7 +2899,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-19T09:00:44Z",
+      "pushed_at": "2026-07-20T09:48:36Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -4381,6 +4307,84 @@
   },
   {
     "repo": {
+      "name": "Puppeteer-Packages",
+      "full_name": "Technical-1/Puppeteer-Packages",
+      "html_url": "https://github.com/Technical-1/Puppeteer-Packages",
+      "homepage": "https://www.npmjs.com/org/technical-1",
+      "description": "A monorepo of small, focused, independently-versioned npm packages for browser automation with puppeteer-core.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-07-20T14:11:53Z",
+      "topics": [
+        "browser-automation",
+        "monorepo",
+        "npm-packages",
+        "puppeteer",
+        "typescript"
+      ]
+    },
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 353682,
+      "JavaScript": 3865,
+      "HTML": 864
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
+  },
+  {
+    "repo": {
+      "name": "Puppeteer-Template",
+      "full_name": "Technical-1/Puppeteer-Template",
+      "html_url": "https://github.com/Technical-1/Puppeteer-Template",
+      "homepage": "https://github.com/Technical-1/Puppeteer-Packages",
+      "description": "Starter templates (CLI + Electron GUI) for the @technical-1 Puppeteer suite.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-07-20T14:10:47Z",
+      "topics": [
+        "cli",
+        "electron",
+        "puppeteer",
+        "template",
+        "typescript"
+      ]
+    },
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 27100,
+      "HTML": 2899
+    },
+    "primary_language": "JavaScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "dev-tools"
+    }
+  },
+  {
+    "repo": {
       "name": "pythonforge",
       "full_name": "Technical-1/pythonforge",
       "html_url": "https://github.com/Technical-1/pythonforge",
@@ -4948,7 +4952,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-20T06:51:33Z",
+      "pushed_at": "2026-07-21T06:33:06Z",
       "topics": []
     },
     "languages": [
