@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `@technical-1` Puppeteer Suite is a family of 22 small npm packages for automating Chrome with `puppeteer-core`. Instead of one big framework you either adopt whole or not at all, each capability — launching a pooled browser, navigating with retries, extracting data, applying stealth, capturing screenshots or PDFs, solving captchas, coordinating tabs — is its own tree-shakeable package. They compose through a tiny shared `core` of types, a typed error hierarchy, and a dependency-injected `Logger`, so the pieces you install fit together without you wiring them by hand.
+The `@technical-1` Puppeteer Suite is a family of 29 small npm packages for automating Chrome with `puppeteer-core`. Instead of one big framework you either adopt whole or not at all, each capability — launching a pooled browser, navigating with retries, extracting data, applying stealth, orchestrating a login flow, capturing screenshots, PDFs, coverage, or performance traces, solving captchas, coordinating tabs — is its own tree-shakeable package. They compose through a tiny shared `core` of types, a typed error hierarchy, and a dependency-injected `Logger`, so the pieces you install fit together without you wiring them by hand.
 
 ## What problem does it solve?
 
@@ -27,6 +27,12 @@ Fingerprints whose user-agent is rewritten to match the *actual* running Chrome,
 
 ### Output, state, and coordination helpers
 Full-page and element screenshots, PDF rendering with sensible per-side margin defaults, a CDP-based download awaiter, cookie/storage session capture and restore for multi-account workflows, and popup/new-tab coordination.
+
+### Login flows, isolation, and diagnostics
+`auth-flow` orchestrates a full login — fill credentials, submit, optional MFA/OTP step, wait for the authenticated state — as one call instead of a hand-rolled sequence. `contexts` gives you isolated, incognito `BrowserContext`s with guaranteed cleanup, per-context proxy, and permission overrides, so parallel jobs never bleed cookies or storage into each other. On the diagnostics side, `a11y` snapshots the accessibility tree and queries by role/name, `coverage` brackets an interaction with JS/CSS coverage and rolls up used/unused bytes, and `tracing` runs a DevTools performance trace around your function and always stops it, even on error.
+
+### Escape hatches for anything the suite doesn't wrap yet
+`cdp` opens a typed `CDPSession` from a `Page` or `Target`, lets you send raw commands and subscribe to events, and detaches safely — a scoped `withCdpSession` handles the common bracket pattern. `workers` enumerates Web/Service Workers on a page, evaluates code inside them, and observes their lifecycle with typed events, for the cases where the real work is happening off the main thread.
 
 ## Under the hood
 
@@ -61,7 +67,7 @@ A user-agent claiming one Chrome version while the machine runs another is itsel
 
 ## Frequently asked questions
 
-### Do I have to install all 22 packages?
+### Do I have to install all 29 packages?
 No — that's the whole point. Install just the ones you need plus the `puppeteer-core` peer, e.g. `npm install @technical-1/extract puppeteer-core`. Capability packages only depend on `core` (and `navigation` on `retry`), so you never drag in the rest of the suite.
 
 ### Does it bundle Chrome, or Puppeteer?
@@ -84,4 +90,10 @@ No. The integration tier (`PPTR_IT=1`) launches real Chrome against a local fixt
 
 ### What does `chrome-setup` install, and where?
 By default the latest stable Chrome-for-Testing build, into the standard Puppeteer cache; it checks for an already-resolved local Chrome first. Pass an explicit `buildId` for a reproducible, pinned install.
+
+### If I need something the suite doesn't wrap, am I stuck?
+No — `cdp` gives you a typed, scoped `CDPSession` (open, send, subscribe, detach) for anything Puppeteer's own API doesn't expose, so you're never blocked waiting on a new package. It follows the same `PptrKitError`/`retryable` conventions as everything else, so it doesn't feel like a different library bolted on.
+
+### Does the suite handle logins with MFA?
+Yes — `auth-flow` fills credentials, submits, and can pause for an optional MFA/OTP step (you supply the code, e.g. from a TOTP generator or inbox) before waiting for whatever signal means "authenticated" on the target site. It's built on the same `interaction-helpers` and `navigation` primitives, not a separate parsing layer.
 </content>

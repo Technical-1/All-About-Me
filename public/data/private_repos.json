@@ -1402,25 +1402,25 @@
       "name": "Menuey",
       "full_name": "Technical-1/Menuey",
       "html_url": "https://github.com/Technical-1/Menuey",
-      "homepage": null,
+      "homepage": "https://menuey.vercel.app",
       "description": null,
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-15T14:40:44Z",
+      "pushed_at": "2026-07-21T20:18:07Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
       "HTML",
-      "JavaScript",
-      "CSS"
+      "CSS",
+      "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 209606,
+      "TypeScript": 246517,
       "HTML": 6894,
-      "JavaScript": 559,
-      "CSS": 488
+      "CSS": 3754,
+      "JavaScript": 559
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -1523,7 +1523,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-21T05:07:15Z",
+      "pushed_at": "2026-07-22T08:56:57Z",
       "topics": [
         "anthropic",
         "claude",
@@ -1789,28 +1789,6 @@
   },
   {
     "repo": {
-      "name": "Puppeteer-Suite-Planning",
-      "full_name": "Technical-1/Puppeteer-Suite-Planning",
-      "html_url": "https://github.com/Technical-1/Puppeteer-Suite-Planning",
-      "homepage": null,
-      "description": null,
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-07-20T14:31:43Z",
-      "topics": []
-    },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
-    "metadata": {
-      "category": "other"
-    }
-  },
-  {
-    "repo": {
       "name": "PY27",
       "full_name": "Technical-1/PY27",
       "html_url": "https://github.com/Technical-1/PY27",
@@ -2023,7 +2001,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-19T07:55:07Z",
+      "pushed_at": "2026-07-22T08:04:58Z",
       "topics": [
         "cron",
         "free-tier",
@@ -2226,7 +2204,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-03T13:52:22Z",
+      "pushed_at": "2026-07-21T16:44:05Z",
       "topics": []
     },
     "languages": [
@@ -2237,9 +2215,9 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 385915,
-      "Rust": 368332,
-      "Shell": 371,
+      "TypeScript": 570434,
+      "Rust": 508065,
+      "Shell": 955,
       "HTML": 361,
       "CSS": 23
     },
@@ -2899,7 +2877,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-20T09:48:36Z",
+      "pushed_at": "2026-07-21T09:21:01Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -4315,7 +4293,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-20T14:11:53Z",
+      "pushed_at": "2026-07-21T23:27:36Z",
       "topics": [
         "browser-automation",
         "monorepo",
@@ -4330,7 +4308,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 353682,
+      "TypeScript": 531838,
       "JavaScript": 3865,
       "HTML": 864
     },
@@ -4355,7 +4333,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-20T14:10:47Z",
+      "pushed_at": "2026-07-21T23:06:43Z",
       "topics": [
         "cli",
         "electron",
@@ -4952,7 +4930,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-21T06:33:06Z",
+      "pushed_at": "2026-07-22T06:33:30Z",
       "topics": []
     },
     "languages": [

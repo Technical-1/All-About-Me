@@ -60,7 +60,7 @@ flowchart TD
 
 | Service | Purpose | Notes |
 |---------|---------|-------|
-| npm (`@technical-1/*`) | The published package suite the templates compose | Installed at scaffold time; each package does one job and shares a typed error model and injectable logger |
+| npm (`@technical-1/*`) | The published package suite the templates compose | Installed at scaffold time; each package does one job and shares a typed error model and injectable logger. The suite offers more than the templates wire up — contexts, auth flows, accessibility/coverage/tracing diagnostics, raw CDP, and worker awareness are all available to add as needed |
 | Chrome for Testing | The actual browser the automation drives | A pinned build is downloaded on first run (CLI) or bundled into the installer (GUI); driven through `puppeteer-core` |
 | GitHub Actions | CI and releases | Per-template test matrix plus an Electron packaging smoke test; tag-driven release builds installers for Windows and Linux |
 

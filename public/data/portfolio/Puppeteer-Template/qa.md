@@ -87,3 +87,6 @@ Open the runner (`src/run.js` for the CLI, `automation/runner.js` for the GUI) a
 
 ### Can I develop against a local copy of the suite?
 Yes. Point a package at a local build with a pnpm `overrides` `link:` entry in the template's `package.json`, as described in `docs/using-the-suite.md`. Remove the override to go back to the published version.
+
+### The templates only wire up a handful of packages — what else does the suite offer?
+More than what ships by default. The `@technical-1` suite also publishes packages for isolated browser contexts, authenticated login flows, accessibility audits, code coverage, performance tracing, raw CDP access, and worker-aware automation. None of that is wired into the templates out of the box, but each is a normal npm install away — add the package and call it from your runner's `your automation here` block the same way the built-in packages are used.

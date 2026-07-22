@@ -28,6 +28,8 @@ The templates don't reinvent browser automation — they compose a suite of smal
 | `@technical-1/logger` | Console logger (CLI) and EventEmitter logger (GUI live panel) |
 | `@technical-1/interaction-helpers` | Higher-level page interaction helpers (GUI template) |
 
+The suite has since grown well past what the templates wire up by default. Packages for isolated browser contexts, login/auth flows, accessibility checks, code coverage, performance tracing, raw CDP access, and worker awareness are all published and ready to `pnpm add` into a runner when your automation needs them.
+
 ## GUI template
 
 - **Framework**: Electron ^35.0.1
