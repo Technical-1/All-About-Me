@@ -12,7 +12,7 @@ The stack is chosen so the suite is easy to *consume*: whichever module system y
 
 ## Build & tooling
 
-- **Monorepo**: pnpm workspaces — fast installs and first-class `workspace:` linking between the 22 packages.
+- **Monorepo**: pnpm workspaces — fast installs and first-class `workspace:` linking between the 29 packages.
 - **Task runner**: Turborepo — caches `build`/`lint`/`test`/`typecheck` so CI only redoes what actually changed.
 - **Bundler**: tsup (esbuild under the hood) — one shared base config emits `index.js` (ESM), `index.cjs` (CJS), and matching `index.d.ts` / `index.d.cts` for every package.
 - **Versioning/Release**: Changesets — independent per-package semver, an automated version PR, and provenance-backed npm publishing.

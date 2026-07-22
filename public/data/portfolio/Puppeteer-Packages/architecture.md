@@ -2,7 +2,7 @@
 
 ## The big picture
 
-The suite is 22 small packages, and the thing that makes them pleasant to use is what they *don't* do: capability packages never depend on each other. There's a tiny shared `core` (types, the error hierarchy, the logging contract) that everything agrees on, and then each automation feature stands on its own. So installing `screenshots` never pulls in `captcha`, and you can adopt one package without buying into the whole suite.
+The suite is 29 small packages, and the thing that makes them pleasant to use is what they *don't* do: capability packages never depend on each other. There's a tiny shared `core` (types, the error hierarchy, the logging contract) that everything agrees on, and then each automation feature stands on its own. So installing `screenshots` never pulls in `captcha`, and you can adopt one package without buying into the whole suite.
 
 ```mermaid
 flowchart TD
@@ -24,6 +24,7 @@ flowchart TD
         interaction-helpers
         extract
         dialogs
+        auth-flow
         stealth
         fingerprint
         human
@@ -31,9 +32,15 @@ flowchart TD
         emulation
         session
         network
+        contexts
+        cdp
+        workers
         screenshots
         pdf
         downloads
+        a11y
+        coverage
+        tracing
         captcha
         tabs
     end
@@ -55,7 +62,7 @@ The only build-time edges between packages are onto `core` (and `navigation` rea
 ### core — the common language
 - **Purpose**: The one contract every other package agrees on, and nothing more.
 - **Location**: `packages/core/src/`
-- **What's inside**: The `PptrKitError` base class and its typed subclasses (`NavigationError`, `SelectorNotFoundError`, `SessionError`, `CaptchaError`, `ProxyError`, `TimeoutError`, `ConfigError`, `PoolError`, `DownloadError`, `NetworkError`, `AbortError`), each carrying a `retryable` flag and structured `context`; the `Logger` interface and `LOG_LEVELS`; and shared option types. It has zero runtime browser code — most packages depend on it for *types only*.
+- **What's inside**: The `PptrKitError` base class and its typed subclasses (`NavigationError`, `SelectorNotFoundError`, `SessionError`, `CaptchaError`, `ProxyError`, `TimeoutError`, `ConfigError`, `PoolError`, `DownloadError`, `NetworkError`, `AbortError`, plus `ContextError`, `CdpError`, and `WorkerError` for the newer packages), each carrying a `retryable` flag and structured `context`; the `Logger` interface and `LOG_LEVELS`; and shared option types. It has zero runtime browser code — most packages depend on it for *types only*.
 
 ### Foundation — retry, logger, config
 - **Purpose**: Cross-cutting helpers that work with or without a browser.
@@ -69,8 +76,8 @@ The only build-time edges between packages are onto `core` (and `navigation` rea
 
 ### Capabilities — the automation verbs
 - **Purpose**: The things you actually came here to do.
-- **Location**: `packages/{navigation,interaction-helpers,extract,dialogs,stealth,fingerprint,human,proxy,emulation,session,network,screenshots,pdf,downloads,captcha,tabs}/src/`
-- **What's inside**: navigation with retry and SPA network-idle waiting; safe click/type/wait/scroll helpers; text/table/schema extraction; automatic JS dialog handling; stealth plugin wiring; fingerprint generation and application; human-like timing; proxy args/auth/rotation; device and viewport emulation; session capture and restore; request blocking, response capture, and throttling; screenshots; PDF rendering; CDP-based download awaiting; a captcha-solver adapter (with a reference 2captcha implementation); and popup/new-tab coordination.
+- **Location**: `packages/{navigation,interaction-helpers,extract,dialogs,auth-flow,stealth,fingerprint,human,proxy,emulation,session,network,contexts,cdp,workers,screenshots,pdf,downloads,a11y,coverage,tracing,captcha,tabs}/src/`
+- **What's inside**: navigation with retry and SPA network-idle waiting; safe click/type/wait/scroll/clipboard helpers plus `waitForFunction`; shadow-DOM-aware text/table/schema extraction with pagination support; automatic JS dialog handling; login-flow orchestration (credentials → submit → optional MFA/OTP → authenticated-state wait); stealth plugin wiring; fingerprint generation and application; human-like timing including drag-and-drop; proxy args/auth/rotation; device, viewport, permission, geolocation, and media-feature emulation; session capture and restore; request blocking/mocking, response capture, and CPU/network throttling; isolated `BrowserContext` lifecycle with guaranteed cleanup, per-context proxy, and permission overrides; a generic `CDPSession` escape hatch (open/send/on/detach); Web/Service Worker enumeration, in-worker evaluation, and lifecycle observation; screenshots; PDF rendering; CDP-based download awaiting; accessibility-tree snapshots and role/name queries; JS+CSS coverage collection with byte rollups; DevTools performance tracing with guaranteed stop; a captcha-solver adapter (with a reference 2captcha implementation); and popup/new-tab coordination.
 
 ## How a job flows through it
 
