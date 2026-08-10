@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-09T04:42:42Z",
+      "pushed_at": "2026-08-10T07:17:58Z",
       "topics": []
     },
     "languages": [
@@ -179,6 +179,84 @@
   },
   {
     "repo": {
+      "name": "cadence",
+      "full_name": "Technical-1/cadence",
+      "html_url": "https://github.com/Technical-1/cadence",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T04:35:25Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "calendar-engine",
+      "full_name": "Technical-1/calendar-engine",
+      "html_url": "https://github.com/Technical-1/calendar-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:07Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "calendar-synthesis",
+      "full_name": "Technical-1/calendar-synthesis",
+      "html_url": "https://github.com/Technical-1/calendar-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:44Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "Carmen",
       "full_name": "Technical-1/Carmen",
       "html_url": "https://github.com/Technical-1/Carmen",
@@ -217,6 +295,32 @@
     ],
     "metadata": {
       "category": "client-sites"
+    }
+  },
+  {
+    "repo": {
+      "name": "channels",
+      "full_name": "Technical-1/channels",
+      "html_url": "https://github.com/Technical-1/channels",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:14Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -268,7 +372,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-31T01:51:12Z",
+      "pushed_at": "2026-08-10T05:49:11Z",
       "topics": []
     },
     "languages": [
@@ -276,8 +380,8 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 2026974,
-      "HTML": 41753
+      "Python": 2090758,
+      "HTML": 41721
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -522,6 +626,32 @@
   },
   {
     "repo": {
+      "name": "digital-rolodex",
+      "full_name": "Technical-1/digital-rolodex",
+      "html_url": "https://github.com/Technical-1/digital-rolodex",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:12Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "E350-Transportation",
       "full_name": "Technical-1/E350-Transportation",
       "html_url": "https://github.com/Technical-1/E350-Transportation",
@@ -596,6 +726,84 @@
     "portfolio_files": [],
     "metadata": {
       "category": "ai-ml"
+    }
+  },
+  {
+    "repo": {
+      "name": "email-engine",
+      "full_name": "Technical-1/email-engine",
+      "html_url": "https://github.com/Technical-1/email-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:04Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "email-switchboard",
+      "full_name": "Technical-1/email-switchboard",
+      "html_url": "https://github.com/Technical-1/email-switchboard",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:10Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "email-synthesis",
+      "full_name": "Technical-1/email-synthesis",
+      "html_url": "https://github.com/Technical-1/email-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:39Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -802,7 +1010,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-09T05:16:07Z",
+      "pushed_at": "2026-08-09T23:18:28Z",
       "topics": []
     },
     "languages": [
@@ -814,7 +1022,7 @@
     ],
     "language_bytes": {
       "Python": 1916189,
-      "HTML": 1665354,
+      "HTML": 1866334,
       "JavaScript": 62987,
       "CSS": 22736,
       "TypeScript": 4397
@@ -822,6 +1030,58 @@
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "files-engine",
+      "full_name": "Technical-1/files-engine",
+      "html_url": "https://github.com/Technical-1/files-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:15Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "files-synthesis",
+      "full_name": "Technical-1/files-synthesis",
+      "html_url": "https://github.com/Technical-1/files-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:48Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -1077,6 +1337,84 @@
   },
   {
     "repo": {
+      "name": "github-connector",
+      "full_name": "Technical-1/github-connector",
+      "html_url": "https://github.com/Technical-1/github-connector",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:03Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "github-engine",
+      "full_name": "Technical-1/github-engine",
+      "html_url": "https://github.com/Technical-1/github-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:26Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "github-synthesis",
+      "full_name": "Technical-1/github-synthesis",
+      "html_url": "https://github.com/Technical-1/github-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:53Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "Glassdoor",
       "full_name": "Technical-1/Glassdoor",
       "html_url": "https://github.com/Technical-1/Glassdoor",
@@ -1171,6 +1509,32 @@
     "portfolio_files": [],
     "metadata": {
       "category": "mobile"
+    }
+  },
+  {
+    "repo": {
+      "name": "google-source",
+      "full_name": "Technical-1/google-source",
+      "html_url": "https://github.com/Technical-1/google-source",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T02:00:32Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -1349,6 +1713,32 @@
   },
   {
     "repo": {
+      "name": "kb-substrate",
+      "full_name": "Technical-1/kb-substrate",
+      "html_url": "https://github.com/Technical-1/kb-substrate",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:18:47Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "Kendra-who",
       "full_name": "Technical-1/Kendra-who",
       "html_url": "https://github.com/Technical-1/Kendra-who",
@@ -1475,6 +1865,84 @@
   },
   {
     "repo": {
+      "name": "local-budget-manager",
+      "full_name": "Technical-1/local-budget-manager",
+      "html_url": "https://github.com/Technical-1/local-budget-manager",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:19Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "mac-agents",
+      "full_name": "Technical-1/mac-agents",
+      "html_url": "https://github.com/Technical-1/mac-agents",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T02:00:41Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "mac-control-app",
+      "full_name": "Technical-1/mac-control-app",
+      "html_url": "https://github.com/Technical-1/mac-control-app",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:24Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "MasterCode",
       "full_name": "Technical-1/MasterCode",
       "html_url": "https://github.com/Technical-1/MasterCode",
@@ -1561,6 +2029,58 @@
   },
   {
     "repo": {
+      "name": "microsoft-source",
+      "full_name": "Technical-1/microsoft-source",
+      "html_url": "https://github.com/Technical-1/microsoft-source",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T02:00:34Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "model-router",
+      "full_name": "Technical-1/model-router",
+      "html_url": "https://github.com/Technical-1/model-router",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:18:50Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "MultiAgent",
       "full_name": "Technical-1/MultiAgent",
       "html_url": "https://github.com/Technical-1/MultiAgent",
@@ -1601,6 +2121,58 @@
     "portfolio_files": [],
     "metadata": {
       "category": "ai-ml"
+    }
+  },
+  {
+    "repo": {
+      "name": "notes-engine",
+      "full_name": "Technical-1/notes-engine",
+      "html_url": "https://github.com/Technical-1/notes-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T05:03:52Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "notes-synthesis",
+      "full_name": "Technical-1/notes-synthesis",
+      "html_url": "https://github.com/Technical-1/notes-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T05:03:55Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -1699,6 +2271,58 @@
     "metadata": {
       "category": "ai-ml",
       "featured": true
+    }
+  },
+  {
+    "repo": {
+      "name": "orbit-engine",
+      "full_name": "Technical-1/orbit-engine",
+      "html_url": "https://github.com/Technical-1/orbit-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:01Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "orbit-synthesis",
+      "full_name": "Technical-1/orbit-synthesis",
+      "html_url": "https://github.com/Technical-1/orbit-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:37Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -2024,6 +2648,36 @@
   },
   {
     "repo": {
+      "name": "raw-tier",
+      "full_name": "Technical-1/raw-tier",
+      "html_url": "https://github.com/Technical-1/raw-tier",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T00:10:20Z",
+      "topics": []
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 27373
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "ReactNative-Expo-Firebase-Boilerplate-v2",
       "full_name": "Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
       "html_url": "https://github.com/Technical-1/ReactNative-Expo-Firebase-Boilerplate-v2",
@@ -2133,7 +2787,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-07T06:57:29Z",
+      "pushed_at": "2026-08-10T07:05:29Z",
       "topics": [
         "cron",
         "free-tier",
@@ -2494,6 +3148,162 @@
   },
   {
     "repo": {
+      "name": "shopify-engine",
+      "full_name": "Technical-1/shopify-engine",
+      "html_url": "https://github.com/Technical-1/shopify-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:22Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "shopify-source",
+      "full_name": "Technical-1/shopify-source",
+      "html_url": "https://github.com/Technical-1/shopify-source",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T02:00:36Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "shopify-synthesis",
+      "full_name": "Technical-1/shopify-synthesis",
+      "html_url": "https://github.com/Technical-1/shopify-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:50Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "simplefin-engine",
+      "full_name": "Technical-1/simplefin-engine",
+      "html_url": "https://github.com/Technical-1/simplefin-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:18Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "simplefin-intake",
+      "full_name": "Technical-1/simplefin-intake",
+      "html_url": "https://github.com/Technical-1/simplefin-intake",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-10T07:16:42Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "simplefin-synthesis",
+      "full_name": "Technical-1/simplefin-synthesis",
+      "html_url": "https://github.com/Technical-1/simplefin-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:41Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "SmoothQueue",
       "full_name": "Technical-1/SmoothQueue",
       "html_url": "https://github.com/Technical-1/SmoothQueue",
@@ -2643,6 +3453,58 @@
   },
   {
     "repo": {
+      "name": "teams-engine",
+      "full_name": "Technical-1/teams-engine",
+      "html_url": "https://github.com/Technical-1/teams-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:19:11Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "teams-synthesis",
+      "full_name": "Technical-1/teams-synthesis",
+      "html_url": "https://github.com/Technical-1/teams-synthesis",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:54:46Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "temp-files",
       "full_name": "Technical-1/temp-files",
       "html_url": "https://github.com/Technical-1/temp-files",
@@ -2723,7 +3585,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-03T15:29:58Z",
+      "pushed_at": "2026-08-10T05:58:25Z",
       "topics": []
     },
     "languages": [
@@ -2733,7 +3595,7 @@
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 1032612,
+      "TypeScript": 1249779,
       "CSS": 13005,
       "HTML": 10243,
       "JavaScript": 6365
@@ -2762,18 +3624,44 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-09T04:41:20Z",
+      "pushed_at": "2026-08-10T05:04:10Z",
       "topics": []
     },
     "languages": [
       "Shell"
     ],
     "language_bytes": {
-      "Shell": 22070
+      "Shell": 23957
     },
     "primary_language": "Shell",
     "has_portfolio": false,
     "portfolio_files": [],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "towerscope",
+      "full_name": "Technical-1/towerscope",
+      "html_url": "https://github.com/Technical-1/towerscope",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T18:55:21Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2973,6 +3861,32 @@
   },
   {
     "repo": {
+      "name": "writing-engine",
+      "full_name": "Technical-1/writing-engine",
+      "html_url": "https://github.com/Technical-1/writing-engine",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-09T14:18:53Z",
+      "topics": []
+    },
+    "languages": [],
+    "language_bytes": {},
+    "primary_language": null,
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "AHSR-senior-design-archive",
       "full_name": "Technical-1/AHSR-senior-design-archive",
       "html_url": "https://github.com/Technical-1/AHSR-senior-design-archive",
@@ -3037,7 +3951,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-08T07:39:30Z",
+      "pushed_at": "2026-08-09T07:43:33Z",
       "topics": [
         "ai-chat",
         "astro",
