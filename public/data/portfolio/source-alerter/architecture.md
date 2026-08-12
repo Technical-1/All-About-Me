@@ -138,6 +138,63 @@ what is present.** The registry is what *ought* to be running; the disk is what
 *is*. A config that lists no Sources is refused rather than accepted as
 "nothing to watch".
 
+## ⭐⭐ The registry watches run-record WRITERS, not only Sources (2026-08-12)
+
+`raw-fsck-verify` — the weekly deep verify of the raw tier — is registered
+here, and it is **not a Source**. What makes an entry watchable is a
+`last-run.json` and a systemd unit; it has both.
+
+⛔ **The gap this closes.** `raw-fsck --verify` could detect corruption and
+could not tell anyone: `_scan` reads run records and **never** an exit code, so
+`OnSuccess=`/`OnFailure=source-alerter.service` on that unit bought a sweep of
+the Sources rather than a notification about a hash mismatch. Task 5 said so in
+its own report and left it open. `raw-fsck` now writes a record
+(`raw_tier/runrecord.py`); this registers it.
+
+⚠️ **Task 5 deliberately did not register it, and its reason was wrong.** The
+stated objection was that *"a weekly writer would earn a permanent
+never-clearing `missing` fault from an hourly scanner"*. `missing` fires on the
+ABSENCE of the file — one run creates it, and no later run removes it. ⭐ The
+condition that really would never have cleared is **`stale`**, judged at
+`period_seconds x STALE_PERIODS`, and `period_seconds` is a per-entry field
+that already existed:
+
+```toml
+[sources."raw-fsck-verify"]
+period_seconds = 604800    # OnCalendar=Sun *-*-* 04:23:00
+```
+
+Staleness then fires at **21 days** — three missed Sundays, exactly the reading
+an hourly Source gets from three missed hours. ⭐ **A weekly cadence needed no
+new mechanism; it needed the existing field not to be read as a law.** A
+second, parallel registry for "checks" was the alternative and was rejected:
+two lists is two lists to forget to add something to, and an explicit registry
+exists precisely because forgetting is the failure it detects.
+
+⚠️⚠️ **`ALERT_AFTER_RUNS_BY_CLASS` counts RUNS, and this writer's runs are
+WEEKS.** `unreachable` and `origin-error` wait for 3 because three hours of not
+reaching your bank is a problem and one is Tuesday; the same 3 against a weekly
+writer is **21 days of silence** about the only layer of this program that
+cannot be re-fetched. Both classes the deep verify can write sit at 1, and the
+suite pins that rather than leaving it to whoever next edits the table.
+
+### `integrity-error` — a class no Source writes
+
+⭐ Added to `FAULT_EXIT_CLASSES` **before** `raw_tier.runrecord` could write it
+[NT-6]. A class the watcher has not learned is reported as `unknown-class`,
+whose message is *"update the watcher, the Source is probably fine"* — ⛔ the
+most wrong sentence available about bit rot.
+
+⚠️ It is kept separate from `local-error` rather than folded into it, and the
+separation is load-bearing at the store: an open fault is keyed
+`source/condition` and re-alerts only when the CLASS changes [C1]. The deep
+verify finds two quite different things — a payload that landed and never
+earned a manifest row (`local-error`: something failed to register) and bytes
+that changed under a promise (`integrity-error`: restore from backup). With one
+class for both, an unregistered payload opening the fault in week 1 would make
+a hash mismatch in week 2 produce **no transition at all**. The escalation has
+to BE a class change, and `tests/test_raw_fsck_seam.py` proves it end to end.
+
 ## ⭐⭐ [NT-7] Thresholds are per-class, because the classes fail differently
 
 Alerting on the first non-`ok` contradicted the program's own doctrine —

@@ -1,10 +1,10 @@
 # simplefin-intake — qa
 
-**State: `running`.** **421 tests**, all green — the sum of the table below,
+**State: `running`.** **467 tests**, all green — the sum of the table below,
 computed from its parts. ⚠️ The build verified live on the tower is an
 earlier one (303 tests); this tree is ahead of it — it has none of the
-`local-error` exit class, the run lock, the contention split or
-`skipped_reason`. See `CLAUDE.md`.
+`local-error` exit class, the run lock, the contention split,
+`skipped_reason` or the [SF-32] run history. See `CLAUDE.md`.
 
 ## Suite
 
@@ -14,8 +14,9 @@ earlier one (303 tests); this tree is ahead of it — it has none of the
 | `test_faults.py` | 62 | where "the origin's fault" ends and "this machine's" begins — including, deliberately, everything the predicate must **refuse**: `bridge.ModeError`, a missing credential, every transport error, the `sqlite3` errors that mean our own code asked wrongly, ⭐ the **real** OpenSSL and `getaddrinfo` errors whose `.errno` collides with `EPERM`/`EIO`, and ⭐ a **real** `SQLITE_BUSY` from two connections contending |
 | `test_sync.py` | 53 | the [MD-153] exit classifier, clause ordering, transport errors, ⭐ the whole exit-code table by name (no default), `local-error` outranking a per-account strike, ⭐ that a TLS failure stays `unreachable` **and cannot become `local-error` even with the transport clause emptied**, ⭐ contention → exit 0, and that the record is written on every path |
 | `test_cursors.py` | 49 | resumable state: the poll cursor, the backfill frontier and the gap sweep, per-account completion and its arming rules, the legacy-adoption migration, the operator hatches, WAL and the read-only reader |
-| `test_cli_sync_status.py` | 44 | `sync`/`status`/`backfill` output and exit codes; that commands which only report refuse to create the state they report on (⚠️ `backfill` too — it writes, but minting state to report changing nothing in it is the same defect); that `status` surfaces the gap sweep; ⭐ the run lock end to end, including the whole command spawned as a second real process; and ⭐ that a refused run's record carries **no `warnings[]`** while staying distinguishable as a refusal |
+| `test_cli_sync_status.py` | 56 | `sync`/`status`/`backfill` output and exit codes; that commands which only report refuse to create the state they report on (⚠️ `backfill` too — it writes, but minting state to report changing nothing in it is the same defect); that `status` surfaces the gap sweep; ⭐ the run lock end to end, including the whole command spawned as a second real process; ⭐ that a refused run's record carries **no `warnings[]`** while staying distinguishable as a refusal; and ⭐ [SF-32] that **every** record-writing path appends to `runs.jsonl` — `ok`, `unreachable`, `auth-error`, `data-error`, `local-error`, `lock-contended` and the two paths where the record write itself failed, each asserted separately |
 | `test_reconcile.py` | 42 | the count-vs-count check: four outcomes, the roster floor and its expiry, the span clamp, the three exit codes, and that the check writes no data |
+| `test_runhistory.py` | 34 | ⭐ [SF-32] the run history: that an append is one line and never a rewrite; the size bound, and that rotation **never drops the newest**; that a failed rotation still appends; ⭐ that the reader survives the file's **absence** [NT-6] and a **truncated final line** (and never parses a final fragment that happens to look like JSON); that absence, zero and error stay three answers; the query — window, classes, ⭐ **minute of the hour** from `started_at`; that no figure from the financial data can reach it; ⭐ an **AST guard** over `sync.py`/`cli.py` so a fourth record-writing path cannot skip the append; and [SF-28] accumulation across `Type=oneshot` runs, both in-process with a moving clock and across **three real processes** |
 | `test_runrecord.py` | 37 | the [NT-1] record's field contract, the roster-baseline rules, the shape guard that stops a poisoned file wedging every run, and ⭐ that `lock-contended` can never carry a warning while still carrying the origin's `errors[]` |
 | `test_bridge.py` | 13 | the User-Agent every request must carry [SF-4]; the decode-POST-return claim flow [SF-3]; `auth_header`'s userinfo-strip + Basic encode + URL-unquote; the mode-600 credential round trip and its enforcement |
 | `test_runlock.py` | 13 | the run lock ⭐ **at the process boundary a `Type=oneshot` unit actually has** — every contention test spawns a real second process, and one **SIGKILLs the holder** to prove the kernel drops the lock rather than wedging every future run; plus the wedge `flock` does *not* cover (a lock file this user cannot open) and that `release()` never raises over the run it is releasing |
@@ -42,14 +43,24 @@ findable — the count was wrong, not the work):
 
 ⚠️ **Not counted as an amendment, but declared:** the `_paths`/`_argv`
 fixture in `test_cli_sync_status.py` now routes every `sync` test through an
-explicit `--lock-path`. It changes no assertion — without it the tests would
-take the lock in the tower's real state directory.
+explicit `--lock-path`, and (for the run history) an explicit
+`--history-path`. Neither changes an assertion — without them the tests
+would take the lock, and append run lines, in the tower's real state
+directory. ⚠️ The `--history-path` route is the load-bearing one: left on
+the default, every append in that file would have been a no-op against an
+unwritable `/data/…` and the suite would still have been green.
+
+⚠️ **The run history added no amendments at all** — it is new behaviour on
+new paths, so nothing existing was re-aimed. The one existing test it
+touches (`test_status_reports_never_with_no_prior_state`) passes unchanged;
+it now also proves the absent-history path does not raise.
 
 ⭐ **Every test added here was mutation-verified by actually running the
 mutation** — the implementation was broken in the specific way the test
 exists to catch, the suite was re-run, and the failure was recorded.
-**158 mutations across the build so far, 0 survivors** (105 through the
-merge, 28 for `local-error` and the run lock, **25 for the hardening pass**).
+**190 mutations across the build so far, 0 survivors** (105 through the
+merge, 28 for `local-error` and the run lock, 25 for the hardening pass,
+**32 for the [SF-32] run history**).
 That is not ceremony: it caught four tests during the build that a green
 suite did not — and four more in the hardening sweep, which is why the
 sweep's first run reported four survivors and its second reported none:
@@ -67,6 +78,14 @@ sweep's first run reported four survivors and its second reported none:
 ⚠️ [SF-30] The sweep runs with `PYTHONDONTWRITEBYTECODE=1` **and** drops
 every `__pycache__` before each run. A sweep in this program once reported
 "0 survivors" while executing stale bytecode.
+
+⚠️ [MA-19] **A mutation that does not compile or import is `INVALID`, not a
+kill.** The run-history sweep produced exactly one on its first pass — an
+anchor that matched `except FileNotFoundError: return False` in *two*
+functions, so the harness refused it rather than counting a substitution it
+could not place. It was re-anchored and re-run; **32 mutations, 0
+survivors, 0 invalid**, and every kill was checked to be the test written
+for it, not a bystander.
 
 - a "sparse account" test that survived two different mutations because it
   pinned only the *conjunction* of two guards;
@@ -140,6 +159,16 @@ manual step: `sync` under the timer, then `reconcile`.
   `skipped_reason` field is new vocabulary it does not know; it tolerates
   unknown keys, and the two keys it *does* read (`warnings`, `errors`) are
   what this pass changed on purpose.
+- **A real power loss mid-append.** The truncated final line is produced by
+  writing a fragment on purpose, which is byte-for-byte what a partial write
+  leaves, but no test cuts power to a disk. Nor does one prove that a single
+  `write()` of a ~3 KB line is atomic on the tower's filesystem — that is an
+  `O_APPEND` property of the kernel, relied on and not measured here.
+- **A rotation at the real bound.** Every rotation test uses a bound measured
+  from one line, not 32 MiB; what is pinned is the *rule* (rename aside, keep
+  one generation, never drop the newest), not the constant.
+- **A second Source's `runs.jsonl`.** [SF-32] binds Sources 2–6, and only
+  this one has been written.
 - **A root-owned lock file.** The ownership wedge is exercised with a
   mode-000 lock file as a non-root user, which produces the same `EACCES`
   from `os.open`; no test runs `sudo`.

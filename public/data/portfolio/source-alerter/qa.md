@@ -1,8 +1,11 @@
 # source-alerter — QA
 
-**State: `running`.** All five tasks done, plus [NT-9]. **368 tests, all green;
-125 mutations run against them, 0 survivors** — ⚠️ **and that "0 survivors" was
-itself false once**; see below.
+**State: `running`.** All five tasks done, plus [NT-9] and the deep verify's
+registration. **398 tests, all green; 125 + 42 mutations run against them, 0
+survivors** — ⚠️ **and that "0 survivors" was itself false once**; see below.
+The 42 are the 2026-08-12 sweep over the `exit_class` mapping, run across
+**both** repos' suites because half of what those mutants break is only
+visible at this reader.
 
 ⭐ **Task 5 is closed by evidence a suite cannot produce: a phone buzzed.**
 2026-08-10, on the tower, against a scratch tree (never the live run record):
@@ -15,12 +18,49 @@ notification said **`demo-source` / `run failed: auth-error`** and nothing else.
 
 | File | Tests | Pins |
 |---|---:|---|
-| `test_detect.py` | 74 | the five conditions from real record shapes, including the [SF-17] one; the closed vocabulary; that a `Finding` has exactly three fields; that nothing but `last-run.json` is opened and nothing is written |
+| `test_detect.py` | 77 | the five conditions from real record shapes, including the [SF-17] one; the closed vocabulary; that a `Finding` has exactly three fields; that nothing but `last-run.json` is opened and nothing is written |
 | `test_state.py` | 33 | the registry's refusals (no sources, no transports, a bad period); the opaque transport table; every timestamp shape six Sources might write |
 | `test_store.py` | 85 | ⭐ transitions across the process boundary — a fresh store per run, a moving clock, and once across real subprocesses; the commit point; the advisory lock |
 | `test_send.py` | 122 | the request shape; the message table; the credential's refusals and its redaction; plural transports delivered independently; ⭐ the stuffed-record leak test, end to end |
 | `test_wiring.py` | 51 | ⭐ [NT-9] every systemd list shape (append, space-separated, the empty-assignment **reset**, continuations, comments, section scoping, drop-in order); missing/unreadable units as findings; that NOT WIRED does **not** move the exit code |
 | `test_package_build.py` | 3 | that a real wheel contains the package, declares the console script, and requires nothing [SF-11] |
+| `test_raw_fsck_seam.py` | 27 | ⭐⭐ 2026-08-12: **the cross-repo seam.** Real bytes on disk → the real `raw_tier` writer → `last-run.json` → this reader → the store → the words that would leave the machine |
+
+## ⭐⭐ The seam, tested as a seam [MA-41]
+
+⚠️ **Two independent suites agreeing with each other's assumptions prove
+nothing about the joint** — the Criticals live between components. So nothing
+in `test_raw_fsck_seam.py` writes a run record by hand. Every record in it
+comes out of `raw_tier.cli.main()` run against a real `RawStore` with real
+corrupted bytes on disk, and is then fed to the real `read_run_record`, the
+real `detect`, the real `AlertStore` and the real `NtfyNotifier` with only its
+opener replaced.
+
+What it proves that neither side could prove alone:
+
+- ⭐ a flipped byte in a `sealed` payload becomes **one** notification saying
+  `run failed: integrity-error`, and the check for "no filename, no path, no
+  content" is run against **everything that left the machine** — URL and
+  headers included, not just the body;
+- ⭐ the class the writer chose is in the reader's `FAULT_EXIT_CLASSES`, i.e.
+  it is **never** reported as `unknown-class` — the [NT-6] failure mode;
+- ⭐⭐ a **transient** orphan produces no alert while the unit still goes red,
+  and the **same orphan a week later** does alert — the cry-wolf case and its
+  inverse, in one file;
+- ⭐⭐ [C1] across the seam: an open `local-error` fault does **not** swallow
+  the following week's `integrity-error`;
+- the deployed paths agree — the alerter reads
+  `<state_root>/<name>/last-run.json` and `raw-fsck` refuses any
+  `--run-record` inside the raw root, so the two conventions are checked
+  against each other rather than each being internally consistent;
+- 168 hourly re-reads of one weekly record are **one** notification.
+
+⚠️ `raw_tier` is a sibling checkout, not a dependency of this package, so the
+module imports it from `../raw-tier` and skips loudly if it is genuinely
+absent. ⭐ Four records **captured from that same writer** are committed under
+`tests/fixtures/raw-fsck-verify-*.json` and drive reader-only tests that always
+run — and one test **regenerates all four from the live writer and compares**,
+so a captured fixture cannot rot silently.
 
 ## Three false measurements the mutation run caught
 

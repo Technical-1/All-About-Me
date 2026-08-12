@@ -47,12 +47,14 @@ simplefin_intake/
   cursors.py         resumable state (SQLite): poll cursor, backfill frontier,
                      per-account backfill completion
   runrecord.py       last-run.json — the operator's artifact [NT-1]
+  runhistory.py      runs.jsonl — one appended line per launch [SF-32], and
+                     the query over it (classes, minute of the hour)
   sync.py            one run: transactions + balances, and the exit classifier
   faults.py          is this fault the ORIGIN's, or THIS MACHINE's?
   runlock.py         the whole-run flock: one sync at a time on this machine
   reconcile.py       the count-vs-count check against the Bridge's own counts
   paths.py           where state lives
-  cli.py             claim | probe | sync | status | reconcile | backfill
+  cli.py             claim | probe | sync | status | runs | reconcile | backfill
 ```
 
 ## How a sync works
@@ -311,6 +313,48 @@ made a benign collision page a human:
 | ⭐ `skipped_reason` | why the run did **nothing** (which lock, whose) — set only with `lock-contended` | a person |
 | `warnings[]` | what the run **could not see** although it worked | ⚠️ `source-alerter` → `partially-blind` |
 | `errors[]` | what went wrong, and to which account — the Bridge's own words | ⚠️ `source-alerter` → `partially-blind` |
+
+## ⭐ The run history — every launch, not just the last one [SF-32]
+
+`last-run.json` holds **exactly one run**, so *"what has this Source actually
+been doing?"* was not answerable from its own artifacts at all. [SF-31] — 43%
+of timer runs failing because `OnCalendar=hourly` put them at `:00`, where the
+whole internet's default cron lands — had to be mined out of `journald`, which
+rotates, is unstructured, and is not queryable.
+
+Every path that writes the record now also appends **one JSON line** to
+`runs.jsonl` beside it, carrying the same fields. ⚠️ **Every** path:
+`unreachable`, `auth-error`, `local-error`, `lock-contended` and the crash
+path included — *a history that recorded only successes would make a Source
+failing every hour look **idle** rather than **broken***. `tests/
+test_runhistory.py` walks the AST of `sync.py` and `cli.py` so a fourth
+record-writing path cannot be added without one.
+
+| decision | why |
+|---|---|
+| `open(…, "a")`, one `write()`, one line | `O_APPEND` makes each `write(2)` land at the end of file, so two overlapping runs interleave at line boundaries, never inside one. Nothing is ever rewritten — a rewrite loses an earlier launch to any crash mid-write |
+| **rotate by SIZE, one generation** — 32 MiB → `runs.jsonl.1`, ceiling 64 MiB | ~3 KB/line × 8,800 runs/year ≈ 26 MB/year: small, but not bounded. Size is the only bound answerable from `os.stat`; an age or count bound must read the file it is about to append to, which is a read-modify-write in all but name |
+| ⭐ rotation **never deletes the newest** | it renames the *current* file aside and the new line starts the fresh one, so what is dropped is the generation *before* last — by construction older than a full 32 MiB. The floor on readable history is one whole generation |
+| a failed rotation still appends | exceeding a housekeeping bound is a smaller fault than losing the record of a launch |
+| the reader tolerates **absence** [NT-6] | it ships before the writer: no Source has a `runs.jsonl` until this deploys, and five will not for months |
+| the reader tolerates a **truncated final line** | power loss mid-append is this file's ordinary end state. Earlier runs are returned, the bad line is *named*, nothing raises — and a final fragment is never parsed even if it happens to look like JSON, because the newline is written in the same `write()` |
+| a failed append does **not** change the exit code | the exit code drives systemd's failure counter [MD-153]; a `runs.jsonl` this user cannot open (the `sudo sync` ownership wedge) must not turn every healthy hour into a strike. It is logged at ERROR and shows up as a gap in the query |
+
+`simplefin-intake runs` is the query surface, and reads **nothing but that
+file** — no raw tier, no cursor state, no Bridge:
+
+```
+run history: /data/fast/state/simplefin-intake/runs.jsonl
+  32 run(s) recorded, 32 in the last 168h
+  exit_class: ok=22 unreachable=10
+  minute of the hour:
+    :00  23 run(s)  ok=13 unreachable=10
+    :34  9 run(s)  ok=9
+```
+
+⭐ That last block is [SF-31]'s table — the one that took an evening of
+`journald` — as one command. ⚠️ Counts and classes only: no figure derived
+from the financial data is printed here, ever [A4].
 
 ## `reconcile` — the count-vs-count check
 
