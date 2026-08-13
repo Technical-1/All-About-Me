@@ -1,7 +1,8 @@
 # raw-tier — architecture
 
-State: `building` — the library is built; its suite is the frozen Source
-contract [PE-9]. See `CLAUDE.md`.
+State: `building` — the library is built and **live on the tower**, with both
+amendments (`sealed`, the relational `mirror`) deployed 2026-08-12; its suite is
+the frozen Source contract [PE-9] and stands at **606 tests**. See `CLAUDE.md`.
 
 ## Package layout
 
@@ -9,10 +10,17 @@ contract [PE-9]. See `CLAUDE.md`.
 raw_tier/
   __init__.py   re-exports RawStore, WriteResult, SealBroken, FsckReport,
                 HashMismatch
-  schema.py     SCHEMA — the raw_objects / raw_subjects DDL
-  store.py      RawStore: write_raw, write_ref, write_sealed, get_current,
-                versions, add_subjects, subjects_for, iter_current;
-                SealBroken
+  schema.py     SCHEMA — the raw_objects / raw_subjects DDL, plus the
+                raw_mirrors peer table
+  store.py      RawStore: write_raw, write_ref, write_sealed, declare_mirror,
+                get_current, versions, add_subjects, subjects_for,
+                iter_current; SealBroken
+  mirrorstore.py  ⭐ ONE mirror database: mirror_rows, mirror_tombstones,
+                mirror_tables, mirror_sweeps, mirror_cursor, mirror_brakes;
+                upsert, iter_current, ⭐ iter_tombstoned, coverage,
+                declare_table
+  mirror.py     ⭐ the replicator — read sqlite_master, replicate every table,
+                every column; the three policies; the two guards
   fsck.py       fsck(store, *, verify=False, orphan_grace_seconds=…,
                 now=None) -> FsckReport
   runrecord.py  ⭐ the deep verify's last-run.json: the exit_class mapping
@@ -24,8 +32,9 @@ raw_tier/
 Everything hangs off one class, `RawStore`, opened against a root directory
 that holds the payload tree and the manifest database (`<root>/manifest.db`,
 SQLite, WAL mode). ⭐ A **third component** — relational **mirrors** — was
-decided 2026-08-12 and is **not built**: it is peer to those two, it is not a
-payload, and no code in this package touches it yet. See
+decided 2026-08-12 and ⭐ **deployed the same day**: it is peer to those two,
+and it is **not a payload**. `mirrorstore.py` and `mirror.py` are part of this
+package on `main`. See
 [`mirror` — the third component](#mirror--the-third-component-of-the-raw-tier).
 
 ## The manifest — `raw_objects` / `raw_subjects`
@@ -95,13 +104,15 @@ Added 2026-08-11 as an **amendment** to the frozen contract (ai-lab
 | Shape | Example | Mode |
 |---|---|---|
 | bytes already in hand | an email, a transaction | `copy` |
-| a file on disk, **mutable at a stable path** | `imessage/chat.db` | `ref` |
-| a file on disk, **immutable at a unique path** | 19,712 iMessage attachments (measured 2026-08-12), Drive revisions | `sealed` |
+| a file on disk, **mutable at a stable path** | ⚠️ `imessage/chat.db` **until 2026-08-12** | `ref` |
+| a file on disk, **immutable at a unique path** | iMessage attachments — **19,760 sealed rows / 47 GB** live, Drive revisions | `sealed` |
 
 ⭐ A **fourth** shape was identified 2026-08-12 and is not a payload at all: a
-live **container**, whose archival unit is the **row**, not the file. `ref`
-below is what `chat.db` is registered as today, and the measurement that mode
-produced is what the mirror section reports.
+live **container**, whose archival unit is the **row**, not the file. ⭐ **That
+shape took `chat.db` away from `ref` the same day**: the container became
+transport and the path was retired, so ⚠️ **`ref` is a mode with history and no
+current writer** — its 20 `chat.db` rows stay forever, and the measurement that
+mode produced is what the mirror section reports.
 
 `write_ref` calls `read_bytes()` on every poll, because re-hashing is the
 only way to notice that a mutable file changed. For the third shape that
@@ -190,23 +201,31 @@ limitation rather than an assumed one.
 ## `mirror` — the third component of the raw tier
 
 ⭐ **Decided 2026-08-12**, ai-lab `specs/2026-08-12-relational-mirror.md` —
-the authority; this is the summary, not a restatement. ⛔ **Spec written, NOT
-BUILT.** Nothing described here exists in this package: no mirror code, no
-mirror schema, and `storage`'s CHECK still admits exactly `copy` | `ref` |
-`sealed`. It is documented here because it adds a **third component** to the
-raw tier and amends what the raw tier promises, and both bind anything written
-against this library.
+the authority; this is the summary, not a restatement. ⭐⭐ **LIVE ON THE TOWER
+the same day**, 17:59Z–23:16Z (`raw-tier@9536e54` with `mac-agents@8186da1`):
+`mirrorstore.py`, `mirror.py`, `raw_mirrors` and `fsck`'s mirror half are on
+`main`, and **5 mirrors hold 1,214,347 rows** — `imessage` 1,147,090 ·
+`addressbook` 28,062 · `reminders` 23,404 · `notes` 13,511 · `calendar` 2,280.
+⭐ `storage`'s CHECK is untouched and still admits exactly
+`copy` | `ref` | `sealed`: a mirror was never going to be a fourth value. It is
+documented here because it adds a **third component** to the raw tier and
+amends what the raw tier promises, and both bind anything written against this
+library.
 
 The raw tier has held two things: the payload tree and `manifest.db`. The
-third is **relational mirrors** — one mirror database per container source,
-peer to those two.
+third is **relational mirrors** — one mirror database per container **origin**,
+peer to those two. ⚠️ **Per origin, not per container:** five origins hold
+**eight** containers, so `addressbook`'s two share one mirror and `tbl` is
+spelled `<store-id>.<table>` so their tables cannot collide.
 
-### What measurement found — 2026-08-12, live
+### What measurement found — 2026-08-12, live, ⭐ each figure with the hour
 
 | container | mode today | what that mode actually achieves |
 |---|---|---|
-| `imessage/chat.db` | `ref` | ⛔ **not archived — overwritten hourly.** The manifest claims **4,633,550,848 bytes** across six versions; **one 773,386,240-byte file exists.** ⭐ **3,860,164,608 recorded bytes are not on disk** |
-| `addressbook` | `copy` | ⛔ **172 GB/yr.** Across six hours only `ACHANGE` (+10) and `ATRANSACTION` (+5) changed; the other **32 tables were identical** — ⭐ **~13,000× write amplification** |
+| `imessage/chat.db` | `ref` | ⛔ **not archived — overwritten hourly.** **10 `ref` rows at ONE path at 06:22Z** (⚠️ **+1 every hour**); **one 774,586,368-byte file exists** — **738.7 MiB at 05:29Z**, growing ~325 KB/h. ⚠️ The `bytes` total sums **every version ever recorded**, so it is not disk usage and climbs by a file's worth each hour |
+| `addressbook` | `copy` | ⛔ **176.0 GB/yr** for the big container (20,090,880 B/hr × 8,760 = 175,996,108,800 B), ⛔ **180.2 GB/yr counting BOTH** (20,566,016 B/hr). Across six hours only `ACHANGE` (+10) and `ATRANSACTION` (+5) changed; the other **32 tables were identical** — ⭐ **~13,000× write amplification.** ⚠️ *`172 GB/yr` was a unit-mixing error and is withdrawn* |
+| ⭐ **the second `addressbook` container** | `copy` | ⛔ **a DECOY** — 1 contact against the real 1,099, yet **475,136 B rewritten hourly with a fresh sha256 while not one of its 34 tables changes a row**: ⭐ **4.16 GB/yr of pure waste**, and a survey that *counted* containers instead of enumerating them walked straight past it |
+| the seven non-`chat.db` containers | | the mirror's hourly **read**: ⭐ **47,210,496 B (45.0 MiB) at 06:22Z** |
 
 Both modes are doing exactly what they specify. What is wrong is the **unit**:
 
@@ -215,25 +234,84 @@ Both modes are doing exactly what they specify. What is wrong is the **unit**:
 > own bytes as a side effect of being read. Nothing about the answer is untrue;
 > it is an answer to a question the data cannot be asked.
 
-### The decision — one mechanism, two policies
+### The decision — one mechanism, three policies, ⭐ declared PER TABLE
 
-| | ⭐ **EVENT** | ⭐ **STATE** |
+| | ⭐ **EVENT** *(the default)* | ⭐ **STATE** | ⭐ **TRANSIENT** |
+|---|---|---|---|
+| default for | `imessage` | `addressbook` · `notes` · `reminders` · `calendar` | ⚠️ per table only — `ACHANGE`, `ATRANSACTION` |
+| means | ⭐ **it happened** | ⭐ **it is true now** | bookkeeping the **origin itself prunes** |
+| the mirror keeps | ⭐ **every row, forever** | ⭐ **the latest version + a tombstone on delete** | the latest, ⛔ **no tombstone** |
+| size | ⭐ **~1.3M rows initially, ~630 MB/yr** — ⚠️ **DERIVED from ~2.5 versions per message, ⛔ not measured** (515,387 messages at 06:30Z) | ⭐ **~3,346 rows, near-fixed** | negligible — **+10 / +5 rows per 6 h** |
+
+⚠️⚠️ **The policy grain is the TABLE, not the source.** One container holds two
+tables with opposite correct answers: `chat.db`'s `message` must keep every
+version — **54% of messages acquire a read receipt after insert**, so a message
+is an **entity with a lifecycle**, not an event — while its `persistent_tasks`
+work queue has burned **12,136,459 rowids** and would accumulate forever under
+the same rule.
+
+⭐ **So: default EVENT (the safe default never silently loses data), overrides
+DECLARED as data the Source ships, and versions-per-entity above a declared
+threshold is a FINDING that demands an explicit declaration** — ⛔ **never
+silent accumulation.** Nothing is silent in either direction.
+
+⚠️ **`ACHANGE`/`ATRANSACTION` are `TRANSIENT`, not `STATE`:** Core Data prunes
+its own persistent history, and under STATE every pruned row would become a
+tombstone an engine is bound to read as *"stopped being true"* — ⛔ **thousands
+of fabricated retirements.**
+
+A state mirror exists for one reason that nothing else can supply: **you cannot
+detect deletion from a snapshot of current state** — absence is
+indistinguishable from never-existed unless something remembers seeing it, and a
+tombstone is the only thing that can say which.
+
+### ⛔⛔ The obligation this puts on every engine — and the mechanism
+
+> ⛔⛔ **What a TOMBSTONE obliges depends on the table's POLICY, and the
+> tombstone carries it** [mirror spec **§3.3**]. ⚠️ **There is no single answer;
+> the unqualified rule is wrong for half the mirrors.**
+
+| tombstone on a… | means | the engine must |
 |---|---|---|
-| sources | `imessage` | `addressbook` · `notes` · `reminders` · `calendar` |
-| means | ⭐ **it happened** | ⭐ **it is true now** |
-| the mirror keeps | ⭐ **every row, forever** | ⭐ **the latest version + a tombstone on delete** |
-| size | 740 MB + **250 MB/yr** | ⭐ **~3,346 rows, near-fixed** |
+| **STATE** table | ⭐ *"this stopped being true"* | ✅ **CLOSE the claim's interval** at the tombstone's `last_seen` — the last pass that saw the row **alive**, ⛔ never the run that noticed it missing. ⛔ **Never merely drop the row**: dropping it leaks deleted contacts back as current, because the open-interval sentinel is never closed |
+| ⭐ **EVENT** table | ⭐ *"the ORIGIN no longer retains this"* | ⛔⛔ **CLOSE NOTHING.** ⭐ **An event that happened cannot stop having happened** — deleting a text does not un-send it, and closing an interval on one would assert **833 deleted messages never happened**, the opposite of the fact the mirror exists to preserve |
+| **TRANSIENT** table | — | ⛔ **no tombstone is written**, because the origin prunes these itself |
 
-⭐ **One mechanism with a per-source policy flag, not two systems.** A state
-mirror exists for one reason that nothing else can supply: **you cannot detect
-deletion from a snapshot of current state** — absence is indistinguishable from
-never-existed unless something remembers seeing it, and a tombstone is the only
-thing that can say which.
+⭐ `last_seen`'s bump-on-every-pass rule is what makes the STATE closing point
+readable.
+
+⭐⭐ **This library owes the read path that makes obedience possible:
+`MirrorStore.iter_tombstoned(tbl, *, since=None)`** →
+`Tombstoned(pk, row_sha, payload, tombstoned_at, last_seen, policy)` —
+⭐ **six fields, ⛔ not four.** The `pk` to find the claim · ⭐ **`last_seen` to
+close AT** (`tombstoned_at` is when the mirror *noticed*, an hour to a day
+later, and is ⛔ not the closing point) · the last-known `payload` to say
+**what** stopped being true · `row_sha` so the receipt resolves to that version ·
+and ⭐⭐ **`policy`, which decides whether to close at all.** ⛔ **`policy` is
+FROZEN at write time and never joined from `mirror_tables`** — a table that
+moved between policies afterwards would silently re-interpret every retirement
+already recorded, in both directions, which is the same argument `last_seen`
+itself makes one line up. ⚠️⚠️ **`policy=None` is a THIRD reading** — *the
+mirror cannot state what this marker means* — and ⛔ **an engine must not pick a
+side**: as `state` it fabricates a retirement, as `event` it leaks a deleted row
+back as current. ⭐ It is a finding for a human; the replicator never produces
+one, because `mirror_container` declares every table before it writes a row.
+⚠️ **`iter_current` filters tombstones BY DEFAULT** — opt-**out** filtering leaks
+on the first caller who forgets — so ⛔ **an engine given only `iter_current` and
+`coverage()` is structurally unable to obey.** ⭐ **A tombstone MARKS; it never
+deletes.**
+
+⭐⭐ **And receipts have an address:** a mirrored row is cited as
+`(source, mirror_path, tbl, pk, row_sha)` — it has ⛔ **no `(source, doc_id)`**,
+so `claim_provenance` cannot cite one as it stands, and `row_sha` is what pins
+**which version** the claim was made from. ⛔ **`raw_subjects` does not apply to
+mirrored rows** — minting a `doc_id` for one makes `dangling_subjects` red and
+`raw-fsck` unclean on a healthy run; the mirror's `(tbl, pk)` **is** the index.
 
 ### ⭐ The mirror is not a payload — the load-bearing point here
 
 A mirror registered as a *payload* is a file that changes hourly, so it needs
-`ref`, so it ⛔ **re-hashes 740 MB every hour** — the exact problem above,
+`ref`, so it ⛔ **re-hashes 738.7 MiB every hour** — the exact problem above,
 rebuilt one level up. The container itself becomes **transport**: it lands in
 staging, is mirrored, and is overwritten next run. ⛔ **It never becomes a raw
 object.**
@@ -248,6 +326,15 @@ object.**
 on `(table, pk, row_sha)` — the direct analogue of the RT-17 key — and ⛔
 **never on `pk` alone**, which would collapse every version of a row into one.
 
+⚠️⚠️ **And that key is load-bearing, not belt-and-braces: the rowid-reuse hazard
+is LIVE.** `chat.db`'s `message` table has `AUTOINCREMENT`, but ⛔ **12 of its 25
+tables do not** (including `chat_message_join`, 515,245 rows), and ⛔ **22 of
+`Calendar.sqlitedb`'s 47 do not.** An earlier claim that *"all five containers
+allocate primary keys monotonically, so the rowid-reuse hazard does not exist
+here"* is **withdrawn** — it generalised from one inspected table to a container
+that was not inspected. ⭐ **Leave the reason beside the key, or a later reader
+simplifies it away.**
+
 ### Four shapes, and which unit each archives
 
 | mode | the archival unit | example | status |
@@ -255,18 +342,38 @@ on `(table, pk, row_sha)` — the direct analogue of the RT-17 key — and ⛔
 | `copy` | **the payload** | a transaction | built |
 | `ref` | **a mutable file at a stable path** | `chat.db` today | built |
 | `sealed` | ⭐ **an immutable file** | 19,712 attachments | built |
-| ⭐ **`mirror`** | ⭐⭐ **the ROW** | `chat.db`, `AddressBook` | ⛔ **decided, not built** |
+| ⭐ **`mirror`** | ⭐⭐ **the ROW** | `chat.db`, `AddressBook` | ⭐ **built and live** — 5 mirrors, 1,214,347 rows |
 
-⚠️ Whether the manifest names a mirror with a `storage='mirror'` value, and
-what a mirror's manifest row says so `raw-fsck` can report its coverage, is
-**open** (spec §9). Today no such value exists and none is accepted.
+⚠️⚠️ **There is no `storage='mirror'` value, and there will not be one —
+decided.** Every existing word breaks (`copy` refuses to reuse a path for
+different bytes; `ref` raises `RefDrifted` on every weekly verify; `sealed`
+raises `SealBroken` on the first size change), and a **fourth** value was
+considered and **rejected**: `sha256` and `bytes` are `NOT NULL` and stale on the
+next mirror write, verify behaviour would be decided **by omission**, and
+⛔ **`doc_id` is "origin-assigned, never locally minted"** [RT-11] — a mirror is
+an artifact **this machine** creates and no origin ever named it.
+
+⭐ **Instead: `raw_mirrors`, a peer table in the same manifest** —
+`(source, path, supersedes_path, created_at)`, PK `(source, path)`.
+`supersedes_path` is what **retires** `imessage/chat.db` so its existing `ref`
+rows do not become `missing_payloads` the day the mirror ships, and the retired
+paths are ⭐ **reported as their own count** rather than silently exempted.
+⚠️ **This is still a live-manifest migration**; what it avoids is the table
+rebuild, not the migration.
+
+⛔⛔ **`fsck` must learn this BEFORE any mirror is written.** Confirmed by
+execution 2026-08-12: `orphan_files=4 clean=False`, on the **cheap hourly walk** —
+so `raw-fsck` would be red every hour from day one. ⭐ **Sidecars are EXEMPTED,
+never DECLARED** (a `raw_objects` row for a `-wal` becomes a `missing_payload`
+the moment SQLite checkpoints), and the mirror runs **`journal_mode=DELETE`**,
+⛔ never WAL.
 
 ### ⭐ `sealed` and `mirror` are one insight on two shapes
 
 Both say: **identify the true unit of archive, and stop treating the wrapper as
 the unit.** The failure both close is **a container hiding many items behind
-one hash** — 515,290 messages behind one `sha256` means one changed message
-invalidates all of them.
+one hash** — 515,387 messages (06:30Z 2026-08-12) behind one `sha256` means one
+changed message invalidates all of them.
 
 ⚠️ **The mirror does not supersede `sealed`, and does not touch it.** They
 cover different shapes. An attachment is one file, one row, one immutable blob
@@ -316,12 +423,54 @@ checked_rows checked_files orphan_files missing_payloads dangling_subjects
 unreadable verified_payloads hash_mismatches
 deep_verify manifest_paths verified_rows superseded_rows unpromised_rows
 ref_drifted seal_conflicts
+orphan_files_in_flight orphan_files_aged orphan_grace_seconds
+declared_mirrors missing_mirrors retired_paths mirror_coverage
+retirements_not_in_force
 ```
 
+⚠️ **Fields are APPENDED, never reordered** — every existing reader keeps the
+field it had.
+
 - **orphan_files**: files on disk with no manifest row (manifest.db and its
-  WAL/SHM sidecars are excluded from the walk).
+  WAL/SHM sidecars are excluded from the walk). ⭐ **A declared mirror is not
+  an orphan** — `known_paths` unions `raw_mirrors.path` — and ⛔ **its sidecars
+  are EXEMPTED, never DECLARED**: a `raw_objects` row for a `-wal` becomes a
+  `missing_payload` the moment SQLite checkpoints. A mirror runs
+  `journal_mode=DELETE`, so there is nothing at rest to skip anyway.
 - **missing_payloads**: manifest rows whose `path` does not resolve to a
-  file on disk, deduped by path.
+  file on disk, deduped by path — ⭐ **excluding a path a mirror has RETIRED**
+  via `raw_mirrors.supersedes_path`, matched exactly. ⚠️ **Counted per PATH**,
+  so `chat.db`'s 20 rows are **1**, not 20.
+  ⭐⭐ **THE RETIREMENT RULE (2026-08-13): a retirement exempts a path only
+  where EVERY row at that exact path is `ref`** — the mode a container leaves
+  behind, the one that promises nothing about the bytes. ⛔ A `copy` or
+  `sealed` row anywhere at the path defeats it (`any`, never `all`: two
+  documents may share a path, and *something* promised those bytes), and a
+  `supersedes_path` the manifest holds **no** row for exempts nothing.
+  ⚠️ The exemption used to be exact-path set subtraction with **no reference to
+  `storage` at all** — measured: a retirement naming a `sealed` attachment
+  removed it from `missing_payloads` permanently. The suite proved the rule
+  narrow along the **path** axis with real care and never varied the mode:
+  ⭐ *narrow on path, wide on mode.* Re-derived from the manifest on **every
+  run**, ⛔ not checked once in `declare_mirror`, because `write_sealed` adopts
+  a `ref` row in place — a path that promised nothing on Monday can promise
+  something on Tuesday.
+- **declared_mirrors / missing_mirrors / retired_paths /
+  retirements_not_in_force / mirror_coverage**:
+  ⭐ the mirror half, reported on **both** walks. `declared_mirrors` prints even
+  at zero, because *"no mirrors are declared"* is exactly the answer a reader
+  needs on the run after a deploy that was supposed to declare one. Retirement
+  is ⭐ **reported as its own count and named in a detail line**, never a silent
+  exemption — and `retirements_not_in_force` is the other half of that [RT-6]
+  bargain: a declaration that exempts **nothing**, named with the reason, so
+  `1 retired container path` can never be read off a declaration doing no work.
+  ⛔ It is not a finding: it silences nothing by definition, and a rebuilt raw
+  tier legitimately carries one for ever (the container now stages into the
+  mirror and never enters the payload tree, so its retired path has no rows).
+  `mirror_coverage` is `None` when the deep half did not run —
+  ⛔ **absent, not zero** — and its per-mirror record separates `tables_swept`,
+  `tables_interrupted`, `tables_never_swept` and `tables_stale`, because
+  ⛔ **a table that was never swept is not a table with nothing in it.**
 - **dangling_subjects**: `raw_subjects` rows whose `(source, doc_id)` has no
   matching `raw_objects` row.
 - **unreadable**: directories the walk could not enter (`os.walk(...,
@@ -387,9 +536,13 @@ see that.
 
 `unpromised_rows` is the honest gap this leaves: every `ref` row, matched or
 not, is a row whose changed bytes cannot be told from the origin doing
-exactly what `ref` exists for. It reads **19,717 as of 2026-08-12** — the
-19,712 attachments plus `chat.db`'s 5 versions — and drops to **5** once Task
-4 migrates the attachments, and only the attachments.
+exactly what `ref` exists for. ⭐⭐ **It is now ZERO, and both amendments were
+needed to get there:** `sealed` moved the ~19.7k attachment rows to a mode that
+promises immutability (**19,760 sealed rows / 47 GB** live), and the **mirror**
+retired `imessage/chat.db`, the one path whose `ref` rows were unpromised by
+design. ⚠️ **Its 20 `ref` rows are still in the manifest and always will be** —
+the raw tier has no delete API — but the path is **retired**, reported as its
+own count, and no Source writes a `ref` row any more.
 
 ⚠️ **The first cut of this compared `ref` and `sealed` ROW BY ROW** and was
 wrong in production the day it ran, invisibly to 178 green tests: the live
@@ -409,7 +562,9 @@ them can ever verify and the rest are a permanent `hash_mismatch` on every
 healthy run. ⚠️ That is exactly what an **unscoped**
 `UPDATE raw_objects SET storage='sealed'` makes of `chat.db`'s five rows —
 [SS-1] arriving from the other side, and this time no scope fix could clear
-it. **Task 4 must be scoped to `source='imessage-attachments'`.**
+it. ✅ **The row migration was scoped to `source='imessage-attachments'`**, and
+`raw-fsck` reported **0 seal conflicts** across the sealed deploy and every run
+since.
 
 It is computed from the manifest, so the **cheap hourly walk** reports it and
 a bad migration is caught within the hour rather than at the next weekly deep
@@ -463,16 +618,28 @@ Deep verify: {ON|OFF} — {v} payloads re-hashed, {h} mismatches
 ```
 
 — followed by one detail line per violation (`ORPHAN`, `MISSING`,
-`DANGLING`, `UNREADABLE`, `MISMATCH`, `SEAL-CONFLICT`) and one per
-`REF-DRIFT` (which is not a violation and does not affect the exit code),
-and exits 0 when clean, 1 otherwise. ⭐ The seal-conflict **count** is on the
-first line, so the cheap hourly run states it as a number every time — it is
-read from the manifest, not from the disk.
-`--verify` is the weekly deep check; the hourly timer runs without it. Opening a
-`RawStore` against a nonexistent root creates it (`root.mkdir(parents=True,
-exist_ok=True)`), so running against an empty/new root is a legitimate,
-zero-violation clean run rather than an error. ⚠️ **Only without
-`--run-record`** — see below.
+`DANGLING`, `UNREADABLE`, `MISMATCH`, `SEAL-CONFLICT`), one per
+`REF-DRIFT` (which is not a violation and does not affect the exit code), and
+one per `RETIRED` / `NOT-RETIRED` (which are the exemption, stated rather than
+silent), and exits 0 when clean, 1 otherwise. ⭐ The seal-conflict **count** is
+on the first line, so the cheap hourly run states it as a number every time —
+it is read from the manifest, not from the disk.
+`--verify` is the weekly deep check; the hourly timer runs without it.
+
+⛔⛔ **`raw-fsck` REFUSES a root that is not a directory, on EVERY path**
+(2026-08-13; this paragraph previously said the opposite). Opening a `RawStore`
+against a nonexistent root creates it (`root.mkdir(parents=True,
+exist_ok=True)`), so `raw-fsck` used to invent a raw tier under an **unmounted**
+`/data/fast/state`, verify the empty tree it had just made, and report
+`Checked 0 rows / 0 files`, **exit 0**. ⭐ [MD-127] is what makes that expensive:
+`/data/fast/state` is LUKS and the partition underneath it is **not**, so the
+invented manifest lands on unencrypted disk. The guard existed and sat **inside
+the `--run-record` branch** — *"the guard that does not depend on the unit being
+written correctly"* depended on the unit passing a flag, and the run that does
+not pass it is the **hourly** one. It now runs before either path: one sentence
+on stderr, **exit 1**, nothing created. ⚠️ The run record is still written only
+where one was asked for, so without the flag nothing on disk moves — that part
+of *"opt-in"* is unchanged.
 
 ## ⭐⭐ `--run-record PATH` — the only channel a finding can travel down
 
@@ -501,6 +668,8 @@ byte-for-byte against a `main` worktree, with and without `--verify`.
 | in-flight `orphan_files` | — | the registrar is hourly; this is a healthy machine |
 | `ref_drifted` | — | `ref` promised nothing; drift is what it is FOR |
 | `superseded_rows` · `unpromised_rows` | — | coverage figures, not findings |
+| `retired_paths` · `retirements_not_in_force` | — | an exemption in force silences by design; one **not** in force silences nothing, and where a payload really is gone the missing payload is already `integrity-error` above |
+| `mirror_tables_stale` | — | ⭐ a coverage gap, never corruption — and byte for byte what a sweep **in flight** looks like, since `open_sweep` writes its row before `complete_sweep` closes it. The registrar is hourly, this check is weekly, nothing synchronises them |
 
 ⭐⭐ **Two classes, because the store re-alerts on a class CHANGE.** An open
 fault is keyed `source/condition`; with one class for both halves, an
