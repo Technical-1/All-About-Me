@@ -1,6 +1,7 @@
 # raw-tier — qa
 
-State: `building`. See `CLAUDE.md`.
+State: `building` — ⭐ **live on the tower**, with both amendments (`sealed`,
+the relational `mirror`) deployed 2026-08-12. See `CLAUDE.md`.
 
 ## ⭐ The suite is the frozen Source contract [PE-9]
 
@@ -13,16 +14,16 @@ refactor-and-move-on.
 
 ## Suite size
 
-**400 tests**, all green, across eighteen files (re-counted 2026-08-12).
-⚠️ Counted from `pytest --collect-only`, which counts parametrised cases —
-earlier versions of this table said 29 when the suite already collected 31,
-77 while `test_migrate_sealed.py`'s 101 cases were already in the tree, 201
-until the 2026-08-12 fix round, and **248 across "fifteen files" while the
-tree already held 354 across eighteen**: `test_migrate_sealed_rows.py` (106
-cases) landed with Task 4 and this table was never re-derived. ⭐ **Re-derive
-it from the tree; never carry it forward.** That instruction was already
-written here and was not followed, which is why it now carries its own
-counter-example.
+**606 tests**, all green, across **33 files** (re-derived from
+`pytest --collect-only` 2026-08-13; the mirror added 206 cases in 12 new
+files). ⚠️ That command counts parametrised cases — earlier versions of this
+table said 29 when the suite already collected 31, 77 while
+`test_migrate_sealed.py`'s 101 cases were already in the tree, 201 until the
+2026-08-12 fix round, **248 across "fifteen files" while the tree already held
+354 across eighteen**, and **400 while the mirror's files were already in the
+tree**. ⭐ **Re-derive it from the tree; never carry it forward.** That
+instruction was already written here and was **not followed twice**, which is
+why it now carries two counter-examples.
 
 | File | Tests | Pins |
 |---|---|---|
@@ -45,12 +46,43 @@ counter-example.
 | `test_run_record.py` | 35 | ⭐⭐ 2026-08-12: `--run-record` — the `exit_class` mapping, the two-class severity split, `warnings[]`/`errors[]` as an alerting channel, no path in the record, the atomic write, the absent-root and record-inside-the-tier refusals |
 | `test_orphan_age.py` | 11 | ⭐ 2026-08-12: the in-flight/aged orphan split, the boundary, and ⛔ that `st_mtime` is not the field (rsync `-a` preserves the origin's) |
 
-**Six** files predate the 2026-08-11 `sealed` amendment; the other **twelve**
-are the amendment, its [SS-1] correction, the 2026-08-12 fix round, Task 4's
-row migration and the run record.
+### ⭐ The mirror's fifteen new files — 206 cases, 2026-08-12
+
+| File | Tests | Pins |
+|---|---|---|
+| `test_fsck_fix_round_1.py` | 13 | ⭐ the pre-deploy round's `fsck` findings, each with the failure it would otherwise have produced **on a healthy run** |
+| `test_python39_importable.py` | 18 | ⭐ the Mac's 3.9 floor: what a Source may import without the tower's interpreter |
+| `test_mirrorstore.py` | 17 | the row-grain manifest: `mirror_rows`/`mirror_tombstones`/`mirror_tables`/`mirror_sweeps`/`mirror_cursor`/`mirror_brakes`, and the `(tbl, pk, row_sha)` key — ⛔ **never `(tbl, pk)`** |
+| `test_mirror_replication.py` | 19 | complete replication: `sqlite_master` read at run time, every table, every column, `pk`/`row_sha` derivation, dedupe bumping `last_seen` per row [RT-15] |
+| `test_fsck_mirrors.py` | 19 | ⛔ a declared mirror is **not** an orphan; sidecars **exempted, never declared**; a retired path is **not** a `missing_payload` and is counted as its own class |
+| `test_mirror_tombstones.py` | 17 | a tombstone MARKS and never deletes; `iter_current` hides them **by default**; ⭐ `iter_tombstoned` returns them with `last_seen` — the closing point, ⛔ not `tombstoned_at` |
+| `test_mirror_brake_latch.py` | 16 | ⛔ the mass-tombstone brake **latches** rather than firing once — [RM-L] found it single-shot, postponing every fabricated tombstone by exactly one run — and stands down where its premise is false |
+| `test_mirror_guards.py` | 15 | the disjoint-key-space (restore/renumber) brake and the runaway versions-per-entity guard |
+| `test_mirror_sweeps_and_coverage.py` | 15 | ⛔⛔ **no tombstone without a COMPLETED sweep** [RM-D] — an interrupted sweep leaves `completed_at` NULL and writes **zero** tombstones; `source_count=None` is ⛔ never `0` |
+| `test_mirror_policies.py` | 12 | the three policies, declared **per table**: EVENT keeps every version, STATE keeps latest + tombstone, TRANSIENT keeps latest and writes ⛔ no tombstone |
+| `test_mirror_declaration.py` | 11 | the policy is **declared as data** and an unknown word **raises** — ⛔ declared, never silent; a policy change is reported |
+| `test_mirror_fix_round_1.py` | 10 | the pre-deploy round: a policy change, a non-unique key, a stale sweep, a held lock |
+| `test_mirror_event_tombstones.py` | 9 | ⭐⭐ **spec §3.3** — an EVENT tombstone is written, carries `policy='event'`, and that policy is **frozen at write time**, ⛔ never joined from `mirror_tables` |
+| `test_run_record_mirrors.py` | 9 | `mirror.counts` and `mirror.sweeps` reach the run record **separately**, neither standing in for the other; a count shortfall is `data-error`, ⛔ **no new `exit_class`** |
+| `test_cli_mirror_report.py` | 6 | what `raw-fsck` prints: `Mirrors: N declared, M missing, K retired` on **both** walks, and coverage **absent** rather than zero when the deep half did not run |
+
+**Six** files predate the 2026-08-11 `sealed` amendment.
 ⭐ **No test file that predates the amendment has been modified** — all six
-are byte-identical to `main` (`git diff --quiet main -- <path>`), which is
-the check that `copy` and `ref` behave exactly as they did.
+are byte-identical to `main` as of the amendment
+(`git diff --quiet main -- <path>`), which is the check that `copy` and `ref`
+behave exactly as they did.
+
+⭐⭐ **The mirror kept that discipline, and one file is the honest exception.**
+It added **fifteen** test files plus two fixtures and changed exactly one line
+of pre-existing test text: `test_migrate_sealed_rows.py`'s `NEW_SCHEMA`
+constant, which gained `raw_mirrors`. ⚠️ **That is a drift alarm doing its job,
+not a weakened test** — the file keeps a copy of the library's DDL and
+`test_the_fixture_schema_is_the_librarys` fires the moment `raw_tier/schema.py`
+changes. ⛔ **No assertion was touched, no case was weakened, and the
+`raw_objects` half is byte-for-byte what it was** — that migration neither
+reads nor rebuilds the new table. ⭐ **Stated here rather than rounded to
+"nothing was modified"**, because a contract suite that quietly absorbs an edit
+is exactly what [PE-9] forbids.
 
 ⭐ **The run record (2026-08-12) modified NOTHING.** Every one of the eighteen
 files that existed before it is byte-identical to `main`, machine-checked
@@ -214,9 +246,10 @@ the tower is not in.
 
 ## Verification
 
-- `python -m pytest -q` — **248 passed**, on the Mac (2026-08-12).
-  ⚠️ This line said "29 passed" while the tree held 201; a count that is
-  copied rather than re-run is a claim about a suite nobody ran.
+- `python -m pytest -q` — **606 collected**, on the Mac (2026-08-13, re-run).
+  ⚠️ This line said "29 passed" while the tree held 201, and "248 passed"
+  while it held 606; a count that is copied rather than re-run is a claim
+  about a suite nobody ran.
 - Clean-venv install (`python -m venv … && pip install -q . pytest`) — zero
   runtime dependencies pulled in beyond `raw_tier` itself; `pytest -q` green
   in the clean venv.
@@ -258,11 +291,25 @@ the tower is not in.
   compared per path against every version recorded for it. The gap that
   remains is stated as a number, `unpromised_rows`: every `ref` row is one
   whose changed bytes cannot be told from the origin doing what `ref` exists
-  for. It reads **19,717 as of 2026-08-12** and shrinks to **5** when the
-  attachments — and only the attachments — become `sealed`.
+  for. ⭐⭐ **It is now ZERO**, and it took both amendments: `sealed` moved the
+  attachment rows (**19,760 sealed rows / 47 GB** live) and the **mirror**
+  retired `imessage/chat.db`, the only other `ref` path. ⚠️ Its 20 rows remain
+  in the manifest forever — there is no delete API — but the path is
+  **retired** and no Source writes a `ref` row any more.
 
 None of these block the PE-9 freeze; they're recorded so freezing the
 contract doesn't also freeze them as "intentional."
+
+## ⭐ What the mirror still has to prove — carried open
+
+⛔ **These are not covered by any test, because no test can cover them.**
+
+| open | why it stays open |
+|---|---|
+| ⚠️ **[SS-7] `chat.db`'s rot hole** | **MITIGATED, ⛔ not closed** [SS-23]. *"A second version is itself a finding"* was tested and is **false** — 819 of 515,387 messages carry `date_edited` and ~8% mutate per poll, so a rotted row is indistinguishable from a real edit. ⭐ What the mirror bought: rot can no longer **destroy** an archived row, only add a bogus one beside it |
+| ⚠️ **`runs.jsonl` has no logrotate** | **~85 KB/run → ~742 MB/yr** with all eight containers mirroring. Operational, and recorded so it is found before the disk is |
+| ⚠️ **`reminders`' queue-shaped tables** | `ZREMCDOPERATIONQUEUEITEM`, `ZREMCDTEMPLATEOPERATIONQUEUEITEM`, `ZREMCDCHANGETRACKINGSTATE`, `ZREMCKSERVERCHANGETOKEN` are declared **`state`** and **watched**. ⛔ **Name-shape is not evidence** — [MA-2]'s decoy opened cleanly and answered queries too. ⭐ The sweeps make it observable: a `state` table the ORIGIN prunes shows a non-zero `tombstoned` |
+| ⛔ **the mirror's on-disk size** | **MEASURE THIS FIRST.** ~1.3M rows was *derived* from ~2.5 versions per message, never measured; the first full sweep recorded **515,555 message rows at 1.0 versions/entity**, still climbing toward the measured ratio |
 
 ## The run record (2026-08-12) — 42 mutations, 0 survivors
 

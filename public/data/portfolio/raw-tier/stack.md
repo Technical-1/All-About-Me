@@ -1,6 +1,7 @@
 # raw-tier — stack
 
-State: `building`. See `CLAUDE.md`.
+State: `building` — ⭐ **live on the tower**, with both amendments (`sealed`,
+the relational `mirror`) deployed 2026-08-12. See `CLAUDE.md`.
 
 - **Language:** Python, `requires-python = ">=3.11"`.
 - **Runtime dependencies: none**, and the 2026-08-11 `sealed` amendment
@@ -25,10 +26,16 @@ State: `building`. See `CLAUDE.md`.
 - **Storage:** SQLite (`manifest.db` under the raw root, WAL journal mode)
   for the manifest; the plain filesystem for payloads. No external database,
   no ORM. ⭐ A **third** store under the same root — one **mirror** database
-  per container source, SQLite again — was decided 2026-08-12 and is **not
-  built** (ai-lab `specs/2026-08-12-relational-mirror.md`,
-  `.portfolio/architecture.md`). It adds no dependency and no new technology:
-  it is `sqlite3` reading `sqlite_master` and replicating rows.
+  per container **origin**, SQLite again — was decided 2026-08-12 and is
+  ⭐ **live on the tower the same day** (ai-lab
+  `specs/2026-08-12-relational-mirror.md`, `.portfolio/architecture.md`). It
+  adds no dependency and no new technology: it is `sqlite3` reading
+  `sqlite_master` and replicating rows. ⚠️ **A mirror runs
+  `PRAGMA journal_mode=DELETE`, ⛔ never WAL** — unlike `manifest.db` above.
+  WAL would manufacture two permanent sidecars under the raw root, and a
+  `raw_objects` row for a `-wal` becomes a `missing_payload` the moment SQLite
+  checkpoints; sidecars are therefore **exempted from `fsck`, never declared to
+  it**.
 - **Test tooling:** `pytest` (dev/test only, not a runtime dependency).
   `pytest.ini` points `testpaths` at `tests/`.
 - **A9's Python rule binds engines; Sources may differ** — raw-tier is the

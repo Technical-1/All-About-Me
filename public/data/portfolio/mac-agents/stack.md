@@ -50,13 +50,15 @@ the agent actually runs.
 | ⭐ `MacAgentsCollector.app` | ~20 lines of C that `exec` `/usr/bin/python3 -m mac_agents.cli collect` | ⭐ **the thing Full Disk Access is granted to.** Built by `scripts/build-launcher.sh` with `cc` + `codesign` against the Developer ID (team `M7SN262HK4`); ⚠️ **no ad-hoc fallback, ever** [MA-22] |
 | `plistlib` (stdlib) | reads the installed agent plist in `mac-agents check` | ⚠️ stricter than `plutil` — see qa.md |
 
-⚠️ **The 2026-08-12 amendment adds no dependency and no Mac-side change.** The
-relational mirror — **decided, not built** — reads `sqlite_master` at run time
-and replicates every table with the same stdlib `sqlite3`, and it runs entirely
-on the **tower** half, under the 3.11+ floor named above. ⭐ The Mac keeps its 3.9
-floor, its zero-dependency rule and the transport described here; what changes
-is that the container it ships becomes **transport, not payload**. Summary:
-`.portfolio/architecture.md` §9.
+⭐ **The 2026-08-12 amendments added no dependency and no Mac-side change**, and
+both are **live**. The relational mirror reads `sqlite_master` at run time and
+replicates every table with the same stdlib `sqlite3`, and it runs entirely on
+the **tower** half, under the 3.11+ floor named above. ⭐ The Mac kept its 3.9
+floor, its zero-dependency rule and the transport described here; what changed
+is that the container it ships is **transport, not payload**. ⚠️ **One tower-side
+pragma is worth knowing here:** a mirror database runs
+`PRAGMA journal_mode=DELETE`, ⛔ **never WAL** — WAL would manufacture two
+permanent sidecars under the raw root. Summary: `.portfolio/architecture.md` §9.
 
 ## ⚠️ openrsync, and the flag that is not there
 

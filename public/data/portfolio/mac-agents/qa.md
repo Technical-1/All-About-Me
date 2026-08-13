@@ -1,9 +1,11 @@
 # mac-agents — qa
 
-**State: `building`.** Tasks 1–4 merged and live. **447 tests** under the
-tower's 3.12; under the Mac's 3.9, **326 collected and `tests/test_register.py`
-skipped whole** — 121 tests, no `raw_tier` on 3.9. ⚠️ **A skipped module reports
-green: read the skip line, not the pass count.** A contract test is a
+**State: `building`.** Tasks 1–4 merged and live, ⭐ **and both raw-tier
+amendments (`sealed`, the relational `mirror`) shipped 2026-08-12.**
+**538 tests** under the tower's 3.12 (447 before the mirror). ⚠️ Under the Mac's
+3.9 `tests/test_register.py` is **skipped whole** — there is no `raw_tier` on
+3.9 — so ⚠️⚠️ **a skipped module reports green: read the skip line, not the pass
+count.** A contract test is a
 **specification** — editing one is an amendment and a checkpoint decision, never
 a fix [PE-9].
 
@@ -20,6 +22,8 @@ a fix [PE-9].
 | `test_package_build.py` | a real wheel, and that the modules are **inside** it [SF-11] |
 | `test_install.py` | ⭐ the ad-hoc trap, the plist that runs the wrong program, and the claim the report must never make |
 | `test_build_launcher.py` | ⭐ the build script **driven with stubbed `security`/`codesign`/`cc`**, so its refusal to sign ad-hoc is exercised rather than asserted |
+| ⭐ `test_mirror_policy.py` | **the per-table policy declaration, as data** — that a table name and never a container is named here, that `ACHANGE`/`ATRANSACTION`/`ATRANSACTIONSTRING` are `transient`, and that the four default-transient tables are adopted **explicitly** rather than by a default that applies itself |
+| `test_register.py` | ⭐ **the tower half, including the mirror**: containers are discovered from staging, staged → run-private → mirrored → unlinked, ⛔ **no `raw_objects` payload row for a container**, and a full day of hourly registrations over sealed attachments performing **zero** payload reads |
 
 ## The tests that would have caught a real defect
 
@@ -212,11 +216,18 @@ exactly where the earlier privacy tests stopped short.
 
 ## ⭐⭐ The defect no test caught — nobody compared the manifest to the disk
 
-Measured 2026-08-12 against the live tower: `raw_objects` claims
+Measured 2026-08-12 against the live tower: `raw_objects` claimed
 **4,633,550,848 bytes across 6 versions** of `chat.db`; ⛔ **one
-773,386,240-byte file exists.** `chat.db` was never being archived — each run
+773,386,240-byte file existed.** `chat.db` was never being archived — each run
 **overwrote** it, so deleted messages were already unrecoverable while the
 manifest read as six retained versions.
+
+⚠️ **Both halves of that reading move, so it carries its hour.** By **06:22Z**
+the same path held **10 `ref` rows** — ⭐ **+1 every hour** — and the file was
+**774,586,368 B** (**738.7 MiB at 05:29Z**, growing ~325 KB/h on average).
+⛔ **Never quote the byte total against a row count it was not read at**, and
+⛔ never treat `~325 KB/h` as continuous: the tower's copy is **stepwise**,
+changing only when the `:17` snapshot lands.
 
 ⚠️ **Every test in this repo passed throughout, and `raw-fsck` reported clean —
 and both were right.** ⭐ `SUM(bytes)` is the sum of every version ever *seen*,
@@ -226,25 +237,54 @@ purest form: a green result is not evidence the thing happened.** The check that
 would have found it was arithmetic nobody had run — compute every stated total
 from its parts.
 
-The same pass measured `addressbook` at **172 GB/yr** to record roughly 1.5 KB
-per run of real information: two snapshots 6 h apart differ in `ACHANGE` (+10)
-and `ATRANSACTION` (+5), ⭐ **the other 32 tables identical**, for a
-20,090,880-byte write — **~13,000× amplification.** ⭐ Because `sha256` asks
-*"are these bytes identical?"*, which is the wrong question to ask of a live
-SQLite file that rewrites its own bytes as a side effect of being read.
+The same pass measured `addressbook` at ⛔ **176.0 GB/yr** for its big container
+(20,090,880 B/hr × 8,760 = 175,996,108,800 B), ⛔ **180.2 GB/yr counting BOTH**
+of them (20,566,016 B/hr), to record roughly 1.5 KB per run of real information:
+two snapshots 6 h apart differ in `ACHANGE` (+10) and `ATRANSACTION` (+5),
+⭐ **the other 32 tables identical**, for a 20,090,880-byte write —
+**~13,000× amplification.** ⭐ Because `sha256` asks *"are these bytes
+identical?"*, which is the wrong question to ask of a live SQLite file that
+rewrites its own bytes as a side effect of being read.
 
-### ⚠️ What the relational mirror will have to prove — DECIDED, NOT BUILT
+> ⚠️⚠️ **`172 GB/yr` is withdrawn, and how it survived is the QA lesson.** It was
+> **19.6 MiB/hr divided by 1000** — a MiB-derived figure carried into a decimal
+> total — and it was quoted in three documents all session ⛔ **without once
+> being re-derived**, in a repo whose own rule is *compute every stated total
+> from its parts.* ⭐ **The error is small; the habit is not.**
+>
+> ⚠️ **And a second miss in the same pass:** the survey said **five containers,
+> 44,285,952 B**. ⛔ **There are eight, 47,210,496 B (45.0 MiB at 06:22Z)** — the
+> survey **counted** the container each origin is *named* for instead of
+> **enumerating** them, and so walked straight past a **decoy** `addressbook`
+> store rewriting **475,136 B/hr = 4.16 GB/yr** while ⛔ **not one of its 34
+> tables changed a row.** ⭐ **Enumerate; never count.**
 
-⛔ **None of these tests exist**, because the mechanism does not. Recorded now
-because that is the cheapest moment to bind it. Design:
+### ⭐ What the relational mirror had to prove — ⭐⭐ BUILT, and proved on the machine
+
+⭐ **These exist now.** The mechanism lives in `raw-tier` (`mirror.py`,
+`mirrorstore.py`, `fsck.py` — **206 cases across 15 new test files**, suite
+400 → **606**) and its Source half here (`mirror_policy.py`, `tower/register.py`
+— suite 469 → **538**). ⭐⭐ **0 mutation survivors across every sweep**, and
+⛔ **seven cry-wolf arrivals were caught before shipping.** Design:
 `ai-lab docs/superpowers/specs/2026-08-12-relational-mirror.md`; summary in
 `.portfolio/architecture.md` §9.
 
+⚠️ **Kept as written, because the table below is what the mechanism was sized
+against** — and because ⭐ **what a check was built to catch is the thing to read
+when it fires**, not a list of files.
+
 | mechanism | cadence | catches |
 |---|---|---|
-| per-table row counts, source vs mirror | **hourly** | a mirror that stopped, or that skipped a table |
-| ⭐ full completeness sweep | every run for the four small containers; **daily** for `chat.db` | a row silently never captured — and ⭐ **a row that MUTATED IN PLACE**, which a cursor never re-reads |
-| ⭐ **one genesis snapshot of `chat.db`**, once | never repeats | a known-good original while the mechanism is young |
+| per-table row counts, source vs mirror | **hourly** | a mirror that stopped, or that skipped a table. ⚠️ **A table that was not swept reports `source_count=None`**, ⛔ **never `0`** |
+| ⭐ full completeness sweep | every run for the **seven** non-`chat.db` containers; **daily** for `chat.db` | a row silently never captured — and ⭐ **a row that MUTATED IN PLACE**, which a cursor never re-reads |
+| ⭐ **one genesis snapshot of `chat.db`**, once | never repeats | a known-good original while the mechanism is young. ⛔ **Do not state its size in advance** — record the actual bytes and sha256 at capture |
+| ⛔⛔ **a tombstone requires a COMPLETED sweep** | per sweep | a **partial read** producing a fabricated deletion. A set-difference is a valid deletion test **only if the whole source table was read**, so an interrupted run leaves `completed_at` NULL and writes **zero** tombstones |
+| ⛔⛔ **the renumbering brake** | per sweep | a **restore from backup**, which renumbers the origin's key space. A *complete* sweep then reads ~1,109 contacts deleted at once, so a **completed-sweep guard does not catch it**: a table whose live `pk` set is **disjoint** from the previous run's is a renumbering, ⛔ **refuse every tombstone and emit a finding** |
+
+⚠️ **A written tombstone is the one thing here that cannot be rolled back** —
+there is no delete API, and engines are bound to act on it. ⭐ **That is why the
+completed-sweep rule and the renumbering brake are part of the mechanism, not a
+later hardening pass.**
 
 ⚠️⚠️ **The two checks are reported separately and neither stands in for the
 other.** ⭐ Completeness cannot be checked incrementally, and a count check
@@ -257,17 +297,81 @@ correctly?"*; disk loss is `restic`'s problem [BK-1], not the raw tier's.
 
 ⚠️ **And the mutation shapes are opposite** — reminders **678 of 683 = 99.3%**
 mutate after creation (⭐ **completing a reminder is an UPDATE**) against notes'
-13 of 203 and iMessage's ~0, all measured 2026-08-12. ⭐ **Which is why a single
-blanket cadence is the wrong instinct**, and why the reminders test has to
-assert on a *completed* reminder rather than a created one: without the sweep
-the mirror records what things were created as, never what they became — ⛔ a
-to-do list that is never done.
+13 (⚠️ **of 203, which is unsourced and unreproducible — the spec's §3 says 536;
+MEASURE BEFORE USING**) and ⛔⛔ **iMessage's ~8% PER POLL — not ~0**, all
+measured 2026-08-12. ⭐ **Which is why a single blanket cadence is the wrong
+instinct**, and why the reminders test has to assert on a *completed* reminder
+rather than a created one: without the sweep the mirror records what things were
+created as, never what they became — ⛔ a to-do list that is never done.
+
+> ⛔⛔⛔ **The `~0 — immutable` cell for iMessage is the worst defect this pass
+> found, and it is a TEST-DESIGN defect, not a typo.** It licensed the criterion
+> *"a second version of a message is a finding"*, which is **false twice over**:
+> **277,729 messages (54%) acquire `date_read` after insert**, 41,795 of them
+> **more than an hour later** — i.e. after the poll saw v1 — and **819** carry
+> `date_edited`. ⭐ **~2.5 versions per message is CORRECT and worth keeping**;
+> *when* a message was read is a real fact, and filtering it by column would be
+> interpretation. ⛔ **An alert on it would be a permanent false alarm**, and an
+> implementer seeing three versions of every message **must be told this is
+> right** or they will "fix" it.
 
 ⭐ **Deletion is a test target too, and only the mirror can produce the
 evidence:** a deleted contact is simply **absent**, and absence is
-indistinguishable from never-existed. Tombstones already owed, measured
-2026-08-12 — contacts **148** · notes **16** · reminders **9** · calendar ~0.
+indistinguishable from never-existed. Deletions the mirror can see, measured
+2026-08-12 — notes **16** · reminders **9** · calendar ~0.
+
+⚠️⚠️ **Contacts: none, and a test asserting otherwise would be wrong.** *"148
+already deleted"* is `Z_PRIMARYKEY.Z_MAX` 1,257 − `ZABCDRECORD` 1,109 — ⛔ **an
+allocation gap, NOT an enumerable set.** They were deleted **before the mirror
+existed**, so ⛔ **inventing tombstones for them is fabricating observations we
+never made.** ⭐ **The proof that tombstoning works is a contact Jacob deletes at
+a recorded time**, observed after a real act on the Mac — ⛔ **never inferred from
+a fixture.** The same applies to a completed reminder and a deleted calendar
+event; `calendar` has **no `Z_MAX`**, so its tombstone comes **only** from a
+completed sweep's set-difference.
 
 ⛔ **Out of scope, and must stay out:** iMessage attachments and Notes media.
 One file, one row, one immutable blob, no container — `sealed` [MA-45] is right
 for them, and the tests that cover them do not change.
+
+### ⭐⭐ What the first live runs proved — observed, ⛔ not inferred from a suite
+
+| | observed |
+|---|---|
+| ⭐ **the 148 already-released keys did NOT become tombstones** | and it is **structural**, not a special case: a tombstone is `iter_current − seen`, and a key released before the mirror existed was never in `mirror_rows` |
+| ⭐ `tombstoned=0`, ⛔ **not `None`** | the sweep **completed** *and* found nothing deleted. Two different facts, kept apart |
+| ⭐ first contact with Apple's real 34-table schema | **succeeded** — every fixture had been built from the documented schema, because the implementer had no Full Disk Access. ⚠️ **That is exactly why `addressbook` went first** |
+| ⭐⭐ `addressbook` `bytes_registered` | **20,566,016 → 0** — 167.8 GiB/yr of rewriting an unchanged address book, stopped |
+| ⭐ `chat.db` | **archived** rather than overwritten: **515,555 message rows at 1.0 versions/entity** on the first sweep, accruing toward the measured ~2.5 as receipts land |
+
+⛔⛔ **Two defects the suite could not see, both caught by execution, both worth
+remembering as test-design lessons:**
+
+- **[RM-L] the mass-tombstone brake was SINGLE-SHOT.** It refused on run 2 and
+  wrote **all 20 tombstones on run 3**, because on re-evaluation the key sets are
+  no longer disjoint. ⭐⭐ **The measured median table is 14 rows and 65 of 121
+  non-empty tables are under 20** — so the majority of real tables fell straight
+  through the floor, and ⛔ **both guard tests used 100-row fixtures, above it,
+  so the suite was green.** ⭐ **Test at the sizes measurement found, not the
+  sizes that are convenient to write** — a fixture chosen for readability
+  silently selects which bugs the suite can see. The brake now **latches**.
+- **[RM-N] the deploy hour would have fired 34 false alarms.** `raw_tier`
+  suppresses *"table is new"* when the mirror is empty — ⚠️ **but one mirror
+  holds an origin's containerS**, so on run 1 every table of the **second**
+  container reads as newly added. **8 on the fixture, 34 on the real decoy.**
+  ⭐ Invisible to anyone still holding *"one origin = one container"* —
+  ⛔ **the correction had reached the container COUNT and not the suppression
+  RULE that depended on it.**
+
+### ⚠️ Still open here — carried, not closed
+
+- **[SS-7] `chat.db`'s rot hole** — **mitigated, ⛔ not closed** [SS-23]. Rot can
+  no longer **destroy** an archived row, only add a bogus one beside it, and
+  ⛔ *"a second version is itself a finding"* is **false** (~8% mutate per poll).
+- **`runs.jsonl` has no logrotate** — **~85 KB/run → ~742 MB/yr** with all eight
+  containers mirroring.
+- **`reminders`' four queue-shaped tables** are declared `state` and **watched**
+  — ⛔ name-shape is not evidence.
+- ⚠️ **A pre-existing flaky test in `test_ship.py`** aborted two of three
+  mutation sweeps on a red baseline. ⭐ Recorded rather than rounded away: a
+  sweep that cannot establish a green baseline has measured nothing.
