@@ -15,38 +15,46 @@ Ours is a multi-tenant couples web app I built as a digital space for partners t
 ## Technical Highlights
 
 ### Multi-Tenant Security Architecture
+
 I implemented defense-in-depth for data isolation: Firestore rules check `request.auth.token.coupleId` on every operation, Cloud Functions read `coupleId` exclusively from the JWT (never from mutable user documents), and the client always injects `coupleId` into queries and writes. An immutability guard (`coupleIdUnchanged()`) prevents field mutation attacks on document updates. Firebase App Check with reCAPTCHA v3 adds request attestation on top.
 
 ### Flash-Free Loading Pipeline
+
 The loading experience went through several iterations to eliminate every visible flash. Authenticated users skip the landing page via a synchronous localStorage check. Theme colors are applied from cache in a blocking `<head>` script before any HTML renders. The React app renders `null` behind a static CSS spinner until both auth and couple data have loaded, so the first frame users see is the fully-populated page.
 
 ### Thumbnail Pipeline
+
 I built a thumbnail system using Firebase's Resize Images extension that auto-generates WebP thumbnails regardless of input format. A Cloud Function (`onThumbnailCreated`) uses a prefix range query on the `storagePath` field to handle the format mismatch between original uploads and `.webp` thumbnails. Display components use `thumbnailUrl || url` so thumbnails auto-activate without any migration.
 
 ### Stripe Integration with Graceful Degradation
+
 The billing system handles subscription lifecycle through Stripe webhooks. Rather than hard-locking users immediately on payment failure, I implemented a `useSubscription()` hook that derives access levels with a 7-day grace period after cancellation, allowing users to continue reading their data while resolving billing issues.
 
 ## Engineering Decisions
 
 ### Multi-tenancy via Custom Claims (not Subcollections)
+
 - **Constraint**: Needed complete data isolation between couples with rules that are auditable at a glance
 - **Options**: Per-couple subcollections nested under a parent doc, or top-level collections filtered by a `coupleId` field
 - **Choice**: Top-level collections + `coupleId` custom claim on the auth token
 - **Why**: Flat collections keep queries simple and let security rules check `request.auth.token.coupleId == resource.data.coupleId` uniformly. Subcollections would have required path-based rules and made cross-feature queries (e.g., timeline aggregating photos + events) painful.
 
 ### Astro Static Landing + React-Only App
+
 - **Constraint**: One public marketing page needs to be fast and SEO-indexable, while the authed app needs full SPA interactivity
 - **Options**: Pure React SPA with SSR, Next.js with mixed rendering, or Astro islands
 - **Choice**: Astro for routing and the static landing page, with the entire authed surface mounted as `client:only="react"` and using React Router internally
 - **Why**: The landing page ships zero React JavaScript, which keeps marketing-page LCP low. The app side keeps a familiar SPA model so feature pages don't have to reason about hydration boundaries.
 
 ### Stripe Grace Period vs. Hard Lockout
+
 - **Constraint**: Couples shouldn't lose access to shared memories the moment a card expires
 - **Options**: Lock immediately on `past_due`, or allow a read-only grace window
 - **Choice**: 7-day read-only grace period derived in `useSubscription()` from `subscriptionStatus` and `subscriptionEndDate`
 - **Why**: Card failures are usually transient. A grace window preserves trust while still gating writes until billing recovers.
 
 ### Blocking Theme Script Over CSS-Variable React Hook
+
 - **Constraint**: Applying theme colors in a React `useEffect` caused a visible flash of default colors on every page load
 - **Options**: Server-side rendering of the theme, system-default fallback colors, or a synchronous head script reading from localStorage
 - **Choice**: Cache computed theme values in localStorage and apply them via a blocking inline `<script>` in `<head>` before first paint
@@ -55,22 +63,29 @@ The billing system handles subscription lifecycle through Stripe webhooks. Rathe
 ## Frequently Asked Questions
 
 ### How does the multi-tenant isolation work?
+
 Every couple gets a `coupleId` set as a custom claim on their Firebase Auth token during onboarding. This claim is embedded in the JWT and cannot be modified by clients. Firestore security rules check `request.auth.token.coupleId` against the document's `coupleId` field on every read and write. Cloud Functions also read from the auth token, never from user documents.
 
 ### Why Astro instead of a pure React SPA?
+
 I needed both a public marketing landing page (SEO-friendly, fast-loading static HTML) and a fully interactive authenticated app. Astro's island architecture lets the landing page at `/` be pure static HTML while the app at `/home` loads React via `client:only="react"`. The landing page doesn't ship any React JavaScript.
 
 ### How does the Film Camera mode work?
+
 When a user uploads a photo in film mode, it gets a `developingUntil` timestamp 3-5 days in the future. The display component calculates blur (0-40px) and sepia (0-100%) values inversely proportional to remaining development time. An hourly Cloud Function scans for newly-developed photos and sends a push notification to the couple.
 
 ### How do you prevent one couple from accessing another's data?
+
 Three layers: (1) Firestore security rules require `coupleId` match on every operation, (2) the client's `useFirestoreCollection` hook always adds a `where('coupleId', '==', coupleId)` filter, and (3) Cloud Functions read the `coupleId` from the immutable auth token. Even if a client were compromised, the security rules would block cross-tenant access.
 
 ### Why cache theme colors in localStorage?
+
 CSS custom properties set via React `useEffect` only apply after the component mounts, which happens after the browser has already painted the default colors from the stylesheet. By caching all computed theme values and reading them in a synchronous `<script>` tag in `<head>`, the correct colors are applied before the first paint -- no flash.
 
 ### How does the notification system work?
+
 Firebase Cloud Messaging tokens are saved to each user's Firestore document. When events occur (love message sent, coupon redeemed, film photo developed), Cloud Functions send FCM pushes to the recipient's token list. Stale tokens are automatically cleaned up when FCM returns invalid-registration errors. The service worker handles background notifications, and the `FCMManager` component handles foreground ones.
 
 ### What happens when a subscription expires?
+
 The `useSubscription()` hook checks the couple's `subscriptionStatus` and `subscriptionEndDate`. Active and trialing statuses get full access. Past due or recently canceled (within 7 days) get read-only access. Beyond the grace period, access is locked. Users can manage their subscription through the Stripe Customer Portal linked from Settings.

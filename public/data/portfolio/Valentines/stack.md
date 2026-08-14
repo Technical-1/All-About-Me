@@ -2,13 +2,13 @@
 
 ## Core Technologies
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| Language | TypeScript | strict mode | Type safety across frontend and Cloud Functions |
-| Framework | Astro | 5.17 | Static page routing + React island hydration |
-| UI Library | React | 19.2 | Interactive components via `client:only="react"` |
-| Backend | Firebase | 12.8 | Auth, Firestore, Storage, Functions, Messaging |
-| Payments | Stripe | via Cloud Functions | Subscription billing with trial periods |
+| Category   | Technology | Version             | Purpose                                          |
+| ---------- | ---------- | ------------------- | ------------------------------------------------ |
+| Language   | TypeScript | strict mode         | Type safety across frontend and Cloud Functions  |
+| Framework  | Astro      | 5.17                | Static page routing + React island hydration     |
+| UI Library | React      | 19.2                | Interactive components via `client:only="react"` |
+| Backend    | Firebase   | 12.8                | Auth, Firestore, Storage, Functions, Messaging   |
+| Payments   | Stripe     | via Cloud Functions | Subscription billing with trial periods          |
 
 ## Frontend
 
@@ -45,14 +45,14 @@
 
 ## Key Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `firebase` | Client SDK for Auth, Firestore, Storage, Messaging, App Check |
-| `firebase-admin` | Server SDK for Cloud Functions (auth claims, Firestore admin) |
-| `react-router-dom` | Client-side routing within the React app |
-| `date-fns` | Date formatting and manipulation |
-| `three` | Three.js for landing page 3D cherry blossom animation |
-| `konva` / `react-konva` | HTML5 canvas for interactive visual elements |
-| `stripe` | Stripe Node.js SDK for billing in Cloud Functions |
-| `@vite-pwa/astro` | PWA integration with service worker generation |
-| `@astrojs/react` | React integration for Astro island components |
+| Package                 | Purpose                                                       |
+| ----------------------- | ------------------------------------------------------------- |
+| `firebase`              | Client SDK for Auth, Firestore, Storage, Messaging, App Check |
+| `firebase-admin`        | Server SDK for Cloud Functions (auth claims, Firestore admin) |
+| `react-router-dom`      | Client-side routing within the React app                      |
+| `date-fns`              | Date formatting and manipulation                              |
+| `three`                 | Three.js for landing page 3D cherry blossom animation         |
+| `konva` / `react-konva` | HTML5 canvas for interactive visual elements                  |
+| `stripe`                | Stripe Node.js SDK for billing in Cloud Functions             |
+| `@vite-pwa/astro`       | PWA integration with service worker generation                |
+| `@astrojs/react`        | React integration for Astro island components                 |
