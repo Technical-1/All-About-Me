@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-24T04:21:03Z",
+      "pushed_at": "2026-08-25T04:53:41Z",
       "topics": []
     },
     "languages": [
@@ -17,8 +17,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 111481,
-      "Shell": 9467
+      "Python": 128939,
+      "Shell": 10299
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -130,6 +130,45 @@
     ],
     "metadata": {
       "category": "games"
+    }
+  },
+  {
+    "repo": {
+      "name": "bluetooth-sim",
+      "full_name": "Technical-1/bluetooth-sim",
+      "html_url": "https://github.com/Technical-1/bluetooth-sim",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-25T03:19:29Z",
+      "topics": []
+    },
+    "languages": [
+      "Swift",
+      "HTML",
+      "Shell",
+      "Makefile"
+    ],
+    "language_bytes": {
+      "Swift": 290572,
+      "HTML": 43257,
+      "Shell": 2702,
+      "Makefile": 1345
+    },
+    "primary_language": "Swift",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/bluetooth-sim/preview.png"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -454,20 +493,20 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-22T21:58:23Z",
+      "pushed_at": "2026-08-25T04:37:30Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
+      "JavaScript",
       "HTML",
-      "CSS",
-      "JavaScript"
+      "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 1372124,
+      "TypeScript": 1985855,
+      "JavaScript": 113450,
       "HTML": 111608,
-      "CSS": 35567,
-      "JavaScript": 10393
+      "CSS": 43761
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -1042,7 +1081,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T16:21:28Z",
+      "pushed_at": "2026-08-24T21:38:10Z",
       "topics": []
     },
     "languages": [
@@ -1053,10 +1092,10 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 2372799,
-      "TypeScript": 211492,
-      "CSS": 76588,
-      "JavaScript": 61863,
+      "Python": 2412642,
+      "TypeScript": 238629,
+      "CSS": 76749,
+      "JavaScript": 65757,
       "HTML": 707
     },
     "primary_language": "Python",
@@ -1761,7 +1800,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T16:52:27Z",
+      "pushed_at": "2026-08-25T04:43:18Z",
       "topics": []
     },
     "languages": [
@@ -1769,7 +1808,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 283095,
+      "Python": 752969,
       "Shell": 4995
     },
     "primary_language": "Python",
@@ -1945,7 +1984,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T16:52:26Z",
+      "pushed_at": "2026-08-24T20:10:07Z",
       "topics": []
     },
     "languages": [
@@ -2121,12 +2160,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T14:46:04Z",
+      "pushed_at": "2026-08-25T04:43:16Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 78253
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -2228,6 +2271,45 @@
       "architecture.md",
       "stack.md",
       "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
+      "name": "oddoneout",
+      "full_name": "Technical-1/oddoneout",
+      "html_url": "https://github.com/Technical-1/oddoneout",
+      "homepage": null,
+      "description": "Odd One Out: a party game where one player gets a different question and nobody is told who. https://oddoneout.games",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-25T04:05:03Z",
+      "topics": []
+    },
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 291230,
+      "CSS": 23007,
+      "JavaScript": 9458,
+      "HTML": 4069
+    },
+    "primary_language": "TypeScript",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/oddoneout/preview.png"
     ],
     "metadata": {
       "category": "other"
@@ -2714,14 +2796,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-18T23:34:01Z",
+      "pushed_at": "2026-08-25T00:47:52Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 914974
+      "Python": 959302
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2845,7 +2927,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-22T06:18:35Z",
+      "pushed_at": "2026-08-25T06:23:45Z",
       "topics": [
         "cron",
         "free-tier",
@@ -3240,14 +3322,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-20T04:11:07Z",
+      "pushed_at": "2026-08-24T13:19:22Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 166908
+      "Python": 171272
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3378,7 +3460,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T15:29:48Z",
+      "pushed_at": "2026-08-25T05:56:28Z",
       "topics": [
         "apple-music",
         "claude-ai",
@@ -3392,11 +3474,13 @@
     },
     "languages": [
       "Swift",
-      "Python"
+      "Python",
+      "Shell"
     ],
     "language_bytes": {
-      "Swift": 453572,
-      "Python": 36978
+      "Swift": 1044590,
+      "Python": 894165,
+      "Shell": 2552
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -3720,7 +3804,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T16:52:39Z",
+      "pushed_at": "2026-08-25T04:43:20Z",
       "topics": []
     },
     "languages": [
@@ -3728,8 +3812,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 117272,
-      "Shell": 97470
+      "Python": 156971,
+      "Shell": 105279
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -4049,7 +4133,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-23T07:24:02Z",
+      "pushed_at": "2026-08-24T07:48:36Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -6102,7 +6186,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-24T04:51:01Z",
+      "pushed_at": "2026-08-25T04:44:31Z",
       "topics": []
     },
     "languages": [
