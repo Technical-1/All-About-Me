@@ -1,110 +1,98 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-PixScan is a privacy-focused iOS app that helps users efficiently manage their photo library by combining swipe-based curation with on-device OCR text extraction. It's designed for anyone who has accumulated thousands of photos and wants a fast, intuitive way to sort through them — keeping what matters, deleting what doesn't, and extracting text from receipts, screenshots, or documents along the way.
+PixScan is an iPhone app for getting through a camera roll that has grown past the point of browsing. Photos are presented one at a time and dismissed with a swipe: keep, delete, or read the text off the photo first and let the photo go. Text recognition runs on-device through Apple's Vision framework, and the app makes no network requests of its own. The interesting engineering problem is not the swiping — it is that a real camera roll is mostly *not on the device*, and behaving correctly against a partially-resident, iCloud-backed library is where most of the work went.
+
+## Problem Solved
+
+Camera rolls accumulate screenshots taken for a single piece of information — a confirmation number, a wifi password, a total owed — and then never get opened again. Browsing them is unrewarding enough that the backlog grows indefinitely. PixScan reduces the decision to one gesture per photo, and removes the reason to keep many of them at all by extracting the text first.
+
+## Target Users
+
+- **Anyone with a years-old library** — a way to make progress in short sessions, with position saved between them
+- **People who screenshot as note-taking** — receipts, confirmations and whiteboards become searchable text that outlives the image
+- **Privacy-conscious users** — no account, no server, and no network requests originating from the app
 
 ## Key Features
 
-- **Interactive Onboarding**: First-launch tutorial with practice swipe cards, mock sheets, and feature highlights. Users must perform each gesture (including opening the delete queue and OCR menu) to progress. Uses SF Symbol compositions on gradient backgrounds — zero bundled assets.
-- **Swipe-Based Curation**: Four-direction swipe gestures for rapid photo triage — left to delete, right to keep, up/down to extract text. Inspired by the speed of dating app interfaces.
-- **On-Device OCR**: Apple Vision framework extracts text from photos with accurate recognition and language correction, entirely on-device.
-- **Smart Delete Queue**: Photos aren't deleted immediately. They're queued with preview, metadata, and batch operations so nothing is lost by accident.
-- **Full Session Persistence**: Progress, OCR texts, and delete queue are all saved to UserDefaults automatically. Close the app, come back later, and pick up exactly where you left off — including your pending deletions and extracted text.
-- **Text Export**: Search, copy, share, or save all extracted text as a `.txt` file.
-- **Full-Screen Photo Viewer**: Long press any photo to open it full-screen with pinch-to-zoom (1x–5x), pan when zoomed, and double-tap to toggle zoom level.
-- **Compact Instruction Bar**: Color-coded icon-based instruction panel showing all swipe actions at a glance.
-- **Image Prefetching**: `PHCachingImageManager` prefetches upcoming images for smooth, lag-free swiping through large libraries.
-- **Progress Tracking**: Live counter with animated progress bar showing photos processed, kept, deleted, and OCR'd.
-- **Screenshot Filter Mode**: Toggle between all photos and screenshots-only via toolbar menu. Processed IDs are shared across modes so nothing is re-processed.
-- **Storage Savings Display**: Auto-formatted GB/MB display on delete buttons showing exactly how much space will be freed.
+### Four-direction triage
+Swipe right to keep, left to delete, up or down to extract text before deciding. Double tap undoes the last decision, and a long press opens the photo full screen with pinch-to-zoom.
+
+### Deletion you confirm, not deletion that happens
+Swiping left marks a photo rather than deleting it. Deletion runs as a batch through `PHPhotoLibrary.performChanges`, so iOS presents its own confirmation and the photos remain recoverable in Recently Deleted for 30 days. The queue shows how much space the batch will reclaim before anything is committed.
+
+### A searchable text library
+Every extraction records the photo it came from and shows its thumbnail. Search highlights matches in place, entries sort by date or length, swipe actions are user-remappable, and the whole library exports as a `.txt` file.
+
+### Running totals
+After a batch deletion, the app reports what that batch removed and what has been removed across the app's lifetime — photos deleted, space freed, photos reviewed and text extractions.
+
+### Usable without sight
+The four decisions and undo are exposed as named accessibility actions, so the app's primary task is completable with VoiceOver, and addressable by name with Voice Control.
 
 ## Technical Highlights
 
-### Tinder-Style Photo Triage
-I built the swipe interface using SwiftUI's `DragGesture`, mapping four distinct swipe directions to different actions. The card-style UI provides visual feedback — color-coded indicators, smooth animations, and haptic feedback — making it feel natural to process hundreds of photos in minutes.
+### Modelling PhotoKit's result dictionary instead of discarding it
+`PHImageManager.requestImage` reports its outcome through an info dictionary carrying degraded, in-cloud, cancelled and error flags. Collapsing that to a bare `UIImage?` makes four distinct outcomes indistinguishable, and under `.opportunistic` delivery — which invokes the handler more than once — a later nil silently overwrites an already-good image. `ImageRequestResult` in `PhotoImageLoader.swift` captures every flag, and the loader maps them onto an explicit state machine whose `partial` case means "we have something usable and could not get better". That case is what lets an offline device keep showing the cached thumbnail it genuinely has, instead of drawing an error over a perfectly good picture.
 
-### Vision Framework OCR Pipeline
-The OCR pipeline loads full-resolution images on a background thread, runs `VNRecognizeTextRequest` with `.accurate` recognition level and language correction, then collects results back on the main thread. A caching mechanism (tracking processed photo IDs) prevents re-scanning photos that have already been processed.
+### Making prefetch actually hit
+`PHCachingImageManager` only serves a prefetched result when the target size, content mode *and* options of the live request match what the prefetch was primed with. Priming with `options: nil` while requesting with a configured object means every lookup misses, and the prefetch becomes pure cost. Both paths in `PhotoViewModel.swift` now build options from one factory, and the prefetch window is bounded and released as it slides rather than growing for the length of the session.
 
-### Lightweight Persistence Without a Database
-Rather than introducing Core Data or SQLite, I used UserDefaults to store processed photo IDs as a serialized set, recognized OCR texts as JSON-encoded `Codable` structs, and the delete queue as an array of asset localIdentifiers. This keeps the app lightweight while ensuring users never lose their progress — not just which photos were swiped, but also their pending deletions and all extracted text.
+### Measuring before destroying
+Reporting freed space requires the size of assets that are about to stop existing. `processBatchDeletion` measures the batch to completion on a background queue *before* issuing the change request; an earlier version ran the two concurrently and the deletion regularly won, reporting zero bytes freed. Sizes come from `AssetSizeReader`, which probes for a KVC-only property through the Objective-C runtime before touching it — `value(forKey:)` raises an ObjC exception on a missing key, which Swift cannot catch, so the unguarded version would crash rather than degrade.
 
-### Modular Codebase from a Monolith
-The original ContentView was 1,561 lines handling everything. I refactored it into 13 focused files — each view component, utility, and modifier in its own file. Xcode 16's `PBXFileSystemSynchronizedRootGroup` auto-discovers new `.swift` files, so the extraction required zero project file changes.
-
-### Full-Screen Photo Viewer with Gesture Composition
-The full-screen viewer combines `MagnifyGesture` and `DragGesture` using `.simultaneously()` so users can pinch-to-zoom while panning — a common pattern in photo apps. Pan offset is boundary-clamped based on the current zoom level to prevent the image from drifting off-screen. Double-tap toggles between 1x and 2x zoom with animation.
-
-### Interactive Onboarding with State Machine
-I built the onboarding as a four-step state machine (`OnboardingStep` enum) gated by `@AppStorage`. The practice swipe phase uses a secondary `PracticePhase` state machine to guide users through post-swipe interactions — tapping the trash icon to open a mock delete queue, or the OCR icon to view mock extracted text. Pulsing toolbar overlays animate with `.repeatForever(autoreverses: true)` to draw attention. The entire flow uses zero bundled image assets — all sample cards are SF Symbol compositions on gradient backgrounds, keeping the binary minimal.
-
-### Filter-Agnostic State Tracking
-I designed the `processedPhotoIds` set to be filter-agnostic — tracked by unique `localIdentifier` rather than by filter context. This means adding new browse modes (like screenshot-only filtering) requires zero changes to the persistence layer. The `FilterMode` enum controls only the `PHFetchOptions` predicate, while the processing state works identically across all modes.
-
-### Comprehensive Test Suite
-I built 32 unit tests using Swift Testing (`@Test`, `#expect`) with `@Suite(.serialized)` to avoid UserDefaults race conditions. Tests cover model logic, persistence round-trips, onboarding data types (step progression, sample card configuration, flag preservation), view instantiation, and edge cases. The 25 UI tests use `XCTSkipUnless` to gracefully skip photo-dependent and onboarding-gated tests, while onboarding flow tests verify welcome screen elements, practice swipe prompts, feature highlights content, and permission screen layout.
+### Giving a gesture-driven app a non-gesture path
+Every decision routed exclusively through `DragGesture`, and VoiceOver consumes swipes for its own navigation, so the app's primary task could not be completed with it running. The photo card in `ContentView.swift` now exposes Keep, Delete, both extract variants and Undo as named accessibility actions that call the same handlers the gestures call, rather than a parallel implementation that would drift out of step.
 
 ## Engineering Decisions
 
-### On-device OCR vs. cloud API
-- **Constraint**: Photos are sensitive data; the app needs to work offline and feel instant.
-- **Options**: Cloud OCR (Google Vision, AWS Textract) for higher accuracy; Apple Vision on-device; a hybrid mode.
-- **Choice**: Apple Vision exclusively, run on a `.userInitiated` background queue.
-- **Why**: Vision's accuracy with `.accurate` recognition and language correction is good enough for receipts, screenshots, and documents. Cloud APIs would add latency, network failure modes, an upload privacy surface, and ongoing cost — none of which the product needs.
+### On-device recognition over a cloud OCR service
+- **Constraint**: The product's central claim is that photos never leave the device
+- **Options**: A hosted OCR API with better accuracy on hard inputs, or Apple's Vision framework
+- **Choice**: Vision, at `.accurate` with language correction
+- **Why**: A cloud call would require uploading the photo, which contradicts the reason to install the app. It also removes the entire surface of an API key, rate limits and an offline failure mode.
 
-### UserDefaults vs. Core Data / SwiftData
-- **Constraint**: Persist three things across launches — processed photo IDs, OCR results, and a delete queue.
-- **Options**: Core Data, SwiftData, SQLite via GRDB, plain UserDefaults with JSON encoding.
-- **Choice**: UserDefaults storing a serialized `Set<String>`, JSON-encoded `Codable` `TextEntry` array, and an array of `localIdentifier` strings.
-- **Why**: All three structures are small and accessed as a whole, not queried. Skipping a database removes a schema-migration axis and keeps cold-start cost trivial. If a future library scales past ~10,000 processed IDs, SwiftData becomes the natural next step.
+### UserDefaults over Core Data or SwiftData
+- **Constraint**: The persisted data is a set of identifiers, a list of text entries and a small totals record
+- **Options**: A managed store with migrations, or JSON-encoded values in `UserDefaults`
+- **Choice**: `UserDefaults`, with debounced writes and a hand-written decoder
+- **Why**: There is no relational shape to model, so a database would add a migration surface without buying anything. The decoder matters more than the store: Swift's synthesised one requires every key to be present, so adding a stat in a later release would fail to decode and silently discard the user's history. Decoding field by field with defaults removes that failure mode.
 
-### Four-direction swipe vs. buttons
-- **Constraint**: Triaging a large photo library needs to feel fast — a couple of seconds per photo, one-handed.
-- **Options**: Buttons under each photo; long-press menu; two-direction swipe with a separate OCR mode; four-direction swipe.
-- **Choice**: Four directions mapped to keep / delete / OCR+keep / OCR+delete, with double-tap to undo and long-press for full-screen.
-- **Why**: Buttons make every action a deliberate tap. Folding OCR into the swipe itself (up and down) means the user never needs a mode switch to extract text from a receipt. Double-tap undo covers the misfire case.
+### Counting events rather than deriving them
+- **Constraint**: Lifetime totals cannot be computed from current state — the delete queue empties on success and reviewed photos are cleared by "Start Over"
+- **Options**: Derive from live state, or persist counters incremented at the point of each event
+- **Choice**: Persisted counters, decremented on undo
+- **Why**: Derivation under-reports permanently and was already doing so: the progress bar's "deleted" figure was reading the queue's length, so it reset to zero the moment the queue was emptied.
 
-### Single ViewModel vs. multiple
-- **Constraint**: One primary screen, several sheet-based sub-views (delete queue, OCR notes, full-screen viewer) that all share state.
-- **Options**: Per-sheet view models with a coordinator passing state; a single shared `ObservableObject`.
-- **Choice**: One `PhotoViewModel` injected as `@EnvironmentObject`.
-- **Why**: All sub-views read or mutate the same underlying photo array, processed set, and delete queue. Splitting would force synchronization plumbing for no architectural payoff at this scope.
+### One view model rather than several
+- **Constraint**: Deck state, delete queue, extracted text and totals all interact — deleting affects the queue, the deck and the totals at once
+- **Options**: Split by feature, or a single observable object
+- **Choice**: A single `PhotoViewModel`
+- **Why**: Splitting would require the pieces to observe each other for every cross-cutting operation. At this size the coupling is the honest description of the domain, and the seams that matter for testing were introduced as protocols instead.
 
 ## Frequently Asked Questions
 
-### How does the onboarding work?
-On first launch, the app shows an interactive tutorial instead of the main photo view. Users practice all four swipe gestures on sample cards, open the mock delete queue and OCR notes sheets, and learn about undo, full-screen preview, and screenshot filtering. The tutorial ends with a photo library permission request. An `@AppStorage` flag ensures onboarding only shows once — subsequent launches go directly to the main app.
+### What happens when a photo is not downloaded from iCloud?
+The app shows real download progress rather than a blank frame. If the device is offline, requests refuse network access so PhotoKit fails immediately with a "not downloaded" state rather than blocking on a transfer that cannot succeed — and any locally cached thumbnail is still shown. When connectivity returns, failed requests re-issue on their own.
 
-### How does the OCR work?
-PixScan uses Apple's Vision framework (`VNRecognizeTextRequest`) to perform optical character recognition entirely on-device. It loads the full-resolution image, runs text detection with the `.accurate` recognition level and language correction enabled, then stores the extracted text with a timestamp.
+### Does swiping left delete a photo immediately?
+No. It marks the photo. Deletion happens when you confirm a batch, runs through `PHPhotoLibrary.performChanges` so iOS presents its own confirmation, and the photos go to Recently Deleted where they stay recoverable for 30 days.
 
-### Why did you choose SwiftUI over UIKit?
-SwiftUI's declarative syntax made it significantly faster to build the gesture-driven UI. The `DragGesture` API, combined with `@Published` properties on the view model, creates a reactive pipeline where swipe actions flow naturally into state changes and UI updates.
+### Can the app be used with VoiceOver?
+Yes. The photo card exposes Keep, Delete, Extract text and keep, Extract text and delete, and Undo as named actions in the rotor, and Voice Control can address them by name. The first-run walkthrough offers a skip when VoiceOver is running, since its practice step advances only once each gesture has been performed.
 
-### How does the app handle large photo libraries?
-Photos are fetched as lightweight `PHAsset` references — not loaded into memory until displayed. Images are loaded on-demand with size constraints, and OCR runs on a background thread to keep the UI responsive. The processed-photo tracking prevents redundant work across sessions.
+### How accurate is the reported space saved?
+Sizes come from a property that iOS exposes only through key-value coding. Where it is available the number is measured; where it is not, the app estimates from pixel count and prefixes the figure with `~`. A total is only presented as exact when every contributing size was.
 
-### What happens if I accidentally swipe a photo to delete?
-Double-tap to immediately undo and go back to the previous photo. Even if you don't catch it right away, photos aren't deleted immediately — they're added to a review queue where you can preview them, deselect specific ones, or cancel the deletion entirely.
+### Why does extracted text keep a thumbnail of the source photo?
+So an extraction can be traced back to what produced it. Entries record the asset identifier at extraction time and resolve it when the library is displayed. If the source photo was deleted the thumbnail is simply absent — the text survives the photo, which is the point.
 
-### Does the app upload my photos anywhere?
-No. PixScan processes everything locally on your device using Apple's native frameworks. No photos, text, or metadata ever leave your device. There are no analytics, no cloud APIs, and no network calls.
+### What is the screenshots-only filter matching on?
+The PhotoKit media subtype `photoScreenshot`, so it reflects how iOS itself classifies the asset rather than guessing from dimensions. Reviewed photos are tracked by identifier across both modes, so switching filters never re-presents something already decided.
 
-### How is progress saved?
-Each processed photo's unique identifier is saved to UserDefaults after you swipe it. Additionally, recognized OCR texts are persisted as JSON-encoded structs, and the delete queue is stored as an array of asset localIdentifiers. When you relaunch the app, it restores all three: processed photo set, extracted texts, and pending deletions. You can reset all progress with the "Start Over" button.
+### Does the app work without a network connection?
+Entirely, for anything already on the device. Text recognition is local, persistence is local, and there is no server to reach. The only thing a connection affects is fetching full-resolution photos that live in iCloud.
 
-### How is the codebase organized?
-The project follows MVVM with a single `PhotoViewModel` and 17 focused Swift files. The app entry point gates between `OnboardingView` (first launch) and `ContentView` (returning user) via `@AppStorage`. View components (`OnboardingView`, `PhotoCard`, `FullScreenPhotoView`, `InstructionBar`, `PhotoPermissionView`, `DeleteQueueView`, `OCRNotesView`, `PhotoThumbnail`, `PhotoPreview`, `ProgressStatsView`) are each in their own file. Shared utilities (`SwipeDirection`, `ButtonPress`, `Collection+Safe`, `ViewControllerUtils`) are extracted for reuse. Xcode 16's auto-discovery means no manual project file configuration when adding new files.
-
-### How is the app tested?
-32 unit tests using Swift Testing validate model logic (persistence, selection, onboarding data types, view instantiation, safe subscripts, Codable round-trips). 25 UI tests using XCTest cover onboarding flow (welcome screen, practice prompts, feature highlights, permission screen), smoke scenarios (launch, initial state), and photo-dependent interactions (swipe gestures, long-press full-screen viewer, delete queue sheet, OCR notes sheet). Tests use `XCTSkipUnless` to skip gracefully when gated by onboarding or missing photos.
-
-### What does the screenshot filter actually filter on?
-The toolbar menu switches `FilterMode` between `.allPhotos` and `.screenshots`, which only changes the `PHFetchOptions` predicate used by PhotoKit. The `processedPhotoIds` set is shared across both modes by design, so a photo you already swiped won't reappear when you toggle modes.
-
-### Why does pinch-to-zoom and pan work simultaneously in the full-screen viewer?
-`FullScreenPhotoView` composes `MagnifyGesture` and `DragGesture` with `.simultaneously()` so they update independently as the user moves their fingers — the same feel as the system Photos app. Pan offset is clamped against the current zoom scale so the image can't drift fully off-screen at any zoom level.
-
-### What gets prefetched on each swipe?
-On every index change, `ContentView` asks `PHCachingImageManager` to start caching the next three `PHAsset`s at the card's display size. That makes the next several swipes feel instant even on a library with several thousand photos, without holding the entire library in memory.
+### How is it tested?
+118 unit tests under Swift Testing cover the model, persistence, size and contrast arithmetic, and the accessibility surface, with protocol seams standing in for PhotoKit and the photo library. 25 UI tests drive the real app, and a separate suite generates the App Store screenshots by walking the running app rather than assembling them by hand.

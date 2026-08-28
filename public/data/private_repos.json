@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T17:49:21Z",
+      "pushed_at": "2026-08-28T19:04:14Z",
       "topics": []
     },
     "languages": [
@@ -1884,7 +1884,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T16:00:15Z",
+      "pushed_at": "2026-08-27T18:21:02Z",
       "topics": []
     },
     "languages": [
@@ -1894,7 +1894,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 1104938,
+      "TypeScript": 1127193,
       "JavaScript": 541075,
       "CSS": 26654,
       "HTML": 2881
@@ -2393,7 +2393,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T17:32:48Z",
+      "pushed_at": "2026-08-28T18:51:19Z",
       "topics": []
     },
     "languages": [
@@ -2401,7 +2401,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 152255,
+      "Swift": 255412,
       "HTML": 35671
     },
     "primary_language": "Swift",
@@ -2417,6 +2417,34 @@
     "metadata": {
       "category": "mobile",
       "featured": true
+    }
+  },
+  {
+    "repo": {
+      "name": "pixscan-website",
+      "full_name": "Technical-1/pixscan-website",
+      "html_url": "https://github.com/Technical-1/pixscan-website",
+      "homepage": "https://pixscan-website.vercel.app",
+      "description": "Marketing site for PixScan",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-28T18:51:20Z",
+      "topics": []
+    },
+    "languages": [
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "HTML": 15862,
+      "CSS": 12604
+    },
+    "primary_language": "HTML",
+    "has_portfolio": false,
+    "portfolio_files": [],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -3072,14 +3100,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T17:48:46Z",
+      "pushed_at": "2026-08-28T19:02:12Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 292286
+      "Python": 374868
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3210,7 +3238,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-26T19:07:38Z",
+      "pushed_at": "2026-08-28T16:00:26Z",
       "topics": [
         "apple-music",
         "claude-ai",
@@ -3228,8 +3256,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Swift": 1083810,
-      "Python": 898277,
+      "Swift": 1353668,
+      "Python": 1192139,
       "Shell": 9802
     },
     "primary_language": "Swift",
@@ -3586,7 +3614,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-20T21:24:51Z",
+      "pushed_at": "2026-08-27T21:24:54Z",
       "topics": []
     },
     "languages": [
@@ -3825,7 +3853,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-26T07:37:16Z",
+      "pushed_at": "2026-08-27T17:58:02Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -5878,7 +5906,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T15:06:47Z",
+      "pushed_at": "2026-08-28T16:28:38Z",
       "topics": []
     },
     "languages": [

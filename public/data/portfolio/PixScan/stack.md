@@ -1,64 +1,57 @@
-# Technology Stack
+# Tech Stack
 
 ## Core Technologies
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| Language | Swift | 5.9+ | Primary development language |
-| UI Framework | SwiftUI | iOS 17+ | Declarative UI with gesture support |
-| OCR Engine | Apple Vision | iOS 17+ | On-device text recognition |
-| Photo Access | PhotoKit (Photos) | iOS 17+ | Photo library read/write/delete |
-| Persistence | UserDefaults | Native | Session state across app launches |
+| Category | Technology | Version | Why this choice |
+|----------|------------|---------|-----------------|
+| Language | Swift | 5.0 mode, Xcode 26 toolchain | Native platform language; the app is entirely framework-bound |
+| UI | SwiftUI | iOS 17.6+ | Declarative gesture handling and accessibility actions come for free |
+| Photo access | PhotoKit | iOS 17.6+ | The only sanctioned way to read, cache and delete library assets |
+| Text recognition | Vision | iOS 17.6+ | Runs on-device, which is the product's core privacy claim |
+| Reachability | Network | iOS 17.6+ | `NWPathMonitor` decides whether an iCloud round-trip is worth attempting |
+| Persistence | UserDefaults | Native | The data is a set, a list and a totals record; no relational shape to model |
+
+**No third-party dependencies.** Zero Swift Package Manager packages — everything is a system framework.
 
 ## Frontend
 
-- **Framework**: SwiftUI (100% — no UIKit views except share sheets)
-- **State Management**: `@StateObject` / `@EnvironmentObject` with `ObservableObject` (MVVM)
-- **Styling**: Native SwiftUI modifiers, custom `ButtonPress` ViewModifier for press effects
-- **Navigation**: `NavigationStack` with `.sheet()` presentations
-- **Gestures**: `DragGesture`, `TapGesture(count: 2)`, `LongPressGesture`, `MagnifyGesture`, `Menu`
-- **Layout**: `GeometryReader` for responsive sizing (replaces deprecated `UIScreen.main`)
+- **Framework**: SwiftUI throughout; the only UIKit surfaces are `UIImage` for decoded assets and a `UIColor` dynamic provider for interface-style-aware colours
+- **State Management**: `@StateObject` / `@EnvironmentObject` over a single `ObservableObject`, with a `@MainActor` loader object per rendered asset
+- **Sharing and export**: `ShareLink` and `.fileExporter` rather than bridging `UIActivityViewController`
+- **Gestures**: `DragGesture`, `TapGesture(count: 2)`, `LongPressGesture`, `MagnifyGesture`
+- **Accessibility**: Named `.accessibilityAction` entries, `accessibilityReduceMotion`, `accessibilityVoiceOverEnabled`, Dynamic Type, and a WCAG AA colour palette resolved per interface style
+- **Layout**: `GeometryReader` for size-dependent image requests
+
+## Platform
+
+- **Target**: iPhone only (`TARGETED_DEVICE_FAMILY = 1`), portrait
+- **Deployment target**: iOS 17.6
+- **Distribution**: App Store, signed with automatic provisioning
+- **Privacy manifest**: `PrivacyInfo.xcprivacy`, declaring UserDefaults access and no tracking
 
 ## Infrastructure
 
-- **Hosting**: Native iOS app (App Store / TestFlight)
-- **CI/CD**: Xcode build system
-- **Monitoring**: Console logging (`print()` with DEBUG flags)
+- **Hosting**: Native iOS app; no backend of any kind
+- **Marketing site**: Static HTML on Vercel, carrying the privacy policy the App Store requires to be publicly reachable
+- **CI/CD**: `xcodebuild` archive, export, validate and upload driven by an App Store Connect API key
+- **Monitoring**: None. No analytics, no crash reporting, no network requests of the app's own
 
 ## Development Tools
 
-- **IDE**: Xcode 16.2+
-- **Build System**: Xcode native with `PBXFileSystemSynchronizedRootGroup` (auto-discovers new files)
-- **Package Manager**: None (zero external dependencies)
-- **Unit Testing**: Swift Testing framework (`@Test`, `#expect`) with `@Suite(.serialized)` — 32 tests
-- **UI Testing**: XCTest / XCUITest with conditional skips (`XCTSkipUnless`) — 25 tests
+- **IDE**: Xcode 26
+- **Unit testing**: Swift Testing (`@Test`, `#expect`, `@Suite(.serialized)`) — 118 tests
+- **UI testing**: XCUITest with conditional skips — 25 tests, plus a suite that regenerates App Store screenshots by driving the real app
+- **Screenshot generation**: Headless Chrome rendering HTML canvases at App Store dimensions, so marketing layout stays editable text rather than a flattened image
 
 ## Key Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `SwiftUI` | Entire UI layer — views, gestures, navigation, animations |
-| `Photos` | Fetch photo assets, request permissions, batch-delete photos |
-| `Vision` | `VNRecognizeTextRequest` for accurate OCR with language correction |
-| `UIKit` | `UIActivityViewController` for share sheet, `UIImpactFeedbackGenerator` for haptics |
-| `Foundation` | `UserDefaults` for persistence, `DispatchQueue` for threading |
+All system frameworks; the table records what each is actually load-bearing for.
 
-## Notable Implementation Choices
-
-### Zero External Dependencies
-The project uses only Apple's native frameworks. This eliminates dependency management overhead, reduces app size, and ensures long-term stability without third-party breakage risk. The onboarding tutorial uses SF Symbol compositions on gradient backgrounds instead of bundled image assets, keeping the app binary minimal.
-
-### Background Threading for OCR
-OCR requests run on a `.userInitiated` quality-of-service background queue to keep the UI responsive while processing high-resolution images.
-
-### Efficient Photo Loading with Prefetching
-Photos are loaded on-demand with target size constraints. `PHCachingImageManager` prefetches the next 3 images ahead of the current index on every swipe, ensuring smooth transitions without loading the entire library into memory.
-
-### Modular Architecture
-The codebase is split into 16 focused Swift files (down from a monolithic 1,561-line ContentView). Each component has a single responsibility, making the code more maintainable and testable. Xcode 16's `PBXFileSystemSynchronizedRootGroup` automatically discovers new files without manual project configuration.
-
-### Comprehensive Test Coverage
-32 unit tests using Swift Testing (`@Test`, `#expect`) with `@Suite(.serialized)` validate model logic, persistence, onboarding data types, view instantiation, and safe subscript behavior. 25 UI tests with `XCTSkipUnless` conditional skips test smoke scenarios, onboarding flow elements, and photo-dependent interactions including instruction bar visibility and long-press full-screen viewer.
-
-### App Store Deployment Ready
-Includes a `PrivacyInfo.xcprivacy` privacy manifest declaring UserDefaults usage (CA92.1) and automatic code signing — all required for App Store submission. The interactive onboarding replaces the static launch screen, providing a better first-run experience.
+| Framework | Purpose |
+|-----------|---------|
+| `Photos` / `PhotosUI` | Asset fetching, `PHCachingImageManager` prefetch, change observation, batch deletion |
+| `Vision` | `VNRecognizeTextRequest` at `.accurate` with language correction |
+| `Network` | `NWPathMonitor` reachability, gating network access on image requests |
+| `SwiftUI` | Entire UI, gesture and accessibility layer |
+| `UniformTypeIdentifiers` | `FileDocument` conformance for `.txt` export |
+| `StoreKit` | `SKStoreReviewController` review prompt after sustained use |
