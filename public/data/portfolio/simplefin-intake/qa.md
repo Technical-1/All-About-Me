@@ -1,7 +1,9 @@
 # simplefin-intake — qa
 
-**State: `running`.** **467 tests**, all green — the sum of the table below,
-computed from its parts. ⚠️ The build verified live on the tower is an
+**State: `running`.** ⛔ **The total is not stated here** [RA-42] — it read
+**467** until 2026-08-30, when it was **511**. `.venv/bin/python -m pytest -q`.
+⭐ The table below still decomposes it, which is the part worth keeping: a total
+computed from its parts catches a suite that silently stopped collecting a file. ⚠️ The build verified live on the tower is an
 earlier one (303 tests); this tree is ahead of it — it has none of the
 `local-error` exit class, the run lock, the contention split,
 `skipped_reason` or the [SF-32] run history. See `CLAUDE.md`.

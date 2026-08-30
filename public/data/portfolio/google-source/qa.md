@@ -1,6 +1,13 @@
 # google-source — qa
 
-**150 tests · 19 mutants, 0 survivors, 0 vacuous** (2026-08-13).
+⛔⛔ **THE SUITE SIZE IS DELIBERATELY NOT STATED HERE** [RA-42]. It read
+**150** from 2026-08-13 until 2026-08-30, by which point it was **310** — the
+literal was wrong for as long as anyone was doing work, which is every figure of
+this kind. ⭐ **Measure:** `.venv/bin/python -m pytest -q`
+
+⭐ **19 mutants, 0 survivors, 0 vacuous** (2026-08-13) — ⚠️ a dated *mutation*
+result, kept because nothing has re-run it; ⛔ it does **not** cover the tests
+added since.
 
 ## Fixtures are the MEASURED roster, not a convenient one
 

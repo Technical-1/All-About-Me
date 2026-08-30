@@ -74,7 +74,10 @@ widening `DOC_DIRS` makes it reachable again.
 
 ## Verification
 
-**37 tests · 13 mutants, 0 survivors** (`tools/mutation_sweep.py`).
+⛔ **The suite size is not stated here** [RA-42] — it read **37** and was **102**
+when measured 2026-08-30. `.venv/bin/python -m pytest -q`.
+⭐ **13 mutants, 0 survivors** (`tools/mutation_sweep.py`) — ⚠️ a *dated* mutation
+result that does not cover the tests added since.
 ⭐ The wheel test is **proved** to fail when `packages` is removed — its first
 version *skipped* on a build failure, which is [SF-11]'s own lesson turned on
 itself.
