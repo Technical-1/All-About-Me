@@ -1,7 +1,8 @@
 # mac-agents — architecture
 
-**State: `building`.** Tasks 1–4 are merged to `main` and the Source is **live
-on the tower since 2026-08-11**, hourly at `:17`, **538 tests**. The owning plan
+**State: `live`.** Tasks 1–4 are merged to `main` and the Source has run **on
+the tower since 2026-08-11**, hourly at `:17`. ⛔ **the suite size is deliberately NOT stated here** [RA-42] — measure: `.venv/bin/python -m pytest -q`
+⚠️ It read **538** until 2026-08-30, when it was **593**. The owning plan
 is `ai-lab docs/superpowers/plans/2026-08-10-mac-agents.md`.
 
 ⭐⭐ **Two amendments landed 2026-08-12 and BOTH ARE LIVE**, and both changed

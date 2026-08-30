@@ -1,6 +1,6 @@
 # google-source — stack
 
-**State: `building`** — live 2026-08-13.
+**State: `live`** — on the tower since 2026-08-13, hourly at `:27`.
 
 - **Python ≥3.11** · `httpx` · `raw-tier` (the frozen contract)
 - ⛔ **No Google SDK.** The REST endpoints are simple, and

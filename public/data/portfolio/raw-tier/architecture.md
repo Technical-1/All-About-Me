@@ -2,7 +2,9 @@
 
 State: `building` — the library is built and **live on the tower**, with both
 amendments (`sealed`, the relational `mirror`) deployed 2026-08-12; its suite is
-the frozen Source contract [PE-9] and stands at **606 tests**. See `CLAUDE.md`.
+the frozen Source contract [PE-9]; ⛔ **the suite size is deliberately NOT stated here** [RA-42] — measure: `.venv/bin/python -m pytest -q`.
+⚠️ It read **606** from 2026-08-13 until 2026-08-30, when it was **814**.
+See `CLAUDE.md`.
 
 ## Package layout
 

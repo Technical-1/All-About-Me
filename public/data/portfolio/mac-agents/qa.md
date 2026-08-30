@@ -2,7 +2,8 @@
 
 **State: `building`.** Tasks 1–4 merged and live, ⭐ **and both raw-tier
 amendments (`sealed`, the relational `mirror`) shipped 2026-08-12.**
-**538 tests** under the tower's 3.12 (447 before the mirror). ⚠️ Under the Mac's
+⛔ **The count is not stated here** [RA-42] — it read **538** until 2026-08-30,
+when it was **593**. `.venv/bin/python -m pytest -q`. ⚠️ Under the Mac's
 3.9 `tests/test_register.py` is **skipped whole** — there is no `raw_tier` on
 3.9 — so ⚠️⚠️ **a skipped module reports green: read the skip line, not the pass
 count.** A contract test is a

@@ -1,7 +1,7 @@
 # google-source — architecture
 
-**State: `building` → live 2026-08-13.** Source #4, and the first to carry five
-data types.
+**State: `live`** — on the tower since 2026-08-13. Source #4, and the first to
+carry five data types.
 
 ## What it is
 
@@ -11,27 +11,53 @@ nothing, and calls no model, ever** [A3/A5]. Turning any of it into text,
 claims or findings belongs to `email-engine`, `calendar-engine` and
 `files-engine` — none of which exists yet.
 
+> ⭐⭐ **REWRITTEN 2026-08-30 against `raw.py`, not from memory.** The previous
+> version said Gmail wrote *"two objects"* and that Drive fetched *"export +
+> comments **for native types**"*. Both were true when written and were made
+> false by four jobs on 2026-08-29/30 — ⚠️ and the table had drifted **silently**,
+> because nothing checks a document against the code it describes.
+> ⛔ The kind roster below is `raw.KINDS`; the `doc_id` forms are the literal
+> `return` statements of the helpers in `raw.py`.
+
 | data type | what lands | doc_id [RT-11] |
 |---|---|---|
-| **Gmail** | ⭐ **two objects**: the `.eml` at `format=RAW` and a `.meta.json` envelope | RFC Message-ID · `<id>:meta` |
-| **Calendar** | the event resource verbatim, series not instances | `iCalUID` |
-| **Drive** | metadata always · export + comments for native types · bytes for the rest | `fileId` · `:export` · `:comments` · `:content` |
+| **Gmail** | the `.eml` at `format=RAW` · a `.meta.json` envelope · ⭐ **every label** (the id→name map `labelIds` needs) · ⭐ **three settings collections** (`sendAs`, `filters`, `forwardingAddresses`) | RFC Message-ID · `<id>:meta` · `gmail:label:<account>:<labelId>` · `gmail:settings:<account>:<endpoint>` |
+| **Calendar** | the event resource verbatim, series not instances · ⭐ **the `calendarList` entry** for every calendar, which is the only place a calendar's NAME exists | `iCalUID` · `gcal:calendarlist:<account>:<calendarId>` |
+| **Drive** | metadata always · export **and** ⭐ **`:structure`** (the editor's own document) for native types · ⭐ **comments for anything the ORIGIN says is commentable**, native or not · revisions for editor files · bytes for the rest | `fileId` · `:export` · `:structure` · `:comments` · `:revisions` · `:content` |
 | **Tasks** | every task and its list | `<listId>:<taskId>` |
 | **Meet** | ⭐ nothing of its own — Meet artifacts are Drive files [GS-3] | (via Drive) |
+
+⛔⛔ **COMMENTS ARE NO LONGER GATED ON TYPE, AND THAT WAS A REAL GAP.** They sat
+inside `if mime in EXPORT_MIME:` at both call sites, so **817 non-native files
+were never asked** — 736 of which the origin reports as commentable. ⭐ The gate
+is now `capabilities.canComment`, i.e. what the origin says about **this
+object**, ⛔ never a list of mime types.
+
+⭐ **The kind roster is 16 and is not restated here** [RA-42] — it grows whenever
+a job adds an object. **Measure:**
+`.venv/bin/python -c "from google_source import raw; print(len(raw.KINDS), sorted(raw.KINDS))"`
 
 ## Measured, 2026-08-13
 
 **Ten accounts** — ⚠️ not eight, which is what [GS-6] documented, and not
 because a document said ten: **the token directory said ten.**
 
+⛔⛔ **EVERY FIGURE BELOW IS A DATED SNAPSHOT FROM 2026-08-13 AND ONE OF THEM
+WENT STALE** [RA-42]. Kept as the record of that day, ⛔ not as current state.
+
 | | |
 |---|---|
 | messages | **40,623** |
 | threads | 37,443 |
-| calendars | 18 |
+| calendars | ⛔ ~~18~~ — **22 as of 2026-08-30**; `showHidden=true` revealed four **owned** calendars the default list omits |
 | tasks | 108 |
 | ⭐ distribution | `jacobrk2001` **49%** · `jacobkanfer` **27%** · `jacobkanfer8` 12% — **three accounts hold 88%** |
-| incremental run | **34.1 s**, all ten accounts, all four types |
+| incremental run | **34.1 s**, all ten accounts, all four types *(2026-08-30: ~68 s, now that labels, settings, calendarList, structure and comments are archived too)* |
+
+⭐ **Re-measure, never read** [RA-42]:
+```bash
+ssh jacob@100.92.218.64 'sqlite3 /data/fast/state/raw/manifest.db "SELECT kind, COUNT(DISTINCT doc_id) FROM raw_objects WHERE source LIKE \"g%\" AND kind IS NOT NULL GROUP BY kind ORDER BY 2 DESC;"'
+```
 
 ## The five decisions that differ from the plan
 

@@ -14,7 +14,9 @@ refactor-and-move-on.
 
 ## Suite size
 
-**606 tests**, all green, across **33 files** (re-derived from
+⛔ **The count is not stated here** [RA-42] — it read **606** for seventeen days
+and was **814** when next measured. `.venv/bin/python -m pytest -q`.
+⭐ The 2026-08-13 shape, kept as the record: **606 across 33 files** (re-derived from
 `pytest --collect-only` 2026-08-13; the mirror added 206 cases in 12 new
 files). ⚠️ That command counts parametrised cases — earlier versions of this
 table said 29 when the suite already collected 31, 77 while

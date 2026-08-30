@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-29T09:52:43Z",
+      "pushed_at": "2026-08-30T05:07:23Z",
       "topics": []
     },
     "languages": [
@@ -49,6 +49,34 @@
     "portfolio_files": [],
     "metadata": {
       "category": "ai-ml"
+    }
+  },
+  {
+    "repo": {
+      "name": "apple-signing-skill",
+      "full_name": "Technical-1/apple-signing-skill",
+      "html_url": "https://github.com/Technical-1/apple-signing-skill",
+      "homepage": null,
+      "description": "Claude Code skills for Apple code signing, notarization, TestFlight and App Store distribution",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-30T01:38:50Z",
+      "topics": []
+    },
+    "languages": [
+      "Shell",
+      "Python"
+    ],
+    "language_bytes": {
+      "Shell": 16906,
+      "Python": 13733
+    },
+    "primary_language": "Shell",
+    "has_portfolio": false,
+    "portfolio_files": [],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -366,6 +394,34 @@
   },
   {
     "repo": {
+      "name": "claude-code-kit",
+      "full_name": "Technical-1/claude-code-kit",
+      "html_url": "https://github.com/Technical-1/claude-code-kit",
+      "homepage": null,
+      "description": "Multi-account tooling and session handoff kit for the coding CLI",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-30T02:48:26Z",
+      "topics": []
+    },
+    "languages": [
+      "Python",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Python": 65788,
+      "Shell": 24984
+    },
+    "primary_language": "Python",
+    "has_portfolio": false,
+    "portfolio_files": [],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "Claude-Tax-Toolkit",
       "full_name": "Technical-1/Claude-Tax-Toolkit",
       "html_url": "https://github.com/Technical-1/Claude-Tax-Toolkit",
@@ -413,7 +469,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-15T01:45:28Z",
+      "pushed_at": "2026-08-29T21:57:33Z",
       "topics": []
     },
     "languages": [
@@ -421,7 +477,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "Python": 2359535,
+      "Python": 2582892,
       "HTML": 41721
     },
     "primary_language": "Python",
@@ -1195,7 +1251,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-07-28T17:55:26Z",
+      "pushed_at": "2026-08-30T05:21:01Z",
       "topics": [
         "b2b-wholesale",
         "cost-optimization",
@@ -1209,16 +1265,16 @@
     },
     "languages": [
       "Liquid",
-      "JavaScript",
-      "HTML",
       "CSS",
+      "HTML",
+      "JavaScript",
       "Python"
     ],
     "language_bytes": {
-      "Liquid": 1611269,
-      "JavaScript": 254897,
+      "Liquid": 1643959,
+      "CSS": 83524,
       "HTML": 76534,
-      "CSS": 57622,
+      "JavaScript": 44052,
       "Python": 12657
     },
     "primary_language": "Liquid",
@@ -1418,7 +1474,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-29T08:37:53Z",
+      "pushed_at": "2026-08-30T01:56:17Z",
       "topics": []
     },
     "languages": [
@@ -1598,14 +1654,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T16:10:13Z",
+      "pushed_at": "2026-08-30T01:50:44Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 281432
+      "Python": 397211
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -1986,7 +2042,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T16:10:19Z",
+      "pushed_at": "2026-08-30T02:15:59Z",
       "topics": []
     },
     "languages": [
@@ -1995,7 +2051,7 @@
       "C"
     ],
     "language_bytes": {
-      "Python": 1231897,
+      "Python": 1254551,
       "Shell": 17496,
       "C": 6460
     },
@@ -2164,14 +2220,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T08:10:50Z",
+      "pushed_at": "2026-08-30T01:51:56Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 210403
+      "Python": 245048
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2555,7 +2611,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-28T18:51:19Z",
+      "pushed_at": "2026-08-29T19:47:54Z",
       "topics": []
     },
     "languages": [
@@ -2864,14 +2920,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T16:10:16Z",
+      "pushed_at": "2026-08-30T04:08:58Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 1145949
+      "Python": 1165187
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3364,7 +3420,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-20T04:11:06Z",
+      "pushed_at": "2026-08-30T02:01:41Z",
       "topics": []
     },
     "languages": [],
@@ -3472,14 +3528,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T01:17:01Z",
+      "pushed_at": "2026-08-30T03:39:22Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 678766
+      "Python": 703674
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3528,7 +3584,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-29T12:27:28Z",
+      "pushed_at": "2026-08-29T17:24:32Z",
       "topics": [
         "apple-music",
         "claude-ai",
@@ -3547,7 +3603,7 @@
     ],
     "language_bytes": {
       "Swift": 1353668,
-      "Python": 1291224,
+      "Python": 1307050,
       "Shell": 9802
     },
     "primary_language": "Swift",
@@ -3679,14 +3735,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-18T23:33:59Z",
+      "pushed_at": "2026-08-30T05:20:52Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 305753
+      "Python": 307087
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3872,7 +3928,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-27T16:10:17Z",
+      "pushed_at": "2026-08-30T05:03:57Z",
       "topics": []
     },
     "languages": [
@@ -3880,7 +3936,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 403896,
+      "Python": 458476,
       "Shell": 105279
     },
     "primary_language": "Python",
@@ -4201,7 +4257,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-28T19:07:41Z",
+      "pushed_at": "2026-08-29T12:54:17Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -4377,6 +4433,40 @@
     ],
     "metadata": {
       "category": "academic"
+    }
+  },
+  {
+    "repo": {
+      "name": "claude-gauge",
+      "full_name": "Technical-1/claude-gauge",
+      "html_url": "https://github.com/Technical-1/claude-gauge",
+      "homepage": "https://github.com/Technical-1/claude-gauge",
+      "description": "macOS menubar meter for several Claude Code accounts at once. Shows quota, burn rate, and running sessions you can click to focus.",
+      "private": false,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-30T02:45:25Z",
+      "topics": []
+    },
+    "languages": [
+      "Rust",
+      "Shell",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 87424,
+      "Shell": 11733,
+      "HTML": 3135
+    },
+    "primary_language": "Rust",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -5337,7 +5427,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-06-04T00:08:01Z",
+      "pushed_at": "2026-08-29T20:02:19Z",
       "topics": [
         "auto-update",
         "code-signing",
@@ -6254,7 +6344,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-29T10:57:26Z",
+      "pushed_at": "2026-08-30T09:52:38Z",
       "topics": []
     },
     "languages": [
