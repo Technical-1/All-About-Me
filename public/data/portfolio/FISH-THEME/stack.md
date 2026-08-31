@@ -7,7 +7,7 @@
 | Platform | Shopify | E-commerce hosting, checkout, payments |
 | Base Theme | Turbo Seoul (Out of the Sandbox) | Starting point — heavily customized |
 | Templating | Liquid | Server-side rendering for all custom features |
-| Custom CSS | fish-apparel.css (2,200 lines) | Complete brand reskin + custom component styles |
+| Custom CSS | fish-apparel.css (2,920 lines) | Complete brand reskin + custom component styles |
 | Custom JS | ~500+ lines across 6 snippets | Variant filtering, scroll header, gallery marquee |
 
 ## What's Custom vs. What's Theme

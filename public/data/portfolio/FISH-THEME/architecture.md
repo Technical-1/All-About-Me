@@ -11,8 +11,8 @@ flowchart TD
     end
 
     subgraph Custom["Custom FISH Code"]
-        CSS["fish-apparel.css (2,200 lines)"]
-        Variants["fish-variant-images.liquid"]
+        CSS["fish-apparel.css (2,920 lines)"]
+        Variants["fish-variant-images.js"]
         Wholesale["fish-wholesale.liquid"]
         QuickAdd["fish-quick-add-button.liquid"]
         Shipping["fish-shipping-progress.liquid"]
@@ -43,7 +43,7 @@ flowchart TD
 
 ## Custom Component Descriptions
 
-### Variant Image Filtering (`fish-variant-images.liquid`)
+### Variant Image Filtering (`assets/fish-variant-images.js`)
 - **Purpose:** Filter product gallery photos by selected color variant
 - **Replaces:** SA Variant Image Automator ($14.90/month on Shopify Basic, 4.9★) or Variant Image Wizard + Swatch ($4.99–$7.99/month)
 - **How it works:** Reads image filenames (e.g., "gators-corduroy-angle.jpg"), matches them against the selected variant's handleized color name, hides non-matching images, and reorders the Flickity carousel. Prioritizes "angle" shots first.
@@ -96,7 +96,7 @@ flowchart TD
 
 ### Variant Filtering Flow
 1. Customer lands on product page
-2. `fish-variant-images.liquid` JS loads and waits for Flickity
+2. `fish-variant-images.js` loads (deferred, after vendors.js) and scans for Flickity galleries
 3. Customer selects a color swatch
 4. JS handleizes the color name ("Gators Corduroy" → "gators-corduroy")
 5. All gallery images are checked against the prefix
