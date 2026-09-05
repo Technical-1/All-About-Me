@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T19:00:47Z",
+      "pushed_at": "2026-09-04T14:50:34Z",
       "topics": []
     },
     "languages": [
@@ -402,20 +402,29 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T18:33:47Z",
+      "pushed_at": "2026-09-05T04:22:01Z",
       "topics": []
     },
     "languages": [
       "Python",
-      "Shell"
+      "Shell",
+      "HTML"
     ],
     "language_bytes": {
-      "Python": 78895,
-      "Shell": 25431
+      "Python": 80180,
+      "Shell": 17388,
+      "HTML": 6453
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/claude-code-kit/preview.png"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -1105,6 +1114,41 @@
   },
   {
     "repo": {
+      "name": "Exorcise",
+      "full_name": "Technical-1/Exorcise",
+      "html_url": "https://github.com/Technical-1/Exorcise",
+      "homepage": null,
+      "description": null,
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-09-05T04:24:53Z",
+      "topics": []
+    },
+    "languages": [
+      "Swift",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Swift": 69354,
+      "HTML": 3852
+    },
+    "primary_language": "Swift",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/exorcise/preview.png"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "fantasy-baseball",
       "full_name": "Technical-1/fantasy-baseball",
       "html_url": "https://github.com/Technical-1/fantasy-baseball",
@@ -1139,7 +1183,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T14:57:49Z",
+      "pushed_at": "2026-09-04T14:54:17Z",
       "topics": []
     },
     "languages": [
@@ -2611,7 +2655,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T15:19:04Z",
+      "pushed_at": "2026-09-04T17:41:25Z",
       "topics": []
     },
     "languages": [
@@ -2619,7 +2663,7 @@
       "HTML"
     ],
     "language_bytes": {
-      "Swift": 255412,
+      "Swift": 259062,
       "HTML": 35671
     },
     "primary_language": "Swift",
@@ -3735,7 +3779,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T13:20:28Z",
+      "pushed_at": "2026-09-05T09:25:35Z",
       "topics": []
     },
     "languages": [
@@ -3750,12 +3794,12 @@
       "Mako"
     ],
     "language_bytes": {
-      "Python": 3407363,
-      "TypeScript": 440185,
+      "Python": 3843399,
+      "TypeScript": 673180,
       "JavaScript": 124085,
-      "CSS": 90751,
-      "HTML": 67181,
-      "Shell": 20217,
+      "CSS": 97495,
+      "HTML": 67635,
+      "Shell": 21575,
       "Rust": 4676,
       "Dockerfile": 2326,
       "Mako": 704
@@ -4299,7 +4343,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T11:47:51Z",
+      "pushed_at": "2026-09-04T11:50:06Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -6386,7 +6430,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-04T08:41:14Z",
+      "pushed_at": "2026-09-05T08:13:55Z",
       "topics": []
     },
     "languages": [
