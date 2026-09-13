@@ -26,7 +26,7 @@
 
 ## Development Tools
 
-- **Testing**: Swift Testing (`@Test`/`#expect`) for the pure logic; a flag-gated in-app self-test (`--autotest`) exercises the full pipeline against a real library and cleans up after itself
+- **Testing**: Swift Testing (`@Test`/`#expect`) for the pure logic; flag-gated in-app modes exercise the real library — `--autotest` runs the full album pipeline end-to-end and cleans up after itself (never the delete path), `--face-probe` verifies the face-geometry coordinate convention against Vision, `--vision-spike` benchmarks on-device face-identity accuracy
 - **Icon pipeline**: `scripts/generate-icon.swift` draws the app icon with CoreGraphics and emits the full `.appiconset`
 
 ## Key Dependencies

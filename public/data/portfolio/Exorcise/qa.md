@@ -2,11 +2,11 @@
 
 ## Overview
 
-Exorcise is a native macOS app for removing a specific person from your Apple Photos library without the app ever deleting a photo. It finds every photo of a chosen person, classifies each as "solo" (just them) or "group" (them plus other people you know), and files them into two clearly named albums for you to review and bulk-delete in Photos. The interesting technical core: Apple offers no public API for Photos' People data, so Exorcise reads it directly from the Photos library's own SQLite database — with runtime schema introspection so it survives Photos version differences.
+Exorcise is a native macOS app for removing a specific person from your Apple Photos library, with the irreversible step guarded by the OS itself. It finds every photo of a chosen person, classifies each as "solo" (just them) or "group" (them plus other people you know), and — after you review and macOS confirms — moves them to Photos' Recently Deleted, recoverable for 30 days. A secondary action files them into review albums instead of deleting. The interesting technical core: Apple offers no public API for Photos' People data, so Exorcise reads it directly from the Photos library's own SQLite database — with runtime schema introspection so it survives Photos version differences.
 
 ## Problem Solved
 
-After a breakup, a falling-out, or a loss, people often want photos of one specific person out of their library — but a 20,000-photo library makes that a miserable manual slog, and group photos (which you may want to keep) are mixed in with solo shots (which you may not). Exorcise turns that into a ten-minute review instead of an afternoon of scrolling, while deliberately refusing to be the thing that deletes anything.
+After a breakup, a falling-out, or a loss, people often want photos of one specific person out of their library — but a 20,000-photo library makes that a miserable manual slog, and group photos (which you may want to keep) are mixed in with solo shots (which you may not). Exorcise turns that into a ten-minute review instead of an afternoon of scrolling, while keeping every deletion behind Apple's own confirmation dialog and 30-day recovery window.
 
 ## Target Users
 
@@ -22,10 +22,10 @@ A face grid of everyone Photos has named, searchable, with photo counts — pick
 Every photo of the target is classified by whether other recognized people are also in it, because "photo of just my ex" and "photo of my ex at my sister's wedding" deserve different fates. Pets are deliberately excluded from "other people."
 
 ### Review before anything happens
-A two-tab grid with everything selected by default, per-tab Select All/Deselect All, live counts, and click-to-preview at full quality (fetching from iCloud if needed). The app states plainly that selected photos get *filed for review*, not deleted.
+A two-tab grid with everything selected by default, per-tab Select All/Deselect All, live counts, and click-to-preview at full quality (fetching from iCloud if needed). The app states plainly what will happen to selected photos before anything does.
 
-### Non-destructive output
-Two albums — `Exorcise - [Name] (Solo)` and `(Group)` — created or appended with deduplication, and the completion screen reports exactly how many photos were actually added.
+### Recoverable deletion, optional albums
+Confirmed deletes go to Photos' Recently Deleted (30-day undo) behind a system dialog that lists every photo. Prefer to decide later? A secondary action files photos into `Exorcise - [Name] (Solo)` / `(Group)` albums instead — created or appended with deduplication, with the completion screen reporting exactly what happened.
 
 ## Technical Highlights
 
@@ -38,6 +38,9 @@ Scans run in a detached task across multi-second PhotoKit enumerations. A naive 
 ### Classification as a pure function
 Solo/group classification is a dictionary lookup over a precomputed reverse index (photo UUID → count of recognized people), implemented in `ScanClassifier.swift` with no PhotoKit dependency, so the core logic is exhaustively unit-testable and the scan itself is near-instant.
 
+### Thumbnails that always show the right face
+A person's newest photo is often a group shot, and "crop the largest face" happily frames a bystander. The fix reads the face rectangle Photos records for that exact person in that exact photo — but the coordinate convention is undocumented, so `--face-probe` first compared the recorded positions against Vision detections across portrait, landscape, and mirrored photos (agreement within ±0.005: upright image, bottom-left origin). `FaceCropper.swift` also filters Photos' zero-geometry sentinel rows (which would crop a corner sliver), redraws crops into standalone bitmaps so grid cells don't pin full-resolution decodes, and keeps Vision largest-face detection as the fallback.
+
 ### A self-driving end-to-end test
 `--autotest` runs the entire real pipeline — scan, classify, create albums in the actual library, verify contents through PhotoKit, then delete only the albums it created (and refuses to run at all if same-named albums already exist). It turns "does the whole thing actually work on a real 20k-photo library" into a one-command check with a written pass/fail report.
 
@@ -49,11 +52,11 @@ Solo/group classification is a dictionary lookup over a precomputed reverse inde
 - **Choice**: Read the database on macOS
 - **Why**: I measured the Vision alternative before rejecting it — sampling single-person photos with known identities as ground truth, Vision's generic image embeddings scored 66.7% nearest-neighbor identity accuracy (and an early, naively sampled version of the same test scored 82.8%, a reminder that burst photos can flatter a similarity metric). One wrong face in three is unshippable for this product; the database read keeps Photos' own accuracy. The measurement also settled the iOS question: without file access to the database, iOS needs a real face-embedding model, so the iOS port is parked.
 
-### Albums as the only output
+### OS-guarded deletion with an album escape hatch
 - **Constraint**: The product exists to enable deletion, the one irreversible act
 - **Options**: Delete photos directly with confirmation; move to a staging area; create albums and let Photos own deletion
-- **Choice**: Albums only — the app has no deletion code path for photos at all
-- **Why**: A bug in an app that deletes photos is catastrophic; a bug in an app that makes albums is an inconvenience. It also means re-running is safe and idempotent (append + dedupe).
+- **Choice**: Direct deletion behind the mandatory macOS confirmation and Recently Deleted's 30-day window, with albums as the no-deletion alternative
+- **Why**: A bug in an app that deletes photos silently is catastrophic — so the app never deletes silently. PhotoKit's delete request forces a system confirmation listing the photos, and everything lands in Recently Deleted with a 30-day undo; the album path remains for anyone who wants zero deletion. Re-running either path is safe and idempotent.
 
 ### Reported counts reflect reality, not intent
 - **Constraint**: The library can change between scan and filing (photos deleted, albums synced)
@@ -68,8 +71,8 @@ Solo/group classification is a dictionary lookup over a precomputed reverse inde
 
 ## Frequently Asked Questions
 
-### Does Exorcise ever delete photos?
-No — it has no code path that deletes a photo. It creates two albums and tells you their names; deletion happens in Photos, by you.
+### Does Exorcise delete photos immediately?
+Only after two safeguards: macOS shows its own confirmation dialog listing exactly which photos will go, and confirmed photos land in Photos' Recently Deleted, where they're recoverable for 30 days. If you'd rather not delete at all, the "File into Albums" action just organizes them for later review.
 
 ### Why does it need to read the Photos library database directly?
 Because Apple provides no API for the People that Photos recognizes. The app reads a temporary copy of the library's database (never the live files), and only with the sandbox's read-only Pictures access. Nothing is uploaded anywhere; the app has no network access at all.

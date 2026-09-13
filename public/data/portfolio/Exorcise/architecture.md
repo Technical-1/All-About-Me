@@ -13,9 +13,10 @@ flowchart TD
     CV[ContentView\nlinear state machine] --> Picker & Scanning & Results & Done
     Picker & Scanning & Results --> PM[PhotosManager\n@MainActor @Observable]
     PM --> PDB[PeopleDatabase\nSQLite reader]
-    PM --> PK[PhotoKit\nassets · thumbnails · albums]
+    PM --> PK[PhotoKit\nassets · thumbnails · albums · deletes]
     PDB --> Lib[(Photos.sqlite\ntemp copy)]
     PM --> SC[ScanClassifier\npure function]
+    Picker --> TL[ThumbnailLoader\nAsyncStream over PhotoKit] --> FC[FaceCropper\nDB-located face crops]
 ```
 
 ## Component Descriptions
@@ -40,6 +41,16 @@ flowchart TD
 - **Location**: `Exorcise/Services/ScanClassifier.swift`
 - **Key responsibilities**: Deterministic, fully unit-tested classification with no PhotoKit dependency
 
+### ThumbnailLoader
+- **Purpose**: Streams progressive image deliveries (instant local preview, then full quality) with cancellation
+- **Location**: `Exorcise/Services/ThumbnailLoader.swift`
+- **Key responsibilities**: Wraps PhotoKit's opportunistic delivery in an `AsyncStream`; guarantees termination even for iCloud-offloaded originals under local-only requests; cancels the underlying request when a grid cell scrolls away
+
+### FaceCropper
+- **Purpose**: Person circles that always show the person
+- **Location**: `Exorcise/Services/FaceCropper.swift`
+- **Key responsibilities**: Crops thumbnails at the face position the Photos database records for that person (empirically verified coordinate convention), filters zero-geometry sentinel rows, falls back to Vision largest-face detection, and redraws crops into standalone bitmaps so full-size decodes aren't retained
+
 ### Views & Components
 - **Purpose**: Thin SwiftUI screens reading manager state directly
 - **Location**: `Exorcise/Views/`, `Exorcise/Components/`
@@ -50,16 +61,16 @@ flowchart TD
 1. On launch the app requests Photos authorization, then loads people and the classification index off the main thread (spinner until done)
 2. The user picks a person; the scan classifies each of their photos by counting distinct recognized people per photo (solo = 1, group = >1)
 3. The review screen shows Solo/Group tabs, all photos selected by default; the user deselects keepers
-4. Exorcise creates or appends to the two albums, deduplicating against existing contents, and reports the counts actually added
-5. The done screen names the albums; deletion happens in Photos, on the user's schedule
+4. On confirm, PhotoKit's delete request triggers the macOS confirmation dialog, and confirmed photos move to Photos' Recently Deleted (30-day recovery); the alternate action creates or appends to the two review albums with deduplication instead
+5. The done screen reports what actually happened — photos moved (with the recovery path spelled out) or albums created with actual counts
 
 ## External Integrations
 
 | Service | Purpose | Notes |
 |---------|---------|-------|
-| PhotoKit | Asset fetch, thumbnails, album creation | Sandboxed, `.readWrite` authorization; albums only ever created or appended, never photos deleted |
+| PhotoKit | Asset fetch, thumbnails, album creation, deletion | Sandboxed, `.readWrite` authorization; deletes always pass the OS confirmation dialog and land in Recently Deleted |
 | Photos library database | Source of People data | Read-only intent via a temp copy; schema introspected at runtime; requires read-only Pictures entitlement |
-| Vision framework | Feasibility measurement only (`--vision-spike`) | Not part of the user-facing product |
+| Vision framework | Thumbnail face-crop fallback; measurement modes (`--vision-spike`, `--face-probe`) | Detection runs on a GCD queue — concurrent blocking calls on the Swift cooperative pool can starve it |
 
 ## Key Architectural Decisions
 
@@ -73,10 +84,15 @@ flowchart TD
 - **Decision**: Every scan captures a generation number; all main-actor state writes are guarded on it, and cancellation bumps it
 - **Rationale**: Simpler and more robust than task-identity comparison or actor-serializing the scans; a stale task's writes become no-ops regardless of where it was interrupted
 
-### Non-destructive by construction
-- **Context**: The app's whole domain is emotionally loaded bulk deletion
-- **Decision**: The app can only create or append to albums; deletion stays in Photos
-- **Rationale**: Removes the worst failure mode entirely, simplifies the permission story, and keeps the user in control of the irreversible step. Reported counts are what was actually added, not what was selected, so stale scans can't overstate results
+### OS-mediated deletion
+- **Context**: The app's whole domain is emotionally loaded bulk deletion — the worst possible place for a silent bug
+- **Decision**: Deletion goes through PhotoKit's asset-delete request, which forces a macOS confirmation dialog enumerating the exact photos and lands everything in Photos' Recently Deleted (30-day recovery); an alternate action files photos into review albums with no deletion at all
+- **Rationale**: The irreversible step is guarded by the OS, not by app code — the app cannot delete anything the user hasn't seen listed in a system dialog, and even a confirmed delete is recoverable for a month. Reported counts reflect what actually happened, not what was selected
+
+### Face locations from the database, verified by measurement
+- **Context**: Person-circle thumbnails must show the person — but the newest photo is often a group shot, and any largest-face heuristic can crop a bystander
+- **Decision**: Crop at the face rectangle Photos records per (person, photo) in `ZDETECTEDFACE`, after an in-app probe compared those coordinates against Vision detections across photo orientations to establish the convention (normalized to the upright image, bottom-left origin)
+- **Rationale**: Correct by construction beats heuristics that can be argued about — the recorded rectangle *is* the person. The undocumented format's risks are contained the same way as elsewhere: measure before trusting, filter invalid sentinel rows, and keep a Vision fallback for faces without geometry
 
 ### Value-type snapshot model
 - **Context**: Strict Swift concurrency with PhotoKit types that aren't Sendable
