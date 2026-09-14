@@ -54,6 +54,13 @@ it, twice per round. The tally is public; who voted is not.
 Safe, Party and Unhinged, cumulative so a spicy room still gets variety. Unhinged
 requires the host to acknowledge what is in it.
 
+### Rooms that run on your own questions
+A host can switch the room to questions the players write that night, up to five
+each. On start the server generates each question's secret counterpart and steal
+decoys, grades every pairing, and deals so the author always holds their original
+and is never its imposter. Question texts stay on the writer's device; other
+players only ever see a count until a question is dealt.
+
 ## Technical Highlights
 
 ### Disclosure is a phase function, and a test suite watches the wire
@@ -84,6 +91,17 @@ stronger: every variant asks about something different but returns one declared
 unit, so the answer carries no information at all and the only tell is the
 defence. "How many times have you said thank you this month" against "how many
 times have you said fuck" is the same number either way.
+
+### Generated counterparts that no human is allowed to see
+Custom rooms have a constraint the built-in decks never face: whoever reads a
+question pair before the deal can deduce their own role, so there can be no
+approval step. `apps/game/worker/generate.ts` asks Claude Haiku 4.5 for each
+counterpart and its decoys, then grades every pairing in a second pass against
+the same failure taxonomy the corpus audit uses (answer shape, duplicate answers,
+quantity scale, grammatical frame), regenerates once, and drops what still fails
+with a notice to the host. Player text is fenced as untrusted data, and a forgery
+guard rejects any output that echoes another player's question, so a hostile
+submission cannot smuggle someone else's text into a variant.
 
 ### Track attribution in a hand-written SFU client
 Cloudflare Realtime exposes an HTTPS API rather than a browser SDK, so publish,
@@ -137,6 +155,19 @@ only, which are useless without it.
   depends on serving the document ourselves, which is what makes the social card
   correct on any domain with no build-time configuration.
 
+### Machine grading instead of human approval for custom questions
+- **Constraint**: Custom rooms need quality control, but any person who reviews a
+  generated pairing learns both halves and can deduce their role in the round.
+- **Options**: The author approves their question's variants; the host approves
+  everything; no quality gate at all; an automated grader.
+- **Choice**: A second model pass grades each pairing, calibrated to how a normal
+  table experiences a round rather than to a worst-case reading, with the room's
+  existing skip vote as the safety valve for anything it passes wrongly.
+- **Why**: The approval options reintroduce the exact leak the game is built to
+  prevent, and no gate at all deals broken rounds. Grading had to be calibrated
+  deliberately: a maximally adversarial grader rejects playable pairings for
+  overlaps a real table argues about happily, which is the game working.
+
 ## Frequently Asked Questions
 
 ### If the imposter is not told, how do they ever find out?
@@ -173,7 +204,20 @@ UDP the Worker mints short-lived TURN credentials including a TLS relay on port
 
 ### Can I play with people on Android and desktop?
 Yes. It is a browser app with no downloads, installable to a home screen if you
-want it to behave like one.
+want it to behave like one. There is also a native iPhone app that joins the same
+rooms, so a mixed group needs nothing coordinated.
+
+### Can we play with our own questions instead of the decks?
+Yes. The host switches the room to custom questions and everyone writes up to
+five. The server generates each question's hidden counterpart, checks the pairing
+is actually playable, and deals it with the same secrecy rules as the decks. The
+author of a question always receives the original, never the counterpart.
+
+### If an AI writes the counterpart, does anyone see it before the round?
+No, and that is the point. Any person who saw both halves ahead of the deal would
+know their own role the moment one half landed on their screen. The generated
+text is graded by machine, dealt sight-unseen, and revealed to the room only in
+the result, exactly like a deck question.
 
 ### How do you know a question is any good?
 Whether the imposter gets caught is recorded per pairing. A pairing sitting near a

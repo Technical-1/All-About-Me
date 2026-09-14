@@ -13,7 +13,7 @@ MasterCode is a free, browser-based learning platform for mastering communicatio
 - **Confusion Insights**: The app attributes each wrong answer to the specific item you mistook it for, then surfaces a Most Confused Pairs panel and an end-of-session recap
 - **Smart Distractor Generation**: 8 distractor strategies tailored to topic types — NATO-style fake words, numerically close Roman numerals, same-category dev codes, acronym-style fake expansions, etc.
 - **Visual Renderers**: Custom SVG components for ASL hand signs, maritime signal flags, semaphore positions, music notation, and country flags
-- **Data Portability**: Export/import progress as JSON, and reset a single topic independently of the rest
+- **Data Portability**: Export/import progress as JSON — imports merge with existing data so transfers never lose progress — and reset a single topic independently of the rest. Backups are format-compatible with the companion iOS app.
 - **Gamification**: Achievement system, streak tracking, daily goals with completion notifications
 
 ## Technical Highlights
@@ -35,6 +35,12 @@ Recording "wrong" is easy; recording *what* you confused something with is the u
 
 ### Zero-Dependency Routing
 Instead of pulling in React Router, I wrote a 100-line hash router hook that handles 5 routes: two landing page variants, learn/{topicId}, about, and privacy. Hash routing eliminates the need for server-side rewrite configuration, which matters for static hosting on Vercel.
+
+### Lossless Merge-on-Import
+Backups are the app's only transfer mechanism, and a naive import (replace what's stored) makes round-tripping between two devices destructive. `mergeProgressMaps` in `src/utils/storage.ts` merges instead: per item, the entry with more recorded attempts wins with ties broken by the most recent study date, confusion counts combine by per-key maximum, and stats take per-field maximums. The result is order-independent — importing device A's backup on device B and vice versa converge to the same union — and the same merge policy is shared with the iOS app, verified by mirrored cross-platform test fixtures in both codebases.
+
+### Deterministic Local-Day Semantics
+Daily goals and study history key by the user's local calendar day, which is easy to get silently wrong: UTC-based date keys pass every test on a UTC machine while binning a 11:30 PM study session into tomorrow for real users. The test suite pins a fixed non-UTC timezone (`vitest.config.ts` sets `TZ`), with a setup-time assertion, so any regression to UTC keying fails loudly regardless of the machine running the tests.
 
 ## Engineering Decisions
 
@@ -60,7 +66,7 @@ Instead of pulling in React Router, I wrote a 100-line hash router hook that han
 - **Constraint**: A study tool benefits from instant loads, offline use, and zero sign-up friction.
 - **Options**: Backend with accounts and sync, localStorage only, or IndexedDB.
 - **Choice**: Per-topic-namespaced localStorage keys (e.g., `nato-trainer-progress-morse`).
-- **Why**: Removes auth and network latency entirely, keeps the deploy a single static bundle, and lets users reset one topic without touching others. Trade-off: no cross-device sync, acceptable because most users practice on one device.
+- **Why**: Removes auth and network latency entirely, keeps the deploy a single static bundle, and lets users reset one topic without touching others. Trade-off: no automatic cross-device sync — mitigated by JSON backups whose imports merge losslessly, so manual transfer between devices (or the iOS app) never discards progress.
 
 ## Frequently Asked Questions
 
@@ -95,7 +101,10 @@ Each topic exposes a focus selector on the menu. "Low-accuracy" and "unpracticed
 When you pick a wrong option, the app resolves the value you chose back to the item it belongs to and increments a confusion count on the correct item. Over time that builds a per-item map of which look-alikes trip you up. The Stats page and the Smart Session recap then show the highest-count pairs, e.g. "Sierra often picked as Saint" — so you can target genuine confusions instead of guessing.
 
 ### Can I move my progress to another device?
-Yes — Settings has JSON export/import. Since there's no backend or account, that's the supported way to back up or transfer your data. You can also reset a single topic from Settings without affecting any other topic's progress.
+Yes — Settings has JSON export/import. Imports merge with whatever is already on the device (the richer record per item wins, streaks and totals take the maximum), so transferring back and forth never loses progress; to replace outright, reset the topic first and then import. The same file format works with the companion iOS app. You can also reset a single topic from Settings without affecting any other topic's progress.
+
+### What research backs the spaced repetition claims?
+Three papers, summarized on the landing page and covered in depth on the About page: Hermann Ebbinghaus's 1885 memory experiments, which discovered the forgetting curve; Cepeda et al. 2006, a meta-analysis of 317 experiments confirming that spaced review outperforms cramming across virtually every learning context; and Woźniak & Gorzelańczyk 1994, the paper describing and validating the SM-2 scheduling algorithm the app implements.
 
 ### How is progress isolated per topic if everything is in localStorage?
 Every storage key is prefixed with the topic ID — for example, `nato-trainer-progress-morse` versus `nato-trainer-progress-asl`. That isolation lets users reset one topic without touching the others and keeps the SM-2 state for each code system completely independent. The `nato-trainer-` prefix is a legacy artifact from when this was just a NATO alphabet app.

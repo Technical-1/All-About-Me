@@ -44,12 +44,25 @@
 - **Client**: raw `RTCPeerConnection`. No SDK, so publish, subscribe and
   renegotiation are hand-written in `apps/game/src/useCall.ts`.
 
+## AI generation (custom rooms)
+
+- **Model**: Claude Haiku 4.5 over the Anthropic Messages API, called directly
+  from the Worker with plain `fetch`; no SDK
+- **Shape**: one generation pass and one grading pass per batch of six questions,
+  one regeneration round, hard 45-second aborts
+- **Safety**: player-written text is fenced as untrusted data in the prompt, and
+  a forgery guard rejects any output that echoes another player's question
+- **Key**: `wrangler secret`; the feature advertises itself to clients only when
+  the key exists, so a deployment without it simply lacks the setting
+
 ## Infrastructure
 
 - **Hosting**: Cloudflare Workers with static assets, custom domain on
   `oddoneout.games`
-- **Rate limiting**: Workers rate-limit binding on room creation, which degrades
-  to no limit where the binding does not exist
+- **Rate limiting**: Workers rate-limit binding on room creation and feedback
+  intake, which degrades to no limit where the binding does not exist
+- **Feedback storage**: Workers KV with a 90-day TTL; reports are anonymous and
+  carry a seat token as proof the sender was actually in a game
 - **Secrets**: `wrangler secret` for the token signing key and the Realtime
   credentials. No default in the committed config, so a missing secret fails loudly
   rather than signing sessions with a known value.
@@ -73,6 +86,7 @@
 | `sharp` | Rasterises the icon set and the social card |
 | `@fontsource/archivo-black` | Self-hosted display face |
 | `concurrently` | Runs the Vite dev server and `wrangler dev` side by side |
+| `playwright-core` | Drives two real browsers through the production UI to prove call media flows both ways (`scripts/call-e2e.mjs`) |
 
 ## Repository Layout
 
