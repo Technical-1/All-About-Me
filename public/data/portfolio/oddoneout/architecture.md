@@ -24,17 +24,22 @@ flowchart TD
     subgraph "Durable Object (one per room)"
         DO[worker/room.ts<br/>sockets, storage, alarms]
         G[worker/game.ts<br/>rules state machine]
+        GEN[worker/generate.ts<br/>counterpart generation + grading]
     end
 
-    CONTENT[(packages/content<br/>103 question sets)]
+    CONTENT[(packages/content<br/>105 question sets)]
     PROTO[(packages/protocol<br/>zod wire schemas)]
     CFSFU[Cloudflare Realtime<br/>SFU + TURN]
+    ANTH[Anthropic API<br/>Claude Haiku 4.5]
+    KV[(Workers KV<br/>feedback reports)]
 
     UI --> WS --> DO
     UI --> RTC
     RTC -->|"session, tracks, renegotiate"| R --> SFU --> CFSFU
     RTC <-->|"media, never via our servers"| CFSFU
     DO --> G --> CONTENT
+    DO --> GEN --> ANTH
+    R -->|"/api/feedback"| KV
     WS -.validates.-> PROTO
     DO -.validates.-> PROTO
     R --> DO
@@ -68,8 +73,18 @@ flowchart TD
 ### Question content
 - **Purpose**: The questions, and the rules that decide which may be paired.
 - **Location**: `packages/content/src/`
-- **Key responsibilities**: 103 topic sets, two pairing models, the draw, and the
+- **Key responsibilities**: 105 topic sets, two pairing models, the draw, and the
   same-topic decoy selection used by the steal phase.
+
+### Counterpart generation (custom rooms)
+- **Purpose**: When a room plays on questions the players wrote, something has to
+  produce each question's secret counterpart, and no human may see it first.
+- **Location**: `apps/game/worker/generate.ts`
+- **Key responsibilities**: chunked calls to the Anthropic API, a second grading
+  pass against the corpus's failure taxonomy, one regeneration round, a forgery
+  guard so one player's question text can never surface as another's variant, and
+  prompt fencing that treats question text as untrusted data rather than
+  instructions.
 
 ### Client
 - **Purpose**: Landing page, room screens, and the call.
@@ -85,7 +100,9 @@ flowchart TD
 2. Players connect a WebSocket. Each receives a signed token scoped to that room,
    which restores their seat after a dropped connection.
 3. On start, the engine draws a topic set, picks two of its questions and one
-   imposter, then sends **each socket only its own question**.
+   imposter, then sends **each socket only its own question**. In a custom room
+   the draw comes instead from the players' own submissions, whose counterparts
+   were generated and graded server-side at start.
 4. Answers are buffered in the object. Nothing is broadcast until everyone has
    locked in or the timer expires, then all answers are released at once.
 5. Players argue, then vote. Votes are buffered the same way.
@@ -100,6 +117,8 @@ flowchart TD
 | Durable Objects | One authoritative instance per room | SQLite-backed, WebSocket hibernation |
 | Cloudflare Realtime SFU | In-app voice and video | App secret stays server-side; clients get only session and track ids |
 | Cloudflare Realtime TURN | Relay for networks that block UDP | Short-lived credentials minted per client |
+| Anthropic API | Counterpart questions and decoys for custom rooms | Claude Haiku 4.5; key held as a Worker secret; the feature hides itself when the key is absent |
+| Workers KV | In-game feedback reports | Anonymous, 90-day TTL, seat-token proof of play, rate limited |
 
 ## Key Architectural Decisions
 
@@ -147,6 +166,21 @@ flowchart TD
 - **Decision**: Decoys come from the same topic set, never from elsewhere.
 - **Rationale**: With cross-topic decoys the accused simply picks the only option
   about holidays. Same-topic decoys make it a real inference.
+
+### Custom rooms: generation is quality-controlled by machine, not by people
+- **Context**: Players wanted to play on their own questions. But whoever reads a
+  question pair before the deal can deduce their own role the moment one half
+  lands on their screen, so any human approval step quietly breaks the game.
+- **Decision**: The Worker generates each counterpart and its decoys, grades every
+  pairing in a second pass against the same failure taxonomy the built-in corpus
+  is audited for (answer shape, duplicate answers, quantity scale, grammatical
+  frame), regenerates once, and drops what still fails with a notice to the host.
+  The author is always dealt their original question and is never its imposter.
+- **Rationale**: The obvious alternatives, letting the author or the host approve
+  the generated variants, both reintroduce the leak they exist to prevent. An
+  automated grader calibrated to how a table actually experiences a round keeps
+  the secret intact, and the room's existing skip vote remains the safety valve
+  for anything it lets through.
 
 ### One origin for the app, the API and the socket
 - **Context**: Static hosting and a stateful realtime server are usually separate.

@@ -117,7 +117,12 @@ flowchart TD
 ### Storage Layer
 - **Purpose**: localStorage persistence with per-topic namespacing
 - **Location**: `src/utils/storage.ts`
-- **Key responsibilities**: Saves and loads progress, stats, achievements, sessions, goals, and settings. Keys are namespaced by topic ID (e.g., `nato-trainer-progress-morse`) to keep data isolated per code system.
+- **Key responsibilities**: Saves and loads progress, stats, achievements, sessions, goals, and settings. Keys are namespaced by topic ID (e.g., `nato-trainer-progress-morse`) to keep data isolated per code system. Imported backups are merged with existing data (`mergeProgressMaps`/`mergeGameStats`) rather than replacing it, so device-to-device transfers are lossless.
+
+### Landing Page
+- **Purpose**: Explain the product and the science before presenting the topic catalog
+- **Location**: `src/pages/LandingMatrix.tsx`, sections in `src/components/landing/`
+- **Key responsibilities**: An animated matrix-rain hero, then four briefing sections — what the app is, why spaced repetition works (with a forgetting-curve figure), the research citations behind SM-2, and a three-step how-it-works — followed by the full topic grid. The "Read the full science" link routes to the SM-2 explainer page.
 
 ## Data Flow
 
@@ -142,7 +147,7 @@ flowchart TD
 ## Key Architectural Decisions
 
 ### Data-Driven Topic System
-- **Context**: The app started as a NATO alphabet trainer but expanded to 17 code systems
+- **Context**: The app started as a NATO alphabet trainer but expanded to 19 code systems
 - **Decision**: Created a `TopicConfig` interface that all study modes consume generically
 - **Rationale**: Adding a new topic requires only a config object with key-value data — no new components or routes. Distractor generation, rendering, and quiz logic all adapt based on config properties.
 
@@ -175,6 +180,11 @@ flowchart TD
 - **Context**: Recording "the answer was wrong" is cheap but useless; learners want to know *which* look-alike they confused it with
 - **Decision**: Map the chosen distractor's value back to the item that value belongs to (`chosenKeyFromValue`) and accumulate per-item confusion counts in progress
 - **Rationale**: Distractors are generated dynamically, so option position carries no meaning across questions. Resolving the picked value to a real item key produces a stable (correct → mistaken) pair that aggregates into the Most Confused Pairs panel and the session recap, directly steering future review toward genuine look-alikes.
+
+### Merge-on-Import Over Replace
+- **Context**: Backups are the only way to move progress between devices (and to/from the iOS app), but a replace-style import means whichever file was imported last silently wins
+- **Decision**: `importProgressData` merges the imported file with existing stored data — per item, the entry with more recorded attempts wins (ties broken by most recent study date), confusion counts combine by per-key maximum, and stats take the per-field maximum
+- **Rationale**: Transfers become lossless and order-independent: studying on two devices and importing either backup into the other converges to the union of both histories. Users who genuinely want a clean slate reset the topic first, then import — a rarer intent that shouldn't be the default
 
 ### Split-Strategy Service Worker
 - **Context**: The PWA needs reliable offline use without serving stale app code after a deploy

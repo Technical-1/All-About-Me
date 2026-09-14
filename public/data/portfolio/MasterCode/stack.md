@@ -22,14 +22,14 @@
 
 - **Hosting**: Vercel (static site deployment)
 - **PWA**: Web App Manifest with standalone display, installable on mobile/desktop; hand-written service worker (`public/sw.js`) for offline asset caching
-- **Storage**: localStorage (all data client-side, no backend), with JSON export/import for backup and portability
+- **Storage**: localStorage (all data client-side, no backend), with JSON export/import for backup and portability; imports merge with existing progress rather than replacing it
 - **SEO**: JSON-LD structured data, Open Graph/Twitter meta tags, sitemap.xml, robots.txt
 
 ## Development Tools
 
 - **Package Manager**: npm
 - **Linting**: ESLint 9 with TypeScript and React hooks plugins
-- **Testing**: Vitest with React Testing Library, jsdom environment, V8 coverage — 375 tests across 31 files
+- **Testing**: Vitest with React Testing Library, jsdom environment, V8 coverage — 470 tests across 35 files
 - **Bundle Analysis**: rollup-plugin-visualizer (generates dist/stats.html)
 
 ## Key Dependencies
