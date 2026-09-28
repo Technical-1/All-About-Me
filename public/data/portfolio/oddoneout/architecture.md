@@ -80,8 +80,9 @@ flowchart TD
 - **Purpose**: When a room plays on questions the players wrote, something has to
   produce each question's secret counterpart, and no human may see it first.
 - **Location**: `apps/game/worker/generate.ts`
-- **Key responsibilities**: chunked calls to the Anthropic API, a second grading
-  pass against the corpus's failure taxonomy, one regeneration round, a forgery
+- **Key responsibilities**: chunked calls to the Anthropic API for two candidate
+  counterparts per question, a second grading pass that may only reject by naming a
+  defect from the corpus's failure taxonomy, one regeneration round, a forgery
   guard so one player's question text can never surface as another's variant, and
   prompt fencing that treats question text as untrusted data rather than
   instructions.
@@ -115,10 +116,11 @@ flowchart TD
 |---|---|---|
 | Cloudflare Workers | HTTP routing, static assets | `run_worker_first` so the Worker sees every request |
 | Durable Objects | One authoritative instance per room | SQLite-backed, WebSocket hibernation |
-| Cloudflare Realtime SFU | In-app voice and video | App secret stays server-side; clients get only session and track ids |
+| Cloudflare Realtime SFU | In-app voice and video | App secret stays server-side; clients get only session and track ids; available only while the host has the call on |
 | Cloudflare Realtime TURN | Relay for networks that block UDP | Short-lived credentials minted per client |
 | Anthropic API | Counterpart questions and decoys for custom rooms | Claude Haiku 4.5; key held as a Worker secret; the feature hides itself when the key is absent |
 | Workers KV | In-game feedback reports | Anonymous, 90-day TTL, seat-token proof of play, rate limited |
+| Apple universal links | Shared room links open the iPhone app | `/.well-known/apple-app-site-association` claims `/r/*`, served ahead of the www redirect because Apple follows none |
 
 ## Key Architectural Decisions
 
@@ -139,6 +141,28 @@ flowchart TD
   `room.ts` is sockets, storage and alarms and contains no rules.
 - **Rationale**: Scoring, tie handling and imposter selection are exercised as
   plain functions. Only the genuinely runtime-dependent behaviour needs workerd.
+
+### The call as a host setting, enforced by the server
+- **Context**: The call exists for groups playing apart. A table playing in
+  person had join buttons on every screen for a feature it would never use.
+- **Decision**: `settings.call` is an optional room setting, off by default. While
+  it is off `callJoin` is refused, and turning it off clears every player's call
+  presence in `game.ts`; clients then hang up on their own.
+- **Rationale**: Hiding the buttons alone would leave a stale cached client able
+  to join. Making it an optional key rather than a new enum value means an older
+  client simply strips it, where an unknown enum value would make it drop every
+  state frame.
+
+### Only seated players reach the call
+- **Context**: The room code is the only key to a room, and it travels in group
+  chats. A socket that opened with the code but never joined used to receive every
+  broadcast, and the call endpoints had no check at all.
+- **Decision**: Broadcasts go to joined sockets only, and every call action except
+  fetching the ICE config carries the player's room token, the same HMAC that
+  restores a seat; a pull may only target sessions in that room's call roster.
+- **Rationale**: It reuses a credential every player already holds, so there is no
+  new login and nothing changes for a real player, while a link-holder who never
+  joined can no longer watch or listen.
 
 ### An SFU rather than peer-to-peer for the call
 - **Context**: Up to twelve players, mostly on phones.
@@ -171,10 +195,12 @@ flowchart TD
 - **Context**: Players wanted to play on their own questions. But whoever reads a
   question pair before the deal can deduce their own role the moment one half
   lands on their screen, so any human approval step quietly breaks the game.
-- **Decision**: The Worker generates each counterpart and its decoys, grades every
-  pairing in a second pass against the same failure taxonomy the built-in corpus
-  is audited for (answer shape, duplicate answers, quantity scale, grammatical
-  frame), regenerates once, and drops what still fails with a notice to the host.
+- **Decision**: The Worker generates two candidate counterparts per question, and a
+  second pass with its own brief may reject a candidate only by naming a defect from
+  the taxonomy the built-in corpus is audited for (answer shape, duplicate answers,
+  quantity scale, grammatical frame, eliminable decoys, single-answer trivia). The
+  first surviving candidate is dealt; the rest regenerate once and are dropped with
+  a notice to the host.
   The author is always dealt their original question and is never its imposter.
 - **Rationale**: The obvious alternatives, letting the author or the host approve
   the generated variants, both reintroduce the leak they exist to prevent. An

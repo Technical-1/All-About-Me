@@ -43,8 +43,12 @@ until the result, which is much harder and unlocks a steal phase where a caught
 imposter gets one guess at what everyone else was asked.
 
 ### In-app voice and video
-Join with video or voice only, with mute and camera toggles reflected on everyone
-else's tile, and a collapsible grid so faces do not crowd out the question.
+For groups playing apart, the host turns the call on in room settings. Everyone
+can then join with video or voice only, with mute and camera toggles reflected on
+everyone else's tile, and a collapsible grid so faces do not crowd out the
+question. It is off by default, because a table playing in person gains nothing
+from call controls on every screen, and the server refuses call joins while it is
+off rather than trusting clients to hide the buttons.
 
 ### A vote to bin a dud question
 Any player can vote to throw out the current question. A strict majority redeals
@@ -55,11 +59,17 @@ Safe, Party and Unhinged, cumulative so a spicy room still gets variety. Unhinge
 requires the host to acknowledge what is in it.
 
 ### Rooms that run on your own questions
-A host can switch the room to questions the players write that night, up to five
-each. On start the server generates each question's secret counterpart and steal
-decoys, grades every pairing, and deals so the author always holds their original
-and is never its imposter. Question texts stay on the writer's device; other
-players only ever see a count until a question is dealt.
+When the host picks "Write our own" at Start, everyone writes up to five questions.
+The server generates each question's secret counterpart and steal decoys, checks the
+pairing is playable, and deals so the author always holds their original and is never
+its imposter. Other players only ever see a count until a question is dealt; each
+writer's own list comes back from the server privately, and the device keeps your
+questions for one-tap reuse, dropping any the game has spent.
+
+### History on the device, not the server
+Each device keeps the games it finished, round by round, under the start box, and
+nothing about them is sent anywhere. It holds only what every player already saw on
+the result screens, so it cannot help anyone cheat.
 
 ## Technical Highlights
 
@@ -95,11 +105,15 @@ times have you said fuck" is the same number either way.
 ### Generated counterparts that no human is allowed to see
 Custom rooms have a constraint the built-in decks never face: whoever reads a
 question pair before the deal can deduce their own role, so there can be no
-approval step. `apps/game/worker/generate.ts` asks Claude Haiku 4.5 for each
-counterpart and its decoys, then grades every pairing in a second pass against
-the same failure taxonomy the corpus audit uses (answer shape, duplicate answers,
-quantity scale, grammatical frame), regenerates once, and drops what still fails
-with a notice to the host. Player text is fenced as untrusted data, and a forgery
+approval step. `apps/game/worker/generate.ts` asks Claude Haiku 4.5 for two
+candidate counterparts per question, then grades them in a second pass with its own
+short brief. The grader may only reject a candidate by naming a defect from the
+taxonomy the corpus audit uses (answer shape, duplicate answers, quantity scale,
+grammatical frame, eliminable decoys, single-answer trivia); a candidate needs an
+explicit verdict to be dealt. An earlier grader that shared the generator's full
+rulebook hunted for violations and rejected about half of ordinary questions;
+naming the defect is what made "fail only clear problems" enforceable. Survivors are
+dealt, the rest regenerate once and are dropped with a notice to the host. Player text is fenced as untrusted data, and a forgery
 guard rejects any output that echoes another player's question, so a hostile
 submission cannot smuggle someone else's text into a variant.
 
@@ -205,10 +219,11 @@ UDP the Worker mints short-lived TURN credentials including a TLS relay on port
 ### Can I play with people on Android and desktop?
 Yes. It is a browser app with no downloads, installable to a home screen if you
 want it to behave like one. There is also a native iPhone app that joins the same
-rooms, so a mixed group needs nothing coordinated.
+rooms, so a mixed group needs nothing coordinated. A shared room link opens the
+iPhone app when it is installed and the site everywhere else.
 
 ### Can we play with our own questions instead of the decks?
-Yes. The host switches the room to custom questions and everyone writes up to
+Yes. The host picks "Write our own" after pressing Start, and everyone writes up to
 five. The server generates each question's hidden counterpart, checks the pairing
 is actually playable, and deals it with the same secrecy rules as the decks. The
 author of a question always receives the original, never the counterpart.

@@ -17,7 +17,9 @@
   the screens; server state arrives as whole snapshots so there is nothing to
   reconcile
 - **Persistence**: `UserDefaults` with the same keys the web client uses in
-  local storage (`qg:nickname`, `qg:token:CODE`, `qg:questions:CODE`), so the
+  local storage (`qg:nickname`, `qg:token:CODE`, `qg:bank` for your saved questions,
+  `qg:history` for finished games), plus the app's own appearance, haptics and
+  practice flags, so the
   mental model is identical across clients; nothing stored is load-bearing
 - **Typography**: Archivo Black and JetBrains Mono, bundled
 

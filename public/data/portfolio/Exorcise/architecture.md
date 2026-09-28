@@ -16,7 +16,8 @@ flowchart TD
     PM --> PK[PhotoKit\nassets · thumbnails · albums · deletes]
     PDB --> Lib[(Photos.sqlite\ntemp copy)]
     PM --> SC[ScanClassifier\npure function]
-    Picker --> TL[ThumbnailLoader\nAsyncStream over PhotoKit] --> FC[FaceCropper\nDB-located face crops]
+    Picker & Results --> TL[ThumbnailLoader\nAsyncStream over PhotoKit]
+    Picker --> FC[FaceCropper\nDB-located face crops]
 ```
 
 ## Component Descriptions
@@ -29,7 +30,7 @@ flowchart TD
 ### PhotosManager
 - **Purpose**: The only type that touches PhotoKit; owns all observable app state
 - **Location**: `Exorcise/Services/PhotosManager.swift`
-- **Key responsibilities**: Authorization, loading people (via PeopleDatabase) and the UUID→PHAsset map, running scans off the main actor with cancellation safety, creating/deduplicating albums, thumbnail caching
+- **Key responsibilities**: Authorization, loading people (via PeopleDatabase) and the UUID→PHAsset map, running scans off the main actor with cancellation safety, counting burst frames, deleting and then pruning deleted photos from the loaded snapshot, creating/deduplicating albums, thumbnail caching
 
 ### PeopleDatabase
 - **Purpose**: Extracts named people and per-photo person counts from the Photos library database, since no public People API exists
@@ -54,15 +55,16 @@ flowchart TD
 ### Views & Components
 - **Purpose**: Thin SwiftUI screens reading manager state directly
 - **Location**: `Exorcise/Views/`, `Exorcise/Components/`
-- **Key responsibilities**: People grid with search; two-tab review grid with per-tab bulk selection and click-for-full-quality preview; progress and completion screens
+- **Key responsibilities**: People grid with search; two-tab review grid with per-tab bulk selection, burst frame badges and click-for-full-quality preview; progress and completion screens; every person and photo exposed as a labeled accessibility control
 
 ## Data Flow
 
 1. On launch the app requests Photos authorization, then loads people and the classification index off the main thread (spinner until done)
 2. The user picks a person; the scan classifies each of their photos by counting distinct recognized people per photo (solo = 1, group = >1)
 3. The review screen shows Solo/Group tabs, all photos selected by default; the user deselects keepers
-4. On confirm, PhotoKit's delete request triggers the macOS confirmation dialog, and confirmed photos move to Photos' Recently Deleted (30-day recovery); the alternate action creates or appends to the two review albums with deduplication instead
-5. The done screen reports what actually happened — photos moved (with the recovery path spelled out) or albums created with actual counts
+4. On confirm, PhotoKit's delete request for the visible tab triggers the macOS confirmation dialog, and confirmed photos move to Photos' Recently Deleted (30-day recovery). A burst deletes as all of its frames, and the button already shows that total; the alternate action creates or appends to the two review albums with deduplication instead
+5. The done screen reports what actually happened — photos moved, bursts counted frame by frame (with the recovery path spelled out), or albums created with actual counts
+6. Deleted photos are pruned from the loaded snapshot, so returning to the picker is instant and every person's count is already correct
 
 ## External Integrations
 
@@ -86,15 +88,20 @@ flowchart TD
 
 ### OS-mediated deletion
 - **Context**: The app's whole domain is emotionally loaded bulk deletion — the worst possible place for a silent bug
-- **Decision**: Deletion goes through PhotoKit's asset-delete request, which forces a macOS confirmation dialog enumerating the exact photos and lands everything in Photos' Recently Deleted (30-day recovery); an alternate action files photos into review albums with no deletion at all
-- **Rationale**: The irreversible step is guarded by the OS, not by app code — the app cannot delete anything the user hasn't seen listed in a system dialog, and even a confirmed delete is recoverable for a month. Reported counts reflect what actually happened, not what was selected
+- **Decision**: Deletion goes through PhotoKit's asset-delete request, which forces a macOS confirmation dialog stating how many items will go and lands everything in Photos' Recently Deleted (30-day recovery); an alternate action files photos into review albums with no deletion at all
+- **Rationale**: The irreversible step is guarded by the OS, not by app code — nothing is deleted without a system confirmation, and even a confirmed delete is recoverable for a month. The app's own count has to agree with the dialog's: a burst is one asset in the grid but many frames in the library, so the review screen counts frames (`PHAsset.representsBurst`, fetched with `includeAllBurstAssets`) and the button shows the same number macOS will
 
 ### Face locations from the database, verified by measurement
 - **Context**: Person-circle thumbnails must show the person — but the newest photo is often a group shot, and any largest-face heuristic can crop a bystander
 - **Decision**: Crop at the face rectangle Photos records per (person, photo) in `ZDETECTEDFACE`, after an in-app probe compared those coordinates against Vision detections across photo orientations to establish the convention (normalized to the upright image, bottom-left origin)
 - **Rationale**: Correct by construction beats heuristics that can be argued about — the recorded rectangle *is* the person. The undocumented format's risks are contained the same way as elsewhere: measure before trusting, filter invalid sentinel rows, and keep a Vision fallback for faces without geometry
 
+### One accessibility element per photo tile
+- **Context**: A photo tile has two mouse targets: clicking the photo opens a full-size preview, clicking its checkbox selects it. Exposed naively, VoiceOver and Voice Control users would meet two unlabeled elements per photo, hundreds of stops in a large grid, and no way to tell which one selects
+- **Decision**: Each tile is a single accessibility element labeled "Photo" or "Burst of N photos", with a Selected / Not selected value; its default action toggles selection (the tile's main job) and a named "Preview" custom action opens the full-size view. Person circles became real plain-styled `Button`s labeled "Name, N photos"
+- **Rationale**: Keeps one stop per photo and puts the primary task on the default action, while the preview stays reachable through the actions rotor. Verified by pressing controls through the Accessibility API (the interface VoiceOver itself uses) and by hand with VoiceOver running
+
 ### Value-type snapshot model
 - **Context**: Strict Swift concurrency with PhotoKit types that aren't Sendable
 - **Decision**: People and classification data live in immutable value-type snapshots (`LibraryData`), with `@unchecked Sendable` only where PhotoKit's documented thread-safety justifies it
-- **Rationale**: Scans and the UI read consistent snapshots; the library-changed-during-use edge case is handled at the album-write boundary instead of with change observers
+- **Rationale**: Scans and the UI read consistent snapshots; the library-changed-during-use edge case is handled at the album-write boundary instead of with change observers. After a delete the app already knows exactly which assets went, so it rebuilds the snapshot without them (every person, not just the target) instead of re-reading the database

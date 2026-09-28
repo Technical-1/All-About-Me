@@ -1,110 +1,105 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-MasterCode is a free, browser-based learning platform for mastering communication code systems. It covers 19 topics — from NATO phonetic alphabet and Morse code to ASL fingerspelling, military acronyms, maritime signal flags, periodic-table elements, and country flags. I built it as a client-side SPA with no backend, using the SM-2 spaced repetition algorithm to schedule reviews and localStorage for persistence. It works offline as a PWA and is deployed on Vercel.
+MasterCode is a free, browser-based trainer for 19 code systems — the NATO alphabet, Morse, Braille, semaphore, ASL fingerspelling, maritime signal flags, airport and airline codes, military and government acronyms, Greek letters, Roman numerals, musical notation, developer codes, element symbols and country flags. It schedules every item with the SM-2 spaced-repetition algorithm and runs entirely in the browser with no account or server. The interesting engineering is in making each question fair: options you can't eliminate by a trick, typed answers that accept every correct form and nothing else, and audio and screen-reader output that never leaks the answer.
+
+## Problem Solved
+
+Most flashcard tools for things like signal flags or Morse are either static charts or generic decks where the answer gives itself away — the only option starting with the right letter, the only one in the right format, a speaker that reads "Alpha" when the question is the flag for A. MasterCode teaches these systems with real recall practice, and with questions designed so that the only reliable way to answer is to know it.
+
+## Target Users
+
+- **Radio operators, pilots, sailors and service members** — the NATO alphabet, Morse, signal flags, semaphore, airport codes and their branch's acronyms
+- **Students** — Greek letters, element symbols, Roman numerals, musical notation
+- **People learning accessibility systems** — Braille and ASL fingerspelling
+- **Developers** — HTTP status codes, HTML entities, ASCII and regex tokens
 
 ## Key Features
 
-- **Multi-Topic Platform**: 19 code systems with a data-driven architecture — adding a new topic requires only a config object, not new components
-- **SM-2 Spaced Repetition**: Quality scoring (0-5) based on correctness, response time, and study mode difficulty. Items are scheduled for review based on easiness factor and interval growth.
-- **4 Study Modes + Smart Session**: Flashcards (passive), multiple choice (recognition), typing practice (recall), timed challenge (speed) — plus a Smart Session that picks the format per item based on how well you know it
-- **Focus Filters**: Scope any session to low-accuracy items, unpracticed items, or (for single-letter topics) vowels/consonants, with live due/new counts on the menu
-- **Confusion Insights**: The app attributes each wrong answer to the specific item you mistook it for, then surfaces a Most Confused Pairs panel and an end-of-session recap
-- **Smart Distractor Generation**: 8 distractor strategies tailored to topic types — NATO-style fake words, numerically close Roman numerals, same-category dev codes, acronym-style fake expansions, etc.
-- **Visual Renderers**: Custom SVG components for ASL hand signs, maritime signal flags, semaphore positions, music notation, and country flags
-- **Data Portability**: Export/import progress as JSON — imports merge with existing data so transfers never lose progress — and reset a single topic independently of the rest. Backups are format-compatible with the companion iOS app.
-- **Gamification**: Achievement system, streak tracking, daily goals with completion notifications
+### Five study modes, including an adaptive one
+Flashcards, multiple choice, typing and a 60-second timed challenge, plus Smart Session: a 15-item run that asks multiple choice for newer items and switches to typing once an item is well learned, then recaps what you confused.
+
+### Both directions
+Most topics can be practised either way — "A → Alpha" or "flag → A". A direction is only left out where it would be trivial (every NATO word starts with its letter) or unanswerable.
+
+### Braille you can type and read
+A six-dot grid per cell lets you answer Braille by tapping dots or pressing 1–6. Every Braille value is drawn as a framed 2×3 cell with unraised dots shown faintly, so letters that look identical as Unicode glyphs are distinguishable.
+
+### Progress that explains itself
+Per-item accuracy, a 30-day accuracy chart, streaks, achievements and daily goals, plus Most Confused Pairs — which wrong answer you keep picking for which item — and focus filters for weak or unpractised items.
+
+### Portable, lossless backups
+Export a topic as JSON and import it on another device or in the companion iPhone & iPad app. Imports merge with what's there, so moving back and forth never loses progress.
+
+### Accessible and offline
+Keyboard shortcuts, screen-reader announcements for every answer, neutral image descriptions until you answer, reduced-motion support, and an installable PWA that works offline.
 
 ## Technical Highlights
 
-### Data-Driven Topic Architecture
-The app started as a NATO alphabet trainer. When I expanded it to 17 code systems, I refactored into a `TopicConfig` interface where each topic is a data object specifying its key-value pairs, theme colors, distractor type, render type (text or image), and quiz direction. All four study modes consume topics generically — no topic-specific UI code exists. This means adding a new topic like "Phonetic Russian Alphabet" would require only writing a config object.
+### Multiple choice that defeats guessing tricks
+The target is that the usual shortcuts — pick the option whose letters match, pick the odd one out by format, pick the middle number — do no better than chance. `src/utils/distractors.ts` scores every candidate by how confusable it is with the answer, in both directions, with per-topic strategies: edit distance for Morse, differing dots for Braille, arm angles for semaphore, curated confusable groups for flags, hand shapes and Greek glyphs, pay-grade distance for military ranks, one-symbol-off numerals for Roman numerals (XIV → XVI, XIX), and generated abbreviations that fit an expansion's letters as well as the real acronym ("Federal Bureau of Investigation" → FBOI, FEBI). Tests assert the invariants for every topic — the answer appears once, no wrong option is also right, near-synonyms such as `0x41` and "ASCII 65–90" never share a question — and check the specific tricks, such as the correct Roman numeral landing at the top, bottom and middle of the range.
 
-### SM-2 Algorithm with Mode-Aware Quality Scoring
-I implemented the SuperMemo SM-2 algorithm with a twist: quality scores account for response time and study mode difficulty. Typing practice gets a +0.5 bonus (it's harder), timed challenges get +0.25 (time pressure), and multiple choice gets +0 (easiest). A fast correct answer in typing mode scores 5.0 (perfect recall), while a slow correct multiple choice answer scores 3.0 (recognized but struggled). This makes the scheduling more accurate than binary correct/incorrect.
+### Typed answers: lenient, with a proof of no false positives
+`src/utils/answers.ts` normalises word answers (accents, case, curly quotes, every dash variant, "&", punctuation, a leading "the"), accepts the "core" of a long value ("Treble Clef" for "Treble Clef (G Clef) - Most common clef") and curated alternates (Alfa, Juliet, Aluminium). Leniency is only safe if it never accepts another item, so the core is accepted only when unique within the topic, and a collision test runs every typeable topic and direction to prove that no other item's answer is ever accepted. Symbol answers stay exact — Morse, Braille — except where two forms are genuinely equal, such as a semaphore signal entered in either arm order.
 
-### Smart Session as a Thin Orchestrator
-Rather than building a fifth study UI for guided sessions, `SmartSession.tsx` mounts the existing `MultipleChoice` and `TypingPractice` components one item at a time and decides the format from SM-2 mastery: `chooseMode()` returns typing (recall) once an item has `repetitions ≥ 3 && easinessFactor ≥ 1.8`, and multiple choice (recognition) otherwise. The tricky part is timing — the child calls `setProgress` then `onAnswered` in the same batched tick, so the next item is re-picked in an effect keyed *only* on the answered counter. That guarantees the pick reads post-commit progress without re-picking mid-question when the in-flight answer mutates progress.
+### A speaker rule that never reveals the answer
+Reading the question aloud sounds harmless until the question is a picture of the flag for "Alpha", a Greek glyph that TTS pronounces as its name, or "Lt Col", which TTS expands into the rank. `src/utils/speech.ts` declares how each side of each topic is read (letter by name, spelled out, dit/dah, as text, or not at all) and hides the speaker whenever the prompt would give the answer away. The same care applies to images, which get neutral alt text until you answer, and to screen-reader announcements, which name the answer exactly as its button showed it.
 
-### Confusion Attribution by Value
-Recording "wrong" is easy; recording *what* you confused something with is the useful part. Because distractors are generated dynamically, option position is meaningless across questions, so `chosenKeyFromValue()` in `src/utils/confusions.ts` maps the picked value back to the item that value actually belongs to. `incrementConfusion()` accumulates a per-item (correct → mistaken) count, and `topConfusions()` ranks one worst pair per item to drive the Most Confused Pairs panel and the session recap.
+### Data checked against the primary sources
+Maritime flags and numeral pennants follow the International Code of Signals (NGA Pub. 102), Braille digits and punctuation follow Unified English Braille, and the airport topic pairs IATA and ICAO codes for each airport and airline. Tests check the data itself — no topic has two items with the same answer — so a correction can't quietly create an ambiguous question.
 
-### Split-Strategy Offline Service Worker
-`public/sw.js` serves content-hashed `/assets/*` and `/images/*` cache-first (they're immutable, so this is both instant and safe), while navigations and the app shell are network-first with an `offline.html` fallback. This gives genuine offline use without the classic service-worker pitfall of pinning users to a stale build after a deploy.
-
-### Zero-Dependency Routing
-Instead of pulling in React Router, I wrote a 100-line hash router hook that handles 5 routes: two landing page variants, learn/{topicId}, about, and privacy. Hash routing eliminates the need for server-side rewrite configuration, which matters for static hosting on Vercel.
-
-### Lossless Merge-on-Import
-Backups are the app's only transfer mechanism, and a naive import (replace what's stored) makes round-tripping between two devices destructive. `mergeProgressMaps` in `src/utils/storage.ts` merges instead: per item, the entry with more recorded attempts wins with ties broken by the most recent study date, confusion counts combine by per-key maximum, and stats take per-field maximums. The result is order-independent — importing device A's backup on device B and vice versa converge to the same union — and the same merge policy is shared with the iOS app, verified by mirrored cross-platform test fixtures in both codebases.
-
-### Deterministic Local-Day Semantics
-Daily goals and study history key by the user's local calendar day, which is easy to get silently wrong: UTC-based date keys pass every test on a UTC machine while binning a 11:30 PM study session into tomorrow for real users. The test suite pins a fixed non-UTC timezone (`vitest.config.ts` sets `TZ`), with a setup-time assertion, so any regression to UTC keying fails loudly regardless of the machine running the tests.
+### Deterministic local-day semantics
+Daily goals and history key by the user's local calendar day, which is easy to get silently wrong: UTC keys pass every test on a UTC machine. The suite pins a non-UTC time zone in `vitest.config.ts` and asserts at setup that it took effect, so a regression to UTC fails everywhere.
 
 ## Engineering Decisions
 
-### Spaced repetition algorithm: SM-2 over a custom weight formula
-- **Constraint**: An earlier weighted-error formula (`errorRate × 10 + daysSinceLastSeen`) scheduled reviews crudely and ignored response time and mode difficulty.
-- **Options**: Keep the weighted formula, design a fresh heuristic, or adopt SM-2 (SuperMemo).
-- **Choice**: SM-2 with mode-aware quality scoring (+0.5 for typing, +0.25 for timed, +0 for multiple choice).
-- **Why**: SM-2 is well-researched and produces exponentially growing intervals tied to an easiness factor, which gives more accurate scheduling than error rate alone. Mode-aware scoring captures the reality that recalling "Quebec" by typing is harder than picking it from four options.
+### Rules in one module each, not spread across components
+- **Constraint**: Four scoring modes plus Smart Session all ask questions, and each must agree on which modes exist, how options are built, how answers are matched and what can be read aloud.
+- **Options**: Let each mode implement its own logic, or centralise each rule.
+- **Choice**: One module per rule — `modesAvailable` for modes, `distractors.ts`, `answers.ts`, `speech.ts`, `display.ts`.
+- **Why**: A question is generated and judged identically wherever it's asked, and each rule is testable in isolation. It also made the iOS port tractable: it mirrors these modules rule for rule.
 
-### Data-driven topics over per-topic components
-- **Constraint**: Started as a NATO trainer; needed to scale to 17 distinct code systems with very different render needs (text, SVG hand signs, flag glyphs, music notation).
-- **Options**: Build a separate component per topic, or unify behind one `TopicConfig` interface.
-- **Choice**: One `TopicConfig` interface consumed by all four study modes.
-- **Why**: Each topic is now a config object specifying data, theme, distractor strategy, and render type. Adding a topic requires no new components — only a config entry and (optionally) SVG assets.
-
-### Hash routing instead of React Router
-- **Constraint**: Needed client-side routing across landing variants, per-topic learn pages, and info pages, deployed as a static site.
-- **Options**: React Router with HTML5 history API, a hash router, or no routing at all.
-- **Choice**: A 100-line `useHashRouter` hook.
-- **Why**: Hash routing avoids server-side rewrite configuration on static hosts and saves the React Router dependency. The route set is small enough that a hook is easier to reason about than a routing library.
+### Reverse acronyms are typing-only
+- **Constraint**: Shown "Federal Bureau of Investigation", four acronym options can be matched by initials without knowing anything.
+- **Options**: Generate letter-fitting decoys and keep multiple choice, or drop multiple choice for that direction.
+- **Choice**: Both where they help — letter-fitting decoys in the other direction, and typing plus flashcards only for reverse acronyms, where Smart Session types every item.
+- **Why**: Recall of an acronym is what the learner actually needs; a recognition question in that direction measures pattern matching.
 
 ### localStorage over a backend
-- **Constraint**: A study tool benefits from instant loads, offline use, and zero sign-up friction.
-- **Options**: Backend with accounts and sync, localStorage only, or IndexedDB.
-- **Choice**: Per-topic-namespaced localStorage keys (e.g., `nato-trainer-progress-morse`).
-- **Why**: Removes auth and network latency entirely, keeps the deploy a single static bundle, and lets users reset one topic without touching others. Trade-off: no automatic cross-device sync — mitigated by JSON backups whose imports merge losslessly, so manual transfer between devices (or the iOS app) never discards progress.
+- **Constraint**: A study tool should load instantly, work offline and need no sign-up.
+- **Options**: Accounts with server sync, IndexedDB, or localStorage.
+- **Choice**: Per-topic `mastercode-*` localStorage keys, validated and clamped on every load, with a schema version and a rename table for corrected item names.
+- **Why**: No auth, no latency and a single static deploy. The cost — no automatic sync — is covered by merge-on-import backups that also work with the iOS app.
+
+### Hash routing instead of React Router
+- **Constraint**: Shareable per-topic links on a static host.
+- **Options**: React Router with history routing and server rewrites, or a hash router.
+- **Choice**: A small `useHashRouter` hook, with `#/learn/<topic>` as the source of truth for the open topic.
+- **Why**: No dependency, no rewrite rules, and Back/Forward naturally switch topics; the app drops to the menu on every topic change so an answer can't be saved to the wrong topic.
 
 ## Frequently Asked Questions
 
-### How does the spaced repetition work?
-I use the SM-2 algorithm. Each item tracks an easiness factor (1.3-2.5), review interval, and next review date. When you answer, a quality score (0-5) is calculated from correctness, speed, and study mode. Scores below 3 reset the item to "needs relearning." Above 3, the interval grows exponentially based on the easiness factor. Items that are overdue get prioritized.
+### How are the wrong options chosen?
+Per topic, from the items most confusable with the right one: look-alike flags and hand shapes, Morse and Braille patterns a symbol or dot apart, numerals one symbol off, ranks from the same branch near the same pay grade, or made-up abbreviations that fit the same letters. They're sampled from a small pool, so the same question doesn't always show the same options.
 
-### Why did you choose React without a state management library?
-The state tree is shallow — App.tsx manages ~5 state variables (progress, stats, achievements, session, settings) and passes them one level down to study mode components. Context handles cross-cutting concerns (theme, toast, topic). Adding Redux or Zustand would be over-engineering for this data flow pattern.
+### Why won't it accept my answer — or why did it accept a short one?
+Case, accents, punctuation, dashes and a leading "The" never matter. A shortened answer is accepted when no other item in the topic shares it, which is why "Treble Clef" works but a Tokyo airport can't be answered with just "Tokyo". Symbol answers such as Morse and Braille must be exact.
 
-### How does the topic system handle such different content types?
-Every topic implements the same `TopicConfig` interface with a `data: Record<string, string>` field. A topic can also specify a `renderType` ('text' or 'image'), an `imageFolder`, a `distractorType`, and a `quizMode`. The study components check these properties and render accordingly — text for most topics, SVG images for ASL/maritime/music.
+### How do I type Braille?
+On a Braille question, each answer cell is a grid of six dots in standard numbering. Tap dots, or press 1–6 to toggle them, Space for the next cell, Backspace to clear and Enter to submit.
 
-### How are wrong answers generated?
-There are 8 distractor strategies. NATO uses fake words starting with the same letter as the correct phonetic. Roman numerals picks numerically close values. Acronym topics generate fake expansions where each word starts with the corresponding letter of the acronym. The `acronymDistractors.ts` file contains 62KB of curated word pools for this.
+### Why is the speaker button missing on some questions?
+It only reads the question, and it's hidden when hearing the question would give away the answer — a flag, a hand sign, a Greek letter, a rank abbreviation — or when the question can't be read aloud, such as a Braille cell or semaphore arrows.
 
-### Why localStorage instead of a backend?
-A learning flashcard app benefits from zero friction — no sign-up, no API latency, works offline. localStorage gives instant persistence per-device. The trade-off is no cross-device sync, but for a study tool, most users practice on one device. The PWA manifest makes it feel like a native app.
+### Why can't I use multiple choice for reverse acronyms?
+Shown an expansion, you could pick the acronym by its initials without knowing it, so that direction is practised by typing (and flashcards) instead.
 
-### Where does the ASL fingerspelling artwork come from?
-ASL hand signs are rendered with custom inline SVGs in `src/components/ASLSign.tsx`, one path set per letter. Same approach for maritime signal flags (`MaritimeFlag.tsx`), semaphore positions, and music notation (`MusicSymbol.tsx`). Rendering as inline SVG keeps the bundle small, scales cleanly on any display, and lets dark mode style strokes/fills via Tailwind classes.
+### How accurate is the content?
+Signal flags follow the International Code of Signals (NGA Pub. 102), Braille follows Unified English Braille, and airport and airline codes are listed in both IATA and ICAO forms. Military, government and developer-code entries were checked against official sources and corrected or removed where they didn't hold up.
 
-### Does it actually work offline?
-Yes. The PWA manifest makes the app installable, all data lives in localStorage so there's no API to fail, and a hand-written service worker (`public/sw.js`) caches the JS/CSS/SVG assets. It's cache-first for content-hashed assets and images, and network-first for navigations with an `offline.html` fallback — so after the first visit the app loads and runs without a connection, while still picking up new deploys when you're back online.
+### Can I move my progress to another device or the iPhone app?
+Yes. Export a backup from Settings and import it on the other device or in the iPhone & iPad app. Imports merge — the richer record for each item wins, streaks and totals take the higher value — and a backup from a different topic asks before merging.
 
-### What is Smart Session and how does it pick the question type?
-Smart Session is a guided 15-item run that adapts the format to your mastery of each item. For every item it calls `chooseMode()`: if you've answered it correctly enough times that its SM-2 stats clear a threshold (`repetitions ≥ 3` and `easinessFactor ≥ 1.8`, and the topic supports typing), it asks you to type the answer (recall); otherwise it gives you multiple choice (recognition). The run ends with a recap of the items you confused most.
-
-### How do the Focus filters work?
-Each topic exposes a focus selector on the menu. "Low-accuracy" and "unpracticed" apply everywhere; "vowels" and "consonants" only appear for single-letter topics (NATO, Morse, Braille, etc.), because they don't make sense for acronyms or flags. The filter is passed straight into item selection, and the menu shows live "due" and "new" counts so you know what's worth studying today.
-
-### How does the Most Confused Pairs feature know what I confused?
-When you pick a wrong option, the app resolves the value you chose back to the item it belongs to and increments a confusion count on the correct item. Over time that builds a per-item map of which look-alikes trip you up. The Stats page and the Smart Session recap then show the highest-count pairs, e.g. "Sierra often picked as Saint" — so you can target genuine confusions instead of guessing.
-
-### Can I move my progress to another device?
-Yes — Settings has JSON export/import. Imports merge with whatever is already on the device (the richer record per item wins, streaks and totals take the maximum), so transferring back and forth never loses progress; to replace outright, reset the topic first and then import. The same file format works with the companion iOS app. You can also reset a single topic from Settings without affecting any other topic's progress.
-
-### What research backs the spaced repetition claims?
-Three papers, summarized on the landing page and covered in depth on the About page: Hermann Ebbinghaus's 1885 memory experiments, which discovered the forgetting curve; Cepeda et al. 2006, a meta-analysis of 317 experiments confirming that spaced review outperforms cramming across virtually every learning context; and Woźniak & Gorzelańczyk 1994, the paper describing and validating the SM-2 scheduling algorithm the app implements.
-
-### How is progress isolated per topic if everything is in localStorage?
-Every storage key is prefixed with the topic ID — for example, `nato-trainer-progress-morse` versus `nato-trainer-progress-asl`. That isolation lets users reset one topic without touching the others and keeps the SM-2 state for each code system completely independent. The `nato-trainer-` prefix is a legacy artifact from when this was just a NATO alphabet app.
+### Does it work offline, and does it send my data anywhere?
+It works offline after the first visit, via a service worker. Nothing is sent anywhere: progress stays in your browser's storage, there are no analytics or cookies, and speech and reminders use the browser's local APIs.
