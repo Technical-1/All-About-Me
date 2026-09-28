@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TD
     subgraph SharedData["Shared Data Layer"]
-        SD[shared/slangDictionary.js<br/>100+ terms, filters]
+        SD[shared/slangDictionary.js<br/>126 terms, filters]
     end
 
     subgraph WebApp["React Web App (webapp/)"]
@@ -33,7 +33,6 @@ flowchart TD
         end
 
         subgraph Services["Service Layer"]
-            DictService[dictionaryService.js<br/>API + caching]
             CommService[communityService.js<br/>Firestore CRUD + transactions]
         end
 
@@ -52,15 +51,12 @@ flowchart TD
     subgraph Serverless["Vercel API (webapp/api/)"]
         AIFunc[ai-translate.js]
         EncodeFunc[ai-encode.js]
-        UDFunc[urban-dictionary.js]
         ApiLib[_lib/<br/>cors + kv + rate-limit]
         AIFunc --> ApiLib
         EncodeFunc --> ApiLib
-        UDFunc --> ApiLib
     end
 
     subgraph ExternalAPIs["External Services"]
-        UD[Urban Dictionary API]
         Claude[LLM API<br/>Anthropic SDK]
         FirebaseAuth[Firebase Auth]
         Firestore[(Firestore<br/>+ firebase/firestore.rules)]
@@ -70,11 +66,11 @@ flowchart TD
 
     subgraph Hosting["Deployment"]
         Vercel[Vercel<br/>Hosting + Serverless]
-        ViteProxy[Vite Dev Proxy]
-        GHA[GitHub Actions<br/>ci-v2 + ingestion pipelines]
+        GHA[GitHub Actions<br/>ci-v2 test pipeline]
     end
 
-    SD -->|copied at build| LocalDict
+    SD -->|first-launch seed| LocalDict
+    Firestore -->|published doc, 1 read/launch| LocalDict
 
     App --> Theme
     App --> Auth
@@ -92,24 +88,18 @@ flowchart TD
     Community --> useCommunity
 
     useTranslation --> FindTerms
-    useTranslation --> DictService
     useTranslation --> LocalDict
     MergeGloss --> FindTerms
     MergeGloss --> LocalDict
-    useDictionary --> DictService
     useDictionary --> LocalDict
     useDictionary --> Approved
     useCommunity --> CommService
     useCommunity --> Approved
-    DictService --> FindTerms
 
-    DictService -->|production| Vercel
-    DictService -->|development| ViteProxy
     useAiTranslation -->|/api/ai-translate| Vercel
     useEncode -->|/api/ai-encode| Vercel
     Vercel --> AIFunc
     Vercel --> EncodeFunc
-    Vercel --> UDFunc
     CommService --> FirebaseAuth
     CommService --> Firestore
     Auth --> FirebaseAuth
@@ -118,9 +108,6 @@ flowchart TD
     AIFunc --> KV
     EncodeFunc --> Claude
     EncodeFunc --> KV
-    UDFunc --> UD
-    UDFunc --> KV
-    ViteProxy --> UD
     Entry --> SentryAPI
 ```
 
@@ -133,7 +120,7 @@ flowchart TD
   - Manages active tab state (decode, encode, browse, community)
   - Declares the panel list and hands it to `TabPanels`, which keeps each visited tab mounted so its state survives switching tabs
   - Calls `useDictionary` once and passes data down
-  - Renders the footer with live term count
+  - Renders the footer: tagline plus Privacy, Terms and Support links (no dictionary line)
 
 ### TabPanels (Tab State Persistence)
 - **Purpose**: Render tab panels while preserving each one's state across tab switches
@@ -169,12 +156,13 @@ flowchart TD
   - Scrolls to results only once they arrive, since encode has no synchronous output to anchor to
 
 ### BrowseTab (Dictionary Browser)
-- **Purpose**: Filterable, searchable dictionary with trending terms
+- **Purpose**: Filterable, searchable dictionary with a trending row
 - **Location**: `webapp/src/components/Browse/BrowseTab.jsx`
 - **Key responsibilities**:
   - Renders FilterBar for era/origin/type filtering
   - Shows TermCards with pronunciation, examples, and audio playback
-  - Displays TrendingRow with Urban Dictionary trending words
+  - Displays TrendingRow, a random sample of the local dictionary (`pickTrendingTerms` in `useDictionary.js`)
+  - Shows a no-results card when a search matches nothing; there is no remote fallback
 
 ### CommunityTab (User Submissions)
 - **Purpose**: Community-driven term submissions with voting
@@ -189,7 +177,7 @@ flowchart TD
 - **Purpose**: Toggle between light and dark themes
 - **Location**: `webapp/src/context/ThemeContext.jsx`
 - **Key responsibilities**:
-  - Persists preference to localStorage
+  - Follows the OS appearance until the user toggles; persists only explicit toggles to localStorage
   - Respects OS `prefers-color-scheme` on first visit
   - Adds/removes `dark` class on `<html>` for Tailwind dark mode
 
@@ -214,7 +202,7 @@ flowchart TD
 - **Key responsibilities**:
   - Sorts candidate terms longest-first so multi-word phrases match before their constituent words ("no cap" beats "no")
   - Word-boundary regex with claimed-range tracking so partial matches inside other terms don't double-count ("rizz" inside "rizzler" is rejected)
-  - Used by both `useTranslation` (local dictionary path) and `dictionaryService` (Urban Dictionary path)
+  - Used by both `useTranslation` (decode) and `mergeGlossary` (encode glossary)
 
 ### mergeGlossary.js (Encode Glossary Builder)
 - **Purpose**: Assemble the glossary shown under the encode results from two sources of differing trust
@@ -223,14 +211,6 @@ flowchart TD
   - Runs `findTermsInText` over the generated variation texts to detect curated-dictionary terms, which carry vetted definitions and are listed first
   - Folds in the encode model's own glossary for any slang not in the dictionary, deduping case-insensitively so the curated definition always wins
   - Tolerates malformed model output (non-object entries, missing fields) without throwing
-
-### dictionaryService.js (API Layer)
-- **Purpose**: Unified API for slang lookups with multi-tier caching
-- **Location**: `webapp/src/services/dictionaryService.js`
-- **Key responsibilities**:
-  - Looks up terms: local dictionary first, then client cache, then Urban Dictionary API
-  - Fetches popular/trending words (cached in localStorage for 7 days)
-  - Provides text-matching utility for finding terms in user input
 
 ### communityService.js (Firestore Layer)
 - **Purpose**: CRUD operations for community submissions and voting
@@ -241,11 +221,35 @@ flowchart TD
   - Real-time subscriptions to pending and approved submissions via `onSnapshot`
 
 ### slangDictionary.js (Shared Data)
-- **Purpose**: Single source of truth for all slang data
+- **Purpose**: Bundled first-launch seed (the live source of truth is Firestore)
 - **Location**: `shared/slangDictionary.js`
 - **Key responsibilities**:
-  - Exports `slangDictionary` (100+ terms with definition, example, wrongUsage, era, origin, type, pronunciation)
+  - Exports `slangDictionary` (126 seed terms with definition, example, wrongUsage, era, origin, type, pronunciation)
   - Exports filter option arrays (`tabs`, `eras`, `origins`, `types`)
+
+### ModeratePage.jsx (Moderation dashboard)
+- **Purpose**: Where a human actually reviews reports — the dependency the
+  "nothing is ever auto-hidden" decision rests on
+- **Location**: `webapp/src/pages/ModeratePage.jsx`, `src/services/moderationService.js`
+- **Key responsibilities**:
+  - Web-only, reached at `/moderate` via a pathname branch in `main.jsx` (the site has no
+    router) and lazy-loaded, so its code never enters the main bundle
+  - Gated on a `moderator` custom claim; without it the route renders the same empty shell an
+    anonymous visitor sees, rather than a locked door that advertises itself
+  - Queues for open reports and each submission status; resolve / remove / restore / edit /
+    approve-and-publish, each committed in one batch with its `moderationLog` entry so an
+    action can never land unlogged
+
+### dictionaryStore.js (Live Dictionary)
+- **Purpose**: Keeps the dictionary current without app deploys
+- **Location**: `webapp/src/data/dictionaryStore.js`, `functions/index.js`
+- **Key responsibilities**:
+  - Serves the seed synchronously at first paint, then makes one Firestore read per
+    launch (`published/dictionary`, a single versioned document maintained by a
+    debounced publisher Cloud Function watching the `dictionary/*` collection)
+  - Swaps strictly-newer versions in live and caches them in localStorage; rejects
+    version regressions and malformed or gutted payloads so a bad publish can never
+    brick clients
 
 ### webapp/api/_lib/ (Shared API Helpers)
 - **Purpose**: One implementation each for the cross-cutting concerns every serverless function needs
@@ -263,7 +267,20 @@ flowchart TD
   - Submissions require `activeTermLower == termLower` on create — clearing `activeTermLower` server-side marks a slug resubmittable after rejection/merge
   - Per-user counter doc enforces the 5-submissions-per-UTC-day cap; same-day increments must add exactly 1, new-day writes must reset to 1
   - Vote subcollection reads are owner-only; aggregate counts stay public via the parent submission doc
-  - Delete is denied except via the admin SDK used by the merge workflow
+  - Delete is denied client-side; moderators (a `moderator` custom claim) act through
+    rules-validated status transitions (`pending|approved|removed`) — nothing is ever deleted
+    or auto-hidden, and every action lands in an append-only `moderationLog`
+
+### firebase/firestore.indexes.json (Query Support)
+- **Purpose**: Both community listeners use a composite filter-plus-sort that Firestore cannot
+  serve from single-field indexes, so the indexes are declared in the repo and deployed with the
+  rules rather than being created by hand from a console error link
+- **Location**: `firebase/firestore.indexes.json`, wired through `firebase.json`
+- **Key responsibilities**:
+  - `status` + `netScore desc` + `submittedAt desc` — the pending feed, ranked by score then recency
+  - `status` + `submittedAt desc` — the approved feed
+  - Deploy with `firebase deploy --only firestore:indexes`; a missing composite index makes the
+    listener fail at runtime rather than at build time, which is why it lives in version control
 
 ## Data Flow
 
@@ -271,7 +288,7 @@ flowchart TD
 1. User enters text in the decode tab
 2. `detectInputType` classifies input as term, sentence, or conversation
 3. For conversations: `annotateConversation` processes each line, wrapping detected slang in brackets
-4. For terms/sentences: `translateText` checks local dictionary (sorted by length, longest first), then Urban Dictionary API
+4. For terms/sentences: `translateText` checks local dictionary (sorted by length, longest first); a miss returns a "No slang detected" row without any network request
 5. Simultaneously, `useAiTranslation` sends the input to the LLM endpoint for contextual analysis
 6. Results rendered in a two-column layout: highlighted text + definitions (left), AI insight (right)
 
@@ -285,8 +302,8 @@ flowchart TD
 ### Browse Flow
 1. User searches with debounced input in the browse tab
 2. Local dictionary filtered by search query + era/origin/type filters
-3. If no local matches and search > 2 chars, queries Urban Dictionary API
-4. Results shown as TermCards with local matches and Urban Dictionary results separated
+3. Results shown as TermCards; curated and community-approved terms are merged into one list
+4. If a search longer than 2 characters matches nothing, a no-results card is shown (no network request)
 
 ### Community Flow
 1. User authenticates via Google or Apple sign-in (Firebase popup)
@@ -299,13 +316,12 @@ flowchart TD
 
 | Service | Purpose | Documentation |
 |---------|---------|---------------|
-| Urban Dictionary API | Live slang lookups, trending words, daily automated ingestion | `https://api.urbandictionary.com/v0/` |
 | Anthropic Claude Haiku 4.5 | Contextual slang analysis on decode (`ai-translate`) and slang generation on encode (`ai-encode`) | `@anthropic-ai/sdk` via Vercel serverless |
 | Firebase Auth | Google and Apple sign-in for community features | `firebase/auth` |
 | Firebase Firestore | Community submissions storage, voting, real-time sync, server-enforced integrity rules | `firebase/firestore` |
 | Firebase Emulator | Drives the Firestore rules unit tests in CI | `firebase-tools` + `@firebase/rules-unit-testing` |
 | Vercel KV | Server-side response cache + per-IP rate-limit counters | `@vercel/kv` package |
-| Vercel Hosting | Static hosting + serverless API proxy functions | `vercel.json` config |
+| Vercel Hosting | Static hosting at `kidtalktranslator.app` + serverless AI proxy functions | `vercel.json` config |
 | Sentry | Production error tracking and performance monitoring | `@sentry/react` |
 | Web Speech API | Text-to-speech pronunciation of slang terms | Browser built-in |
 
@@ -352,21 +368,26 @@ flowchart TD
 - **Rationale**: Domain changes touch one file, the rate limiter handles KV outages by falling back to memory instead of erroring, and tests can swap in the fake KV without monkey-patching modules
 
 ### Unified Term-Matching Helper
-- **Context**: `useTranslation` and `dictionaryService` both scanned text for slang terms with near-identical but slightly different regex logic, and bugs in one (e.g. "rizz" matching inside "rizzler") didn't get fixed in the other
-- **Decision**: Extract `webapp/src/utils/findTermsInText.js` — word-boundary alternation regex, longest-first sort, claimed-range tracking — and call it from both paths
+- **Context**: Several code paths scan text for slang terms, and near-identical regex copies drift: a bug fixed in one (e.g. "rizz" matching inside "rizzler") survives in the others
+- **Decision**: Extract `webapp/src/utils/findTermsInText.js` (word-boundary alternation regex, longest-first sort, claimed-range tracking) and call it from decode and the encode glossary
 - **Rationale**: One place to fix term-overlap bugs; the helper is independently unit-tested so the matching contract is locked down
 
 ### Multi-tier Caching Strategy
-- **Context**: Urban Dictionary has tight rate limits; LLM calls are billed per token; the UI needs fast responses
-- **Decision**: Four cache layers: Vercel KV (server, production), in-memory Map (client runtime), localStorage (client persistent, 7-day TTL for popular words, 20-entry LRU for AI results)
+- **Context**: LLM calls are billed per token and rate limited per IP; the UI needs fast responses
+- **Decision**: Three cache layers for AI results: Vercel KV (server, production), in-memory Map (client runtime), and a 20-entry localStorage LRU (client persistent); the dictionary itself is cached separately by `dictionaryStore.js`
 - **Rationale**: Minimizes API calls while keeping data reasonably fresh; graceful degradation if any layer is unavailable
 
-### Automated Dictionary Growth (Ingestion Pipelines)
-- **Context**: The static dictionary needs to grow over time from two sources — Urban Dictionary trending terms and community submissions
-- **Decision**: Two daily GitHub Actions workflows that fetch/filter terms, insert them into `shared/slangDictionary.js` via the shared `scripts/lib/dict-utils.js` parser, sync to `webapp/src/data/`, and open PRs for human review
-- **Rationale**: PRs (not direct commits) keep a human in the loop. Scripts use `JSON.stringify()` for all UD content to prevent code injection, `--body-file` for shell safety, and atomic temp-file writes for corruption resistance
+### Server-Published Dictionary (No Deploys for Content)
+- **Context**: The dictionary must grow (community approvals, curated additions) and reach both the website and the iOS app without a rebuild or App Store release per change
+- **Decision**: Terms live in a Firestore `dictionary/{slug}` collection; a debounced Cloud Function regenerates a single versioned `published/dictionary` document that every client reads exactly once per launch, caches locally, and falls back from (cache → bundled seed) offline
+- **Rationale**: One document read per launch keeps read costs flat regardless of dictionary size or user count; the strictly-increasing version plus payload validation on clients means a bad publish degrades to "stale" rather than "broken"
 
-### Vite Dev Proxy for API Calls
-- **Context**: Urban Dictionary doesn't support CORS from localhost, and the Anthropic API needs server-side keys
-- **Decision**: Proxy API calls through Vite's dev server during development; use Vercel serverless functions in production
-- **Rationale**: Same client-side code works in both environments; no CORS issues; API keys stay server-side
+### Serverless Proxies for the AI Calls
+- **Context**: The Anthropic API key can't ship to the browser, and the AI endpoints need caching and abuse limits
+- **Decision**: The client calls same-origin `/api/ai-translate` and `/api/ai-encode`; Vercel's filesystem-routed functions hold the key and route through the shared `_lib/` helpers
+- **Rationale**: One set of fetch URLs, secrets stay server-side, and CORS, KV and rate limiting live in one place
+
+### Curated Dictionary Only, No Third-Party Fallback
+- **Context**: Decode and Browse used to fall back to Urban Dictionary for unmatched terms, but its terms of service allow API access only with express permission, which the project never had
+- **Decision**: Removed the fallback, its proxy endpoint, its content filter and the dev proxy. A miss now shows "No slang detected" (Decode) or a no-results card (Browse) and makes no network request; the long tail is covered by the AI insight panel and community submissions
+- **Rationale**: Every definition shown as a dictionary result is now curated or community-approved, and the app depends on no service it lacks permission to use

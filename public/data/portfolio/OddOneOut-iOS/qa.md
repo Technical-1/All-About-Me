@@ -47,14 +47,29 @@ A four-letter code is the only join mechanism. Friends without the app play from
 a browser in the same room against the same server.
 
 ### Custom question rooms
-Everyone writes questions in the lobby; the server generates each one's secret
-counterpart and deals so an author is never their own question's imposter. The
-app keeps question texts on the writer's device and shows other players only
-counts.
+The host picks "Write our own" in the Start sheet and everyone writes questions in
+a writing step; the server generates each one's secret counterpart and deals so an
+author is never their own question's imposter. Other players only ever see counts;
+each writer's own list comes back from the server privately, and the device keeps
+your questions for one-tap reuse, dropping any the game has spent.
+
+### History, kept on the phone
+Finished games are saved under the Play tab's start card, round by round. Only what
+every player already saw on the result screens is kept, and none of it leaves the
+device.
+
+### Built like an iPhone app, not a web page
+A tab bar for Play, Decks and How to play; the game as a full-screen experience
+with a confirmed Leave; native controls in the host's settings; haptics on the
+moments that matter; text that scales with the phone's text-size setting in the
+game's own fonts; dark mode; and a Siri shortcut that opens straight into a new
+room. The game itself, and every word on its screens, matches the website.
 
 ### In-app voice and video
-Publish with camera or voice only over Cloudflare's Realtime SFU, shared with
-web callers, in a collapsible grid so faces do not crowd out the question.
+For groups playing apart, the host turns the call on in room settings; it is off
+by default so a table playing in person never sees it. Players then publish with
+camera or voice only over Cloudflare's Realtime SFU, shared with web callers, in
+a collapsible grid so faces do not crowd out the question.
 
 ## Technical Highlights
 
@@ -124,7 +139,14 @@ the app uses the browser.
 ### What happens if I get a call or switch apps mid-round?
 Your seat, your score and any answer you already locked live on the server.
 When the app comes back to the foreground it reconnects immediately and the
-server replays the current phase. You rejoin where the room actually is.
+server replays the current phase. You rejoin where the room actually is, and if
+you were in the in-app call, it re-announces you so everyone else pulls your
+video and audio again.
+
+### Does a room link from a group chat open the app?
+Yes, when it is installed. Room links are universal links: the website claims
+`/r/*` for the app, so iOS opens the room directly in the app, and anyone
+without it lands on the same room in the browser.
 
 ### How does the practice round work without a server?
 A scripted engine intercepts your actions at the socket layer and plays the
@@ -143,6 +165,7 @@ tokens on the device, and deleting the app removes them. The optional feedback
 flag sends the round context and nothing about answers or votes.
 
 ### Can I write my own questions on iOS?
-Yes. When the host switches the room to custom questions, everyone writes up
-to five in the lobby. Texts stay on your device until dealt; other players see
+Yes. When the host picks "Write our own" after pressing Start, everyone writes
+up to five. Your questions go to the game server (and the AI that writes each
+one's counterpart) but never to other players until they are dealt; others see
 only how many you have written.

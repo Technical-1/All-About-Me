@@ -1,192 +1,177 @@
-# Architecture Overview
+# Architecture
 
 ## System Diagram
 
 ```mermaid
 flowchart TD
-    subgraph Providers["Context Providers"]
-        TP[ThemeProvider]
-        ToP[ToastProvider]
-        TopP[TopicProvider]
+    subgraph Providers["Context providers (src/contexts)"]
+        TH[ThemeProvider]
+        TO[ToastProvider]
+        TP["TopicProvider<br/>topic from URL / storage,<br/>lazy topic data"]
     end
 
-    subgraph Router["Hash Router"]
+    subgraph Routing["Hash router (useHashRouter)"]
         AR[AppRouter]
-        HR[useHashRouter]
     end
 
-    subgraph Landing["Landing Pages"]
-        LM[LandingMatrix]
-        LC[LandingCards]
-        ASM[AboutSM2]
+    subgraph Pages["Pages"]
+        LM["LandingMatrix<br/>hero + brief sections + topic grid"]
+        ABT[AboutSM2]
         PP[PrivacyPolicy]
     end
 
-    subgraph LearningApp["Learning App Core"]
-        LA[LearningApp]
+    subgraph Learn["LearningApp (src/App.tsx)"]
         MN[Menu]
-        SS[SmartSession]
         FC[Flashcards]
         MC[MultipleChoice]
         TY[TypingPractice]
         TC[TimedChallenge]
+        SS[SmartSession]
         ST[Stats]
+        SET[SettingsModal<br/>backups, reset]
     end
 
-    subgraph DataLayer["Data Layer"]
-        SR[SM-2 Algorithm]
-        SM2[Smart Session Logic]
-        CNF[Confusions]
-        STO[localStorage Storage]
-        TC2[Topic Config]
-        AD[Acronym Distractors]
-        HLP[Helpers]
+    subgraph Rules["Question rules (src/utils)"]
+        MODES["smart-session.ts<br/>modesAvailable, isTypeable, chooseMode"]
+        DIS["distractors.ts<br/>options, both directions"]
+        ANS["answers.ts<br/>typed-answer matching"]
+        SPK["speech.ts<br/>what may be read aloud"]
+        DSP["display.ts<br/>labels, announcements, alt text"]
     end
 
-    subgraph UISupport["UI Support"]
-        TS[TopicSwitcher]
-        SM[SettingsModal]
-        GM[GoalsModal]
-        ICN[Icon Library]
-        ASL[ASLSign Renderer]
-        MF[MaritimeFlag Renderer]
-        MS[MusicSymbol Renderer]
-        AUD[Audio / Speech]
-        NOT[Notifications]
+    subgraph Data["Data"]
+        CFG["config/topics.ts<br/>19 TopicConfigs"]
+        TD["config/topics/data/*<br/>one lazy chunk per topic"]
+        SR["spaced-repetition.ts<br/>SM-2"]
+        CNF[confusions.ts]
+        STO["storage.ts<br/>localStorage, migrations,<br/>backup merge"]
     end
 
-    TP --> ToP --> TopP --> AR
-    AR --> HR
-    HR --> LM & LC & ASM & PP & LA
-
-    LA --> MN --> FC & MC & TY & TC & SS & ST
-
+    TH --> TO --> TP --> AR
+    TP --> CFG & TD
+    AR --> LM & ABT & PP & Learn
+    MN --> FC & MC & TY & TC & SS & ST
+    MN --> MODES
     SS --> MC & TY
-    SS --> SM2
-    FC & MC & TY & TC --> SR
-    SR --> STO
-    MC & TY --> CNF
-    CNF --> STO
-    FC & MC & TY & TC --> HLP
-    HLP --> TC2 & AD
-    FC & MC & TY & TC --> AUD
-
-    LA --> TS & SM
-    ST --> GM & CNF
-    MC & TY & FC --> ASL & MF & MS
-    LA --> NOT
+    SS --> MODES
+    MC & TC --> DIS
+    TY --> ANS
+    MC & TY & TC & FC --> SPK & DSP
+    MC & TY & TC --> SR --> STO
+    MC & TY --> CNF --> STO
+    ST --> CNF
+    SET --> STO
 ```
 
 ## Component Descriptions
 
-### App.tsx (Root)
-- **Purpose**: Application shell with context providers and hash-based routing
-- **Location**: `src/App.tsx`
-- **Key responsibilities**: Wraps the entire app in ThemeProvider > ToastProvider > TopicProvider, delegates routing to AppRouter which renders either landing pages or the LearningApp
+### Topic configuration
+- **Purpose**: Describe each code system as data, so every study mode works on every topic
+- **Location**: `src/config/topics.ts`, `src/config/topics/data/`, `src/config/topicData.ts`
+- **Key responsibilities**: 19 `TopicConfig` objects declare how a topic behaves — distractor strategy, categories, confusable groups, which quiz directions exist and which can be typed, how keys render (text, drawn Braille, or an SVG image). The items themselves live in one module per topic and are loaded on demand, so opening Morse never downloads the acronym tables.
 
-### LearningApp (State Manager)
-- **Purpose**: Central state coordinator for all study functionality
-- **Location**: `src/App.tsx` (LearningApp function)
-- **Key responsibilities**: Manages lifted state for progress, stats, achievements, and sessions. Handles mode transitions, session tracking, goal completion checks, and inactivity reminders. Passes state down via props and receives updates via callbacks.
+### TopicProvider
+- **Purpose**: Decide which topic is open and load its data
+- **Location**: `src/contexts/TopicContext.tsx`
+- **Key responsibilities**: Resolves the topic on load from a `?topic=` shortcut, then a `#/learn/<topic>` deep link, then the last topic used, then NATO. While on a learn route the URL is the source of truth, so Back and Forward move between topics; an unknown topic id falls back to NATO and corrects the URL in place. Shows a loading state and a retry if a topic's data chunk fails to load.
 
-### Topic Config System
-- **Purpose**: Data-driven topic definitions that make the platform extensible
-- **Location**: `src/config/topics.ts`
-- **Key responsibilities**: Defines 19 TopicConfig objects, each specifying name, data (key-value pairs), theme colors, distractor type, render type (text/image), quiz direction, and status. New topics are added by creating a config object — no new components needed.
+### LearningApp
+- **Purpose**: Own the study state and the current mode
+- **Location**: `src/App.tsx`, `src/hooks/useAppState.ts`
+- **Key responsibilities**: Progress, stats, achievements and sessions for the current topic. When the topic changes it returns to the menu *during render* and ends the old session, and every progress write is bound to the topic it was made for — so an answer still being scored can never be saved under a different topic.
 
-### Smart Session Orchestrator
-- **Purpose**: A guided session that adapts the question format per item to the learner's mastery
-- **Location**: `src/components/SmartSession.tsx`, logic in `src/utils/smart-session.ts`
-- **Key responsibilities**: Runs a fixed-length run (15 items), re-using `MultipleChoice` and `TypingPractice` as child renderers. For each item, `chooseMode()` returns `typing` when the item is well-learned (`repetitions ≥ 3 && easinessFactor ≥ 1.8` and the topic supports typing) and `multiple-choice` otherwise — escalating from recognition to recall as mastery grows. The next item is picked only in an effect keyed on the answered counter, so an in-flight answer's `setProgress` can't trigger a mid-question re-pick. On completion it renders a top-confusions recap. `smart-session.ts` also exposes `countDue`/`countNew` and `focusOptionsForTopic` for the menu.
+### Mode availability
+- **Purpose**: One rule for which study modes a topic offers in each direction
+- **Location**: `src/utils/smart-session.ts`
+- **Key responsibilities**: `modesAvailable()` is read by the Menu, Smart Session and the modes themselves. Typing is offered per direction (`isTypeable`); reverse acronyms (expansion shown, acronym asked) are typing-only because the options could otherwise be matched letter by letter. `chooseMode()` gives Smart Session recognition for newer items and recall once an item is well learned.
 
-### Confusion Tracking
-- **Purpose**: Turn wrong answers into actionable "you keep mistaking X for Y" insight
-- **Location**: `src/utils/confusions.ts`, surfaced in `Stats.tsx` and the Smart Session recap
-- **Key responsibilities**: When a learner picks a wrong option, `chosenKeyFromValue()` maps the chosen value back to the item it actually belongs to, and `incrementConfusion()` records the (correct item → mistaken item) pair on the item's `confusions` map in progress. `topConfusions()` ranks one worst pair per studied item and returns the top N for the Most Confused Pairs panel.
+### Multiple-choice generation
+- **Purpose**: Wrong options that can't be eliminated without knowing the answer
+- **Location**: `src/utils/distractors.ts`, `src/config/acronymDistractors.ts`
+- **Key responsibilities**: One scorer ranks every candidate by how confusable it is with the answer, and both directions use it (key-to-value offers values, value-to-key offers keys). Strategies are per topic: edit distance for Morse, the number of differing dots for Braille, arm angles for semaphore, confusable groups for flags, hand shapes and glyphs, pay-grade distance for military ranks, one-symbol-off numerals for Roman numerals, same-class codes for airports and HTTP statuses, and made-up abbreviations that fit an expansion's letters. Options are sampled from a small pool of the most similar candidates, so a question does not always show the same set.
 
-### SM-2 Spaced Repetition
-- **Purpose**: Implements the SuperMemo SM-2 algorithm for optimal review scheduling
-- **Location**: `src/utils/spaced-repetition.ts`
-- **Key responsibilities**: Calculates quality scores (0-5) based on correctness, response time, and study mode. Updates easiness factor (EF), review interval, and next review date per item. Selects next item to practice based on overdue status, novelty, and difficulty.
+### Typed-answer matching
+- **Purpose**: Accept every correct way of typing an answer, and nothing else
+- **Location**: `src/utils/answers.ts`
+- **Key responsibilities**: Word answers are normalised (accents, case, quotes, dashes, "&", punctuation, a leading "the") and compared against the value, its "core" (the value without a description or parenthetical, only when no other item shares it) and curated alternates. Symbol answers (Morse, semaphore, Braille) are exact, with semaphore accepted in either arm order. Value-to-key answers normalise the key (`Lt Col` = `LtCol`), and maritime flags also accept the flag's name.
 
-### Study Mode Components
-- **Purpose**: Four distinct practice interfaces, all consuming the same TopicConfig data
-- **Location**: `src/components/Flashcards.tsx`, `MultipleChoice.tsx`, `TypingPractice.tsx`, `TimedChallenge.tsx`
-- **Key responsibilities**: Flashcards allows passive review without affecting scores. Multiple Choice, Typing Practice, and Timed Challenge are scoring modes that update progress via SM-2. Each mode reads the current topic's data and renders appropriately (text, SVG images, or custom components for ASL/maritime/music).
+### Speech and display rules
+- **Purpose**: Never reveal the answer through the speaker, an image description or an announcement
+- **Location**: `src/utils/speech.ts`, `src/utils/display.ts`
+- **Key responsibilities**: The speaker reads only the prompt and is hidden when the prompt is a picture, a Greek glyph (TTS would name it) or a rank abbreviation (TTS expands it), or when it cannot be read at all. Images get neutral alt text until answered. Every "the answer is …" message names the answer exactly as its button showed it, and Braille answers are announced by their dots.
 
-### Storage Layer
-- **Purpose**: localStorage persistence with per-topic namespacing
+### Braille input and cells
+- **Purpose**: Make Braille answerable and readable
+- **Location**: `src/components/BrailleInput.tsx`, `src/components/BrailleCell.tsx`
+- **Key responsibilities**: `BrailleInput` is a six-dot grid per cell (tap, or keys 1–6, Space, Backspace, Enter) that composes Unicode Braille. `BrailleCell` draws every Braille value as a framed 2×3 cell with unraised dots shown faintly, because Unicode glyphs render ⠅, ⠒ and ⠤ as the same colon-like shape.
+
+### SM-2 and confusions
+- **Purpose**: Schedule reviews and learn from mistakes
+- **Location**: `src/utils/spaced-repetition.ts`, `src/utils/confusions.ts`
+- **Key responsibilities**: SM-2 with a quality score from correctness, response time and mode (typing counts for more than multiple choice). A wrong pick is mapped back to the item it belongs to and counted as a confusion pair, which feeds Most Confused Pairs and the Smart Session recap.
+
+### Storage
+- **Purpose**: Persist everything in the browser, safely
 - **Location**: `src/utils/storage.ts`
-- **Key responsibilities**: Saves and loads progress, stats, achievements, sessions, goals, and settings. Keys are namespaced by topic ID (e.g., `nato-trainer-progress-morse`) to keep data isolated per code system. Imported backups are merged with existing data (`mergeProgressMaps`/`mergeGameStats`) rather than replacing it, so device-to-device transfers are lossless.
+- **Key responsibilities**: Per-topic keys (`mastercode-progress-<topic>`, `mastercode-stats-<topic>`, …), with the original `nato-trainer-*` names still read as fallbacks. Every load validates and clamps what it reads. A schema version gates migrations, renamed items are migrated on first load, and accuracy history keeps the most recent 30 days. Backups record their topic and are merged on import.
 
-### Landing Page
-- **Purpose**: Explain the product and the science before presenting the topic catalog
-- **Location**: `src/pages/LandingMatrix.tsx`, sections in `src/components/landing/`
-- **Key responsibilities**: An animated matrix-rain hero, then four briefing sections — what the app is, why spaced repetition works (with a forgetting-curve figure), the research citations behind SM-2, and a three-step how-it-works — followed by the full topic grid. The "Read the full science" link routes to the SM-2 explainer page.
+### Landing page
+- **Purpose**: Explain the science, then offer the topics
+- **Location**: `src/pages/LandingMatrix.tsx`, `src/components/landing/`
+- **Key responsibilities**: An animated matrix-rain hero (static under reduced motion), then four short sections — what the app is, why spaced repetition works (a forgetting-curve sparkline), the research behind it, and how it works — followed by the topic grid.
 
 ## Data Flow
 
-1. User selects a topic on the landing page → TopicContext updates → hash route changes to `#/learn/{topicId}`
-2. LearningApp loads topic-specific progress and stats from localStorage
-3. User selects a study mode → LearningApp creates a SessionData object and renders the mode component
-4. Mode component calls `getNextLetterSM2()` to select the next item based on SM-2 scheduling
-5. User answers → `updateProgressSM2()` calculates quality score, updates EF/interval/repetitions, persists to localStorage; a wrong choice also records a confusion pair on the item
-6. Stats update flows up to LearningApp via callbacks → achievements checked → goal progress updated
-7. On mode exit → session saved to localStorage, progress history updated
-8. In Smart Session, each committed answer advances the run and re-picks the next item, with `chooseMode()` selecting recognition or recall based on the item's current mastery; the run ends with a Most Confused Pairs recap
+1. The visitor opens a topic from the landing grid or a `#/learn/<topic>` link; `TopicProvider` resolves it and loads that topic's data chunk.
+2. `LearningApp` loads the topic's progress and stats from `localStorage`; the Menu shows the modes `modesAvailable()` allows in the current direction, with due and new counts.
+3. A mode picks the next item with SM-2 (`getNextLetterSM2`), respecting the focus filter.
+4. Multiple choice builds its options with `generateOptions()`; typing checks the answer with the rules in `answers.ts`.
+5. The answer is scored: `updateProgressSM2()` updates the item's schedule, a wrong pick records a confusion pair, stats and achievements update, and the result is announced for screen readers.
+6. Leaving a mode saves the session and today's accuracy point.
+7. In Smart Session, each answered item triggers the next pick, and `chooseMode()` chooses recognition or recall for it; the run ends with a confusion recap.
 
 ## External Integrations
 
-| Service | Purpose | Documentation |
-|---------|---------|---------------|
-| Vercel | Static hosting with automatic deploys | vercel.com |
-| Web Speech API | Text-to-speech for phonetic pronunciation | MDN Web Speech API |
-| Web Audio API | Sound effect generation (correct/incorrect tones) | MDN Web Audio API |
-| Browser Notifications API | Goal completion and inactivity reminders | MDN Notifications API |
+| Service | Purpose | Notes |
+|---------|---------|-------|
+| Vercel | Static hosting | Security headers and SPA rewrites in `vercel.json` |
+| Web Speech API | Read the question aloud | Local to the browser; hidden where it would leak the answer |
+| Web Audio API | Correct/incorrect tones | Generated oscillator sweeps, no audio files |
+| Notifications API | Goal and inactivity reminders | Local notifications only |
 
 ## Key Architectural Decisions
 
-### Data-Driven Topic System
-- **Context**: The app started as a NATO alphabet trainer but expanded to 19 code systems
-- **Decision**: Created a `TopicConfig` interface that all study modes consume generically
-- **Rationale**: Adding a new topic requires only a config object with key-value data — no new components or routes. Distractor generation, rendering, and quiz logic all adapt based on config properties.
+### Configuration-driven topics, lazily loaded
+- **Context**: 19 code systems with very different content — words, symbols, drawn cells, pictures — and very different "fair question" rules.
+- **Decision**: One `TopicConfig` per topic that declares behaviour (strategy, groups, directions, typing eligibility), with each topic's items in its own dynamically imported module.
+- **Rationale**: The study modes contain no topic-specific branches for data; a new topic is a config entry and a data file. Per-topic chunks keep the first load small. The alternative, a component per topic, would have multiplied every fix by nineteen.
 
-### SM-2 Over Custom Weighted Algorithm
-- **Context**: The original spaced repetition used a simpler weight formula (`errorRate × 10 + daysSinceLastSeen`)
-- **Decision**: Migrated to the SM-2 algorithm with quality scores, easiness factor, and interval growth
-- **Rationale**: SM-2 is a well-researched, proven algorithm. Quality scoring accounts for response time and study mode difficulty, providing more nuanced scheduling than error rate alone.
+### Fairness as testable invariants
+- **Context**: A four-option question is worthless if the answer can be spotted by its first letter, its format or its position among numbers.
+- **Decision**: All options come from one module with explicit invariants — the answer appears exactly once, no wrong option is also right, near-synonyms never share a question — plus per-topic tests for the specific tricks (odd-one-out by format, letter matching, the middle number).
+- **Rationale**: The goal is that a guesser using those tricks does no better than chance, and a test is the only way to keep that true as data changes. Hand-picked distractor lists alone drift as items are added; a shared confusability scorer adapts.
 
-### Hash-Based Routing
-- **Context**: Needed client-side routing for landing pages, topic selection, and info pages
-- **Decision**: Built a lightweight hash router (`useHashRouter`) instead of using React Router
-- **Rationale**: Zero dependency overhead for a simple routing need. Hash routing works reliably on all static hosts (Vercel, GitHub Pages) without server-side configuration. Routes are: landing variants, learn/{topicId}, about, privacy.
+### No false positives in typed answers
+- **Context**: Lenient matching (ignore case, accept "Treble Clef" for the full description) risks accepting the wrong item.
+- **Decision**: Short forms are accepted only when no other item shares them, and a collision test checks, for every typeable topic and direction, that no other item's answer is ever accepted.
+- **Rationale**: Leniency and correctness stop being a trade-off: any new alternate that would make one answer correct for two items fails the build.
 
-### Lifted State in App.tsx
-- **Context**: Multiple study modes need access to the same progress, stats, and achievement data
-- **Decision**: Keep all learning state in LearningApp and pass via props rather than using a global store
-- **Rationale**: The state tree is shallow (one level of study mode children), so prop drilling is straightforward. Avoids the complexity of Redux/Zustand for what amounts to ~5 state variables shared among sibling components.
+### Hash routing with the URL as the topic's source of truth
+- **Context**: Topics need shareable links on a static host, and Back/Forward should move between topics without saving an answer to the wrong one.
+- **Decision**: A small `useHashRouter` hook instead of React Router; `#/learn/<topic>` drives the topic, and the app drops to the menu whenever the topic changes.
+- **Rationale**: No dependency and no server rewrite rules, and the topic can never disagree with the address bar.
 
-### Per-Topic localStorage Namespacing
-- **Context**: 19 topics each need independent progress tracking
-- **Decision**: Namespace all localStorage keys with topic ID (e.g., `nato-trainer-progress-morse`)
-- **Rationale**: Simple key prefixing keeps topics isolated without needing a database. Users can reset one topic without affecting others. The `nato-trainer-` prefix is a legacy artifact from the original project name.
+### localStorage with per-topic keys, migrations and a rename table
+- **Context**: No backend, but data must survive app updates — including items whose names were corrected (Air Force "2Lt" → "2d Lt").
+- **Decision**: Per-topic `mastercode-*` keys, a schema version, and a rename table applied on load and on import; when both the old and new name have progress they are combined field by field (max counts, schedule from whichever was seen last).
+- **Rationale**: Every step is a max or a pick, so re-running it changes nothing and counts are never inflated. Legacy `nato-trainer-*` keys are still read so the earliest users kept their history.
 
-### Smart Session Reuses Modes Instead of Adding a New One
-- **Context**: A guided "just study" flow needs to alternate between recognition and recall, but duplicating quiz/typing UI would double the surface area to maintain
-- **Decision**: Make `SmartSession` a thin orchestrator that mounts the existing `MultipleChoice` and `TypingPractice` components per item, choosing the mode from SM-2 mastery
-- **Rationale**: The study components already encapsulate scoring, feedback, and rendering. The orchestrator only owns item selection, the mode decision, and a recap — so adaptive sessions inherit every fix to the underlying modes for free. The subtle part is re-picking the next item only after an answer commits (effect keyed on the answer counter) so progress updates mid-question don't cause a re-pick.
+### Merge-on-import, shared with the iOS app
+- **Context**: Backups are the only way to move progress between devices and to the companion iPhone & iPad app; replacing on import makes the last file win silently.
+- **Decision**: Import merges — per item, the record with more attempts wins (ties go to the most recent), confusion counts combine by maximum, stats take per-field maximums. Backups carry their topic, and importing into a different topic asks first.
+- **Rationale**: Transfers are lossless and order-independent. The iOS app implements the same merge, rename and answer rules, and its topic data is generated from this repository, so both apps stay in step.
 
-### Confusion Attribution by Value, Not Position
-- **Context**: Recording "the answer was wrong" is cheap but useless; learners want to know *which* look-alike they confused it with
-- **Decision**: Map the chosen distractor's value back to the item that value belongs to (`chosenKeyFromValue`) and accumulate per-item confusion counts in progress
-- **Rationale**: Distractors are generated dynamically, so option position carries no meaning across questions. Resolving the picked value to a real item key produces a stable (correct → mistaken) pair that aggregates into the Most Confused Pairs panel and the session recap, directly steering future review toward genuine look-alikes.
-
-### Merge-on-Import Over Replace
-- **Context**: Backups are the only way to move progress between devices (and to/from the iOS app), but a replace-style import means whichever file was imported last silently wins
-- **Decision**: `importProgressData` merges the imported file with existing stored data — per item, the entry with more recorded attempts wins (ties broken by most recent study date), confusion counts combine by per-key maximum, and stats take the per-field maximum
-- **Rationale**: Transfers become lossless and order-independent: studying on two devices and importing either backup into the other converges to the union of both histories. Users who genuinely want a clean slate reset the topic first, then import — a rarer intent that shouldn't be the default
-
-### Split-Strategy Service Worker
-- **Context**: The PWA needs reliable offline use without serving stale app code after a deploy
-- **Decision**: A hand-written service worker (`public/sw.js`) that is cache-first for content-hashed `/assets/*` and `/images/*`, and network-first (with an `offline.html` fallback) for navigations and the app shell
-- **Rationale**: Vite content-hashes asset filenames, so they're safe to cache immutably and serve instantly offline. HTML and the shell stay network-first so a new deploy is picked up on the next online load, while still falling back to a cached page when offline — avoiding the classic "users stuck on an old build" service-worker trap.
+### Split-strategy service worker
+- **Context**: Offline use without pinning users to a stale build.
+- **Decision**: Cache-first for content-hashed `/assets/*` and `/images/*`; network-first with an offline fallback for pages and the app shell.
+- **Rationale**: Hashed files are immutable and safe to cache forever; HTML stays fresh so a new deploy arrives on the next online load.

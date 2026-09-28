@@ -37,7 +37,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-24T02:19:43Z",
+      "pushed_at": "2026-09-28T14:26:24Z",
       "topics": []
     },
     "languages": [
@@ -45,8 +45,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 128939,
-      "Shell": 10299
+      "Python": 205608,
+      "Shell": 10452
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -1150,18 +1150,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-19T06:56:33Z",
+      "pushed_at": "2026-09-28T11:57:08Z",
       "topics": []
     },
     "languages": [
       "Swift",
+      "JavaScript",
+      "Shell",
       "HTML",
-      "Shell"
+      "Python"
     ],
     "language_bytes": {
-      "Swift": 98915,
-      "HTML": 3840,
-      "Shell": 1512
+      "Swift": 114563,
+      "JavaScript": 11909,
+      "Shell": 5290,
+      "HTML": 3090,
+      "Python": 2697
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -1187,7 +1191,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-13T20:52:59Z",
+      "pushed_at": "2026-09-28T11:56:21Z",
       "topics": []
     },
     "languages": [
@@ -1195,8 +1199,8 @@
       "CSS"
     ],
     "language_bytes": {
-      "HTML": 41169,
-      "CSS": 10628
+      "HTML": 20707,
+      "CSS": 10870
     },
     "primary_language": "HTML",
     "has_portfolio": false,
@@ -1241,7 +1245,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-26T15:01:26Z",
+      "pushed_at": "2026-09-27T15:40:35Z",
       "topics": []
     },
     "languages": [
@@ -1818,14 +1822,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-31T18:14:58Z",
+      "pushed_at": "2026-09-28T08:33:32Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 409415
+      "Python": 496198
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2099,7 +2103,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-05-30T05:27:21Z",
+      "pushed_at": "2026-09-28T14:02:04Z",
       "topics": [
         "gen-alpha",
         "gen-z",
@@ -2111,12 +2115,14 @@
     "languages": [
       "JavaScript",
       "HTML",
+      "Python",
       "CSS"
     ],
     "language_bytes": {
-      "JavaScript": 394750,
-      "HTML": 11079,
-      "CSS": 3038
+      "JavaScript": 452984,
+      "HTML": 24925,
+      "Python": 6116,
+      "CSS": 3700
     },
     "primary_language": "JavaScript",
     "has_portfolio": true,
@@ -2130,6 +2136,40 @@
     ],
     "metadata": {
       "category": "ai-ml"
+    }
+  },
+  {
+    "repo": {
+      "name": "KidTalk-iOS",
+      "full_name": "Technical-1/KidTalk-iOS",
+      "html_url": "https://github.com/Technical-1/KidTalk-iOS",
+      "homepage": null,
+      "description": "Native SwiftUI iPhone + iPad port of Kid Talk Translator",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-09-28T13:24:57Z",
+      "topics": []
+    },
+    "languages": [
+      "Swift",
+      "Shell",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Swift": 265236,
+      "Shell": 15423,
+      "JavaScript": 1652
+    },
+    "primary_language": "Swift",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "metadata": {
+      "category": "other"
     }
   },
   {
@@ -2298,7 +2338,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:24:04Z",
+      "pushed_at": "2026-09-28T14:33:11Z",
       "topics": [
         "braille",
         "education",
@@ -2322,11 +2362,11 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 808318,
+      "TypeScript": 1068197,
       "Python": 19208,
-      "JavaScript": 16074,
-      "HTML": 15523,
-      "CSS": 4670
+      "JavaScript": 16085,
+      "HTML": 15570,
+      "CSS": 5401
     },
     "primary_language": "TypeScript",
     "has_portfolio": true,
@@ -2352,7 +2392,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T15:44:03Z",
+      "pushed_at": "2026-09-28T13:54:13Z",
       "topics": []
     },
     "languages": [
@@ -2361,8 +2401,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Swift": 766337,
-      "JavaScript": 4077,
+      "Swift": 1128874,
+      "JavaScript": 4593,
       "Shell": 1469
     },
     "primary_language": "Swift",
@@ -2570,19 +2610,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-19T18:02:09Z",
+      "pushed_at": "2026-09-28T13:31:24Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
-      "CSS",
       "JavaScript",
+      "CSS",
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 385769,
-      "CSS": 25966,
-      "JavaScript": 19444,
+      "TypeScript": 451978,
+      "JavaScript": 48006,
+      "CSS": 29513,
       "HTML": 8428
     },
     "primary_language": "TypeScript",
@@ -2609,7 +2649,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-19T18:04:33Z",
+      "pushed_at": "2026-09-28T14:01:44Z",
       "topics": []
     },
     "languages": [
@@ -2617,8 +2657,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Swift": 227532,
-      "Shell": 1557
+      "Swift": 302854,
+      "Shell": 1558
     },
     "primary_language": "Swift",
     "has_portfolio": true,
@@ -3277,7 +3317,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-25T10:43:15Z",
+      "pushed_at": "2026-09-28T12:12:24Z",
       "topics": [
         "cron",
         "free-tier",
@@ -4003,14 +4043,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-30T05:20:52Z",
+      "pushed_at": "2026-09-28T07:37:28Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 307087
+      "Python": 309111
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -4226,7 +4266,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-18T21:34:47Z",
+      "pushed_at": "2026-09-28T07:37:27Z",
       "topics": []
     },
     "languages": [
@@ -4583,7 +4623,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-26T11:54:52Z",
+      "pushed_at": "2026-09-27T12:34:38Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -6670,7 +6710,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-27T09:55:55Z",
+      "pushed_at": "2026-09-28T10:46:01Z",
       "topics": []
     },
     "languages": [

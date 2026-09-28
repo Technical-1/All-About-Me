@@ -11,8 +11,8 @@ iOS and web players share the same rooms.
 ```mermaid
 flowchart TD
     subgraph "iPhone app (SwiftUI, iOS 17+)"
-        ROUTER[AppRouter<br/>landing / practice / room]
-        LAND[Screens/Landing<br/>hero, demo round, decks, FAQ]
+        ROUTER[AppRouter<br/>tabs, with practice / room covering them]
+        LAND[Screens/Home<br/>Play, Decks, How to play, Settings]
         PRACTICE[Practice/<br/>scripted first-launch round]
         ROOM[Screens/Room<br/>one view per phase + call grid]
         CONN[Networking/RoomConnection<br/>socket, reducer, backoff]
@@ -55,7 +55,10 @@ flowchart TD
   remote tracks as the roster changes, attribute inbound tracks to players by the
   `mid` the SFU reports, renegotiate on demand, and sequence camera shutdown
   before peer-connection close because frames delivered into a closing connection
-  crash libwebrtc.
+  crash libwebrtc. A generation counter lets a join abandoned mid-flight (the host
+  turning the call off, the player leaving) stop at its next await without
+  publishing, and the call re-announces itself after the game socket reconnects,
+  since the server clears call presence on disconnect.
 
 ### Wire protocol mirror
 - **Purpose**: Swift's version of the server's message schemas.
@@ -88,8 +91,34 @@ flowchart TD
 4. When iOS suspends the app and kills the socket, foregrounding reconnects
    immediately rather than waiting out the backoff, and the server replays the
    current phase.
+5. A shared `https://oddoneout.games/r/CODE` link opens the app through a
+   universal link (`Route.from(url:)` in `AppRouter.swift`); the Worker's
+   `apple-app-site-association` file claims `/r/*` for this app.
 
 ## Key Architectural Decisions
+
+### Native navigation and interaction, web-identical gameplay
+- **Context**: The first build copied the website's single scrolling landing page
+  pixel for pixel, and on a phone it read as a website in a container.
+- **Decision**: Split the port along one line. Navigation, entry and interaction
+  are native: a tab bar (Play, Decks, How to play), a Settings sheet, the room as
+  a full-screen cover with a confirmed Leave, segmented controls, a stepper and a
+  toggle in host settings, haptics, Dynamic Type on the brand fonts, dark mode and
+  an App Shortcut. Gameplay, rules, game-screen copy, the wire protocol and the
+  brand stay identical to the website.
+- **Rationale**: Players judge "native" by how the app is navigated and how it
+  responds to a thumb, not by typeface. Keeping the game layer identical keeps
+  mixed iOS and web rooms coherent, and every departure is recorded in one list so
+  a parity review reads it as intent rather than drift.
+
+### Dark mode as "accent islands"
+- **Context**: A single `ink` token meant both "text on the page" and "text on a
+  bright accent". Inverting it for dark mode would put cream text on orange.
+- **Decision**: Adaptive tokens flip the page (paper to near-black, ink to cream),
+  and anything drawn on an accent fill resolves in light mode locally
+  (`accentSurface()`), with a fixed `onAccent` ink for text on accents.
+- **Rationale**: One environment override per accent surface is far harder to get
+  wrong than choosing a text colour at every one of about a hundred call sites.
 
 ### A native SwiftUI port rather than a wrapped web view
 - **Context**: The web client already worked in Safari, so the cheap option was
