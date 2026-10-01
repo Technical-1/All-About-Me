@@ -4,7 +4,7 @@
 and `kb-api-service`), `PyYAML` for config, `httpx` for the upstream probe,
 `pytest`. No framework, no database, no client library — the contract is an
 HTTP `GET`, which is the whole reason this is a service and not a file
-[MS-6]: consumers are polyglot (`orbit-engine` ports from TypeScript, the
+[MS-6]: consumers are polyglot (`messages-engine`, formerly orbit-engine, ports from TypeScript, the
 SecondBrain lineage is Rust + TypeScript, `kbengine` is Python), and **with a
 file every language writes its own loader and they drift.**
 

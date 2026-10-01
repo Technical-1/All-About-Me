@@ -11,6 +11,25 @@ what raw holds for this Source: `sealed` storage for immutable blobs [MA-45]
 **relational mirror** — §9 below, the authoritative summary in this repo
 (**5 mirrors, 1,214,347 rows**). ⭐ **§9 describes running code.**
 
+## ⬜ PLANNED, not built — fast capture, APFS clone, in-place update, EVENT for the Apple origins
+
+Ruled in ai-lab ([TD-46]–[TD-50]; relational-mirror spec §11–§12), executed by
+the fast-diff plan (`plans/2026-09-30-imessage-hourly-diff-plan.md`, draft) and a
+per-container transport plan not yet written. ⛔ None of it is in the code; the
+rest of this document describes what runs.
+
+| | today (running) | planned |
+|---|---|---|
+| capture cadence | Mac `StartInterval=3600`, registrar at `:17` | Mac every ≈5 min, each ship filed on arrival (≈5–10 min to the mirror), after raw-tier's per-table write fix |
+| Apple origins' content tables | STATE (superseded versions deleted) | **EVENT** (every version), bookkeeping TRANSIENT; deletions tombstoned `retired` — closes, history kept; `imessage` keeps `removed` — closes nothing |
+| Mac snapshot | `Connection.backup()` page walk, a whole file written each capture | **APFS clone** of the container and its journal, proven consistent (check + bounded retry), never shipped unproven |
+| tower receipt | `rsync` temp file + rename, a whole file written | changed blocks **updated in place** in a kept basis outside `raw/`; the registrar reads its own copy after the ship, under the run lock (⚠️ openrsync in-place over the real path unverified) |
+
+Unchanged by all of it: the container crosses whole, the tower is the only place
+rows are compared, and the staged container is transport, never raw. Applies to
+every container, scoped one by one; the media trees are their own shape;
+row-copying from the Mac is the fallback only.
+
 ## The layer, in one line
 
 A **Source**: it gets the Mac's OS-gated data onto the tower and computes
