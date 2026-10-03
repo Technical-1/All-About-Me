@@ -276,16 +276,111 @@ tombstone is the only thing that can say which.
 | tombstone on a… | means | the engine must |
 |---|---|---|
 | **STATE** table | ⭐ *"this stopped being true"* | ✅ **CLOSE the claim's interval** at the tombstone's `last_seen` — the last pass that saw the row **alive**, ⛔ never the run that noticed it missing. ⛔ **Never merely drop the row**: dropping it leaks deleted contacts back as current, because the open-interval sentinel is never closed |
-| ⭐ **EVENT** table | ⭐ *"the ORIGIN no longer retains this"* | ⛔⛔ **CLOSE NOTHING.** ⭐ **An event that happened cannot stop having happened** — deleting a text does not un-send it, and closing an interval on one would assert **833 deleted messages never happened**, the opposite of the fact the mirror exists to preserve |
+| ⭐ **EVENT** table, meaning `removed` *(the default)* | ⭐ *"the ORIGIN no longer retains this"* | ⛔⛔ **CLOSE NOTHING.** ⭐ **An event that happened cannot stop having happened** — deleting a text does not un-send it, and closing an interval on one would assert **833 deleted messages never happened**, the opposite of the fact the mirror exists to preserve |
+| ⭐ **EVENT** table, meaning `retired` *(declared — next-but-one section)* | ⭐ *"no longer current"* — deleted at the origin | ✅ **CLOSE at the tombstone's `last_seen`**, leave it out of current state; every version stays |
 | **TRANSIENT** table | — | ⛔ **no tombstone is written**, because the origin prunes these itself |
 
-⭐ `last_seen`'s bump-on-every-pass rule is what makes the STATE closing point
-readable.
+⭐ `last_seen` — *when the origin last confirmed it* — is what makes the STATE
+closing point readable. Since the fast-diff write fix it is **derived**, not
+bumped per row (next section), and the tombstone freezes the derived value.
+
+### ⭐⭐ The write fix — stamps, the derived `last_seen`, absences (fast-diff, [TD-47] B+C)
+
+On `main` since 2026-10-02 (merged at the fast-diff plan's F3, after Checkpoint A, ai-lab [TD-67]). Whether the tower runs it: `git -C /data/fast/repos/raw-tier rev-parse --short HEAD` on the tower.
+
+**Why.** Every sweep used to `UPDATE … SET last_seen` on every row it read
+(`upsert`'s dedupe bump), so an unchanged `chat.db` rewrote every leaf page of
+a multi-GB mirror every hour — the tower SSD's write volume, for no new fact.
+The F1 page census: base 302 of 303 `mirror_rows` pages changed by an
+unchanged pass; after the fix, none.
+
+**The write** (`mirror._mirror_table` → `MirrorStore.current_map` + `sweep_write`):
+
+| origin row vs the current map | statement |
+|---|---|
+| pk not in the map — **appeared** | INSERT |
+| same `row_sha`, live, no absence since — **unchanged** | ⛔ **none** |
+| a new `(pk, row_sha)` — **changed** | INSERT (+ supersession under STATE/TRANSIENT, as before) |
+| a recorded but not-current pair, a tombstoned current one, or one absent since — **returned** | `UPDATE … SET last_seen=? … AND last_seen<?` — the **stamp**, the only UPDATE left |
+| live, absent from a completed pass | tombstone per policy, as before — or, with **no** tombstone (TRANSIENT; brake refused), one `mirror_absences` row, once per absence |
+
+A direct `upsert` call (an incremental pass, a fixture) is untouched, bump
+included. Reports still count an unchanged row as `dedupe`.
+
+**The read** (`_derived_last_seen`, one expression beside `_LIVE`, used by
+`iter_current`, `iter_tombstoned` (frozen at write), `iter_for_derivation`,
+`coverage`/`table_coverage`, `versions` and `_LIVE` itself): the later of the
+stamp and the latest `started_at` of a **completed** sweep of the table at or
+after the stamp and before the row's **next change** — another version written
+or stamped, a tombstone, an absence record. An interrupted pass completes
+nothing and so advances nothing (spec §11 rule 2). Indexed by the partial
+`idx_mirror_sweeps_done (tbl, started_at) WHERE completed_at IS NOT NULL`.
+⚠️ One case is bounded rather than exact: a non-current version followed by a
+return that a later return of the same version overwrote — the stamp keeps only
+the latest return, so `versions()` can overstate such a row up to the next
+stored change (pinned by `test_a_double_return_is_not_recoverable_from_the_stored_columns`).
+
+**The absence record** (`mirror_absences (tbl, pk, sweep_id, noticed_at)`):
+an observation, ⛔ never a deletion. It closes nothing and never removes a pk
+from the live set, `prior_pks` or the brake's `missing` — so a held-back row
+stays held until it returns (stamped; if all return the latch releases on its
+own) or Jacob runs `acknowledge_brake` and the next completed pass tombstones
+it, frozen at the last pass that found it current.
+
+**The order** (`_CURRENT`): MAX(derived `last_seen`), then `first_seen`, then
+rowid ([TD-47] B, landed with the write fix by [TD-50]). The parity with
+`store.py`'s order that the comment used to claim is broken on purpose.
+
+### ⭐⭐ The deletion meaning and the switch instant (fast-diff F5, [TD-49] A)
+
+On `main` since 2026-10-03 (the fast-diff plan's F5 deploy step, ai-lab [TD-78]); whether the tower runs it: `git -C /data/fast/repos/raw-tier merge-base --is-ancestor 7f0f230 HEAD && echo yes` on the tower.
+
+**Why.** The four Apple origins' content tables move from STATE to EVENT
+([TD-48], `mac-agents` F6). Under EVENT a tombstone used to mean only *"the
+origin no longer retains this"* (close nothing), so a contact, note, event or
+reminder Jacob deleted after the switch would read as current for ever — the
+outcome his 2026-08-12 concern binds against. [TD-49] A: a tombstone records
+**which meaning applies**.
+
+| the tombstone's frozen `policy` | frozen `meaning` | the engine must |
+|---|---|---|
+| `state` | `None` (implied) | close at `last_seen` — unchanged |
+| `event` | `removed` — every EVENT table's default, iMessage's | close nothing — unchanged |
+| `event` | `retired` — declared for the Apple content tables | close at `last_seen`; every version kept |
+| `event` | `None`, written **before** the field | its `policy`'s old meaning: close nothing; never rewritten |
+| `event` | `None`, written **after** the field | ⛔ a finding (`tombstone_without_meaning`); the replicator never writes one |
+
+- **Declared per table** (§12.1 rules 1–2) in `PolicyMap(event_meaning=…,
+  meaning_by_table={…})`: `event_meaning` is the meaning of the tables that
+  resolve to the map's default; `meaning_by_table` (keyed like `by_table`,
+  qualified then bare) names a table's own; a table declared `event`
+  explicitly in `by_table` with no entry keeps `removed` — `retired` only by
+  an explicit declaration. `meaning_for` resolves it (`None` for a table not
+  resolving to `event`), and `declare_table` writes it to
+  `mirror_tables.meaning`. ⛔ Never chosen from a table name.
+- **Frozen** by `tombstone()` from the declaration at write time into
+  `mirror_tombstones.meaning`; ⛔ never joined from `mirror_tables` on read.
+- **Served** by `iter_tombstoned` (`Tombstoned.meaning`) and
+  `iter_for_derivation` (`DerivedRow.policy`, `DerivedRow.meaning`; `None` on a
+  live row). `iter_current` excludes every tombstoned row as before;
+  `versions()` returns a retired entity's versions in full.
+- **The switch instant.** `declare_table` changing an existing declaration to
+  `event` writes `mirror_amendments` `'event-since:' || tbl` at its `now`, in
+  the same transaction — both commit or neither. `MirrorStore.event_since(tbl)`
+  reads it. A table `event` from its first declaration has no row.
+  ⚠️ Append-only, one row per name: an `event`→`state`→`event` table keeps its
+  first switch instant.
+- **Additive.** `mirror_amendments` (append-only by `BEFORE UPDATE/DELETE`
+  triggers) and the two `meaning` columns (by `ALTER TABLE … ADD COLUMN`, at
+  the end, with a `CHECK` over the two words) are created by the first
+  **writable** open with the epoch row `'mirror_tombstones.meaning'`, in one
+  transaction; ⛔ a read-only open creates nothing and reads every meaning as
+  `None`. No existing row is rewritten.
 
 ⭐⭐ **This library owes the read path that makes obedience possible:
 `MirrorStore.iter_tombstoned(tbl, *, since=None)`** →
-`Tombstoned(pk, row_sha, payload, tombstoned_at, last_seen, policy)` —
-⭐ **six fields, ⛔ not four.** The `pk` to find the claim · ⭐ **`last_seen` to
+`Tombstoned(pk, row_sha, payload, tombstoned_at, last_seen, policy, meaning)` —
+⭐ **seven fields** (`meaning` is F5's, above). The `pk` to find the claim · ⭐ **`last_seen` to
 close AT** (`tombstoned_at` is when the mirror *noticed*, an hour to a day
 later, and is ⛔ not the closing point) · the last-known `payload` to say
 **what** stopped being true · `row_sha` so the receipt resolves to that version ·
@@ -627,6 +722,15 @@ silent), and exits 0 when clean, 1 otherwise. ⭐ The seal-conflict **count** is
 on the first line, so the cheap hourly run states it as a number every time —
 it is read from the manifest, not from the disk.
 `--verify` is the weekly deep check; the hourly timer runs without it.
+
+⭐ **`--mirror-lock PATH [--lock-wait-seconds N]`** (fast-diff §2.3.6, [MP-1]):
+holds `flock(LOCK_SH)` on the registrar's run lock for the whole `fsck` call —
+every mirror open — so a registrar run started mid-verify exits
+`lock-contended` instead of meeting verify's SQLite read lock and recording
+`data-error`. Polls `LOCK_SH|LOCK_NB` once a second up to N (default 1800,
+`state-backup`'s); past it, opens no mirror, writes `exit_class`
+`lock-contended` (benign to the alerter) and exits 0. A missing lock file is
+refused: `local-error`, exit 1. Without the option nothing changes.
 
 ⛔⛔ **`raw-fsck` REFUSES a root that is not a directory, on EVERY path**
 (2026-08-13; this paragraph previously said the opposite). Opening a `RawStore`
