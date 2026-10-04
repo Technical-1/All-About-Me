@@ -724,8 +724,11 @@ it is read from the manifest, not from the disk.
 `--verify` is the weekly deep check; the hourly timer runs without it.
 
 ⭐ **`--mirror-lock PATH [--lock-wait-seconds N]`** (fast-diff §2.3.6, [MP-1]):
-holds `flock(LOCK_SH)` on the registrar's run lock for the whole `fsck` call —
-every mirror open — so a registrar run started mid-verify exits
+holds `flock(LOCK_SH)` on the registrar's run lock for the whole run — every
+mirror open, and (on `main` since 2026-10-03 (`728d428`, ai-lab [TD-82]); on `main`
+before it the lock is released when `fsck` returns) the standing checks
+`run_tier` launches afterwards, two of which read every mirror — released in a
+`finally` — so a registrar run started mid-run exits
 `lock-contended` instead of meeting verify's SQLite read lock and recording
 `data-error`. Polls `LOCK_SH|LOCK_NB` once a second up to N (default 1800,
 `state-backup`'s); past it, opens no mirror, writes `exit_class`
@@ -892,3 +895,43 @@ the expected output at each step.
 ⭐ It changes the **schema only**. Turning `ref` rows into `sealed` rows is a
 separate migration, and the report's `rows now sealed: 0` is the assertion
 that this one did not.
+
+## ⭐⭐ The revert record — `raw_reverts` / `raw_amendments` / `mirror_reverts` (on `main` since 2026-10-04, [TD-94])
+
+ai-lab `plans/2026-09-30-raw-revert-events-plan.md`; specs raw-tier §9 and
+relational-mirror §13; ruled [TD-46] (b). [RT-15]'s dedupe bumps `last_seen` in
+place, which is right for *now* and erases *when* an origin went back to an older
+version. The revert record keeps that, from the epoch on.
+
+| table | where | one row is | written by |
+|---|---|---|---|
+| `raw_reverts` | `manifest.db` | a start of a lineage `(source, doc_id, kind)` the bump would overwrite: a return, an adoption, or a baseline | `RawStore._record_revert`, before every dedupe exit's bump, same transaction |
+| `raw_amendments` | `manifest.db` | the epoch (`'raw_reverts'`) | `RawStore._ensure_revert_tables`, the first write |
+| `mirror_reverts` | each mirror | a return in an EVENT table (stamp on an existing `(pk, row_sha)`) | `MirrorStore._write_mirror_revert`, from `sweep_write` and `upsert`, before the stamp |
+| `'mirror_reverts'` in `mirror_amendments` | each mirror | the mirror's epoch (the table is F5's) | `MirrorStore._ensure_reverts`, the first write |
+
+- ⭐ **The lineage is `(source, doc_id, kind)`**, `kind` the writing call's
+  [RV-1]: one `doc_id` often holds several projections (shopify's `orders/` and
+  `draftOrders/`), so keying on the document would log a false revert on nearly
+  every poll. NULL-era rows are candidates of every lineage of their document;
+  an event's `kind` is ⛔ never copied into `raw_objects.kind`.
+- ⛔ **Created by a write, never by a reader**: not in `SCHEMA`, not by
+  `migrate()` (both pinned by existing tests), not by `fsck`, not by a read-only
+  mirror open. Append-only by trigger; ids `AUTOINCREMENT`; versions named by
+  `(source, doc_id, sha256)` because `migrate_sealed.py` rebuilds `raw_objects`
+  (its trigger refusal, and `migrate_sealed_rows.py`'s, now names only triggers
+  ON `raw_objects`).
+- ⭐ **`raw_tier/served.py` is pure** — the recorder asks `decide`, readers ask
+  `served_at` / `iter_served` / `mirror_served_at`, so the rule that writes the
+  record and the rule that reads it are one module. At the store's own instant,
+  for a lineage with no shared row, `served_at` is [TD-45]'s MAX(`last_seen`),
+  then `fetched_at`, then rowid; where rows are shared it deliberately differs.
+- ⭐ **Exact means from the epoch** ([TD-46] (b)): in a document served by
+  more than one kind, an answer whose S rests only on a pre-epoch `last_seen`
+  (which another kind's unrecorded dedupe may have bumped) is `exact=False`
+  (`served.rests_on_pre_epoch_last_seen`). ⚠️ A kind that left no row and no
+  event before the epoch cannot be seen, so its bump still reads as exact
+  (`test_residue_a_kind_that_left_no_row_stays_invisible`).
+- `fsck`: `revert_events` (census), `revert_epoch` (metadata), `dangling_reverts`
+  (`integrity-error`), `unrecorded_reverts` (parked). The mirror arm has no fsck
+  field yet (the plan's Q4).
