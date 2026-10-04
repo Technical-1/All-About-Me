@@ -46,7 +46,7 @@ the agent actually runs.
 | `rsync` | the only transport | ⚠️ macOS 26.5.1 ships **openrsync** (`rsync version 2.6.9 compatible`, protocol 29), **not** GNU rsync — see below |
 | `ssh` | `BatchMode=yes`, `ConnectTimeout=15` | an hourly agent that meets an interactive prompt blocks forever, and then the run lock refuses every later run |
 | `fcntl.flock` | the run lock | released by the kernel on process death, so no reaper exists |
-| `launchd` | `RunAtLoad` + `StartInterval=3600` | ⭐ its `ProgramArguments` names the **signed bundle**, never an interpreter |
+| `launchd` | `RunAtLoad` + `StartInterval=3600` (300 on `main` since 2026-10-03, fast-diff F7, live once Jacob reloads it at F10 [TD-51]) | ⭐ its `ProgramArguments` names the **signed bundle**, never an interpreter |
 | ⭐ `MacAgentsCollector.app` | ~20 lines of C that `exec` `/usr/bin/python3 -m mac_agents.cli collect` | ⭐ **the thing Full Disk Access is granted to.** Built by `scripts/build-launcher.sh` with `cc` + `codesign` against the Developer ID (team `M7SN262HK4`); ⚠️ **no ad-hoc fallback, ever** [MA-22] |
 | `plistlib` (stdlib) | reads the installed agent plist in `mac-agents check` | ⚠️ stricter than `plutil` — see qa.md |
 

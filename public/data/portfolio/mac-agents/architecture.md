@@ -11,7 +11,7 @@ what raw holds for this Source: `sealed` storage for immutable blobs [MA-45]
 **relational mirror** — §9 below, the authoritative summary in this repo
 (**5 mirrors, 1,214,347 rows**). ⭐ **§9 describes running code.**
 
-## ⬜ PLANNED, not built — fast capture, APFS clone, in-place update, EVENT for the Apple origins
+## ⬜ PARTLY BUILT — fast capture and EVENT for the Apple origins on `main` (fast-diff F6, F7, 2026-10-03); the APFS clone and in-place update still planned (FT1–FT6)
 
 Ruled in ai-lab ([TD-46]–[TD-50]; relational-mirror spec §11–§12), executed by
 the fast-diff plan (`plans/2026-09-30-imessage-hourly-diff-plan.md`, draft) and a
@@ -24,6 +24,16 @@ rest of this document describes what runs.
 | Apple origins' content tables | STATE (superseded versions deleted) | **EVENT** (every version), bookkeeping TRANSIENT; deletions tombstoned `retired` — closes, history kept; `imessage` keeps `removed` — closes nothing |
 | Mac snapshot | `Connection.backup()` page walk, a whole file written each capture | **APFS clone** of the container and its journal, proven consistent (check + bounded retry), never shipped unproven |
 | tower receipt | `rsync` temp file + rename, a whole file written | changed blocks **updated in place** in a kept basis outside `raw/`; the registrar reads its own copy after the ship, under the run lock (⚠️ openrsync in-place over the real path unverified) |
+
+⭐ **The capture-cadence row is on `main` since 2026-10-03** (fast-diff F7, ai-lab [TD-86]):
+the registrar's half is live from F9's tower pull, the Mac half from Jacob's F10 reload: `StartInterval` 300 [TD-51]; the unchanged-store skip (a store whose
+size/mtime/inode signal, database and `-wal`, has not moved since it last
+shipped is neither snapshotted nor shipped, and is named in its collector's
+`unchanged_stores`) with a forced full collect the first run of each
+wall-clock hour; `ship-complete.json` shipped last, mutable, in the
+heartbeat's argv shape; the registrar's one bounded re-walk when that marker
+moves mid-walk; and `imessage` swept on every filing ([TD-46]/[TD-47] A). The
+tower's path unit is fast-diff F8 (the `tower` repo, merged for F9).
 
 Unchanged by all of it: the container crosses whole, the tower is the only place
 rows are compared, and the staged container is transport, never raw. Applies to
@@ -60,7 +70,7 @@ exists only on the tower.
 | `cli.py` | `mac-agents collect` · `discover` · `check` |
 | `launcher/` | the C stub + `Info.plist` of `MacAgentsCollector.app`, the launchd target |
 | `scripts/build-launcher.sh` | compiles, signs with the Developer ID, and **refuses to sign ad-hoc** |
-| `launchd/…collect.plist` | one agent, `RunAtLoad` + `StartInterval=3600` |
+| `launchd/…collect.plist` | one agent, `RunAtLoad` + `StartInterval=3600` (300 on `main` since 2026-10-03, live once Jacob reloads it at F10 [TD-51]) |
 
 ## Six origins, three collection shapes
 
@@ -277,6 +287,27 @@ also ships `ZREMCDOPERATIONQUEUEITEM`, `ZREMCDTEMPLATEOPERATIONQUEUEITEM`,
 name**. ⛔ **Name-shape is not evidence** — [MA-2]'s decoy opened cleanly and
 answered queries too. ⭐ The sweeps make it observable: a `state` table the
 ORIGIN prunes shows a non-zero `tombstoned`. **Watched, open.**
+
+### ⭐⭐ The Apple origins to EVENT (fast-diff F6, [TD-48], [TD-49] A, [TD-67])
+
+On `main` since 2026-10-03 (merged for F9, ai-lab [TD-86]); it takes effect at the tower's
+first filing after F9's pull. Whether the tower runs it: `git -C /data/fast/repos/mac-agents
+merge-base --is-ancestor d7020ee HEAD && echo yes`. raw-tier's F5 (the frozen deletion
+meaning) deployed first, 2026-10-03.
+
+| knob, for `addressbook` · `contacts-metadata` · `notes` · `reminders` · `calendar` | on the branch |
+|---|---|
+| `default` | `event` — every version kept; the engines derive current state ([TD-48]) |
+| `event_meaning` | `retired` for the tables resolving to the default — a deletion closes at `last_seen`, every version stays ([TD-49] A). `imessage` keeps `removed` |
+| `meaning_by_table` | `removed` for every table declared `event` explicitly — `ZABASSISTANTCHANGELOG`, `event` since [RA-13], never switched (relational-mirror §12.1 rules 1–2) |
+| `max_versions_default` | 10,000 per row for every content table ([TD-67] ruling 2), passed by the registrar as `mirror_container`'s run default |
+| TRANSIENT, from measurement ([TD-66], ruled [TD-67]) | `Z_PRIMARYKEY` (`addressbook`, all three stores) · `Z_PRIMARYKEY`, `ANSCKMETADATAENTRY`, `ANSCKDATABASEMETADATA`, `ANSCKRECORDZONEMETADATA`, `ANSCKEVENT` (`contacts-metadata`) · `Store` (`calendar`), beside every TRANSIENT declaration already there |
+
+Notes' and reminders' `Z_PRIMARYKEY` / `Z_METADATA` / `Z_MODELCACHE` and the
+reminders queue tables resolve to `event` (content) until a re-run measures
+them. The registrar's first filing after the deploy re-declares every switched
+table and reports one `policy_changed` warning each, paging `partially-blind`
+once.
 
 ⭐⭐ **Why the state mirror survives at all:** you cannot detect deletion from a
 snapshot of current state. A deleted contact is simply **absent**, and absence

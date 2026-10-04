@@ -25,6 +25,8 @@ a fix [PE-9].
 | `test_build_launcher.py` | ⭐ the build script **driven with stubbed `security`/`codesign`/`cc`**, so its refusal to sign ad-hoc is exercised rather than asserted |
 | ⭐ `test_mirror_policy.py` | **the per-table policy declaration, as data** — that a table name and never a container is named here, that `ACHANGE`/`ATRANSACTION`/`ATRANSACTIONSTRING` are `transient`, and that the four default-transient tables are adopted **explicitly** rather than by a default that applies itself |
 | `test_register.py` | ⭐ **the tower half, including the mirror**: containers are discovered from staging, staged → run-private → mirrored → unlinked, ⛔ **no `raw_objects` payload row for a container**, and a full day of hourly registrations over sealed attachments performing **zero** payload reads |
+| `test_fast_cadence.py` | (branch `fast-diff-fast-cadence`, F7) the Mac half of fast capture: the plist and `check` at 300 s with every other interval FAIL; an unchanged store neither snapshotted nor shipped and named in `unchanged_stores`, with the touched-store control; the hourly forced collect; only a SHIPPED snapshot sets the signal; a `-wal`-only commit moves the signal and a reader does not; the marker last, in the heartbeat's argv shape, never `--ignore-existing` |
+| `test_fast_filing.py` | (branch `fast-diff-fast-cadence`, F7) the tower half: an all-unchanged interval puts nothing in `warnings[]`, with controls (an undeclared status warns; an unlisted absent store raises the missing-shard warning; a pre-F7 nothing-to-ship still contradicts itself); one bounded re-walk on a moved marker; `imessage` swept on every filing, capturing a join row, an edit and a deletion that the replaced declaration's control does not |
 
 ## The tests that would have caught a real defect
 
@@ -191,7 +193,7 @@ anchored on the count line.
 | not verified | why |
 |---|---|
 | **that the launchd agent holds Full Disk Access** | needs the agent loaded and one real run; the coordinator deploys |
-| **that launchd coalesces missed `StartInterval` firings** | needs a real sleep/wake cycle spanning a tick, watched |
+| **that launchd coalesces missed `StartInterval` firings** | needs a real sleep/wake cycle spanning a tick, watched (at 300 s too, from F10: fast-diff F11 watches a sleep, then the wake) |
 | **the tower's systemd units** | written in the `tower` repo, never installed from here; no ssh to the tower |
 | **`source-alerter --check` reporting `mac-agents` as `wired`** | happens at deploy, after `bootstrap.sh --only mac-agents` |
 | **that the agent's `rsync` reaches the tower under launchd** | ssh under launchd has no agent socket; the key must be passphrase-free or the transfer fails and exits 0 [MD-153] |
@@ -277,7 +279,7 @@ when it fires**, not a list of files.
 | mechanism | cadence | catches |
 |---|---|---|
 | per-table row counts, source vs mirror | **hourly** | a mirror that stopped, or that skipped a table. ⚠️ **A table that was not swept reports `source_count=None`**, ⛔ **never `0`** |
-| ⭐ full completeness sweep | every run for the **seven** non-`chat.db` containers; **daily** for `chat.db` | a row silently never captured — and ⭐ **a row that MUTATED IN PLACE**, which a cursor never re-reads |
+| ⭐ full completeness sweep | every run for the **seven** non-`chat.db` containers; **daily** for `chat.db` (every filing on `main` since 2026-10-03, live from F9's tower pull [TD-46]/[TD-47] A) | a row silently never captured — and ⭐ **a row that MUTATED IN PLACE**, which a cursor never re-reads |
 | ⭐ **one genesis snapshot of `chat.db`**, once | never repeats | a known-good original while the mechanism is young. ⛔ **Do not state its size in advance** — record the actual bytes and sha256 at capture |
 | ⛔⛔ **a tombstone requires a COMPLETED sweep** | per sweep | a **partial read** producing a fabricated deletion. A set-difference is a valid deletion test **only if the whole source table was read**, so an interrupted run leaves `completed_at` NULL and writes **zero** tombstones |
 | ⛔⛔ **the renumbering brake** | per sweep | a **restore from backup**, which renumbers the origin's key space. A *complete* sweep then reads ~1,109 contacts deleted at once, so a **completed-sweep guard does not catch it**: a table whose live `pk` set is **disjoint** from the previous run's is a renumbering, ⛔ **refuse every tombstone and emit a finding** |
@@ -372,7 +374,9 @@ remembering as test-design lessons:**
 - **`runs.jsonl` has no logrotate** — **~85 KB/run → ~742 MB/yr** with all eight
   containers mirroring.
 - **`reminders`' four queue-shaped tables** are declared `state` and **watched**
-  — ⛔ name-shape is not evidence.
+  — ⛔ name-shape is not evidence. (On `main` since 2026-10-03 they
+  resolve to `event` with the origin, not reclassified: the F0b window saw no
+  reminders store move [TD-66].)
 - ⚠️ **A pre-existing flaky test in `test_ship.py`** aborted two of three
   mutation sweeps on a red baseline. ⭐ Recorded rather than rounded away: a
   sweep that cannot establish a green baseline has measured nothing.
