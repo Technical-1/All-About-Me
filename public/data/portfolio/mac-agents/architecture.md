@@ -35,6 +35,15 @@ heartbeat's argv shape; the registrar's one bounded re-walk when that marker
 moves mid-walk; and `imessage` swept on every filing ([TD-46]/[TD-47] A). The
 tower's path unit is fast-diff F8 (the `tower` repo, merged for F9).
 
+⭐ **The transport row is on `main` since 2026-10-04** (fast-diff FT1–FT3; FT4 proved it on the real path and
+Checkpoint D confirmed six containers, ai-lab [TD-96], [TD-98]; it acts only for the containers listed in
+`collector-config.json`): the Mac's clone snapshot proven by a before/after identity check and a
+read-only `integrity_check`, with `backup-fallback` past `CLONE_RETRIES`; the
+per-container enable in `collector-config.json`; the in-place ship into
+`<state>/basis/<origin>/`; the marker's per-container digests; and the
+registrar's page-level `mirroring/<origin>/kept/` copy behind the digest gate,
+the old `incoming/` route kept beside it.
+
 Unchanged by all of it: the container crosses whole, the tower is the only place
 rows are compared, and the staged container is transport, never raw. Applies to
 every container, scoped one by one; the media trees are their own shape;

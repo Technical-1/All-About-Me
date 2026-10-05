@@ -78,6 +78,20 @@ not it had transactions — an account with no activity still has a balance,
 and skipping it silently would be the absence-vs-zero failure this program
 exists to catch.
 
+⭐ **Unchanged objects are re-confirmed in batches [TD-124].** Almost every
+write on an hourly run is a dedupe exit — an unchanged transaction or balance
+whose `last_seen` is bumped [RT-15] — and each used to be its own manifest
+commit. Each response's write loop now runs inside
+`fetch_accounts._batched_dedupes`, raw-tier's `RawStore.batched_dedupes`
+(`every=DEDUPE_BATCH`, 500): one commit per 500 dedupes and one at the end.
+Nothing else changes — the revert recorder still runs first, a new row still
+commits before its write returns, and an exception still commits the bumps
+already made. ⛔ The block opens only after the response is in hand and closes
+before the next request: the manifest write lock is held across the batch, and
+the mac-agents registrar's 30 s busy timeout must never be spent waiting on a
+Bridge round-trip. `tests/test_batched_dedupes.py` fails any request made
+while a batch is open.
+
 ## The invariants that cost the most to learn
 
 **[SF-9] The governed quantity is the effective span as SENT.** Every dated
@@ -206,7 +220,7 @@ generic clause still cannot answer `local-error`.
 
 `sqlite3.OperationalError` is SQLite's catch-all — "disk is full", "database
 is locked" and "no such table" all arrive through it. `raw_tier`'s
-`manifest.db` is **one file shared by every Source** (5 s default busy
+`manifest.db` is **one file shared by every Source** (30 s busy
 timeout) while the run lock is **per-Source**, so from Source #2 onward a
 busy timeout is an ordinary hour, and `local-error` made it exit 3, a
 systemd strike and a page saying *this machine is sick*. Split on

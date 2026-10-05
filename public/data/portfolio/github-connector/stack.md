@@ -9,6 +9,8 @@
 - Runs from its **own `.venv`** as a systemd timer on the tower, hourly.
 - Writes through **`raw-tier`**, the shared manifest every Source writes
   through — payload first, then the manifest row, which is the commit point.
+  The `last_seen` bumps of unchanged objects are batched through
+  `RawStore.batched_dedupes`, never across a GitHub request [TD-124].
 - Its credential is a **fine-grained PAT** held on the tower at `0600
   root:root`. ⚠️ Its permissions are **not API-enumerable**, so what it can do
   cannot be read back from GitHub — a fact that has already produced one wrong

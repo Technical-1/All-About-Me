@@ -23,7 +23,7 @@ plan to lift.
 | `client.py` | list repos (paginated), fetch a tree, fetch a blob |
 | `paths.py` | ⭐ **pure** — which paths are documents. No network, no token |
 | `raw.py` | compose the identity and the path, then **delegate** to `raw_tier` |
-| `sync.py` | one run: every repo, its docs, into raw — and the **exit class** |
+| `sync.py` | one run: every repo, its docs, fetched then written into raw in batches — and the **exit class** |
 | `runrecord.py` | `last-run.json` + `runs.jsonl` — ⭐ the only channel reaching a person |
 
 ## ⭐ The decisions worth knowing
@@ -35,6 +35,15 @@ run. ⭐ Paths are **content-addressed** (`…/<path>/<sha12>`), so a document
 reverted to an earlier version dedupes to the path it already has instead of
 writing a third copy of bytes we hold. ⚠️ Caught by this repo's own test, not by
 review.
+
+**Fetch, then write; the dedupe exits are batched [TD-124].** Nearly every
+object on an hourly run is unchanged, and raw-tier's dedupe exit committed each
+`last_seen` bump on its own. ⭐ `sync` now buffers what it fetches and writes it
+in one tight loop inside `RawStore.batched_dedupes(every=DEDUPE_BATCH)`: one
+commit per 500 bumps, new rows still committed before their write returns.
+⛔ The batch holds the shared manifest's write lock, so it never spans a GitHub
+request — `tests/test_batched_dedupes.py` fails if one is made while a batch is
+open.
 
 **`doc_id = "<full_name>:<path>"`** — every component GitHub's own [RT-11].
 ⚠️ The separator is `:` and not `/` because `/` appears in **both** halves
