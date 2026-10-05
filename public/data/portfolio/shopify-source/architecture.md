@@ -4,6 +4,10 @@
 since 2026-08-14. Collects orders, payouts, balance transactions and a
 schema-driven sweep of every other resource [SS-4]; writes each payload
 byte-for-byte, **then** the `raw_objects` row, which is the commit point.
+Unchanged objects' dedupe exits (`last_seen` bumps) are grouped into one
+manifest commit per fetched page or bulk-JSONL chunk through raw-tier's
+`RawStore.batched_dedupes` [TD-124]; a batch never spans an origin request,
+because it holds the shared manifest's write lock.
 
 > ⛔ **CORRECTED 2026-08-19.** This file read *"State: `scaffolded`. This
 > component is scaffolded; its architecture lives in its owning plan … until
@@ -23,5 +27,8 @@ position per `(datatype, scope)`.
 deliberately, so no second consent round is needed when write-back arrives
 [GS-10/PF-58] — but the code sends exactly one mutation, `bulkOperationRunQuery`,
 which is a read-export. ⛔ That boundary is contract, not enforcement.
+
+The sweep's documents are generated from the schema; the rules it follows are in
+`sweep-selection.md`.
 
 See `CLAUDE.md` for the state of record.

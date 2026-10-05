@@ -117,6 +117,27 @@ rollout is an expected state, and alerting on it is the cry-wolf class again.
 ⚠️ 167 repos and 10 accounts are different populations. Borrowing that Source's
 floor of 3 would let **30% of this corpus fail silently.**
 
+## The write path — batched dedupe exits [TD-124]
+
+Every object goes through `raw.write` → `RawStore.write_raw`: payload first,
+then the row, and an **unchanged** object takes the dedupe exit, which bumps
+`last_seen` [RT-15]. Unbatched, each bump was its own manifest commit; since
+[TD-124] (Jacob, 2026-10-04) every tight write loop sits in a
+`raw.batched(store)` block — raw-tier's `RawStore.batched_dedupes`, one commit
+per `raw.DEDUPE_BATCH` (500) dedupes and one at the block's end.
+
+⛔ **A block never spans an origin request.** It holds the shared
+`manifest.db` write lock, and the mac-agents registrar (busy_timeout 30 s,
+filing every ~5 minutes) and the other Sources write the same file. So each
+fetcher fetches first and writes after: one block per fetched page
+(calendarList, events, tasks, the Drive page's metadata), every task list
+before any list's tasks are fetched, labels and settings fetched whole then
+written together, a Gmail message's two objects after its own fetch. Drive's
+companions (export, structure, comments, revisions, bytes) each need a request,
+so they run outside any block, after their page's metadata. The hand-run heals
+are unbatched. `tests/test_batched_dedupes.py` drives a whole run through a
+transport that fails if a request is made while a block is open.
+
 ## Layout
 
 ```
@@ -125,7 +146,7 @@ google_source/
   accounts.py     # ⭐ discovery from tokens/, overrides from accounts.json
   cursors.py      # per (account, datatype, scope) — the backfill/incremental seam
   client.py       # ⭐ resolves Google's OVERLOADED 403: rate limit vs real auth failure
-  raw.py          # identity + content-addressed paths
+  raw.py          # identity + content-addressed paths; `batched()` [TD-124]
   fetch_gmail.py  fetch_gcal.py  fetch_drive.py  fetch_gtasks.py
   fetch_common.py # canonical JSON (sort_keys is load-bearing — it is hashed)
   sync.py         # exit discipline, per-account isolation, classification

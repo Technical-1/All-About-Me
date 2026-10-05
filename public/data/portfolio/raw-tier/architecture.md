@@ -29,6 +29,12 @@ raw_tier/
                 and an atomic writer. Read by `source-alerter`
   cli.py        console entry point:
                 raw-fsck [ROOT] [--verify] [--run-record PATH]
+  served.py     ⭐ the pure served-at rule (the revert record's reader)
+  snapshot.py   ⭐ the snapshot reader — every engine's one way in:
+                SnapshotReader, ReadSet, MirrorRead, Fingerprint,
+                freeze_copy; console entry point
+                raw-snapshot {freeze,identity} (on branch
+                `snapshot-reader` until the reader plan's S9)
 ```
 
 Everything hangs off one class, `RawStore`, opened against a root directory
@@ -932,6 +938,84 @@ version. The revert record keeps that, from the epoch on.
   (`served.rests_on_pre_epoch_last_seen`). ⚠️ A kind that left no row and no
   event before the epoch cannot be seen, so its bump still reads as exact
   (`test_residue_a_kind_that_left_no_row_stays_invisible`).
+- ⚠️ **On branch `revert-rulings`, not on `main`** (ai-lab [TD-114] 4): a tie
+  at the deciding instant — more than one candidate version sharing S, the
+  `productVariants` shape R8 measured — is `exact=False` with
+  `reason="same-instant-tie"`; the convention's pick is kept
+  (`served.same_instant_tie`; the mirror arm likewise). R4's 24 seeds produce
+  no such tie (0 flips); `tests/test_revert_same_instant_ties.py` drives it.
 - `fsck`: `revert_events` (census), `revert_epoch` (metadata), `dangling_reverts`
-  (`integrity-error`), `unrecorded_reverts` (parked). The mirror arm has no fsck
+  (`integrity-error`), `unrecorded_reverts` (parked on `main`; ⚠️ on branch
+  `revert-rulings`, `integrity-error`, ruled [TD-114] 2). The mirror arm has no fsck
   field yet (the plan's Q4).
+
+
+## ⭐⭐ The snapshot reader — `raw_tier/snapshot.py` (on branch `snapshot-reader` until the reader plan's S9 merges and deploys it)
+
+ai-lab `plans/2026-09-28-raw-tier-snapshot-reader-plan.md` (§3, with its §10
+and §11 amendments); method `plans/2026-09-23-engine-build-method.md` §3.2.
+⛔ An engine never opens `manifest.db` or a mirror itself: `RawStore`'s
+constructor migrates and commits, a bare `SELECT` holds no transaction, and
+engine-side SQL against `mirror_rows` is forbidden. It hands the reader a
+**read set** and reads through it.
+
+```python
+from raw_tier.snapshot import ReadSet, MirrorRead, SnapshotReader
+rs = ReadSet(sources=("imessage-attachments",),
+             mirrors=(MirrorRead("imessage"),))        # tables=None: every declared table
+with SnapshotReader(raw_root, rs, registrar_lock=LOCK,
+                    lock_wait_seconds=CAP) as snap:   # lock, open, ESTABLISHED (the P1 point)
+    snap.fix_instant()                                # or fix_instant(as_of=...)
+    ident = snap.identity(fingerprints)               # the change gate compares this
+    for row in snap.iter_mirror_current("imessage", "chat.db.message",
+                                        payloads=False):
+        ...                                           # decode-cache misses: mirror_payload(...)
+# closed: mirrors rolled back, then the manifest, then the lock (the P2 point)
+```
+
+| step | what | why |
+|---|---|---|
+| lock | `register.lock` `O_RDONLY` (never `O_CREAT`), `flock(LOCK_SH)`, polled to `lock_wait_seconds` | [MP-1]: a filing that arrives is turned away `lock-contended` before it opens anything; absent lock file → `SnapshotUnavailable` |
+| open | `mode=ro` URI connections; mirrors resolved from `raw_mirrors` **inside the manifest snapshot** | a container declared later is never opened; transport paths are never declared, so never reachable |
+| establish | `BEGIN` + `SELECT COUNT(*) FROM sqlite_master` (`_establish`, the E13 anchor) | fixes the WAL manifest's snapshot; takes and holds each DELETE mirror's shared lock |
+| instant | one clock read, truncated to the second, after establishment | a row committed before establishment can never read as later than the instant |
+| reads | as-of variants of this package's queries; every row recorded in `read_log` | `fetched_at` / `first_seen` / `tombstoned_at` / `at` / `noticed_at` / `completed_at` ≤ instant, inside the snapshot |
+| close | ROLLBACK (only where a transaction is open), close, then release | the flock is never released before the last mirror transaction ends |
+
+- ⭐ **One spelling per query.** `store.current_sql` is `RawStore.iter_current`'s
+  query; the mirror builders `_live`, `_rows`, `_current`, `_derived_last_seen`
+  are `MirrorStore`'s. The reader calls them with `as_of` (a clock predicate
+  added inside each term) and, for payload-free listings, `payload=None`.
+  Called as before they return the pre-amendment strings exactly — pinned
+  against the base commit (`tests/test_sql_spelling_*.py`).
+- ⭐ **The identity** (`identity()`): per read-set source `raw_objects`
+  `count`, `current_count`, `max_rowid`, a `(rowid, sha256)` digest and
+  `excluded_by_clock`; per read table `rows` / `tombstones` watermarks, the
+  revert-record terms (`mirror_reverts`, the latest completed `mirror_sweeps`,
+  `mirror_absences` — each `null` where the table is absent, so absent ≠
+  empty), and `live_verdicts`, the digest that sees a resurrection by the
+  dedupe `UPDATE` alone; declaration digests (`raw_mirrors`, `mirror_tables`
+  including the declared meaning, `raw_amendments`, `mirror_amendments`); and
+  `gate_fingerprints`, each the digest of a named read's own rows. ⛔ The
+  instant is never in it [MP-2]. `tests/fixtures/mirror-writers.txt` maps every
+  mirror write statement to the term that sees it; a new one fails the suite
+  until mapped.
+- ⭐ **What was served** comes from `raw_tier.served` (`iter_raw_served`,
+  `iter_mirror_served`), never re-implemented here. The reader passes it the
+  versions, passes, tombstones and absences as of the instant and ⛔ **every**
+  revert event in the snapshot, unfiltered (ai-lab [TD-121], defect [TD-119]):
+  a later event keeps the stamp or observation a later return overwrote, and
+  the rule applies the instant itself, as `MirrorStore.served_at` does. Only
+  `iter_raw_reverts` / `iter_mirror_reverts` stop at the instant.
+- ⭐ **`freeze_copy`** (E3): manifest first, then — only when the read set names
+  mirrors — each named mirror under the shared lock (backup API), then a fresh
+  byte copy of every `ref` referent of a read-set source, refused if the
+  referent changed during the copy ([TD-121]; the backup API rewrites the
+  SQLite header, so its copy could never match the manifest's `sha256`); `copy` / `sealed`
+  payloads stay in the live root (`live`, the only mode). Every copied file is
+  a new inode (`nlink == 1`); journal modes are preserved; `FROZEN.json` records
+  the read set and `payload_root`, which `SnapshotReader.from_frozen` reads.
+- ⛔ **Read-only.** No write path, schema or migration changed. The one effect
+  of a read is SQLite's own: a `mode=ro` open of the WAL manifest creates
+  `manifest.db-wal` / `-shm` when they are absent.
+

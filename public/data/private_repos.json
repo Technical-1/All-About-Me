@@ -9,7 +9,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:32:07Z",
+      "pushed_at": "2026-10-05T03:58:34Z",
       "topics": []
     },
     "languages": [
@@ -17,7 +17,7 @@
       "Just"
     ],
     "language_bytes": {
-      "Python": 138894,
+      "Python": 159841,
       "Just": 979
     },
     "primary_language": "Python",
@@ -37,7 +37,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T08:39:20Z",
+      "pushed_at": "2026-10-05T07:01:19Z",
       "topics": []
     },
     "languages": [
@@ -45,7 +45,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 272099,
+      "Python": 512182,
       "Shell": 10452
     },
     "primary_language": "Python",
@@ -310,12 +310,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:39Z",
+      "pushed_at": "2026-10-05T01:09:48Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -904,12 +908,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:38Z",
+      "pushed_at": "2026-10-05T01:09:47Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -1245,7 +1253,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-03T11:45:20Z",
+      "pushed_at": "2026-10-04T13:03:24Z",
       "topics": []
     },
     "languages": [
@@ -1279,7 +1287,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:31:58Z",
+      "pushed_at": "2026-10-05T03:56:39Z",
       "topics": []
     },
     "languages": [
@@ -1288,8 +1296,8 @@
       "Just"
     ],
     "language_bytes": {
-      "Python": 390951,
-      "Dockerfile": 2021,
+      "Python": 395509,
+      "Dockerfile": 2269,
       "Just": 1604
     },
     "primary_language": "Python",
@@ -1309,7 +1317,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:32:15Z",
+      "pushed_at": "2026-10-05T03:57:00Z",
       "topics": []
     },
     "languages": [
@@ -1319,10 +1327,10 @@
       "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 254172,
-      "CSS": 30786,
+      "TypeScript": 298040,
+      "CSS": 37010,
       "JavaScript": 30761,
-      "HTML": 5028
+      "HTML": 12887
     },
     "primary_language": "TypeScript",
     "has_portfolio": false,
@@ -1341,12 +1349,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:41Z",
+      "pushed_at": "2026-10-05T01:09:50Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -1642,14 +1654,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-30T01:56:17Z",
+      "pushed_at": "2026-10-04T21:40:21Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 157258
+      "Python": 172681
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -1672,12 +1684,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:45Z",
+      "pushed_at": "2026-10-05T01:09:52Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -1822,14 +1838,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-28T08:33:32Z",
+      "pushed_at": "2026-10-04T21:40:16Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 496198
+      "Python": 524225
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2246,7 +2262,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T02:35:27Z",
+      "pushed_at": "2026-10-04T18:40:29Z",
       "topics": []
     },
     "languages": [
@@ -2255,7 +2271,7 @@
       "C"
     ],
     "language_bytes": {
-      "Python": 1393100,
+      "Python": 1529573,
       "Shell": 17496,
       "C": 6460
     },
@@ -2338,7 +2354,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T17:26:10Z",
+      "pushed_at": "2026-10-04T16:02:02Z",
       "topics": [
         "braille",
         "education",
@@ -2362,7 +2378,7 @@
       "CSS"
     ],
     "language_bytes": {
-      "TypeScript": 1162359,
+      "TypeScript": 1162353,
       "Python": 19208,
       "JavaScript": 16097,
       "HTML": 15570,
@@ -2392,7 +2408,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T18:45:30Z",
+      "pushed_at": "2026-10-04T16:03:51Z",
       "topics": []
     },
     "languages": [
@@ -2401,7 +2417,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Swift": 1346223,
+      "Swift": 1346219,
       "JavaScript": 4593,
       "Shell": 1469
     },
@@ -2454,12 +2470,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:35Z",
+      "pushed_at": "2026-10-05T01:09:45Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -2506,14 +2526,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-01T17:08:13Z",
+      "pushed_at": "2026-10-04T21:40:17Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 261724
+      "Python": 284687
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2610,12 +2630,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:46Z",
+      "pushed_at": "2026-10-05T01:09:54Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -3186,14 +3210,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T07:29:32Z",
+      "pushed_at": "2026-10-05T01:20:47Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 1485852
+      "Python": 1751757
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3678,6 +3702,46 @@
   },
   {
     "repo": {
+      "name": "shan-shui-wallpaper",
+      "full_name": "Technical-1/shan-shui-wallpaper",
+      "html_url": "https://github.com/Technical-1/shan-shui-wallpaper",
+      "homepage": null,
+      "description": "Live macOS wallpaper: an endless procedurally generated ink landscape",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-10-05T03:04:51Z",
+      "topics": []
+    },
+    "languages": [
+      "Swift",
+      "JavaScript",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Swift": 33036,
+      "JavaScript": 16873,
+      "HTML": 3183,
+      "Shell": 3159
+    },
+    "primary_language": "Swift",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shan-shui-wallpaper/preview.png",
+      "/screenshots/shan-shui-wallpaper/preview.gif"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "shopify-engine",
       "full_name": "Technical-1/shopify-engine",
       "html_url": "https://github.com/Technical-1/shopify-engine",
@@ -3686,12 +3750,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:43Z",
+      "pushed_at": "2026-10-05T06:54:34Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 550909
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -3712,14 +3780,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-08-28T20:08:41Z",
+      "pushed_at": "2026-10-05T05:07:00Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 385896
+      "Python": 454157
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3768,12 +3836,16 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T20:20:42Z",
+      "pushed_at": "2026-10-05T01:09:43Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": null,
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 210484
+    },
+    "primary_language": "Python",
     "has_portfolio": true,
     "portfolio_files": [
       "architecture.md",
@@ -3794,14 +3866,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-03T02:20:01Z",
+      "pushed_at": "2026-10-04T21:40:20Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 713101
+      "Python": 728877
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -4043,14 +4115,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T08:35:46Z",
+      "pushed_at": "2026-10-04T21:40:23Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 326735
+      "Python": 329533
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -4073,14 +4145,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-30T16:59:56Z",
+      "pushed_at": "2026-10-05T01:20:44Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 43493
+      "Python": 67769
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -4151,7 +4223,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:32:02Z",
+      "pushed_at": "2026-10-05T03:58:35Z",
       "topics": []
     },
     "languages": [
@@ -4160,7 +4232,7 @@
       "Just"
     ],
     "language_bytes": {
-      "Python": 143032,
+      "Python": 147829,
       "Dockerfile": 1821,
       "Just": 805
     },
@@ -4253,19 +4325,19 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-20T20:30:41Z",
+      "pushed_at": "2026-10-05T05:20:57Z",
       "topics": []
     },
     "languages": [
       "TypeScript",
-      "CSS",
       "HTML",
+      "CSS",
       "JavaScript"
     ],
     "language_bytes": {
-      "TypeScript": 1601894,
+      "TypeScript": 1699200,
+      "HTML": 40011,
       "CSS": 13005,
-      "HTML": 10243,
       "JavaScript": 6678
     },
     "primary_language": "TypeScript",
@@ -4292,7 +4364,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T02:35:28Z",
+      "pushed_at": "2026-10-05T03:17:59Z",
       "topics": []
     },
     "languages": [
@@ -4300,8 +4372,8 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 568398,
-      "Shell": 119579
+      "Python": 680815,
+      "Shell": 162965
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -4460,7 +4532,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-09-14T03:32:11Z",
+      "pushed_at": "2026-10-05T03:56:41Z",
       "topics": []
     },
     "languages": [
@@ -4468,8 +4540,8 @@
       "Just"
     ],
     "language_bytes": {
-      "Python": 332851,
-      "Just": 1941
+      "Python": 376663,
+      "Just": 1973
     },
     "primary_language": "Python",
     "has_portfolio": false,
@@ -4649,7 +4721,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-03T07:12:39Z",
+      "pushed_at": "2026-10-04T08:56:08Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -6736,7 +6808,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-04T05:39:04Z",
+      "pushed_at": "2026-10-05T04:28:13Z",
       "topics": []
     },
     "languages": [
