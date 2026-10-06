@@ -45,7 +45,7 @@ and it is **not a payload**. `mirrorstore.py` and `mirror.py` are part of this
 package on `main`. See
 [`mirror` — the third component](#mirror--the-third-component-of-the-raw-tier).
 
-## The manifest — `raw_objects` / `raw_subjects`
+## The manifest — `raw_objects` (and the retired `raw_subjects`)
 
 `raw_objects` is the shared table every Source writes through — one shared
 manifest is what makes "raw before deriving" testable instead of aspirational
@@ -69,10 +69,14 @@ origin last confirmed it — RT-15). `doc_id` is origin-assigned, never
 locally minted (RT-11): raw-tier does not invent identity, it records the
 identity the Source already has.
 
-`raw_subjects` (`source, doc_id, identifier`) is a separate append-only
-table linking documents to subject identifiers, populated idempotently by
-`add_subjects` (engines' normalize stage, RT-10) and queried by
-`subjects_for`.
+`raw_subjects` (`source, doc_id, identifier`) is a separate table linking
+documents to subject identifiers. It is **retired** (ai-lab [TD-44]): the
+table stays in the schema, `add_subjects` (idempotent) and `subjects_for`
+stay on `RawStore`, `raw-fsck` still checks it (`dangling_subjects`), and
+nothing writes it — no Source and no engine calls `add_subjects`. Who appears
+in which document lives in each engine's own tables, never in raw. Whether a
+manifest holds any:
+`sqlite3 "file:<raw root>/manifest.db?mode=ro" "SELECT COUNT(*) FROM raw_subjects"`.
 
 ## Payload-then-row
 

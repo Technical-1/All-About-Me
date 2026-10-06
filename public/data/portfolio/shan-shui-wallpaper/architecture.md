@@ -36,7 +36,7 @@ flowchart TD
     M -->|"cfg JSON in URL (terrain)"| WP
     M -->|"evaluateJavaScript apply() (speed, colour, pause)"| WP
     M -->|"mark() then takeSnapshot"| WP
-    WP -->|"script messages: ready, errors"| M
+    WP -->|"script messages: ready, timings, errors"| M
     W -->|NSWorkspace.setDesktopImageURL| OS["macOS system wallpaper"]
 ```
 
@@ -50,12 +50,12 @@ flowchart TD
 ### Wallpaper page
 - **Purpose**: Render the generator's output as a smooth, endless strip.
 - **Location**: `web/wallpaper.js`, `web/index.html`
-- **Key responsibilities**: ask the engine for terrain ahead of the view; measure each generated element's horizontal extent; rasterize 512-unit tiles to canvases; tint tiles with the ink colour; move the strip with a transform animation; pause when hidden or starved of tiles; expose `apply()` and `mark()` to the host.
+- **Key responsibilities**: ask the engine for terrain ahead of the view; measure each generated element's horizontal extent; rasterize 512-unit tiles to canvases; tint tiles with the ink colour; move the strip with a transform animation; pause when starved of tiles; pause and pin the drift position when hidden; report timings and anomalies to the host; expose `apply()` and `mark()` to the host.
 
 ### Host app
 - **Purpose**: Put the page behind the desktop icons and own everything that needs the OS.
 - **Location**: `app/main.swift`
-- **Key responsibilities**: one borderless, click-through window per screen at the desktop window level; load the page with settings in the URL; push live settings; menu bar item and popover; snapshot scheduling.
+- **Key responsibilities**: one borderless, click-through window per screen at the desktop window level; load the page with settings in the URL; push live settings; menu bar item and popover; snapshot scheduling; write the page's messages to the unified log as public lines.
 
 ### Settings
 - **Purpose**: A single source of truth for what the page is told.
@@ -65,7 +65,7 @@ flowchart TD
 ### System wallpaper sync
 - **Purpose**: Hide the system wallpaper that macOS shows during a swipe back from a full-screen app.
 - **Location**: `app/SystemWallpaper.swift`
-- **Key responsibilities**: encode a snapshot off the main thread, set it as the screen's wallpaper, remember the user's original once, restore it on quit.
+- **Key responsibilities**: encode a snapshot off the main thread, set it as the screen's wallpaper, track the user's own wallpaper as the last one seen that is not a still, restore it on quit.
 
 ### Power monitor and icon
 - **Location**: `app/Power.swift`, `app/Glyph.swift`
@@ -79,7 +79,7 @@ flowchart TD
 4. The canvas is filled with the ink colour using `source-in` compositing and appended to the strip.
 5. Once the screen is covered, the strip starts a linear transform animation. A one-second timer renders the next tile ahead and removes tiles that have scrolled off.
 6. Slider changes go either through `apply()` (speed, colour, pause) or a debounced page reload (terrain).
-7. Once a minute while visible, the host asks the page to `mark()` its position, snapshots the view, and sets the snapshot as the system wallpaper. When the page is hidden it rewinds to the mark.
+7. Once a minute while visible, the host asks the page to `mark()` its position, snapshots the view, and sets the snapshot as the system wallpaper. When the page is hidden it pauses and seeks to the mark, which holds the position until the desktop is visible again.
 
 ## External Integrations
 
@@ -114,6 +114,11 @@ flowchart TD
 - **Context**: macOS does not composite a desktop-level window during the swipe back from a full-screen space, so the real wallpaper shows for the length of the animation. Window collection behaviours do not change this.
 - **Decision**: Keep the system wallpaper set to a recent still, and rewind the drift to that still's position whenever the page is hidden.
 - **Rationale**: Because the drift is paused while hidden and resumes from the marked position, the still and the live window show the same frame, so the handover is invisible. The cost is one JPEG a minute and a changed system setting, so it is a toggle and the original wallpaper is restored on quit, including on SIGTERM.
+
+### Hold the drift with a seek, not a pause alone
+- **Context**: A compositor animation's `pause()` settles on the next rendered frame. A hidden page renders none, so a pause issued on hiding settled on return, at wherever the clock had run to: beyond the painted tiles, or beyond the end of the segment.
+- **Decision**: On hiding, pause and then assign `currentTime` to the position to hold, and assign it again on return.
+- **Rationale**: Detecting the jump afterwards and undoing it depends on a baseline that the return path can overwrite, and fails silently when it does. Seeking a pausing animation completes the pause immediately by specification, so the position is fixed before the page stops rendering. The after-the-fact check stays as a second line of defence and logs when it fires.
 
 ### Split settings into live and terrain
 - **Context**: Some settings can change under a running scene; others change what the generator would have produced.
