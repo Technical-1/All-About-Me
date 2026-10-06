@@ -42,7 +42,7 @@ Each tile's SVG is wrapped in a filter that flattens it onto white and maps lumi
 The generator anchors each mountain or tree at an x position but gives no bounds, and wide elements reach far into neighbouring tiles. Including everything within a safe margin put about 20 MB of markup into every tile. `measure` scans an element's polyline points once to get its true extent, and each tile then includes only what overlaps it: about 3 MB per tile, with first paint in about a second.
 
 ### Keeping the drift honest across suspension
-WebKit suspends a page whose window is hidden, but a compositor animation keeps advancing. On return the strip had moved past everything painted. The page now pauses on `visibilitychange`, and `pump` detects and undoes any jump in animation time larger than a few seconds of drift.
+`Animation.pause()` does not take effect immediately: it settles on the next rendered frame, and a hidden page renders none. A pause issued on `visibilitychange` therefore settled only on return, at wherever the animation clock had run to in the meantime. After a long absence that was past every painted tile, and past the end of the 24-tile segment it rewound to tiles already discarded, leaving bare paper for many minutes. The handler now pauses and then seeks to the position it wants to hold, because seeking a pausing animation completes the pause at once, and it seeks again on return. `pump` keeps a second check that undoes any jump larger than a few seconds of drift, and reports it to the host's log.
 
 ## Engineering Decisions
 
@@ -62,7 +62,7 @@ WebKit suspends a page whose window is hidden, but a compositor animation keeps 
 - **Constraint**: macOS shows the real wallpaper during the swipe back from a full-screen space, regardless of how the window is configured.
 - **Options**: Accept the flash; try window collection behaviours; set the system wallpaper to match.
 - **Choice**: Set the system wallpaper to a still once a minute, and rewind the drift to that still when hidden.
-- **Why**: Matching position as well as content is what makes the handover invisible. It changes a system setting, so it is a toggle and the original is restored on quit.
+- **Why**: Matching position as well as content is what makes the handover invisible. It changes a system setting, so it is a toggle and the original is restored on quit. The original is tracked as the last wallpaper seen that is not one of the app's own stills, so a crash or a restore that fails cannot leave a still recorded as the user's wallpaper.
 
 ### No Xcode project
 - **Constraint**: Six Swift files, no third-party packages, and a build that has to run identically on a laptop and in CI.
@@ -82,7 +82,7 @@ Not in practice. Terrain is generated continuously from a seeded generator. The 
 Scrolling itself is done by the compositor. The page does a fraction of a second of work each time a new tile is needed, roughly once a minute at the default speed, and stops entirely when the desktop is hidden. The web content process holding the tiles is the main memory cost.
 
 ### Why does it change my system wallpaper?
-So that swiping back from a full-screen app shows the same picture and not your old background. It can be turned off in settings, and your own wallpaper is put back when the app quits.
+So that swiping back from a full-screen app shows the same picture and not your old background. It can be turned off in settings, and your own wallpaper is put back when the app quits. If you choose a different wallpaper while the app is running, that one is remembered instead.
 
 ### Why did the pylons survive but the roof sign did not?
 Both are deliberate jokes in the original. The electricity pylons sit quietly in the landscape, so they are a toggle. The sign was lettered text on a rooftop, which reads badly on a wallpaper, so it is removed at build time.

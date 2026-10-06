@@ -1,7 +1,10 @@
 # shopify-source — architecture
 
-**State: `live`** — built, merged, and running hourly on the tower at `:47`
-since 2026-08-14. Collects orders, payouts, balance transactions and a
+**State: `live`** — built, merged, and running on the tower since 2026-08-14,
+every 15 minutes (ai-lab [TD-126], [TD-129]); the minutes are the unit's, read
+with `systemctl cat shopify-source.timer` on the tower or from
+`config/systemd/shopify-source.timer` in `Technical-1/tower`, never typed
+here. Collects orders, payouts, balance transactions and a
 schema-driven sweep of every other resource [SS-4]; writes each payload
 byte-for-byte, **then** the `raw_objects` row, which is the commit point.
 Unchanged objects' dedupe exits (`last_seen` bumps) are grouped into one
