@@ -26,10 +26,10 @@ A table names its class: a resource dir, the gid-type of the payload's own `id`,
 
 | table | read from | key | columns | shrink rule | |
 |---|---|---|---|---|---|
-| `d_order` | `orders/` · Order | `order_id` | 34 | append-only |  |
-| `d_order_item` | `orders/` · a child of the order's selected payload | `line_item_id` | 14 | current-state |  |
+| `d_order` | `orders/` · Order | `order_id` | 43 | append-only |  |
+| `d_order_item` | `orders/` · a child of the order's selected payload | `line_item_id` | 23 | current-state |  |
 | `d_order_transaction` | `orders/` · a child of the order's selected payload | `tx_id` | 12 | current-state |  |
-| `d_fee` | `orders/` · a child of the order's selected payload | `fee_id` | 11 | current-state |  |
+| `d_fee` | `orders/` · a child of the order's selected payload | `fee_id` | 12 | current-state |  |
 | `d_refund` | `orders/` · a child of the order's selected payload | `refund_id` | 7 | current-state |  |
 | `d_payout` | `payouts/` · ShopifyPaymentsPayout | `payout_id` | 11 | append-only |  |
 | `d_balance_txn` | `balance_transactions/` · ShopifyPaymentsBalanceTransaction | `btx_id` | 13 | append-only |  |
@@ -45,13 +45,21 @@ A table names its class: a resource dir, the gid-type of the payload's own `id`,
 | `d_fulfillment_shipment` | `returnableFulfillments/` · ReturnableFulfillment | `shipment_id` | 10 | append-only |  |
 | `d_collection` | `collections/` · Collection | `collection_id` | 14 | append-only | swept |
 | `d_collection_member` | `collections/` · Product under Collection | `pair_id` | 9 | append-only | pair |
-| `d_discount` | `discountNodes/` · DiscountCodeNode / DiscountAutomaticNode | `discount_id` | 20 | append-only | swept |
-| `d_draft_order` | `draftOrders/` · DraftOrder | `draft_order_id` | 30 | append-only | swept |
+| `d_discount` | `discountNodes/` · DiscountCodeNode / DiscountAutomaticNode | `discount_id` | 22 | append-only | swept |
+| `d_draft_order` | `draftOrders/` · DraftOrder | `draft_order_id` | 34 | append-only | swept |
 | `d_delivery_profile` | `deliveryProfiles/` · DeliveryProfile | `profile_id` | 16 | append-only | swept |
 | `d_storefront` | `webPresences/` · MarketWebPresence | `presence_id` | 10 | append-only | swept |
 | `d_inventory_quantity` | `inventoryItems/` · each stock-level pair's `quantities[]`, either shape | `quantity_pair_id` | 12 | append-only | TA.9 |
 | `d_inventory_quantity_version` | `inventoryItems/` · every archived level version carrying `quantities[]` | `quantity_version_id` | 12 | append-only | TA.9 |
 | `d_discount_entitlement` | `discountNodes/` · the selected discount version's `customerGets` | `discount_id` | 10 | append-only | TA.9 |
+| `d_draft_order_item` | `draftOrders/` · DraftOrderLineItem under DraftOrder, either shape | `pair_id` | 34 | append-only | pair (W5) |
+| `d_discount_code` | `discountNodes/` · the discount's `discount.codes` list | `pair_id` | 11 | append-only | pair (W4) |
+| `d_discount_target` | `discountNodes/` · the discount's three entitled lists | `pair_id` | 8 | append-only | pair (W4) |
+| `d_order_tax_line` | `orders/` · a child of the order's selected payload (lines' and shipping lines' `taxLines`) | `tax_line_key` | 12 | current-state | line money |
+| `d_order_discount_allocation` | `orders/` · a child of the order's selected payload | `allocation_key` | 7 | current-state | line money |
+| `d_order_shipping_line` | `orders/` · a child of the order's selected payload | `shipping_line_id` | 12 | current-state | line money |
+| `d_refund_line` | `orders/` · a child of the order's selected payload | `refund_line_id` | 10 | current-state | line money |
+| `d_draft_order_tax_line` | `draftOrders/` · a draft line's (or the draft's shipping line's) `taxLines` | `tax_line_key` | 11 | append-only | line money |
 
 Listed by the code: `shopify_engine/config.py` `CLASSES`, `derive/__init__.py` `SCHEMA`.
 
