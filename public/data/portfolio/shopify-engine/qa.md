@@ -8,7 +8,7 @@ State: `live`.
 |---|---|---|
 | the conformance suite, E1–E12 | `tests/conformance/` (frozen; shared by every engine) | the layer rule, the snapshot, identical rebuild, receipts, recomputed figures, the partition, coverages, fixture cases, declared limits, no count literal, the run record, the package boundary |
 | E13, the mutation census | `tests/fixture.py census` | every mutant of the catalogue and of `tests/fixtures/census-anchors.toml` is killed by a family; a fatal control dies and an inert one survives |
-| the spec's gate | `tests/spec/`, `tests/spec/catalogue/` | one file per table and per named spec item; `tests/spec/coverage_map.py` maps the plan's §2 to them, both ways |
+| the spec's gate | `tests/spec/`, with a subdirectory per amendment (`ls -d tests/spec/*/`) | one file per table and per named spec item; `tests/spec/coverage_map.py` maps the plan's §2 to them, both ways |
 | method obligations | `tests/run/` | `receipts-for`, `status`, the changes diff, the stale exit, the recompute declarations, the ruled exclusions (test, zero-total, comped) |
 | identities | `tests/identity/` | the code identity, the decoder identity, the clean-tree refusal, the change gate |
 | units | `tests/unit/` | the fixture gate, the Source's widened payloads, `scripts/e14-observe.py`, periods, decode failures |
@@ -20,7 +20,7 @@ State: `live`.
 .venv/bin/python tests/fixture.py census
 ```
 
-Two tests fail `NOT LIVE` wherever `SHOPIFY_ENGINE_LIVE_STATE` is unset — `test_payout_reconciliation_all.py` and `test_collection_members_all.py`: their subject is a store built from the whole archive, on the tower.
+The tests whose subject is a store built from the whole archive, on the tower, fail `NOT LIVE` wherever `SHOPIFY_ENGINE_LIVE_STATE` is unset. `git grep -l SHOPIFY_ENGINE_LIVE_STATE tests/spec` lists their files.
 
 ## The rules the tests follow
 

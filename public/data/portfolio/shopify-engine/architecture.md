@@ -26,12 +26,12 @@ A table names its class: a resource dir, the gid-type of the payload's own `id`,
 
 | table | read from | key | columns | shrink rule | |
 |---|---|---|---|---|---|
-| `d_order` | `orders/` · Order | `order_id` | 43 | append-only |  |
-| `d_order_item` | `orders/` · a child of the order's selected payload | `line_item_id` | 23 | current-state |  |
+| `d_order` | `orders/` · Order | `order_id` | 46 | append-only |  |
+| `d_order_item` | `orders/` · a child of the order's selected payload | `line_item_id` | 25 | current-state |  |
 | `d_order_transaction` | `orders/` · a child of the order's selected payload | `tx_id` | 12 | current-state |  |
 | `d_fee` | `orders/` · a child of the order's selected payload | `fee_id` | 12 | current-state |  |
 | `d_refund` | `orders/` · a child of the order's selected payload | `refund_id` | 7 | current-state |  |
-| `d_payout` | `payouts/` · ShopifyPaymentsPayout | `payout_id` | 11 | append-only |  |
+| `d_payout` | `payouts/` · ShopifyPaymentsPayout | `payout_id` | 14 | append-only |  |
 | `d_balance_txn` | `balance_transactions/` · ShopifyPaymentsBalanceTransaction | `btx_id` | 13 | append-only |  |
 | `d_customer` | `customers/` · Customer | `customer_id` | 12 | append-only |  |
 | `d_tender` | `tenderTransactions/` · TenderTransaction | `tender_id` | 7 | append-only |  |
@@ -56,9 +56,10 @@ A table names its class: a resource dir, the gid-type of the payload's own `id`,
 | `d_discount_code` | `discountNodes/` · the discount's `discount.codes` list | `pair_id` | 11 | append-only | pair (W4) |
 | `d_discount_target` | `discountNodes/` · the discount's three entitled lists | `pair_id` | 8 | append-only | pair (W4) |
 | `d_order_tax_line` | `orders/` · a child of the order's selected payload (lines' and shipping lines' `taxLines`) | `tax_line_key` | 12 | current-state | line money |
-| `d_order_discount_allocation` | `orders/` · a child of the order's selected payload | `allocation_key` | 7 | current-state | line money |
+| `d_order_discount_allocation` | `orders/` · a child of the order's selected payload | `allocation_key` | 21 | current-state | line money |
 | `d_order_shipping_line` | `orders/` · a child of the order's selected payload | `shipping_line_id` | 12 | current-state | line money |
-| `d_refund_line` | `orders/` · a child of the order's selected payload | `refund_line_id` | 10 | current-state | line money |
+| `d_refund_line` | `orders/` · a child of the order's selected payload | `refund_line_id` | 11 | current-state | line money |
+| `d_order_discount_application` | `orders/` · the applications the selected payload's allocations name, one row per (order, application index) | `application_key` | 20 | current-state | the links |
 | `d_draft_order_tax_line` | `draftOrders/` · a draft line's (or the draft's shipping line's) `taxLines` | `tax_line_key` | 11 | append-only | line money |
 
 Listed by the code: `shopify_engine/config.py` `CLASSES`, `derive/__init__.py` `SCHEMA`.
@@ -73,4 +74,4 @@ Listed by the code: `shopify_engine/config.py` `CLASSES`, `derive/__init__.py` `
 
 ## Deployed
 
-`shopify-engine.timer` on the tower, every 15 minutes at :09 :27 :39 :51, runs `shopify-engine build` with every default. The alerter reads the run record after each run (`period_seconds = 900`; stale at two periods). Units, stanza and bootstrap step: `Technical-1/tower`.
+`shopify-engine.timer` on the tower, four times an hour at :09 :27 :39 :51 (gaps of 18, 12, 12 and 18 minutes), runs `shopify-engine build` with every default. The alerter reads the run record after each run (`period_seconds = 1080`, the timer's longest gap). Units, stanza and bootstrap step: `Technical-1/tower`.
