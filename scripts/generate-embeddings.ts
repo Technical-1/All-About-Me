@@ -102,7 +102,23 @@ async function getPersonalFiles(
 }
 
 /**
- * Get all markdown files from the blog directory
+ * Same rule as the blog listing (src/pages/blog/index.astro): a post is public
+ * once it is not a draft and its pubDate has passed. Drafts and scheduled posts
+ * stay out of the index so the chat can't discuss them early; a scheduled post
+ * is picked up by the first deploy after its date.
+ */
+function isPublished(markdown: string, now: number): boolean {
+  const frontmatter = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
+  if (/^draft:\s*true\s*$/m.test(frontmatter)) return false;
+
+  const pubDate = frontmatter.match(/^pubDate:\s*["']?([^"'\r\n]+)["']?\s*$/m)?.[1];
+  if (!pubDate) return true;
+  const time = new Date(pubDate).valueOf();
+  return Number.isNaN(time) || time <= now;
+}
+
+/**
+ * Get all published markdown files from the blog directory
  */
 async function getBlogFiles(
   blogDir: string
@@ -115,14 +131,21 @@ async function getBlogFiles(
   }
 
   const blogFiles = await readdir(blogDir, { withFileTypes: true });
+  const now = Date.now();
 
   for (const file of blogFiles) {
     if (!file.isFile() || !file.name.endsWith('.md')) continue;
 
+    const path = join(blogDir, file.name);
+    if (!isPublished(await readFile(path, 'utf-8'), now)) {
+      console.log(`Skipping unpublished blog post: ${file.name}`);
+      continue;
+    }
+
     files.push({
       project: 'Blog',
       file: file.name,
-      path: join(blogDir, file.name),
+      path,
     });
   }
 
