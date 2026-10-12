@@ -10,7 +10,7 @@ For browsers that support WebGPU, the chatbot runs entirely locally using WebLLM
 
 - **Model**: SmolLM2-1.7B-Instruct (NOT a custom or fine-tuned model)
 - **Technology**: WebLLM with WebGPU for browser-based inference
-- **Download**: ~800MB model weights, cached in IndexedDB after first load
+- **Download**: about 1 GB of model weights, cached in IndexedDB after first load
 - **Privacy**: Conversations never leave your device in local mode
 - **Cost**: Zero API costs for users
 

@@ -41,7 +41,7 @@ The WebLLM option runs entirely in the browser - no data is sent to external ser
 ## Technical Highlights
 
 ### Hybrid AI Architecture
-I built a dual-mode chat system that detects WebGPU support and offers local inference when available. The WebLLM model (SmolLM2-1.7B) is preloaded in the background when users hover over navigation links, reducing perceived latency when they actually open the chat.
+I built a dual-mode chat system that detects WebGPU support and offers local inference when available. On devices with full WebGPU support, the WebLLM model (SmolLM2-1.7B) is preloaded site-wide in the background once the page goes idle, so it is usually ready before the visitor opens the chat.
 
 ### RAG Implementation
 Pure semantic search struggled with exact matches like project names. I implemented hybrid search that boosts scores when query terms appear verbatim in content, significantly improving accuracy for questions like "Tell me about the AHSR project."
@@ -58,12 +58,12 @@ Both local and cloud modes stream responses token-by-token for a responsive feel
 - **Constraint**: Want a privacy-first chat experience but not at the cost of users on older devices losing the feature entirely.
 - **Options**: Cloud-only (Claude API); local-only (WebLLM, but ~30% of visitors lack WebGPU); hybrid with feature detection.
 - **Choice**: Detect WebGPU support; serve WebLLM locally when available, fall back to Claude API otherwise. Both paths share the same RAG layer and streaming UX.
-- **Why**: No visitor is locked out, and the people who can run it locally get true privacy. The cloud fallback also covers the warmup gap while the 1.7GB WebLLM model downloads on first visit.
+- **Why**: No visitor is locked out, and the people who can run it locally get true privacy. The cloud fallback also covers the warmup gap while the roughly 1 GB WebLLM model downloads on first visit.
 
 ### Hybrid semantic + keyword search over pure vector similarity
 - **Constraint**: A visitor typing "Tell me about AHSR" should reliably retrieve the AHSR project even when its embedding is closer to a different project's vector.
 - **Options**: Pure cosine similarity on MiniLM-L6-v2 embeddings; BM25 keyword search; hybrid scoring.
-- **Choice**: Cosine similarity over chunked portfolio docs, with a multiplicative boost when query terms appear verbatim in the chunk.
+- **Choice**: Cosine similarity over chunked portfolio docs, with an additive boost (larger for words over four characters, capped at 1.0) when query terms appear verbatim in the chunk.
 - **Why**: Project names are nearly always typed literally, so verbatim hits should dominate ranking even when the embedding doesn't agree.
 
 ### Astro islands over a full SPA framework
@@ -76,13 +76,13 @@ Both local and cloud modes stream responses token-by-token for a responsive feel
 - **Constraint**: RAG search needs to be fast (<100ms) without burning compute on every visit.
 - **Options**: Index portfolio docs at request time; cache an in-memory index; bake embeddings at build time.
 - **Choice**: `scripts/generate-embeddings.ts` runs before `astro build` and writes `public/data/rag/embeddings.json`. The runtime only embeds the user's query.
-- **Why**: Embeddings of the portfolio docs are deterministic per build, so there's no reason to recompute them per request. Updates ship with the next deploy.
+- **Why**: Embeddings of the portfolio docs are deterministic per build, so there's no reason to recompute them per request. Updates ship with the next deploy, and the nightly repo sync guarantees one a day. Draft and future-dated blog posts are left out of the index until they publish.
 
 ## Frequently Asked Questions
 
 ### Q: How does the local AI chat work?
 
-The chat uses WebLLM, which runs a quantized language model (SmolLM2-1.7B-Instruct) directly in your browser using WebGPU. After the initial model download (~1.7GB, cached for future visits), all inference happens locally. Your questions never leave your device.
+The chat uses WebLLM, which runs a quantized language model (SmolLM2-1.7B-Instruct) directly in your browser using WebGPU. After the initial model download (about 1 GB, cached for future visits), all inference happens locally. Your questions never leave your device.
 
 ### Q: Why do I see "Cloud Mode" instead of "Local Mode"?
 
@@ -106,7 +106,7 @@ The main portfolio pages are static and may be cached by your browser. The AI ch
 
 ### Q: How are project details fetched?
 
-Public projects are fetched from the GitHub API at build time. Private projects and featured projects with rich documentation come from curated JSON files. Portfolio markdown files provide architecture diagrams, tech stack details, and Q&A content.
+A nightly GitHub Action snapshots every repo I own (public and private, minus an exclusion list for work and scratch repos) into JSON, and copies each repo's `.portfolio/` docs and preview image into this site. That commit triggers a deploy, which also rebuilds the chat's embeddings, so a project's page and the AI's knowledge of it update the morning after its docs change. In the browser, the projects page also merges in GitHub's public repo listing.
 
 ### Q: Why Astro instead of Next.js?
 
