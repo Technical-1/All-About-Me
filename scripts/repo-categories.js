@@ -37,6 +37,8 @@ export const REPO_CATEGORIES = {
   'Finance-POS': 'crypto-fintech',
 
   // Developer Tools & Infrastructure
+  'bluetooth-sim': 'dev-tools',
+  'claude-code-kit': 'dev-tools',
   'email-archive-parser': 'dev-tools',
   'FBI-API': 'dev-tools',
   'Git-Archiver': 'dev-tools',
@@ -95,6 +97,7 @@ export const REPO_CATEGORIES = {
 
   // Games & Puzzles
   'Blackjack-Trainer': 'games',
+  'oddoneout': 'games',
   'ClubGG': 'games',
   'PokerManager': 'games',
   'Simple-Backgammon': 'games',
@@ -122,6 +125,7 @@ export const REPO_CATEGORIES = {
   // Web Apps & Utilities
   'All-About-Me': 'web-utilities',
   'Easy-Time-Blocking': 'web-utilities',
+  'Exorcise': 'web-utilities',
   'eSim-Panel': 'web-utilities',
   'GimmeThat': 'web-utilities',
   'Hackathon': 'web-utilities',
@@ -144,8 +148,6 @@ export const REPO_CATEGORIES = {
   'CAP4770-Final_Project': 'academic',
   'Cplories-and-More': 'academic',
   'EEL4599-Final-Project': 'academic',
-
-  // Other (no clear domain; renders under Work in Progress if it lacks an image)
 };
 
 export function categoryFor(name) {
