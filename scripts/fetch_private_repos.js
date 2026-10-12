@@ -226,7 +226,13 @@ async function fetchAllRepos(visibility) {
   // Repos to exclude from the site. Archives are surfaced by default — every
   // archived repo has been individually curated — so this list only catches
   // sensitive content (SAA) or archives that shouldn't be public-facing.
-  const EXCLUDED_REPOS = ['SAA', 'Snowballs'];
+  // Filtered before processRepo(), so nothing is fetched from these repos.
+  // Names that must not appear in this public repo come from the
+  // EXCLUDED_REPOS secret (comma-separated) instead of being listed here.
+  const EXCLUDED_REPOS = [
+    'SAA', 'Snowballs',
+    ...(process.env.EXCLUDED_REPOS || '').split(',').map(s => s.trim()).filter(Boolean),
+  ];
 
   // Forks are dropped by default, but these are the user's own work that
   // GitHub happens to flag as a fork. Allowlist them back in by name.

@@ -23,6 +23,7 @@ jobs:
       - name: Fetch private repos
         env:
           GH_PRIVATE_TOKEN: ${{ secrets.GH_PRIVATE_TOKEN }}
+          EXCLUDED_REPOS: ${{ secrets.EXCLUDED_REPOS }}
         run: node scripts/fetch_private_repos.js
 
       - name: Commit changes
