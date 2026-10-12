@@ -92,6 +92,7 @@ export const REPO_CATEGORIES = {
   'img2ascii': 'creative',
   'NeoMatrix-FrameCreator': 'creative',
   'Pluribus-Text-Gen': 'creative',
+  'shan-shui-wallpaper': 'creative',
   'Signature-Studio': 'creative',
   'Video-To-Ascii': 'creative',
 
