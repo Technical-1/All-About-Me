@@ -105,7 +105,7 @@ const CACHE_TIMESTAMP_KEY = 'github_repos_timestamp_v15';
 const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
 // Repos to exclude from the public projects page
-const HIDDEN_REPOS = ['Work-Files', 'Valentines'];
+const HIDDEN_REPOS = ['Valentines'];
 
 // ============================================================================
 // DATA FETCHING FUNCTIONS

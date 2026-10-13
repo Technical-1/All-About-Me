@@ -19,8 +19,6 @@
     "@astrojs/tailwind": "^6.0.2",
     "@astrojs/vercel": "^9.0.4",
     "@mlc-ai/web-llm": "^0.2.80",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.6.1",
     "@xenova/transformers": "^2.17.2",
@@ -30,7 +28,6 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "tailwindcss": "^3.4.19",
-    "three": "^0.182.0",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

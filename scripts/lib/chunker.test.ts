@@ -1,10 +1,10 @@
 /**
- * Tests for chunker.ts using Node's built-in test runner
+ * Tests for chunker.ts
  *
- * Run with: npx tsx --test scripts/lib/chunker.test.ts
+ * Run with: npm test
  */
 
-import { describe, it } from 'node:test';
+import { describe, it } from 'vitest';
 import assert from 'node:assert';
 import { chunkMarkdown, estimateTokens, type Chunk } from './chunker.js';
 

@@ -37,8 +37,6 @@ I implemented a hybrid approach:
 
 The hero and background are plain CSS and Astro, with no 3D or canvas work. `GeometricBackground.astro` draws a grid and rotated red and teal rectangles that match the OpenGraph image style, and `HeroSection.astro` runs a small typing animation that restarts cleanly across View Transitions.
 
-`three`, `@react-three/fiber` and `@react-three/drei` are still listed in `package.json`, but nothing in `src/` imports them.
-
 ## State Management
 
 | Technology | Version | Purpose |
@@ -83,7 +81,7 @@ I chose Zustand over Context for its simplicity and built-in persistence support
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **tsx** | 4.21.0 | TypeScript execution for build scripts |
-| **Vitest** | 4.1.8 | Unit tests for the pure logic (project categorization in `projectSections.ts`) |
+| **Vitest** | 4.1.8 | Unit tests for the pure logic (shelf placement in `projectSections.ts`, Markdown chunking in `scripts/lib/chunker.ts`) |
 | **Puppeteer** | 24.36.1 | OG image generation |
 
 ## Key Dependencies Deep Dive
