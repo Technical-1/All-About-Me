@@ -12,7 +12,7 @@ Modern youth slang turns over fast and is contextual — a single term can flip 
 
 - **Parents and grandparents** — paste a message from a kid and get an instant, plain-English breakdown
 - **Teachers and youth workers** — quick reference for terms that show up in classrooms and DMs
-- **Curious adults** — browse by era/origin to keep up with how language is evolving
+- **Curious adults** — browse by year and kind to keep up with how language is evolving
 
 ## Key Features
 
@@ -20,7 +20,9 @@ Modern youth slang turns over fast and is contextual — a single term can flip 
 - **Encode (Reverse Translation)** — Type a phrase the way an adult would say it and get it rewritten in current kid slang at three intensity levels (lightly seasoned → medium → full Gen Alpha), each copyable, with a glossary of the terms used; the model is steered toward the curated dictionary so most output terms link to vetted definitions
 - **Curated-Only Lookups**: Decode and Browse answer from the curated dictionary and approved community terms; a miss says so and makes no network request
 - **Community Submissions** — Users sign in with Google or Apple, submit new slang terms, and upvote/downvote submissions with real-time Firestore sync
-- **Dark Mode** — Follows the OS appearance until the user toggles; only an explicit toggle is persisted to localStorage
+- **Settings Sheet** — Appearance (Match device / Light / Dark), sign-in and sign-out, account deletion, and links to the iOS app, Privacy, Terms and Support, all in one sheet that matches the iOS app
+- **Plain-Language Interface** — Each page is titled with what it does ("Say it in kid talk", "Slang dictionary", "New slang"), the decode result leads with the plain-English answer, and every action has a word on it: Listen, Copy, Yes / No, Suggest a word
+- **Now on iOS** — A banner on Home and Apple's Smart App Banner link to the companion iOS app, which shares the same backend and dictionary
 - **PWA** — Installable progressive web app with offline access to the local dictionary
 - **Rich Metadata** — Every local term carries definition, example usage, wrong-usage warnings, era, origin platform, type classification, and pronunciation guide
 
@@ -35,8 +37,11 @@ Voting writes both the per-user vote doc and the submission's aggregate counters
 ### Encode: Dictionary-Anchored Generation with a Trust-Tiered Glossary
 The encode direction can't reuse the decode pipeline — the local dictionary is a forward index with no "meaning → slang" lookup. Instead, `webapp/api/ai-encode.js` injects the curated dictionary's terms and definitions into the system prompt so the model *prefers* terms the app can link to vetted definitions, while still allowing other current slang, and returns three intensity-graded rewrites plus a glossary. The response is validated and each variation/glossary entry is reconstructed from only its declared fields before being written to the 30-day KV cache, so a malformed or adversarial model response can't poison it. On the client, `webapp/src/utils/mergeGlossary.js` then re-detects curated terms in the output via the shared `findTermsInText` matcher (those get vetted definitions, listed first) and folds in the model's own glossary for the rest — a trust-tiered list that `EncodeGlossary` caps at six with a "Show all" toggle.
 
+### Streaming Partial Replies Without Forking the Contract
+Both AI endpoints accept an opt-in `stream: true` flag, used by the iOS app, and reply as NDJSON: `{"partial": …}` snapshots while the model writes, then a `{"done": …}` line. Model output is a JSON document, so a mid-stream prefix is not valid JSON; `parsePartialJson` in `webapp/api/_lib/stream.js` walks the prefix with a small state machine, closes the open string and containers, and drops a dangling key, which lets a translation appear character by character. Each handler's parse/validate/cache step is one `finalize` function shared by both paths, so the `done` line is exactly the JSON body and a fallback reply is never cached on either path. Clients that do not send the flag, including the web app, see no change.
+
 ### Feature-Scoped Architecture with a Single Listener
-`App.jsx` is a ~40-line shell. Each tab (Decode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks. `ApprovedTermsContext` owns the only `onSnapshot` subscription for approved community submissions — both `useDictionary` and `useCommunity` consume the same stream, halving the Firestore listener count and eliminating duplicate-result races between the two consumers.
+`App.jsx` is a thin shell. Each tab (Decode, Encode, Browse, Community) lives in its own directory with co-located components, and business logic is pushed into four hooks. `ApprovedTermsContext` owns the only `onSnapshot` subscription for approved community submissions — both `useDictionary` and `useCommunity` consume the same stream, halving the Firestore listener count and eliminating duplicate-result races between the two consumers.
 
 ### Layered Caching + Per-IP Rate Limiting
 Vercel KV caches LLM responses server-side in production. On the client, an in-memory `Map` covers the current session and a 20-entry LRU in `localStorage` persists AI translations across reloads. The same KV instance also stores per-IP rate-limit counters via `webapp/api/_lib/rate-limit.js`, which falls back to a self-pruning in-memory map when KV is unavailable instead of erroring. Anonymous requests without `x-forwarded-for` share an `unknown` bucket rather than getting a bypass.
@@ -119,13 +124,19 @@ Anthropic Claude Haiku 4.5, called via `@anthropic-ai/sdk` from a Vercel serverl
 Partially. The PWA service worker (`vite-plugin-pwa`) caches the app shell and bundles the local dictionary, so every curated term in the bundled seed (and the last synced dictionary) works offline. AI insight, encode, and community features require connectivity.
 
 ### How is dark mode implemented?
-Tailwind's `darkMode: 'class'` strategy. `ThemeContext` follows OS `prefers-color-scheme` (including live changes) until the user toggles, persists only explicit toggles to localStorage, and adds/removes the `dark` class on `<html>`. Every component uses `dark:` variants.
+Tailwind's `darkMode: 'class'` strategy. Settings offers Match device, Light or Dark: `ThemeContext` saves Light or Dark to localStorage, and Match device clears the saved choice so the page follows `prefers-color-scheme` again, including live OS changes. The `dark` class is toggled on `<html>` and every component uses `dark:` variants.
+
+### Do I need an account?
+No. Decode, Encode and Browse work signed out; an account (Google, or Apple where available) is only for suggesting words and voting in Community. Signing out keeps your submissions and votes. Deleting your account from Settings calls a Cloud Function that removes your votes and reports, anonymizes the terms you submitted (other people voted on them, and approved ones are already in the shared dictionary), and leaves cached AI text to expire within 30 days.
+
+### Is there an iOS app?
+Yes. The web app links to it from a "Now on iOS" banner on Home and from Settings, and iPhone Safari shows Apple's Smart App Banner. Both clients read the same published dictionary document and call the same AI endpoints; the iOS app is the client that requests streamed replies.
 
 ### How do I add a slang term manually?
 Add it to the seed file `shared/slangDictionary.js` (with `definition`, `example`, `wrongUsage`, `era`, `origin`, `type`, and `pronunciation`), then run `node scripts/seed-dictionary.mjs` to push it to Firestore. The publisher Cloud Function regenerates the published dictionary document and every client — web and iOS — picks it up on next launch, with no deploy.
 
 ### What's the test setup?
-240 tests across 33 files using Vitest and React Testing Library — covering layout components (including tab-state persistence in `TabPanels`), the hooks layer (notably `useAiTranslation` and `useEncode`), the decode path (including a test that a dictionary miss makes no network request), the live dictionary store (cache hydration, version regression, poisoning guards), the auth/theme/approved-terms contexts, the term-matching and glossary-merge helpers, the API handlers (`ai-translate`, `ai-encode`), and the shared API helpers (`cors`, `kv`, `rate-limit`). Firestore security rules have their own emulator-backed test suite under `firebase/__tests__/` driven by `@firebase/rules-unit-testing`. CI (`.github/workflows/ci-v2.yml`) runs lint, unit tests, rules tests against the Firebase emulator (requires JDK 21), and a production build on every push and PR.
+257 tests across 36 files using Vitest and React Testing Library — covering layout components (tab-state persistence in `TabPanels`, the Header, the Settings sheet and the App Store banner), the hooks layer (notably `useAiTranslation` and `useEncode`), the decode path (including a test that a dictionary miss makes no network request), the live dictionary store (cache hydration, version regression, poisoning guards), the auth/theme/approved-terms contexts, the term-matching and glossary-merge helpers, the API handlers (`ai-translate`, `ai-encode`), the shared API helpers (`cors`, `kv`, `rate-limit`, `stream`, including the partial-JSON parser), and a check that the Content-Security-Policy allows the Cloud Functions host the account-deletion callable needs. Firestore security rules have their own emulator-backed test suite under `firebase/__tests__/` driven by `@firebase/rules-unit-testing`. CI (`.github/workflows/ci-v2.yml`) runs lint, unit tests, rules tests against the Firebase emulator (requires JDK 21), and a production build on every push and PR.
 
 ### How does the API protect itself from abuse and misconfigured origins?
 Every handler under `webapp/api/` routes through `webapp/api/_lib/`. `cors.js` is a single-source allowlist for production and dev origins; `rate-limit.js` enforces per-IP buckets backed by Vercel KV with a self-pruning in-memory fallback so a transient KV outage degrades to memory-limit rather than no-limit; `kv.js` exposes an `isReal` flag so the unit tests can swap in a stub without monkey-patching. Anonymous requests (no `x-forwarded-for`) share an `unknown` bucket so they're still rate-limited rather than getting a bypass.

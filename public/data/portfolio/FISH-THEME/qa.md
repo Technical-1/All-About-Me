@@ -1,72 +1,118 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-FISH Apparel is a college hat brand ("Fuck It, Shit Happens") based in Gainesville, FL. I built and maintain the custom Shopify storefront, writing Liquid/JS code that replaces paid extensions and adds features the theme doesn't support out of the box. The custom code saves the business an estimated $700-1,800/year in app subscriptions.
+This is the custom Shopify storefront for FISH Apparel, a Gainesville, FL college hat brand. It runs on the commercial Turbo theme (9.5.0), and I added Liquid, vanilla JS and CSS that replace paid apps and add the business features the theme lacks:
+- variant-accurate product galleries
+- a gated wholesale order portal
+- native pre-orders
+- a campaign system that drives every promotion from one place
+- a team inventory-record form
+
+The most technically interesting part is how form submissions are delivered. A theme cannot run server code, and Shopify's mailer re-wraps every email it sends. So every form attaches a compact, encoded, contract-pinned block that a downstream reader can parse exactly.
+
+## Problem Solved
+
+A small Shopify brand quickly accumulates app subscriptions, one each for variant images, wholesale, pre-orders and a shipping bar, and each app adds its own script to every page. On top of that, its operational data (wholesale orders, back-in-stock requests, hats given away by the team) arrives as free-form contact-form emails that are hard to process reliably. This theme brings those features into code the brand owns, and turns form email into structured data.
+
+## Target Users
+
+- **Shoppers**: a gallery that shows the colour they picked, clear pre-order ship dates, one-tap add-ons and a free-shipping nudge in the cart.
+- **Wholesale retailers**: a catalog at wholesale prices with per-variant quantities and a running total, reachable in one tap from a business-card QR code.
+- **The team**: a login-gated page for recording a hat given away or sold for cash, plus email that can be processed without retyping.
 
 ## Key Features
 
-- **Variant Image Filtering**: Filters product gallery photos by selected color — replaced SA Variant Image Automator ($14.90/month on Shopify Basic)
-- **Wholesale Ordering System**: Password-protected B2B catalog with 50% pricing, quantity selectors, and order form — replaces apps like Wholesale Pricing Discount B2B ($24.99/month) and SparkLayer ($49/month)
-- **Infinite Scroll Photo Gallery**: Smooth, seamless marquee of 24 lifestyle images using requestAnimationFrame — replaced the theme's static grid
-- **Free Shipping Progress Bar**: "Add X more hats for FREE SHIPPING" visual fill that drives higher average order value
-- **Quick Add to Cart**: One-click add on the cart page — reduces friction from 3 clicks to 1 for impulse add-ons
-- **Business Card Generator**: Interactive HTML tool with 4 card designs, team member toggle, and QR codes linking to the wholesale portal
-- **Social Media Strategy Report**: 4-tab interactive report covering posting schedule, ad budget, UGC campaigns, AI content plan, and B2B partnership tracking
+### Colourway-filtered galleries
+Picking a colour shows only that colour's photos, angle shot first, on the product page and inside the quick-view modal. It replaces a $14.90/month app.
+
+### Wholesale portal
+Every product and variant is listed at wholesale pricing, with quantity steppers, a live summary and an order form that emails the store. Access is by password or QR link, with an optional server-side customer-tag gate.
+
+### Campaign registry
+New colourway launches, restocks and pre-orders are each defined once. The announcement bar, the popup's drop list and the NEW / RESTOCK / PRE-ORDER chips on collection cards all read from that one definition, and each campaign ends on its own when the stock behind it runs out.
+
+### Native pre-orders
+Tagging a product `preorder:YYYY-MM-DD` adds a ship-date note and a `Pre-Order` line-item property, and the cart and confirmation email carry it through.
+
+### Team give-away record
+A page visible only to tagged team accounts, where a team member taps a hat's photo, picks whose stock it came from and the date, and submits.
+
+### Faster homepage and collection pages
+- Images are served at their displayed size.
+- The photo strip loads tiles as they approach the screen instead of all 24 at once.
+- Blur-up placeholders became CSS skeletons.
+- The collection page was rebuilt as an edge-to-edge grid.
 
 ## Technical Highlights
 
-### Replacing a $178/Year Extension with 160 Lines of JavaScript
-We were paying for **SA Variant Image Automator** ($14.90/month on Shopify Basic, 4.9★ on the App Store) to filter product images by color variant. The cheaper alternative, **Variant Image Wizard + Swatch**, still runs $4.99–$7.99/month. I wrote `fish-variant-images.js` — it hooks into the theme's Flickity carousel, reads image filenames (e.g., "gators-corduroy-angle.jpg"), matches them against the selected variant's handleized color name, and reorders the gallery. Same functionality, zero ongoing cost. The key insight was that Shopify already encodes variant info in image filenames — you just need to parse it.
+### A form payload that survives the mailer
+Shopify's contact mailer hard-wraps plain-text values at a space after about 60 characters. The theme controls only field names, values and their order, and the first item-row format arrived cut in two. `snippets/fish-form-block.liquid` now writes a versioned block where:
+- every value is percent-encoded UTF-8, cut into chunks of at most 36 characters and never split inside a `%XX`;
+- each value carries a `len=` so truncation is detectable;
+- no line contains a space or runs past 40 characters.
 
-### Building a Wholesale System Without a Backend
-Shopify doesn't let you run custom server code without building a full app. I needed a password-protected wholesale page. The solution: SHA-256 hash the password client-side and compare it against a Shopify page metafield. Since the wholesale page is just a contact form (not actual checkout with different prices), client-side auth is perfectly fine. The hash prevents casual password discovery in view-source. This replaces wholesale apps like **Wholesale Pricing Discount B2B** ($24.99/month), **B2B Wholesale Hub** ($39/month), or **SparkLayer** ($49/month with a 50-order/month cap on the starter tier). That's $300–$588/year saved.
+Fields come from `FormData` at submit time (capture phase), so a newly added field is picked up automatically. If the script throws, the form still sends.
 
-### Fixing the Gallery White Flash
-The homepage photo gallery was glitching — a white flash every time the infinite scroll looped. The original CSS `@keyframes` approach used `translateX(-50%)` which causes sub-pixel rounding errors across 48 images. I replaced it with a JavaScript `requestAnimationFrame` loop that measures exact pixel widths of the original image set and resets the transform offset at the precise threshold. No percentage-based math, no rounding errors, no flash.
+### Testing the exact code the store runs
+The block builder and the wholesale and team body builders are pure functions inside Liquid files, between `// <fish-builder>` markers. `tools/forms-proposal/builder.js` extracts that text and evaluates it with `new Function`, and `check-block.js` runs 322 assertions on it. The block grammar comes from `tests/contracts/form-block.json`, whose SHA-256 is pinned in `form-block.pin`. The tests therefore cannot drift from the shipped code or from the contract. `check-reader.js` covers hand-written and malformed blocks, and `check-browser.js` runs the real snippet in headless Chrome to prove the field exists before the form is serialized.
 
-### Business Tools Beyond the Storefront
-Built standalone HTML tools for the business: an interactive business card generator with 4 design approaches (toggleable between team members) with QR codes linking to the wholesale portal, and a comprehensive social media strategy report with posting schedules, ad budget breakdowns, UGC campaign ideas, AI content plans, and B2B partnership tracking.
+### Fixing a cached-index race in a theme I don't own
+After the variant filter removes cells, Turbo's `sections.js` still selects a slide by the media's original index, read through jQuery's `.data('index')`. That index is out of range after filtering, so Flickity clamped it to the wrong photo, and the result depended on which handler ran last. `assets/fish-variant-images.js` renumbers every remaining cell in both the DOM attribute and jQuery's data cache. jQuery caches on first read and never re-reads the attribute, so writing the cache is what makes the theme's own call land correctly.
+
+### Campaigns that cannot outlive their stock
+`snippets/fish-campaign.liquid` gives each mode an inventory gate:
+- `preorder`: tracked, depleted and still sellable;
+- `restock`: real units on hand;
+- `launch`: the restock test, applied only to the named new variants.
+
+Date windows are a backstop, not the main control. Any copy that counts drops is derived from the gates, so the popup can never announce stock that has sold out.
 
 ## Engineering Decisions
 
-### Custom Liquid/JS over paid Shopify apps
-- **Constraint**: Each feature gap (variant filtering, wholesale catalog, shipping bar, newsletter) had an off-the-shelf app costing $5–$49/month, and each app injects its own third-party script into every page load.
-- **Options**: Stack paid apps (~$1,000+/year, slower site), build a custom Shopify app with a backend, or write the features directly in Liquid/JS inside the theme.
-- **Choice**: Write the features directly in Liquid/JS with a `fish-` filename prefix.
-- **Why**: One-time dev effort vs. perpetual subscription. No third-party scripts means a faster storefront and full control over behavior. The `fish-` prefix keeps custom files clearly separated from the 50+ Turbo Seoul defaults so theme updates don't clobber them.
+### Theme code over paid apps
+- **Constraint**: Each gap had a $5–$49/month app, adding roughly $1,000 a year in total plus a third-party script per app.
+- **Options**: Stack the apps, build a custom Shopify app with a backend, or build the features in theme Liquid and JS.
+- **Choice**: Theme code in `fish-`-prefixed files.
+- **Why**: There is nothing to host and nothing recurring to pay, and no third-party scripts. The prefix keeps the custom work separate from Turbo's files during theme updates.
 
-### JS pixel-measurement marquee over CSS keyframes
-- **Constraint**: The homepage marquee loops 48 lifestyle photos. CSS `@keyframes` with `translateX(-50%)` produced a visible white flash at every reset because percentage-based transforms accumulate sub-pixel rounding errors across that many images.
-- **Options**: Live with the flash, mask it with a faked fade overlay, or measure pixel widths in JS and reset at an exact integer threshold.
-- **Choice**: `requestAnimationFrame` loop that measures the exact pixel width of the original image set and snaps the transform on integer boundaries.
-- **Why**: Truly seamless loop with no visual artifact, 60fps performance, and no dependence on a library. Costs ~60 lines of vanilla JS instead of a third-party carousel plugin.
+### Encoded block over a nicely formatted email
+- **Constraint**: The mailer's layout and wrapping cannot be changed from a theme.
+- **Options**: Parse the human-readable body heuristically, route forms through an external form service, or attach a machine-readable block in its own field.
+- **Choice**: A versioned, encoded block in `contact[fish_form]`, pinned to a JSON contract.
+- **Why**: It keeps Shopify's native contact pipeline, leaves the human-readable email unchanged, and makes parsing exact rather than best-effort.
 
-### Client-side SHA-256 for wholesale gating
-- **Constraint**: Wholesale catalog needs a "password" but Shopify doesn't allow custom backend code without building a full app, and the page itself is a contact form (not a real checkout with different prices).
-- **Options**: Pay for a wholesale app ($24.99–$49/month), build a custom Shopify app with server-side auth, or hash the password client-side and compare against a page metafield.
-- **Choice**: Client-side SHA-256 hash comparison against a Shopify page metafield, with the password also accepted via URL parameter for QR code links from business cards.
-- **Why**: Password isn't a security boundary — the worst case is someone seeing wholesale prices on a contact form. The hash just prevents casual discovery in view-source, and the URL-parameter mode turns the printed QR codes into one-tap retailer onboarding.
+### Server-side tag gates where it matters
+- **Constraint**: The wholesale password check runs in the browser, and anyone can post to a store's contact endpoint.
+- **Options**: Treat the password as security, pay for a B2B app, or gate the markup on a customer tag in Liquid.
+- **Choice**: The password stays as a convenience. A customer-tag gate is available for wholesale and required for the team form, and the reader re-prices wholesale items from the catalogue by variant id.
+- **Why**: A submission is treated as a claim rather than a fact. The tag gate keeps the page out of the HTML for anyone else, without any backend.
+
+### Deploy only what changed
+- **Constraint**: `config/settings_data.json` is edited live in the theme editor, so the repo copy goes stale.
+- **Options**: A full `theme push`, or pushes scoped with `--only` per file.
+- **Choice**: Scoped pushes. Before pushing, I pull the live copies to check for admin edits; after pushing, I pull again to confirm production matches the commit.
+- **Why**: A full push would quietly roll back months of merchandising changes made in the admin.
 
 ## Frequently Asked Questions
 
-### How does the variant image filtering work?
-When a customer selects a color swatch, JavaScript handleizes the color name ("Gators Corduroy" → "gators-corduroy") and checks every gallery image filename for that prefix. Non-matching images are hidden, matching ones are shown, and the Flickity carousel reinitializes with the filtered set. "Angle" shots get prioritized to the front.
+### How does the gallery know which photos belong to which colour?
+By filename. A photo for the "Gator White" variant must be named `gator-white-…`. The script handleizes the selected colour and keeps the slides whose `data-media-filename` starts with it. If nothing matches, it shows every photo rather than an empty gallery.
 
-### Why custom code instead of Shopify apps?
-The real apps we'd be paying for: SA Variant Image Automator ($14.90/month), Wholesale Pricing Discount B2B ($24.99/month), Hextom Free Shipping Bar Premium ($9.99/month), Klaviyo Email (~$30/month at 1k contacts), EZ Quick Buy ($4.99–$8.99/month). That adds up to $1,000+/year — and each app injects its own JavaScript that slows the site. Custom Liquid/JS is a one-time dev effort, loads faster (no third-party scripts), and is fully under our control.
+### Does the variant filter work in quick view?
+Yes. Quick view builds a second gallery when it opens. A `MutationObserver` triggers a short burst of re-scans after DOM changes, and each gallery is tied to the swatches nearest to it, so the modal and the page do not drive each other.
 
-### How does the wholesale system handle authentication?
-The password is SHA-256 hashed client-side and compared against a hash stored in a Shopify page metafield. This isn't a security boundary — the wholesale page is a contact form that emails us the order, not an actual checkout with different prices. The hash just prevents casual password discovery in source code.
+### Is the wholesale password secure?
+It is a convenience gate, not a security boundary. The browser compares a SHA-256 of the input with a hash that Liquid renders from a page metafield. When a real boundary is needed, the section's `require_customer_tag` setting keeps the catalog out of the page for anyone not logged in with that tag.
 
-### How does the infinite scroll gallery work without glitching?
-All gallery images are duplicated in the DOM. A `requestAnimationFrame` loop continuously translates the container left. When the offset reaches the exact pixel width of the original image set, it snaps back. Because it measures real pixel widths (not percentages), there are no sub-pixel rounding errors and no white flash at the seam.
+### What happens if JavaScript fails on a form?
+The form still submits normally. The email simply has no FISH-FORM block, and the contract defines how a reader treats a submission recognized only by the mailer's layout.
 
-### How does the shipping progress bar know when a customer is close to free shipping?
-`fish-shipping-progress.liquid` reads `cart.item_count` directly in Liquid and compares it against the 3-hat threshold. The progress bar width is computed server-side, so it renders correctly on first paint with no JS flicker. When the threshold is hit, a CSS class flips the bar green. There's no JavaScript at all in this snippet — pure Liquid math.
+### How is a pre-order kept from being bought without its ship date?
+The `Pre-Order` property is added in the product form. Quick Add posts straight to `/cart/add.js` with no properties, so it detects pre-order variants (tracked, depleted, continue-selling) and links to the product page instead.
 
-### How do the business cards connect to the wholesale system?
-The business card designs include QR codes that link directly to the wholesale portal URL with the password pre-filled as a URL parameter (`/pages/wholesale?pass=fishwholesale2026`). Retailers scan the QR code and land directly in the authenticated wholesale catalog — no password entry needed.
+### Why does the photo strip control its own image loading?
+Tiles are moved with a CSS transform, not scrolled, so native lazy loading and lazysizes never see them come into view. The animation loop already knows every tile's position, so it unveils each one 900 px before it reaches the edge. At the strip's fixed speed, that is a predictable lead time.
 
-### What's the fish- prefix convention?
-All custom files are prefixed with `fish-` (e.g., `fish-variant-images.js`, `fish-wholesale.liquid`). The Turbo Seoul theme has 50+ built-in snippets and sections. The prefix makes it instantly clear which files are custom vs. theme defaults, and theme updates won't overwrite `fish-*` files.
+### How do I run the tests?
+`node tools/forms-proposal/check-block.js` and `node tools/forms-proposal/check-reader.js` need only Node. `check-browser.js` needs `npm install` for Puppeteer.

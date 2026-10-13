@@ -9,7 +9,14 @@ flowchart TD
     end
 
     subgraph WebApp["React Web App (webapp/)"]
-        Entry[main.jsx<br/>Sentry + Providers] --> App[App.jsx<br/>Thin shell ~40 lines]
+        Entry[main.jsx<br/>Sentry + Providers] --> App[App.jsx<br/>Thin shell: titles + tabs]
+        Entry -->|/moderate| Moderate[ModeratePage<br/>claim-gated, lazy]
+
+        subgraph Layout["Layout"]
+            Header[Header<br/>title + Settings button]
+            Settings[SettingsModal<br/>appearance, account, about]
+            Banner[AppStoreBanner<br/>Home only]
+        end
 
         subgraph Contexts["Context Providers"]
             Theme[ThemeContext<br/>Dark mode]
@@ -21,7 +28,7 @@ flowchart TD
             Decode[DecodeTab<br/>+ HighlightedText<br/>+ DefinitionList<br/>+ AiInsightPanel]
             Encode[EncodeTab<br/>+ VariationCard<br/>+ EncodeGlossary]
             Browse[BrowseTab<br/>+ FilterBar<br/>+ TermCard<br/>+ TrendingRow]
-            Community[CommunityTab<br/>+ AuthPrompt<br/>+ SubmissionForm<br/>+ SubmissionCard]
+            Community[CommunityTab<br/>+ AuthPrompt<br/>+ SubmissionForm<br/>+ SubmissionCard<br/>+ ReportModal]
         end
 
         subgraph Hooks["Custom Hooks"]
@@ -34,6 +41,7 @@ flowchart TD
 
         subgraph Services["Service Layer"]
             CommService[communityService.js<br/>Firestore CRUD + transactions]
+            ModService[moderationService.js<br/>batched actions + log]
         end
 
         subgraph Utils["Utilities"]
@@ -51,7 +59,7 @@ flowchart TD
     subgraph Serverless["Vercel API (webapp/api/)"]
         AIFunc[ai-translate.js]
         EncodeFunc[ai-encode.js]
-        ApiLib[_lib/<br/>cors + kv + rate-limit]
+        ApiLib[_lib/<br/>cors + kv + rate-limit + stream]
         AIFunc --> ApiLib
         EncodeFunc --> ApiLib
     end
@@ -68,6 +76,29 @@ flowchart TD
         Vercel[Vercel<br/>Hosting + Serverless]
         GHA[GitHub Actions<br/>ci-v2 test pipeline]
     end
+
+    subgraph CloudFns["Firebase Cloud Functions (functions/index.js)"]
+        Publisher[publishDictionary]
+        AutoApprove[autoApprove]
+        ReportAlert[reportAlert]
+        Unpublish[unpublishOnRemove]
+        DeleteAcct[deleteAccount]
+    end
+
+    Firestore --> Publisher
+    Publisher -->|published/dictionary| Firestore
+    Firestore --> AutoApprove
+    Firestore --> ReportAlert
+    Firestore --> Unpublish
+    Settings -->|callable| DeleteAcct
+    DeleteAcct --> Firestore
+    App --> Header
+    App --> Banner
+    Header --> Settings
+    Settings --> Theme
+    Settings --> Auth
+    Moderate --> ModService
+    ModService --> Firestore
 
     SD -->|first-launch seed| LocalDict
     Firestore -->|published doc, 1 read/launch| LocalDict
@@ -114,13 +145,23 @@ flowchart TD
 ## Component Descriptions
 
 ### App.jsx (Application Shell)
-- **Purpose**: Thin orchestration shell that renders the header, tab bar, and active tab
+- **Purpose**: Thin orchestration shell that renders the header, tab bar, Settings sheet and active tab
 - **Location**: `webapp/src/App.jsx`
 - **Key responsibilities**:
-  - Manages active tab state (decode, encode, browse, community)
+  - Manages active tab state (decode, encode, browse, community); the decode tab is labelled "Home" in the tab bar, matching the iOS app, while its id stays `decode`
+  - Supplies each non-Home page's plain-sentence title and one-line instruction to `Header` ("Say it in kid talk", "Slang dictionary", "New slang"); Home shows the brand instead
+  - Shows the "Now on iOS" `AppStoreBanner` on Home only, and opens `SettingsModal` from the header
   - Declares the panel list and hands it to `TabPanels`, which keeps each visited tab mounted so its state survives switching tabs
-  - Calls `useDictionary` once and passes data down
-  - Renders the footer: tagline plus Privacy, Terms and Support links (no dictionary line)
+  - Subscribes to `dictionaryStore` (one published-dictionary read per launch), calls `useDictionary` once and passes data down
+  - There is no page footer: the tagline and the Privacy, Terms and Support links live in Settings
+
+### Header, SettingsModal and AppStoreBanner (Layout)
+- **Purpose**: The title row on every page, and the one place for preferences and account actions
+- **Location**: `webapp/src/components/Layout/Header.jsx`, `SettingsModal.jsx`, `AppStoreBanner.jsx`
+- **Key responsibilities**:
+  - `Header` renders the centered brand on Home, or the page's plain-sentence title with its instruction elsewhere, plus a 44px Settings button whose glyph shows sign-in state (a person in a coral ring when signed in, a gear when not) rather than the provider's profile photo
+  - `SettingsModal` is a bottom sheet on phones and a centered dialog on desktop, closed by Done or Escape. It holds a three-way Appearance radio group (Match device / Light / Dark), the account section (Google and Apple sign-in via the shared `SignInButtons`, sign-out, and account deletion with a confirmation that states the timeline), and links to the iOS app, Privacy, Terms and Support
+  - `AppStoreBanner` is a single "Now on iOS" link to the App Store listing (URL in `webapp/src/utils/appStore.js`); `webapp/index.html` also carries Apple's `apple-itunes-app` Smart App Banner tag
 
 ### TabPanels (Tab State Persistence)
 - **Purpose**: Render tab panels while preserving each one's state across tab switches
@@ -144,7 +185,7 @@ flowchart TD
   - Detects input type (term, sentence, or conversation) via `detectInputType`
   - Orchestrates local translation (`useTranslation`) and AI translation (`useAiTranslation`) in parallel
   - Renders highlighted text with clickable slang terms and scrollable definitions
-  - Displays AI insight panel alongside dictionary results
+  - Leads the results with the AI insight panel ("In plain English"), then the highlighted text and the word-by-word definitions in a single column
 
 ### EncodeTab (Reverse Translation)
 - **Purpose**: The inverse of decode — rewrites plain adult English into current kid slang
@@ -159,8 +200,8 @@ flowchart TD
 - **Purpose**: Filterable, searchable dictionary with a trending row
 - **Location**: `webapp/src/components/Browse/BrowseTab.jsx`
 - **Key responsibilities**:
-  - Renders FilterBar for era/origin/type filtering
-  - Shows TermCards with pronunciation, examples, and audio playback
+  - Renders FilterBar with labelled "Year:" and "Kind:" selects; their options are derived from the dictionary data in `useDictionary`, so they grow with it
+  - Shows TermCards that open to a "Sounds like" pronunciation, a labelled Listen button, an example and a "Don't say" warning
   - Displays TrendingRow, a random sample of the local dictionary (`pickTrendingTerms` in `useDictionary.js`)
   - Shows a no-results card when a search matches nothing; there is no remote fallback
 
@@ -168,17 +209,17 @@ flowchart TD
 - **Purpose**: Community-driven term submissions with voting
 - **Location**: `webapp/src/components/Community/CommunityTab.jsx`
 - **Key responsibilities**:
-  - Shows AuthPrompt for unauthenticated users (Google/Apple sign-in)
-  - Renders SubmissionForm for adding new terms (with blacklist filtering)
-  - Displays SubmissionCards with upvote/downvote (Firestore transactions)
+  - Shows AuthPrompt for unauthenticated users (Google/Apple sign-in through the shared `SignInButtons`)
+  - Renders SubmissionForm behind a "Suggest a word" button (with blacklist filtering)
+  - Displays SubmissionCards with worded "Yes · n" / "No · n" vote pills (Firestore transactions), plus Report and Block actions
   - Enforces daily submission limits (5/day per user)
 
-### ThemeContext (Dark Mode)
-- **Purpose**: Toggle between light and dark themes
+### ThemeContext (Appearance)
+- **Purpose**: Light, dark, or follow the device
 - **Location**: `webapp/src/context/ThemeContext.jsx`
 - **Key responsibilities**:
-  - Follows the OS appearance until the user toggles; persists only explicit toggles to localStorage
-  - Respects OS `prefers-color-scheme` on first visit
+  - Exposes `appearance` (`system` | `light` | `dark`) and `setAppearance` for the Settings sheet; `system` clears the saved `ktt_theme` key so the page follows the device again, while `light` / `dark` pin it
+  - With no saved choice, follows `prefers-color-scheme`, including live OS changes
   - Adds/removes `dark` class on `<html>` for Tailwind dark mode
 
 ### AuthContext (Firebase Authentication)
@@ -187,7 +228,7 @@ flowchart TD
 - **Key responsibilities**:
   - Google and Apple sign-in via Firebase popup
   - User-friendly error messages for common auth failures
-  - Provides `user`, `signInWithGoogle`, `signInWithApple`, `signOut`
+  - Provides `user`, `authError`, `signInWithGoogle`, `signInWithApple`, `signOut`, and `deleteAccount` (backed by the `deleteAccount` callable Cloud Function)
 
 ### ApprovedTermsContext (Single Subscription)
 - **Purpose**: Owns the only `onSnapshot` subscription for approved community submissions
@@ -253,11 +294,12 @@ flowchart TD
 
 ### webapp/api/_lib/ (Shared API Helpers)
 - **Purpose**: One implementation each for the cross-cutting concerns every serverless function needs
-- **Location**: `webapp/api/_lib/cors.js`, `kv.js`, `rate-limit.js`
+- **Location**: `webapp/api/_lib/cors.js`, `kv.js`, `rate-limit.js`, `stream.js`
 - **Key responsibilities**:
   - `cors.js` — single `ALLOWED_ORIGINS` array; production domain changes require editing one file
   - `kv.js` — returns the real Vercel KV client in prod and a no-op stub in tests; `isReal` flag lets callers gate KV-specific paths
   - `rate-limit.js` — per-IP token bucket using KV `INCR`/`EXPIRE` with an in-memory fallback that self-prunes; trims `x-forwarded-for` whitespace; anonymous requests share an `unknown` bucket rather than bypassing the limit
+  - `stream.js` — opt-in NDJSON streaming for both AI endpoints: `streamClaude` relays the model's text as `{"partial": …}` lines (throttled to one per 60ms and deduplicated), produced by `parsePartialJson`, a tolerant parser that closes open strings and containers in a truncated JSON prefix; it ends with a `{"done": …}` line identical to the non-streaming JSON body, or `{"error": …}`. `streamCached` serves a cache hit as a single `done` line
 
 ### firebase/firestore.rules (Server-Side Integrity)
 - **Purpose**: Last line of defence on community-data integrity; the client-side transaction logic can't be trusted alone
@@ -290,18 +332,18 @@ flowchart TD
 3. For conversations: `annotateConversation` processes each line, wrapping detected slang in brackets
 4. For terms/sentences: `translateText` checks local dictionary (sorted by length, longest first); a miss returns a "No slang detected" row without any network request
 5. Simultaneously, `useAiTranslation` sends the input to the LLM endpoint for contextual analysis
-6. Results rendered in a two-column layout: highlighted text + definitions (left), AI insight (right)
+6. Results render in one column: the plain-English answer first, then the highlighted text and the definitions
 
 ### Encode Flow
 1. User types a plain-English phrase in the encode tab
 2. `useEncode` checks its in-memory and localStorage caches, then POSTs to `/api/ai-encode` on a miss
 3. The serverless function calls Claude with a system prompt that injects the curated dictionary's terms and definitions, asking for three intensity-graded rewrites plus a glossary, and validates/whitelists the response shape before caching it
 4. `mergeGlossary` cross-references the returned variations against the local dictionary so curated terms get vetted definitions; the rest come from the model's glossary
-5. Results render as three `VariationCard`s (left) with the glossary alongside (right), capped at six terms with a "Show all" toggle
+5. Results render as three `VariationCard`s, named in plain words ("A little slang", "Some slang", "All slang") with a Copy pill each, and the glossary, capped at six terms with a "Show all" toggle
 
 ### Browse Flow
 1. User searches with debounced input in the browse tab
-2. Local dictionary filtered by search query + era/origin/type filters
+2. Local dictionary filtered by search query + year/kind filters
 3. Results shown as TermCards; curated and community-approved terms are merged into one list
 4. If a search longer than 2 characters matches nothing, a no-results card is shown (no network request)
 
@@ -311,6 +353,12 @@ flowchart TD
 3. `communityService.submitTerm` checks for duplicates, enforces daily limit, writes to Firestore
 4. `subscribeToPending` provides real-time updates via Firestore `onSnapshot`
 5. Voting uses Firestore transactions to atomically update vote doc + submission counters
+
+### Streaming Flow (iOS clients)
+1. A client sends `stream: true` in the POST body to `/api/ai-translate` or `/api/ai-encode`; the web app does not, and gets the unchanged JSON response
+2. After CORS, input validation and rate limiting, a KV hit is returned as one `done` line
+3. On a miss, `streamClaude` calls the model with streaming on, re-parses the accumulated text with `parsePartialJson` and normalizes each snapshot into the final response shape (decode waits until `translation` has started; encode drops a glossary entry that may still be mid-definition)
+4. The final text goes through the same `finalize` function as the JSON path, so validation, fallback and the never-cache-a-fallback rule are shared, and the `done` line is byte-for-byte the JSON body
 
 ## External Integrations
 
@@ -330,7 +378,7 @@ flowchart TD
 ### Feature-Scoped Component Architecture
 - **Context**: The app grew from a single-file component to multiple features (decode, browse, community)
 - **Decision**: Organize components into feature directories (Decode/, Browse/, Community/, Layout/) with co-located logic
-- **Rationale**: Each feature is self-contained; hooks encapsulate business logic while components handle rendering. App.jsx stays thin (~40 lines) as a pure orchestration shell
+- **Rationale**: Each feature is self-contained; hooks encapsulate business logic while components handle rendering. App.jsx stays a thin orchestration shell
 
 ### Dual Translation Engine (Dictionary + AI)
 - **Context**: Local dictionary provides curated definitions but can't explain context, cultural nuances, or evolving usage
@@ -386,6 +434,16 @@ flowchart TD
 - **Context**: The Anthropic API key can't ship to the browser, and the AI endpoints need caching and abuse limits
 - **Decision**: The client calls same-origin `/api/ai-translate` and `/api/ai-encode`; Vercel's filesystem-routed functions hold the key and route through the shared `_lib/` helpers
 - **Rationale**: One set of fetch URLs, secrets stay server-side, and CORS, KV and rate limiting live in one place
+
+### Streaming as an Opt-In Flag, Not a Second Endpoint
+- **Context**: The iOS app wanted text to appear while the model was still writing, but the web app and older app builds depend on the existing JSON contract, and both endpoints' validation and cache-poisoning guards had to keep applying
+- **Decision**: A `stream: true` body flag on the existing endpoints switches the response to NDJSON. Each handler factors its parse/validate/cache step into one `finalize` function used by both paths, and `webapp/api/_lib/stream.js` owns the wire format and the partial-JSON parser
+- **Rationale**: No new routes, CORS entries or rate-limit buckets, and no client is forced to change. Because the closing `done` line is produced by the same `finalize` call, a streamed reply can never be cached or shaped differently from a JSON one. A separate streaming route would have duplicated CORS, rate limiting and validation for the same two prompts
+
+### One Settings Sheet Instead of Header Icons
+- **Context**: The header held an unlabelled theme toggle and sign-out icon, the footer held the legal links, and account deletion was a separate link; the iOS app had already gathered all of this into a Settings screen
+- **Decision**: A single `SettingsModal` reached from a labelled Settings button on every page, with a three-way appearance choice that replaces the two-state toggle
+- **Rationale**: Every control now has a word on it, "Match device" can be chosen again after a manual pick (the old toggle could only pin a theme), and the two platforms share one mental model
 
 ### Curated Dictionary Only, No Third-Party Fallback
 - **Context**: Decode and Browse used to fall back to Urban Dictionary for unmatched terms, but its terms of service allow API access only with express permission, which the project never had

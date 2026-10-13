@@ -2,125 +2,115 @@
 
 ## Overview
 
-Private Collab Whiteboard is a real-time collaborative drawing app that prioritizes privacy. It lets multiple users draw on a shared canvas simultaneously, with all data synced peer-to-peer through CRDTs and optionally encrypted end-to-end. No account required — just create a room and share a link. The interesting part is access control: encrypted rooms use capability links (owner / editor / viewer) whose permissions are enforced by ECDSA signatures verified between peers, so view-only actually means view-only even though there's no server to ask. All drawing data lives in the browser (IndexedDB), and the relay is a minimal broadcast server that never sees plaintext.
+Private Collab Whiteboard is a real-time collaborative whiteboard that needs no account, no backend and no database. Everyone in a room draws on a shared infinite canvas, and each browser holds the whole board as a Y.js CRDT document persisted in IndexedDB. Edits pass between browsers through a 35-line PartyKit relay that forwards bytes without reading them. The interesting part is access control without a server: in a password-protected room every frame is AES-256-GCM-encrypted, and every edit is signed with an ECDSA key that viewer links simply don't contain. View-only therefore holds even against a viewer who rewrites the client, and the owner can revoke old links by rotating the room to a new key epoch.
+
+## Problem Solved
+
+Most collaborative whiteboards keep your boards on their servers and enforce permissions there, so the provider can read everything and "view-only" means whatever its backend decides. I wanted a whiteboard where the server is untrusted by construction: it can't read the content, and it doesn't need to be asked who may edit. That meant moving both confidentiality and authorization into the browser, with cryptography doing what a permissions table normally does.
+
+## Target Users
+
+- **Small teams sketching something sensitive** — architecture diagrams, incident timelines or plans they don't want stored by a third party
+- **Presenters and teachers** — share a viewer link and present with the laser pointer, knowing the audience can't alter the board
+- **Anyone who wants a quick shared canvas** — open the site, create a room, send the link; no sign-up
 
 ## Key Features
 
-- **Real-time Collaboration**: CRDT-based sync via Y.js with live cursor tracking, live drawing previews, and user presence indicators
-- **Drawing Tools**: Freehand pencil and highlighter; lines, arrows, rectangles, circles, ellipses, diamonds, and triangles with solid/dashed/dotted strokes and optional fills; a text tool; color-coded sticky notes with wrapped, scrollable text; shape connectors that stay bound to the shapes they link; and an ephemeral laser pointer for presentations
-- **Save as PNG / PDF**: An interactive export modal renders the board to an off-screen canvas and lets you pan/zoom to frame the export before saving a retina-resolution PNG or a single-page PDF
-- **Infinite Canvas**: Pan (Space+drag), zoom (scroll wheel or buttons), and fit-to-content with a virtual coordinate system
-- **End-to-End Encryption**: Optional password protection using AES-256-GCM with PBKDF2 key derivation (600K iterations) and a random per-room salt carried in the capability link
-- **Capability-Based Roles**: Encrypted rooms issue owner / editor / viewer links; the role is carried (and enforced) by which signing keys the link contains, not a flag the client can flip
-- **Cryptographic View-Only**: Viewers hold no signing key, so peers reject any edit they try to make — view-only survives a hostile viewer editing the URL or the JS
-- **Owner-Controlled Rotation**: Only the owner can rotate the room to a new epoch (via change-password), instantly invalidating older links
-- **Select & Manipulate**: Select, move, resize shapes; multi-select with Shift+click; copy/paste/duplicate; lock shapes
-- **Undo/Redo**: CRDT-aware undo that only affects your own changes, never other users'
-- **Multiple Boards**: Create, switch between, clear, and delete separate boards within a single room
-- **Offline Support**: Full offline drawing with automatic sync when reconnected via IndexedDB persistence
-- **Board History**: "My Boards" page tracks all rooms you've visited with role badges and access counts
+- **Real-time collaboration**: CRDT sync with live cursors, live previews of shapes as they are drawn, and a presence list
+- **Drawing tools**: pencil and highlighter; line, arrow, rectangle, circle, ellipse, diamond and triangle with solid/dashed/dotted strokes, fills and arrowhead options; text; multi-line sticky notes that wrap and scroll; connectors that stay bound to the shapes they link; a fading laser pointer; shape and brush erasers
+- **Editing**: Shift multi-select, move, restyle, reorder, lock, copy/paste/duplicate, and undo/redo that only touches your own changes
+- **Infinite canvas**: Space-drag or two-finger pan, cursor-centered wheel zoom and pinch zoom from 10% to 500%, and fit-all
+- **Several boards per room**: create, rename, clear and delete tabs, with renames synced to everyone
+- **Export**: frame the board in a pan/zoom dialog, then save a 2× PNG or a single-page PDF
+- **End-to-end encryption**: add a password to any room; the key comes from PBKDF2 (600,000 iterations, random per-room salt) and existing drawings carry over
+- **Owner, editor and viewer links**: the role is defined by which private keys the link carries
+- **Revocation**: the owner changes the password to move the room to a new epoch, and old links stop producing accepted edits
+- **Offline-first**: boards load from IndexedDB and edits made offline merge on reconnect
+- **My Boards**: a local history of rooms with role badges, encryption status, last visit and visit count
 
 ## Technical Highlights
 
-### Signed-Update Sync Layer with Cryptographic View-Only
-Encryption hides content from the *server*, but everyone with the room password can still decrypt — so a view-only link that just sets a client flag is bypassed by editing the URL or the JS. I replaced Y.js's stock document-sync protocol with a thin custom layer (`signed-doc-sync.js` + `protocol.js`): editors sign each Y.js update with a per-epoch ECDSA P-256 key over `epoch ‖ update` (epoch-prefixed to block replay), and every peer verifies the signature against the room's certified editor key before applying it. Viewers are simply never handed a signing key, so any update they emit fails verification at every honest peer and never lands in the shared document. Y.js still does all the CRDT conflict resolution; only the transport framing is mine. The underlying transport (`sync-provider.js`) AES-256-GCM-encrypts every frame before it hits the PartyKit relay.
+### A signed sync layer that makes view-only cryptographic
+Encryption hides content from the relay, but every participant who has the password can decrypt, so a client-side `readOnly` flag stops nobody. I replaced Y.js's stock document-sync protocol with a small layer of my own (`js/signed-doc-sync.js`, `js/protocol.js`). Editors sign each update over `epoch ‖ update` with the epoch's ECDSA P-256 key; every receiving peer checks the epoch, the owner-signed certificate, and the signature before calling `Y.applyUpdate`, and drops the frame silently on any failure. Viewers are never given a signing key, so their updates fail verification everywhere and never enter anyone's document. The certificate is verified once at start and must pin exactly the editor key in use, or the peer applies nothing. Y.js still does all conflict resolution; only the framing is mine.
 
-### CRDT-Aware Undo/Redo
-The undo system uses Y.js's built-in UndoManager, which only tracks local changes. This means pressing Ctrl+Z never undoes another user's work — a subtle but critical UX detail for collaborative editing. Changes within 500ms are grouped into a single undo step to match user intent (e.g., a quick series of shape moves becomes one undo).
+### Revocation with no server: an owner root of trust and key epochs
+The hard problem without a server is revocation: there is no authority to ask whether a link is still valid. `js/room-cert.js` builds a two-level hierarchy. A per-room owner key signs a certificate binding the current editor public key to an epoch number, and peers trust only an editor key that a valid certificate vouches for. Only the owner link carries the owner private key, and the app never offers it for sharing. Rotation (`rotateCapability` in `room-manager.js`, `rotateRoom` in `yjs-setup.js`) mints epoch N+1 with a new editor key and password, then broadcasts an owner-signed `{type: 'rotate', room, from, to}` notice. Peers that verify it mark their epoch superseded and stop applying, broadcasting or relaying its state, so holders of old links can't produce edits anyone accepts.
 
-### Infinite Canvas with World/Screen Coordinate Transform
-The drawing system maintains a virtual world coordinate system separate from screen pixels. All shapes are stored in world coordinates, and a viewport transform (pan + zoom) converts between the two. This enables smooth zooming centered on the cursor position, fit-to-content, and consistent shape sizes regardless of zoom level. Touch/pinch-to-zoom is also supported for mobile.
+### Treating the shared document as hostile input
+In a peer-to-peer app the dangerous input isn't a form field, it's the CRDT. Shape fields, names and presence state arrive from other browsers, and several of them reach `innerHTML` (the shape-settings header, cursor labels, the user list). I defend at two layers. Allow-lists in `js/utils.js` and `js/shape-schema.js` accept only what the app itself produces: `safeColor` takes hex only, `safeToolName` maps anything outside 13 known tools to the literal `shape`, `safeNumber` rejects non-finite input, and one shared `escapeHtml` handles text. Behind them, the `vercel.json` CSP is `script-src 'self'` with no `unsafe-inline`, so a missed sink still can't execute script. The same boundary covers denial of service: `clampPoints` caps a stroke at 5,000 points, `safeStrokeWidth` clamps line width to 0–200, and remote laser trails are cut to 300 points, so one malicious peer can't stall every other client's render loop.
 
-### Defense-in-Depth Against Peer-Injected XSS
-In a P2P app the dangerous input isn't a form field — it's the shared document. Shape objects, user names, and presence state all arrive from untrusted peers over the CRDT and several of them get interpolated into `innerHTML` (the shape-settings popup header, cursor labels, the board list). I closed this on two layers. First, an allow-list sanitization layer in `utils.js`/`shape-schema.js`: `safeColor` rejects anything that isn't a plain `#hex` value, `safeNumber` rejects non-finite/non-numeric input, `safeToolName` collapses unknown tool names to an inert literal, and `escapeHtml` is now a single shared implementation (three modules had drifted copies, one of which forgot to escape quotes). `sanitizeShape` runs an untrusted shape through all of these before any DOM-bound field is read. Second, the CSP in `vercel.json` was tightened to `script-src 'self'` with no `unsafe-inline`, so even a missed sink can't execute an injected `<script>` — which in turn forced the previously-inline page bootstraps out into real modules (`index-home.js`, `boards-home.js`).
+### Connectors that follow shapes without a "connector moved" message
+A connector between two boxes must follow them as either one moves, on every client. I store a connector as `{fromId, toId, fromAnchor, toAnchor}`: the ids of its shapes, plus the compass side of each (`n`/`e`/`s`/`w`), chosen at creation by `nearestAnchors` in `js/connector-geometry.js`. The endpoint coordinates are never stored. Each redraw resolves the anchors against the shapes' current bounding boxes, using an id→shape `Map` (`buildShapeIndex`) built once per pass so each lookup is O(1). When a peer moves a box, only the box's own object changes, and every connector on it re-routes when that update lands. Deleting a shape also removes connectors left dangling, in the same transaction, so a single undo restores both (`tests/undo-cascade.test.js`). Connectors can't bind to other connectors, which rules out recursive resolution.
 
-### Owner Root-of-Trust and P2P Revocation
-The hard problem in a serverless system is revocation: if the editor key is just embedded in links, there's no authority to ask "is this link still allowed?" My answer is a two-tier PKI rooted in a per-room owner ECDSA keypair (`room-cert.js`). The owner key signs an *epoch certificate* binding the current editor public key to an epoch number, and peers only trust an editor key that a valid owner cert vouches for (`signed-doc-sync.js` verifies this once on start and fails closed if the cert doesn't pin the exact editor key it's verifying against). Because only the owner holds the owner private key, only the owner can mint a new epoch. Rotating the room mints epoch N+1 with a fresh editor key and broadcasts an owner-signed rotate notice; peers mark the old epoch superseded and stop applying its updates, so anyone holding an old link can no longer produce edits anyone will accept — real revocation with no central server. The owner link itself is never shared, so editors can draw but can't rotate.
-
-### Relationship-Bound Connectors over a CRDT Shape Array
-Connectors are the one shape that isn't self-contained: an arrow between two boxes has to follow those boxes as they move, across clients, with no shared mutable pointer. I store a connector as `{fromId, toId}` referencing the IDs of the shapes it links, and resolve the actual endpoint geometry at render time (`connector-geometry.js`): `nearestAnchors` picks the closest pair of edge anchors between the two bounding boxes so the line attaches sensibly, and the renderer re-derives those points every frame. Because endpoints are computed, not stored, a peer moving a box on another client just changes that box's coordinates — every connector touching it re-routes automatically when the CRDT update lands, with no separate "update the connector" message. `danglingConnectorIndices` finds connectors whose referenced shapes were deleted so they can be cleaned up, and connectors are forbidden from binding to other connectors to avoid resolution recursion. Keeping all of this geometry in a pure, DOM-free module means it's exhaustively unit-tested (`connector-geometry.test.js`) without a canvas.
-
-### Pure, Browser-Free Logic Modules for Testability
-A canvas app tempts you to bury arithmetic inside event handlers and `requestAnimationFrame` callbacks where it can only be tested by driving a real browser. Instead, the non-trivial logic is extracted into pure modules that take plain values and return plain values: `draw-geometry.js` (hit-testing, polygon point generation, arrowhead math, dash patterns, a spatial shape index), `text-wrap.js` (word-wrap and scroll-extent math shared by the text tool and sticky notes), `connector-geometry.js`, `keyboard-intent.js` (the decision of whether a Delete keypress should consume the event), and `laser-trail.js` (trail pruning by timestamp). Each has a focused Vitest file and runs with no DOM. The impure shell — `drawing.js`, `app.js` — wires these to the canvas and the Y.Doc. This is what lets the test suite cover real behavior (does a point fall inside this rotated triangle? does a tampered tool name collapse to an inert literal?) instead of just crypto round-trips.
+### Pure modules so a canvas app can be unit-tested
+Canvas apps tend to bury arithmetic inside event handlers, where only a real browser can test it. I pulled the non-trivial logic into DOM-free modules that take and return plain values: `draw-geometry.js` (hit-testing, polygon vertices, arrowheads, degenerate-shape detection), `connector-geometry.js`, `text-wrap.js` (word wrap with hard breaks, sticky-note scroll extent), `laser-trail.js` and `keyboard-intent.js`, alongside the crypto, protocol and link modules. Vitest runs the 26 test files in its Node environment with no DOM. Signed sync is tested end to end with in-memory transports, including forged viewer updates, wrong-epoch replays, and rotation notices not signed by the owner.
 
 ## Engineering Decisions
 
-### Transport: WebSocket relay over peer-to-peer WebRTC
-- **Constraint**: Needed reliable real-time sync across arbitrary networks (corporate firewalls, mobile carriers, double-NAT home routers) while keeping the server out of the trust boundary.
-- **Options**: `y-webrtc` peer-to-peer mesh, a self-hosted Y.js WebSocket server, or PartyKit's Cloudflare-Workers relay.
-- **Choice**: PartyKit relay (`party/index.ts`) with all payloads encrypted client-side.
-- **Why**: WebRTC's NAT traversal failed too often in practice. A broadcast relay is simpler and reaches everywhere a WebSocket reaches, and because messages are AES-256-GCM encrypted before they leave the browser, the relay never sees plaintext — the privacy model survives the migration.
+### Transport: a WebSocket relay over peer-to-peer WebRTC
+- **Constraint**: Sync had to work on corporate firewalls, mobile carriers and double-NAT home routers, with the server outside the trust boundary.
+- **Options**: A `y-webrtc` mesh, a self-hosted Y.js WebSocket server, or a broadcast relay on PartyKit.
+- **Choice**: The PartyKit relay (`party/index.ts`), with every payload encrypted in the browser.
+- **Why**: WebRTC needs STUN/TURN and still fails on restrictive networks; a WebSocket reaches anywhere HTTPS does. A standard Y.js server applies and stores updates, so it needs plaintext. A relay that only forwards bytes doesn't, and keeps the privacy model of a peer-to-peer design.
 
-### Lazy default-board creation over eager initialization
-- **Constraint**: When each client independently ran `boards.set('default', new Y.Array())` on load, two joiners created competing `default` entries in the `boards` Y.Map. The CRDT resolves the conflict by picking a winner by random client ID, which could orphan the array that actually held the drawings — content would sync at the byte level but never render.
-- **Options**: Gate creation behind a sync timeout, lock creation to the owner, or never create the board eagerly and let the first *write* create it.
-- **Choice**: Don't create `default` at init at all (`yjs-setup.js`); `drawing.js` lazily creates it on the first drawn shape, and the drawing observer re-subscribes if the board array instance changes underneath it.
-- **Why**: A joiner receives the editor's existing array via snapshot and never races to create a competing one, so there's no Y.Map conflict to orphan content. It also avoids inventing roles or a timeout heuristic for what is really a "who creates the seed object" problem.
+### Creating the default board lazily
+- **Constraint**: If every client ran `boards.set('default', new Y.Array())` on load, two people joining together created competing `default` entries in the `boards` Y.Map. The CRDT picks one winner by client id, which can orphan the array that actually holds the drawings: the bytes sync, but the content never renders.
+- **Options**: Wait out a sync timeout before creating it, let only the owner create it, or create it on the first write.
+- **Choice**: `yjs-setup.js` never creates it; `addDrawing` in `drawing.js` creates the array on the first shape, and the board tab bar shows the default tab ("Main") even before it exists.
+- **Why**: A joiner receives the existing array in a snapshot and never races to create a rival. That fixes a seeding problem without inventing roles or timing heuristics.
 
-### Multi-page Vite build over an SPA shell
-- **Constraint**: Three pages with very different payloads — a marketing landing page, a board-history list, and the heavy whiteboard runtime (Y.js + canvas engine + crypto).
-- **Options**: Single-page app with a router and code-splitting, or Vite's MPA mode with one HTML entry per page.
-- **Choice**: MPA — `index.html`, `boards.html`, `room.html` each ship their own bundle, with Vercel rewrites mapping `/room/:id` to `room.html`.
-- **Why**: The landing page loads in a couple of KB without dragging in Y.js, and there is no shared client-side state worth preserving across navigations. Routing collapses into a static rewrite rule.
+### Capabilities in the URL fragment
+- **Constraint**: View-only had to survive a hostile viewer who has the password and will edit the URL or patch the JavaScript, with no accounts and no server-side check.
+- **Options**: A client-side flag, a signed role string (nothing checks it when an edit arrives), server-issued tokens, or links where the missing key is the enforcement.
+- **Choice**: The link fragment carries the keys for its role: viewer links only public keys, editor links add the editor private key, owner links add the owner private key (`room-manager.js`). Every update's signature is checked before it is applied.
+- **Why**: There is nothing to flip. A viewer can't conjure a key by editing a URL, fragments never reach a server, and trust is rooted in the owner key rather than a shared secret. The decoder accepts only the v3 format, because honoring a weaker old one would be a downgrade path.
 
-### Capabilities in the URL fragment, enforced by signatures
-- **Constraint**: View-only had to be tamper-proof against a *hostile* viewer — someone who has the password, can decrypt, and will edit the URL or patch the client JS — without introducing accounts or a server-side auth check (the relay is intentionally dumb).
-- **Options**: A client-side `readOnly` flag (bypassable), a weak "signature" over the role string (still bypassable — nothing verifies it at write time), server-issued JWTs (breaks the dumb-relay/P2P model), or capability links where the *absence of a key* is the enforcement.
-- **Choice**: Encode the role's keys into the URL fragment — viewer links carry only public keys, editor links add the editor private key, owner links add the owner private key — and have every peer verify each update's signature before applying it (`room-manager.js`, `signed-doc-sync.js`).
-- **Why**: There's nothing to "flip." A viewer can't sign edits because they don't have the key, and editing the URL can't conjure one. Fragments never reach the relay, the model stays accountless, and trust is rooted in the owner key rather than a shared secret. (Older link formats are intentionally *not* honored — a hard version break, since a weaker legacy format would be a downgrade path.)
+### Whole-object shapes over per-field CRDT maps
+- **Constraint**: A board holds many small shapes of a dozen kinds that must be rendered, sanitized, copied, exported and undone.
+- **Options**: A nested `Y.Map` per shape for field-level merges, or one plain JSON object per shape in a `Y.Array`.
+- **Choice**: Plain objects; an edit deletes and re-inserts the shape at its index in one transaction.
+- **Why**: Every consumer works on simple values and each edit is one undo step. I accepted the cost: there's no field-level merge, so simultaneous edits to the same shape keep both versions rather than combining them.
 
 ## Frequently Asked Questions
 
-### How does the real-time sync work without a database?
-Y.js uses CRDTs (Conflict-free Replicated Data Types) — a mathematical model where every edit has a globally unique ID and timestamp. When two users make concurrent edits, the CRDT merge algorithm guarantees both arrive at the same final state without any server-side conflict resolution. The Y.Doc is persisted to IndexedDB for offline access and synced over WebSockets through a simple broadcast relay.
+### How does real-time sync work without a database?
+Each browser keeps the full board as a Y.js document and persists it to IndexedDB. A local change produces a binary Y.js update, which is wrapped in an `{epoch, update, sig}` envelope, encrypted if the room has a password, and sent to the relay, which forwards it to everyone else in the room. Because Y.js is a CRDT, peers converge to the same state whatever order updates arrive in. A peer that joins late asks for a snapshot and gets the full state from whoever is online.
 
-### Why vanilla JavaScript instead of React/Vue/Svelte?
-The core of this app is an HTML5 Canvas — all drawing happens via imperative Canvas API calls, not DOM manipulation. A reactive framework would add overhead without benefit for the canvas rendering. The small amount of DOM UI (toolbars, modals, side panel) is simple enough to manage with direct DOM APIs, and it keeps the bundle small.
+### What if nobody else is online when I open a board?
+You still see everything you've seen before, because your copy lives in IndexedDB. You can draw offline, and your changes merge when someone else is online. Since the relay stores nothing, a board you've never opened can only load while another participant is connected. That is the cost of having no server-side storage.
 
-### How does the encryption actually protect my data?
-When you set a room password, the app derives an AES-256-GCM key using PBKDF2 (600,000 iterations of SHA-256, following current OWASP guidance) against a random 16-byte salt minted for that room. Both the iteration count and the salt ride in the capability link so every peer derives the same key, and the count is clamped to a `[100k, 5M]` range on decode — a tampered link can neither downgrade derivation below the legacy floor nor pin you to a multi-second one. Every Y.js sync message is encrypted with a random 12-byte IV before being sent over the WebSocket. The PartyKit server only ever sees encrypted binary blobs — it can't read shape data, text, cursor positions, or even user names. Only clients with the correct password can decrypt.
+### How does the encryption protect my data?
+Adding a password derives an AES-256-GCM key with PBKDF2 (600,000 iterations of SHA-256) over a random 16-byte salt minted for that room. The salt and iteration count travel in the invite link so every peer derives the same key, and the count is clamped to 100,000–5,000,000 on decode, so a tampered link can't weaken the derivation or stall your browser on it. Every frame then gets a random 12-byte IV and is encrypted before it reaches the WebSocket: document updates, snapshots, cursors, names and live previews. The only plaintext frame is a one-field `{enc: true}` beacon that tells a visitor without a key the room is encrypted.
 
-### What happens if two users edit the same shape simultaneously?
-Y.js handles this at the CRDT level. Each shape is a JSON object in a Y.Array. If two users modify the same shape property (e.g., both move a rectangle), Y.js's last-writer-wins semantics apply per field. If they modify different properties (one resizes, one recolors), both changes are preserved. The system is designed so conflicts are rare and resolution is invisible.
+### Is the board encrypted on my own device?
+No, and this is deliberate. Encryption protects data in transit and from the relay. Locally, IndexedDB holds the decrypted document so the board opens instantly and works offline, and the invite link carries the password and keys in its fragment, so it sits in your browser history like any URL. Treat an invite link like a password.
 
-### How does undo work in a collaborative environment?
-The undo system uses Y.js's UndoManager, which tracks which changes were made by the local user. When you press Ctrl+Z, it only reverts your own recent action — it never touches other users' changes. This prevents the common collaborative editing frustration where one user's undo erases another user's work.
+### How does view-only stop a determined viewer?
+It doesn't depend on the viewer's client behaving. A viewer link has only public keys. Every edit in an encrypted room must carry a valid signature from the epoch's editor key, and every peer checks it before applying (`signed-doc-sync.js`). A viewer who forces their client into edit mode broadcasts updates with no valid signature, and every other peer drops them. Hiding the toolbar for viewers is only cosmetic.
 
-### How does view-only mode actually stop a determined viewer?
-It doesn't rely on the viewer's client behaving. A viewer link contains only public keys — no editor signing key. Edits in an encrypted room must be signed with the per-epoch editor key and are verified by every peer before being applied (`signed-doc-sync.js`). So even if a viewer edits the URL, opens dev tools, and forces their own client into "edit mode," the updates they broadcast carry no valid signature and every other peer drops them. The UI also hides editing controls for viewers, but that's cosmetic — the real enforcement is the missing key.
+### What's the difference between owner, editor and viewer links?
+All three are capability links in the URL fragment. A viewer link can decrypt but not sign. An editor link adds the editor private key, so it can draw. An owner link adds the owner private key, so it can also rotate the room. The Invite dialog only offers editor and viewer links; the owner link stays in the creator's address bar.
 
-### What's the difference between the owner, editor, and viewer links?
-All three are capability links carried in the URL fragment. A **viewer** link has public keys only (can read, can't sign). An **editor** link adds the editor private key (can read and draw). An **owner** link adds the owner private key as well (can read, draw, *and* rotate the room). The owner link is never shared by the app — it stays in the creator's address bar — so editors can collaborate but can't lock anyone out or rotate the room.
+### How does revoking access work without a server?
+Only the owner can do it, by changing the password. That mints epoch N+1 with a new editor key and password and broadcasts an owner-signed rotate notice. Connected peers verify it, mark the old epoch superseded, and are told to ask for a new link; the owner is reloaded into the new epoch. Old links can still open whatever their holder already has cached, but can no longer produce edits that current peers accept, and with a new password they can't decrypt new traffic either.
 
-### How does rotating / revoking access work without a server?
-Rotation is owner-only. Changing the password mints a new epoch (epoch N+1) with a fresh editor key, and the owner key signs a new certificate for it. The owner broadcasts an owner-signed rotate notice; current peers verify it against the owner public key, mark the old epoch superseded, and stop applying its updates. The owner is reloaded into the new link to re-share with whoever should keep access. Anyone holding an old link can still decrypt old cached state but can no longer produce edits that peers will accept — the practical effect of revocation, achieved with signatures instead of a central authority.
+### What happens if someone tampers with or truncates an invite link?
+`parseCapabilityHash` in `room-manager.js` distinguishes three cases. No fragment means an intentionally open room. A valid fragment returns the capability. A fragment that is present but won't decode throws, rather than quietly dropping you into an editable unencrypted room, which would be the dangerous default. A role claimed without its matching key is downgraded, so editing `r: 'owner'` into a viewer link gives you a viewer.
 
-### What happens if someone tampers with or truncates a capability link?
-The link parser fails closed. `parseCapabilityHash` (`room-manager.js`) distinguishes three cases: no fragment at all is an intentional open room and returns `null`; a present-but-undecodable fragment *throws* rather than silently degrading to open-room editor mode (the dangerous default — a corrupted encrypted link must never quietly drop you into an unauthenticated editable room); a valid fragment returns the capability. The attacker-controlled `kdf` iteration field is also range-clamped on decode, so a hand-edited link can't force a weaker-than-legacy key derivation.
-
-### Why did the inline page scripts get moved into separate module files?
-They were collateral of tightening the Content-Security-Policy. The old policy allowed `script-src 'self' 'unsafe-inline'`, which permits any injected inline `<script>` to run — the exact thing you don't want in an app that interpolates peer-supplied data into the DOM. Dropping `'unsafe-inline'` means inline `<script>` blocks no longer execute, so the landing-page and board-history bootstraps moved into real ES modules (`index-home.js`, `boards-home.js`) loaded with `<script type="module" src=...>`. The CSP also gained `base-uri 'none'` and `form-action 'self'` to close `<base>`-tag and form-hijack vectors.
-
-### Why ECDSA P-256 instead of Ed25519?
-Ed25519 is smaller and more modern, but Web Crypto support for it only shipped in very recent browser versions and throws "Unrecognized name" on most installed browsers. ECDSA P-256 has been supported everywhere `crypto.subtle` exists for years. For a tool people open in whatever browser they already have, universal support matters far more than Ed25519's marginal size advantage.
-
-### Is the relay really in the dark, even about who's drawing?
-In an encrypted room, yes. Every frame — document updates, snapshots, cursor positions, names, the live drawing preview — is AES-256-GCM-encrypted before it leaves the browser, and the PartyKit relay only ever forwards opaque bytes. The one thing peers do advertise in the clear is an "encrypted room" marker, so a visitor who arrives without a key knows to ask for an invite link rather than silently joining an unreadable room.
-
-### Can I use this offline?
-Yes. All drawing data is persisted to IndexedDB via y-indexeddb. If you lose your connection, you can keep drawing normally. When you reconnect, Y.js automatically merges your offline changes with any changes made by other users while you were away. The CRDT model guarantees this merge is conflict-free.
-
-### Why PartyKit instead of a custom WebSocket server?
-PartyKit provides a Cloudflare Workers-based WebSocket runtime with built-in room isolation, auto-scaling, and global edge deployment. The server code is just 35 lines — accept connections and broadcast messages. PartyKit handles all the infrastructure complexity (SSL, connection management, scaling) so I can focus on the client-side logic.
-
-### What's the "Board History" feature?
-The boards page (`boards.html`) shows all rooms you've previously visited, stored in localStorage. Each entry tracks your role (owner/collaborator/viewer), whether the room is encrypted, when you last accessed it, and how many times. This makes it easy to return to a room without bookmarking the URL.
-
-### How is the canvas performance with many shapes?
-The drawing engine redraws via `requestAnimationFrame` and only renders shapes inside the current viewport. Two things keep the hot paths cheap on larger boards: a spatial shape index (`buildShapeIndex` in `draw-geometry.js`) avoids repeated `O(n)` array scans when resolving hit-tests and connector endpoints, and connector geometry is derived only for connectors actually being drawn rather than recomputed for every shape. For typical whiteboard usage (dozens to low hundreds of shapes) interaction stays smooth; very large boards could still benefit from canvas layering, which hasn't been necessary in practice.
-
-### Can I export or save a board as an image?
-Yes. The Save action opens an interactive export modal that renders the board to an off-screen canvas and lets you pan and zoom to frame exactly what you want. From there you can save a PNG (rendered at 2× for retina sharpness via the canvas `toDataURL` API) or a single-page PDF (the same canvas snapshot placed into a `jsPDF` document sized to match). The export uses a separate render pass, so what you save is independent of your current on-screen zoom and pan.
+### What happens if two people edit the same shape at once?
+Different shapes never conflict. Each shape is a whole JSON object in the board's Y.Array, and moving or restyling one replaces that object. If two people change the same shape at the same instant, Y.js doesn't merge their fields; the merge keeps both replacement versions. In practice two people rarely grab the same shape at once, and I chose this simpler model over a nested map per shape.
 
 ### How do connectors stay attached when I move a shape?
-A connector stores the IDs of the two shapes it links (`fromId`/`toId`), not fixed coordinates. The endpoints are recomputed every frame from the live bounding boxes of those shapes, picking the nearest pair of edge anchors. So when any peer moves a connected shape, the CRDT update changes that shape's position and the connector re-routes on the next render with no extra bookkeeping. If a linked shape is deleted, the now-dangling connector is detected and cleaned up.
+A connector stores the ids of its two shapes and which side of each it attaches to, not coordinates. Every redraw resolves those sides against the shapes' current bounding boxes, so when anyone moves a connected shape the connector follows on every screen with no extra message. Deleting a linked shape removes the connector in the same step, and undo brings both back.
+
+### Why vanilla JavaScript instead of React or Svelte?
+The core of the app is imperative Canvas drawing, which a virtual DOM doesn't help with. The rest of the UI (toolbar, tabs, popups, modals) is small enough for direct DOM code. No framework also means no inline bootstraps or runtime-generated scripts to accommodate, which keeps the strict `script-src 'self'` CSP simple.
+
+### How does it perform on large boards?
+Each change to the board triggers a full redraw of every shape on the current board; there is no viewport culling or layering yet. Within a redraw, connector endpoints are resolved through an id→shape `Map` instead of scanning the board, and untrusted strokes are capped at 5,000 points. Overflowing sticky notes draw only the lines inside their visible area. That is comfortable for typical whiteboard sizes (dozens to a few hundred shapes); viewport culling would be the next step for much larger boards.
+
+### Can I export a board?
+Yes. Save opens a dialog that renders the board into its own canvas, so you can pan and zoom to frame the export independently of your on-screen view. It saves a PNG at twice the preview resolution, or a single-page PDF made with jsPDF from the same render.
+
+### Why PartyKit instead of my own WebSocket server?
+The relay's only job is fanning out bytes per room. PartyKit gives per-room isolation on Cloudflare's edge, TLS, and a one-command deploy that GitHub Actions runs whenever the server code changes, leaving 35 lines of my own server code. Because the relay holds no keys and no state, swapping hosts means changing `PARTYKIT_HOST` in `js/config.js`.

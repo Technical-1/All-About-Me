@@ -2,83 +2,87 @@
 
 ## Core Technologies
 
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| Language | JavaScript (ES Modules) | ES2022+ | Vanilla JS — no framework overhead for a canvas-heavy app |
-| Server | TypeScript | — | PartyKit server type safety |
-| Rendering | HTML5 Canvas | — | High-performance 2D drawing surface |
-| Sync Engine | Y.js | ^13.6.0 | CRDT library for conflict-free real-time collaboration |
-| Real-time | PartyKit | ^0.0.115 | WebSocket server for message relay |
-| Build Tool | Vite | ^8.0.16 | Fast dev server and production bundler |
-| Tests | Vitest | ^4.1.8 | Unit tests over crypto, KDF, protocol, sync, snapshot, geometry, text-wrap, and link logic |
-| Export | jsPDF | ^4.2.1 | Generate a single-page PDF from a rendered canvas snapshot |
+| Category | Technology | Version | Why this choice |
+|----------|------------|---------|-----------------|
+| Language | JavaScript (ES modules) | — | The app is an imperative Canvas program; no framework runtime is needed to drive `ctx` calls |
+| Server language | TypeScript | compiled by PartyKit | Type-checked `Party.Server` interface for the relay; the only TypeScript file in the repo |
+| Rendering | HTML5 Canvas 2D | — | One surface for every tool, the live previews, and the off-screen export render |
+| Sync engine | Y.js | ^13.6.0 (13.6.29 locked) | Mature JavaScript CRDT with an UndoManager that understands local versus remote changes |
+| Relay | PartyKit | ^0.0.115 | Per-room WebSocket isolation on Cloudflare's edge, deployed with one command, for a server that only broadcasts |
+| Crypto | Web Crypto API | browser built-in | Native AES-GCM, PBKDF2 and ECDSA with no crypto library in the bundle |
+| Build tool | Vite | ^8.0.16 | Multi-page builds and a dev server whose middleware can mirror Vercel's routing |
+| Tests | Vitest | ^4.1.8 | Native ES modules, and runs the pure logic modules in Node with no DOM |
+| Export | jsPDF | ^4.2.1 | Wraps the rendered canvas image in a single-page PDF |
 
 ## Frontend
 
-- **Framework**: None (Vanilla JavaScript with ES Modules)
-- **Rendering**: HTML5 Canvas API for whiteboard, DOM for UI
-- **State Management**: Y.js shared types (Y.Map, Y.Array) as the single source of truth
-- **Styling**: Custom CSS3 with CSS variables, Inter font from Google Fonts
-- **Build Tool**: Vite in MPA (Multi-Page Application) mode
+- **Framework**: None — vanilla ES modules, four HTML entry points (`index.html`, `room.html`, `boards.html`, `how-it-works.html`)
+- **Rendering**: Canvas 2D for the board; DOM for the toolbar, tabs, popups, modals, and cursor labels
+- **State management**: the Y.Doc is the single source of truth (`boards` Y.Map of Y.Arrays, plus a `boardNames` Y.Map); ephemeral state (cursors, previews, laser) lives in Y.js awareness
+- **Styling**: hand-written CSS (`css/styles.css`) with CSS custom properties; Inter from Google Fonts
+- **Build tool**: Vite in MPA mode (`appType: 'mpa'`)
 
 ## Backend
 
-- **Runtime**: PartyKit (Cloudflare Workers-based)
-- **Server**: ~35-line WebSocket broadcast relay (`party/index.ts`) — no app logic, no trust
-- **API Style**: Typed binary protocol — signed `{epoch, update, sig}` envelopes + snapshots for doc sync; standard awareness for presence
-- **Authorization**: Capability links (owner/editor/viewer) enforced by ECDSA P-256 signatures verified peer-side, rooted in a per-room owner key
-- **Encryption**: E2E AES-256-GCM — server never sees plaintext
+- **Runtime**: PartyKit (Cloudflare Workers based)
+- **Server**: `party/index.ts`, 35 lines — forwards each message to every other connection in the room and never inspects it
+- **Wire protocol**: one type byte plus payload (`js/protocol.js`): `UPDATE`, `SNAPSHOT`, `SNAPSHOT_REQUEST`, `AWARENESS`, `ROTATE`, and a plaintext `PRESENCE_PROBE`. Document messages carry an `{epoch, update, sig}` envelope encoded with lib0
+- **Authorization**: capability links (owner / editor / viewer) whose permissions come from the ECDSA P-256 keys they contain, verified by every peer and rooted in a per-room owner key
+- **Encryption**: AES-256-GCM on every frame except the presence probe; the relay never holds a key
 
 ## Infrastructure
 
-- **Hosting**: Vercel (static site) + PartyKit (WebSocket relay)
-- **CI/CD**: GitHub Actions — every PR/push to `main` runs Vitest + the Vite build; the PartyKit relay deploys on push to `main`, path-filtered to server changes and gated behind that same job. The Vercel frontend auto-deploys from Git.
-- **URL Routing**: Vercel rewrites (`/room/:id` → `room.html`)
-- **Security headers**: strict Content-Security-Policy in `vercel.json` — `script-src 'self'` only (no `unsafe-inline`; all page scripts are real ES modules), `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`, plus HSTS, `Referrer-Policy: no-referrer`, and a locked-down `Permissions-Policy`. Google Fonts is the only cross-origin allow-list.
-- **Caching**: Immutable caching for JS bundles, must-revalidate for HTML
+- **Hosting**: Vercel (static frontend) and PartyKit (relay, `whiteboard-collab` in `partykit.json`)
+- **CI/CD**: GitHub Actions. `ci.yml` runs `npm ci`, `npm test` and `npm run build` on Node 24 for every pull request and push to `main`. `deploy-partykit.yml` re-runs the same gates and then `partykit deploy`, only on pushes that touch `party/`, `partykit.json`, the npm manifests, or the workflow itself. Vercel deploys the frontend from Git.
+- **URL routing**: `cleanUrls: true` plus one rewrite, `/room/:id` → `/room`, in `vercel.json`. The rewrite targets the extensionless path because `cleanUrls` redirects `/room.html` to `/room`. The Vite dev middleware in `vite.config.js` mirrors both rules so local URLs match production.
+- **Security headers** (`vercel.json`): CSP with `default-src 'self'; script-src 'self'` (no `unsafe-inline`), `connect-src 'self' wss://*.partykit.dev`, `frame-ancestors 'none'`, `base-uri 'none'`, `form-action 'self'`; plus HSTS (two years, subdomains), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, and a `Permissions-Policy` that turns off camera, microphone and geolocation. Google Fonts is the only third-party origin allowed.
+- **Caching**: `max-age=0, must-revalidate` by default; `/js/*` is served `immutable` for one year
+- **SEO**: canonical links and JSON-LD on the two public pages, `robots.txt` that disallows `/room/`, and a two-URL `sitemap.xml`
+- **Monitoring**: none
 
 ## Development Tools
 
-- **Package Manager**: npm
-- **Bundler**: Vite (Rollup-based production builds)
-- **Dev Server**: Vite dev server with custom middleware for room routing
-- **Testing**: Vitest (`npm test`) — unit tests across the crypto, key-derivation, certificate, protocol, signed-sync, snapshot-store, color/shape sanitization, capability-link, draw/connector geometry, text-wrap, laser-trail, and keyboard-intent modules. Logic is deliberately factored into pure, browser-free modules so it can be tested without a DOM.
-- **Image Generation**: Sharp (for favicon/icon generation via `scripts/generate-icons.js`)
-- **Concurrent Dev**: concurrently (run Vite + PartyKit dev servers together)
+- **Package manager**: npm (with `overrides` pinning `esbuild` ^0.25.12 and `undici` ^6.26.0)
+- **Dev servers**: Vite, plus `partykit dev` for a local relay; `concurrently` runs both with `npm run dev:all`
+- **Testing**: Vitest in the Node environment (`vitest.config.js`), 26 files under `tests/` covering key derivation, signing, certificates, the wire protocol, signed sync, the snapshot cache, the transport, capability links, sanitizers, geometry, text wrap, laser trails, keyboard intent, board history, and connector cascade-delete with undo. The logic is factored into browser-free modules so it can be tested without a DOM.
+- **Linting / formatting**: none configured
+- **Image generation**: `scripts/generate-icons.js` uses sharp to render the favicon set from `public/favicon.svg`
 
 ## Key Dependencies
 
 | Package | Purpose |
 |---------|---------|
-| `yjs` | CRDT document model — Y.Map for boards, Y.Array for shapes |
-| `y-indexeddb` | Persist Y.Doc to browser IndexedDB for offline support |
-| `y-partykit` | PartyKit integration helpers for Y.js |
-| `y-protocols` | Awareness (presence) wire protocol; doc sync is a custom signed layer |
-| `partykit` | Server runtime for the WebSocket relay |
-| `partysocket` | Client-side WebSocket with auto-reconnect for PartyKit |
-| `lib0` | Binary encoding/decoding — used to frame the signed update envelopes |
-| `jspdf` | Render the chosen canvas view into a downloadable single-page PDF |
-| `vite` | Build tool and dev server |
-| `vitest` | Test runner for the crypto, protocol, and sync units |
-| `concurrently` | Run Vite + PartyKit dev servers in parallel |
-| `sharp` | Image processing for favicon generation |
+| `yjs` | CRDT document: a Y.Map of boards, a Y.Array of shapes per board, and `Y.UndoManager` |
+| `y-indexeddb` | Persists the Y.Doc to IndexedDB, so boards load offline and survive reloads |
+| `y-protocols` | The awareness protocol for presence (cursors, previews, laser trails) |
+| `lib0` | Varint binary encoding for the signed envelopes and awareness frames |
+| `jspdf` | Turns the export render into a downloadable PDF |
+| `partykit` | Relay runtime types and the `dev` / `deploy` CLI |
+| `vite` | Dev server and multi-page production build |
+| `vitest` | Test runner |
+| `concurrently` | Runs Vite and the PartyKit dev server together |
+| `sharp` | Favicon generation |
+
+`partysocket` and `y-partykit` are still listed in `package.json` but nothing in the client imports them. The transport in `js/sync-provider.js` uses the browser's native `WebSocket` with its own backoff (100 ms doubling to a 2.5 s cap), and document sync is the custom signed layer rather than y-partykit's provider.
 
 ## Cryptography Stack
 
 | Component | Technology | Configuration |
 |-----------|-----------|---------------|
-| Key Derivation | PBKDF2 | 600,000 iterations (SHA-256) for new rooms; the count travels in the capability link's `kdf` field, clamped to `[100k legacy, 5M]` on decode so a tampered link can't downgrade below the legacy floor or pin a victim to a multi-second derivation. Pre-hardening links fall back to 100,000. |
-| Encryption (confidentiality) | AES-256-GCM | Authenticated encryption with 12-byte random IV |
-| Salt | Random per-room, carried in link | 16 random bytes minted per room and embedded in the capability link, so the same password no longer maps to a precomputable key (the room ID alone is public). Pre-salt links fall back to the legacy `whiteboard-{roomId}` salt. |
-| Signing (authorization) | ECDSA P-256 / SHA-256 | Raw r‖s (64-byte) signatures over `epoch ‖ update`; chosen over Ed25519 for universal Web Crypto support |
-| Owner certificates | ECDSA P-256 over canonical JSON | Owner key signs `{room, epoch, editorPub}` to vouch for each epoch's editor key |
-| API | Web Crypto API | Hardware-accelerated, browser-native; non-extractable verify keys |
+| Key derivation | PBKDF2-HMAC-SHA-256 | 600,000 iterations for new rooms. The count travels in the link's `kdf` field and is clamped to `[100,000, 5,000,000]` on decode, so a tampered link can't weaken derivation below the legacy floor or stall a victim on a multi-second one. Links without `kdf` use 100,000. |
+| Salt | 16 random bytes per room | Minted with the room and carried in the link, so a password can't be attacked with a table precomputed from the public room ID. Links without a salt fall back to `whiteboard-{roomId}`. |
+| Encryption | AES-256-GCM | Random 12-byte IV per message, prepended to the ciphertext; derived key is non-extractable |
+| Signing | ECDSA P-256 / SHA-256 | Raw 64-byte r‖s signatures over `epoch ‖ update`. Chosen over Ed25519 for Web Crypto support across installed browsers |
+| Certificates and notices | ECDSA P-256 over canonical JSON | The owner key signs `{room, epoch, editorPub}` certificates and `{type: 'rotate', room, from, to}` rotation notices |
+| Key handling | Web Crypto | Keys travel as base64 (raw public, PKCS8 private) in the URL fragment and are imported as non-extractable `CryptoKey`s |
 
 ## Browser Requirements
 
-- WebSocket API
+`checkBrowserCompatibility()` in `app.js` checks the first four at startup and shows an "unsupported browser" screen if any is missing:
+
+- WebSocket
 - IndexedDB
-- Web Crypto API (crypto.subtle)
-- TextEncoder/TextDecoder
+- Web Crypto (`crypto.subtle`)
+- TextEncoder / TextDecoder
 - HTML5 Canvas
-- ES Modules (`type="module"`)
+- ES modules (`type="module"`)

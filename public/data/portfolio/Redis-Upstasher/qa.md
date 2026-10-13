@@ -30,13 +30,13 @@ Free-tier Upstash Redis databases get auto-suspended after ~14 days of inactivit
 GitHub Actions auto-suspends scheduled workflows after 60 days of repository inactivity. That would defeat the entire purpose of a scheduled keepalive cron. The workaround: the workflow itself commits its results back to `main` after every run, generating real repo activity. On quiet runs where the state file didn't change, an empty `--allow-empty` heartbeat commit fires if the last real commit is older than 45 days. The whole system is recursively self-keeping-alive.
 
 ### Distinguishing "ENOENT" from "corrupt JSON" in `loadState`
-The original code caught every error and returned an empty state on failure. That treated "first run, no state yet" identically to "this file got truncated mid-write." The next successful run would silently overwrite the corrupt remnant with a fresh empty record — losing the entire ping history that's the project's verification artifact. `src/state-store.ts` now distinguishes `ENOENT` (return empty, that's expected) from any other read/parse error (throw with a descriptive message, fail the workflow loudly so a human investigates). Paired with atomic writes via `renameSync`, the failure mode is now closed end-to-end.
+A catch-all that returns empty state on any error treats "first run, no state yet" identically to "this file got truncated mid-write." The next successful run would then silently overwrite the corrupt remnant with a fresh empty record — losing the ping history that's the project's verification artifact. `loadState` in `src/state-store.ts` distinguishes `ENOENT` (return empty, that's expected) from any other read/parse error (throw with a descriptive message, fail the workflow loudly so a human investigates). Paired with atomic writes via `renameSync` in `saveState`, the failure mode is closed end-to-end.
 
 ### Native Node TypeScript instead of `tsx`
-Node 22.18+ ships with TypeScript type-stripping enabled by default; Node 24 made it fully unflagged. That meant the `tsx` dependency was redundant. Switching to `node src/cli.ts` + `node --test test/*.test.ts` removed the dep entirely, shaved ~3 seconds off every CI run, and eliminated the build-step failure mode. The trade-off: native stripping can't handle TS-only runtime features (`enum`, `namespace`, parameter properties), so the codebase has to stay conservative — which it already was.
+Node 22.18+ ships with TypeScript type-stripping enabled by default, and the workflow pins Node 24, so a runner like `tsx` is redundant. `npm start` is `node src/cli.ts` and `npm test` is `node --test test/*.test.ts` — no runner dependency and no build-step failure mode. Type-checking is a separate, explicit `npx tsc` (`noEmit`) rather than something hidden in the run path. The trade-off: native stripping can't handle TS-only runtime features (`enum`, `namespace`, parameter properties), so the codebase has to stay conservative — which it already was.
 
 ### Defense-in-depth against hung pings
-A single wedged Upstash host could previously block every subsequent ping in the run (sequential `for...of await`) and could keep the GitHub Actions job alive until the platform's 6-hour cap. Three layers fixed this: (1) a 15-second `AbortSignal.timeout` per fetch in `src/keepalive.ts`, (2) `Promise.allSettled` in `src/runner.ts` to fan out concurrently so one slow host can't delay the others, and (3) a 10-minute `timeout-minutes` cap on the job as a workflow-level safety net. Total worst-case runtime is now ~16 seconds in practice, with a hard ceiling of 10 minutes from the platform.
+With sequential `for...of await` and no fetch timeout, a single wedged Upstash host would block every subsequent ping and could keep the GitHub Actions job alive until the platform's 6-hour cap. Three layers prevent this: (1) a 15-second `AbortSignal.timeout` per fetch in `src/keepalive.ts`, and a timeout is never retried; (2) `Promise.allSettled` in `src/runner.ts` fans out concurrently so one slow host can't delay the others; and (3) a 10-minute `timeout-minutes` cap on the job as a workflow-level safety net. On a healthy run the keepalive step itself takes under a second and the whole job about 7 seconds, `npm ci` and the test gate included; one host's worst case is about a minute (SET and GET, each allowed one retry after a 5xx), and the job can never exceed 10 minutes.
 
 ## Engineering decisions
 
@@ -59,7 +59,7 @@ A single wedged Upstash host could previously block every subsequent ping in the
 - **Why**: POSIX `rename()` is atomic. A killed process leaves either the old file or the new file — never a partial. Option (c) would multiply the commit footprint without adding safety.
 
 ### TypeScript with no compiler step
-- **Constraint**: Small codebase (~250 LOC across 6 files) but enough union types and shape contracts (`PingResult`, `Outcome`, `UpstashDB`, `StatusFile`) that plain JS would lose clarity.
+- **Constraint**: Small codebase (~450 lines across 6 source files) but enough union types and shape contracts (`PingResult`, `Outcome`, `UpstashDB`, `StatusFile`) that plain JS would lose clarity.
 - **Options**: (a) Plain JS with JSDoc, (b) TypeScript compiled via `tsc`, (c) TypeScript run via `tsx`, or (d) TypeScript run via native Node type-stripping (Node 22.18+ / Node 24).
 - **Choice**: Option (d).
 - **Why**: No build step, no extra dep, no startup penalty. Editor experience and type errors on typos are preserved. The cost is sticking to TS features compatible with type-stripping — but the codebase already doesn't use `enum`, `namespace`, or parameter properties.
@@ -70,7 +70,7 @@ A single wedged Upstash host could previously block every subsequent ping in the
 GitHub Actions evaluates the `schedule:` block against UTC. `0 6 */3 * *` means "at 06:00 UTC every 3rd day of the month." It's not exactly every-72-hours (the gap between the 28th/31st and the 1st/3rd of the next month is irregular), but at this cadence it averages to about 10 pings per month per DB — well above Upstash's inactivity threshold.
 
 ### Why commit to `main` instead of a separate state branch?
-Because the commit is *also* the GitHub Actions anti-suspend signal. Actions only counts activity on the default branch. Pushing state commits to a side branch would defeat the anti-suspend trick that keeps the cron alive after 60 days.
+Because the commit is *also* the GitHub Actions anti-suspend signal, and scheduled workflows run from the default branch. Keeping the state commits on `main` puts the activity exactly where the schedule lives; a side branch would add a moving part to the one mechanism that keeps the cron alive past 60 days.
 
 ### Why a 3-day cron and not weekly or daily?
 Upstash's inactivity timer is the operative constraint. The 14-day window paired with a 3-day cadence gives ~4 ping attempts per inactivity window, enough headroom that a single missed run (a CI outage, a transient network failure, a token rotation that takes a day to complete) doesn't risk suspension. Daily would be overkill and add 7× the commit noise; weekly cuts the safety margin too close.
@@ -79,13 +79,19 @@ Upstash's inactivity timer is the operative constraint. The 14-day window paired
 Token rotation steps live in the README's runbook section. Summary: regenerate in the Upstash console, swap the new value into your local copy of the registry JSON, `gh secret set UPSTASH_REGISTRY < registry.json`, trigger a manual run to verify. The old token is now invalid and any code using it will get `AUTH_FAIL`.
 
 ### What happens when a DB is deleted?
-The next cron tick sees `UNREACHABLE` and exits 1. Email arrives. Two options: (a) the deletion was intentional, so remove the entry from the registry and update the secret; or (b) the deletion was accidental, restore the DB in Upstash. The state file's `lastResult` and `consecutiveFailures` track this — after 5 consecutive failures the `[STALE]` prefix appears in the log, making "this DB has been gone for a while" easy to spot.
+The next cron tick sees `UNREACHABLE` and exits 1. Email arrives. Two options: (a) the deletion was intentional, so remove the entry from the registry and update the secret; or (b) the deletion was accidental, restore the DB in Upstash. The state file's `lastResult` and `consecutiveFailures` track this — once a host passes 5 consecutive failures (the 6th failed run in a row) the `[STALE]` prefix appears in the log, making "this DB has been gone for a while" easy to spot.
 
 ### What if Upstash changes their REST API?
 The `pingDatabase` function is the entire surface area we touch — one `POST` to `<restUrl>` with `Authorization: Bearer <token>` and a `["SET"/"GET", ...]` body. If they break that, the workflow fails with `UNREACHABLE` or 4xx errors, an email arrives, and a quick code adjustment fixes it. The dependency-injection architecture means swapping in a mock to develop the fix is straightforward.
+
+### Has the inactivity assumption actually held?
+Yes, so far. Upstash doesn't document exactly what counts as activity, so the SET/GET ping was an assumption to verify. Every run since the first on 2026-05-20 has recorded `OK` for the tracked database, and it has never been archived. `state/status.json` caps history at 30 entries per database, but every run is a commit, so the complete record is the git history of that one file.
+
+### What does a bad registry do to the saved history?
+Nothing. If `UPSTASH_REGISTRY` fails to parse, or suddenly lists fewer than half the databases from the previous run, `isRegistryUnavailable` in `src/state-store.ts` makes the CLI log `REGISTRY_UNAVAILABLE` and exit 1 *before* `saveState` runs. A broken secret produces a failure email, not a status file that claims every database vanished.
 
 ### Why TypeScript for such a small project?
 Because the types (`PingResult`, `Outcome`, `UpstashDB`, `StatusFile`) document the data flow more clearly than comments would, and because the editor experience (autocomplete, refactoring, errors on typos) is meaningfully better than plain JS even at this size. With Node 24's native TS stripping, the cost is literally zero — no build step, no dep, no startup penalty.
 
 ### Can I run this against non-Upstash Redis hosts?
-Not as-is. `pingDatabase` speaks the Upstash REST shape (POST a JSON-encoded command array, bearer auth, `result`/`error` response keys). Adapting to a different REST-fronted Redis would mean swapping that one module; the runner/state/registry layers are protocol-agnostic.
+Not as-is. `pingDatabase` speaks the Upstash REST shape (POST a JSON-encoded command array, bearer auth, read the `result` key of the response). Adapting to a different REST-fronted Redis would mean swapping that one module; the runner/state/registry layers are protocol-agnostic.

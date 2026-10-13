@@ -22,6 +22,7 @@ flowchart TD
 
         subgraph Automation["Automation Layer"]
             Runner[runner.js<br/>automationId dispatcher]
+            Login[runLoginFlow<br/>classifyLoginUrl]
             Helpers[helpers.js<br/>safeClick, safeType, ...]
             ChromePath[chrome-path.js]
         end
@@ -39,6 +40,8 @@ flowchart TD
     Tray -->|Run Now| IPC
     Sched -.->|setTimeout fires| IPC
     IPC --> Runner
+    IPC -->|start-login-flow| Login
+    Login --> ChromePath
     Runner --> Helpers
     Runner --> ChromePath
     ChromePath --> Browser
@@ -54,15 +57,18 @@ flowchart TD
 - **Location**: `main.js`
 - **Key responsibilities**:
   - Creates the `BrowserWindow` with `contextIsolation: true` and `nodeIntegration: false`
-  - Builds the tray menu showing each automation's next-run time and last result
+  - Builds the tray menu showing each automation's next-run time and last result; resizes the 512 px source icon to 18×18 on macOS/Linux so it renders in the menu bar (Windows uses the multi-resolution `.ico`)
+  - Hides the window on close instead of quitting, so the scheduler keeps running
   - Holds the `setTimeout` handles for all scheduled runs (rebuilt at startup from `schedules.json`)
-  - Implements all `ipcMain.handle` endpoints (run, schedule CRUD, login flow, screenshot dir picker, login data clearing)
+  - Implements all `ipcMain.handle` endpoints (run, schedule save/load, headless toggle, last result, login flow, login status, screenshot dir picker, login data clearing)
+  - Guards each automation with a `running` flag so a manual run and a scheduled run can't overlap
 
 ### Renderer (`renderer.js` + `index.html`)
-- **Purpose**: Stateless UI — talks to the main process exclusively through the preload bridge
+- **Purpose**: UI layer — talks to the main process exclusively through the preload bridge. Only cosmetic preferences (screenshot folder, headless toggle, hide-zero-hours filter) live in `localStorage`; schedules and results are owned by the main process
 - **Location**: `renderer.js`, `index.html`
 - **Key responsibilities**:
-  - Renders the three automation rows, settings panel, and live log stream
+  - Renders the onboarding (log-in) screen or the three automation rows, depending on `check-login-status`
+  - Builds a per-automation settings panel (headless toggle, start date, time, recurrence) and shows the computed next run
   - Renders three result card formats (status badge, count badges, weekly time-grid) depending on the automation's result shape
   - Subscribes to `automation-log` and `auth-required` IPC events for streaming logs and auth state changes
 
@@ -77,8 +83,9 @@ flowchart TD
 - **Key responsibilities**:
   - Looks up the automation by id in a `{ [automationId]: fn }` map
   - Launches `puppeteer-core` against the bundled Chrome binary with a persistent `userDataDir` so cookies survive between runs
-  - Closes any extra pages the user-data-dir's restored session might bring along, leaving exactly one fresh tab
-  - Catches a sentinel `AUTH_REQUIRED` error and propagates it to the main process, which deletes the login marker and tells the renderer to drop back to the login screen
+  - Before launch, rewrites the profile's `Default/Preferences` to mark the last exit as clean (`disableSessionRestore`), then closes any extra restored pages, leaving exactly one fresh tab
+  - `checkAuthRedirect` throws a sentinel `AUTH_REQUIRED` error when the sign-in field is on the page; the main process catches it, deletes the login marker, and tells the renderer to drop back to the login screen
+  - Owns the interactive login flow (`runLoginFlow`) and the pure `classifyLoginUrl` helper it relies on
 
 ### Helpers (`automation/helpers.js`)
 - **Purpose**: A small site-agnostic Puppeteer toolkit so each automation reads as a sequence of intent-named steps
@@ -91,22 +98,27 @@ flowchart TD
 - **Key responsibilities**:
   - In a packaged build, walks `process.resourcesPath/chrome/` looking for the platform-specific executable name (including macOS `.app` bundle traversal)
   - In dev mode, checks `chrome-local/` first then falls back to the Puppeteer cache dir
-  - Returns `undefined` if nothing is found, letting the caller surface a clear error rather than silently launching the wrong browser
+  - In a packaged build, throws an explicit "Bundled Chrome not found … run `npm run download-chrome`" error; in dev, returns `undefined` so the runner reports "Chrome not found" instead of silently launching the wrong browser
 
 ## Data Flow
 
 A scheduled run, step by step:
 
 1. App starts → `scheduleAllRuns()` reads `schedules.json` and creates a `setTimeout` per enabled automation, computing `next - now` ms from each schedule's `startDate`, `time`, and `recurrence`
-2. The timer fires → `triggerRun(automationId, manual=false)` is called from the main process
-3. `runner.run()` resolves the bundled Chrome path, calls `puppeteer.launch()` with `userDataDir` pointing at the app's user-data directory + `chrome-profile` subfolder
+2. The timer fires → `triggerRun(automationId, manual=false)` is called from the main process; it skips the run if that automation is already in progress
+3. `runner.run()` resolves the bundled Chrome path, calls `puppeteer.launch()` (headless only if the schedule's `headless` flag is set) with `userDataDir` pointing at the app's user-data directory + `chrome-profile` subfolder
 4. The dispatcher invokes the site-specific function which navigates, waits for selectors, scrapes the DOM, and either confirms an action or returns structured data
-5. The result is written to `results.json` keyed by `automationId`
-6. The tray menu rebuilds with the new status; a native `Notification` fires; the next `setTimeout` is scheduled
+5. The result is written to `results.json` keyed by `automationId`, and the schedule's `lastRun` is updated
+6. A native `Notification` fires (success or failure), the next `setTimeout` is armed, and the tray menu rebuilds with the new status
 
-A manual run from the renderer is identical except the entry point is the `run-automation` IPC handler instead of a timer.
+The tray's **Run Now** items go through the same `triggerRun` path with `manual=true`. A run started from the app window instead goes through the `run-automation` IPC handler: same runner and same `results.json` write, but the result is returned to the renderer to draw its card, and no notification fires.
 
-The login flow (`runLoginFlow`) is a separate path: launches Chrome **non-headless**, polls for the auth provider's sign-in input selector to disappear (signals login complete), waits for cookies to flush to disk, then writes the `login-confirmed` marker file.
+The login flow (`runLoginFlow`) is a separate path. It launches Chrome **non-headless** at the target app and runs in two phases:
+
+1. **Already signed in?** For up to 25 s it classifies the current URL with `classifyLoginUrl`. If the browser settles on the app's hostname, stays there for 2 s, and no sign-in field is present, the existing session is accepted and the window closes.
+2. **Wait for sign-in to finish.** Otherwise it polls every 2 s for up to 5 minutes until the browser is back on the app hostname with no Microsoft email/password field visible — i.e. after email, password, MFA and the "stay signed in?" prompt are all done. Closing the window aborts with a clear message.
+
+It then waits for network idle so Chrome flushes cookies to disk, and the main process writes the `login-confirmed` marker file.
 
 ## External Integrations
 
@@ -114,14 +126,15 @@ The login flow (`runLoginFlow`) is a separate path: launches Chrome **non-headle
 |---------|---------|-------|
 | Chrome for Testing | Browser to drive | Pinned version downloaded by `scripts/download-chrome.js` and bundled into the installer via `electron-builder`'s `extraResources` |
 | Apple notary service | macOS code-signing + notarization | Hooked into electron-builder's `afterSign` via `scripts/notarize.js`; credentials read from env (`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`) |
-| GitHub Releases | Distribution channel | `.github/workflows/release.yml` builds Windows and Linux on tag push and uploads via `GH_TOKEN` |
+| Microsoft sign-in (SSO) | The target app's identity provider | Never automated — the user signs in by hand in a visible window. The app only recognises its hostnames (`login.microsoftonline.com`, `login.live.com`, ADFS/federation hosts) and its `#i0116` / `#i0118` fields |
+| GitHub Actions + Releases | CI and distribution | `build.yml` builds Windows + Linux on push/PR to `main`; `release.yml` builds on `v*.*.*` tags and attaches installers with `softprops/action-gh-release` |
 
 ## Key Architectural Decisions
 
 ### Bundling Chrome inside the installer instead of using system Chrome
 - **Context**: The automations need a known browser version with deterministic DOM behavior. End users shouldn't have to install Chrome separately, and version drift between Puppeteer's expected build and whatever the user has installed produces silent breakage
 - **Decision**: Ship a pinned Chrome for Testing build inside the app via `electron-builder`'s `extraResources`. `scripts/download-chrome.js` runs as a prebuild step and populates `chrome-local/<platform>/`
-- **Rationale**: Increases installer size by ~150 MB but eliminates an entire class of "works on my machine" support burden. The alternative — depending on `puppeteer` proper, which downloads its own Chromium at install time — wouldn't work because that download isn't bundled by electron-builder, only the JS deps
+- **Rationale**: Carries a full Chrome build in every installer (the macOS `chrome-local/` download is ~330 MB unpacked) but eliminates an entire class of "works on my machine" support burden. The alternative — depending on `puppeteer` proper, which downloads its own Chromium at install time — wouldn't work because that download isn't bundled by electron-builder, only the JS deps
 
 ### Single persistent `userDataDir` across all runs
 - **Context**: Re-authenticating before every automation is a non-starter — half the value is that runs are fully unattended on a schedule. Cookies need to survive between Chrome launches
@@ -138,12 +151,17 @@ The login flow (`runLoginFlow`) is a separate path: launches Chrome **non-headle
 - **Decision**: `runner.js` probes for the auth provider's sign-in field selector right after the initial page load. If present, it throws `Error('AUTH_REQUIRED: …')`. Main process catches the prefix, deletes the `login-confirmed` marker, emits an `auth-required` IPC event, and surfaces the window
 - **Rationale**: A clean sentinel-error pattern beats trying to model auth state across IPC. The runner stays stateless; the only thing the main process has to know is "did the error message start with AUTH_REQUIRED?"
 
+### Detect sign-in completion by hostname, not by a disappearing field
+- **Context**: The login window has to close itself once the user is fully signed in. The obvious signal — "the email field is gone" — fires after the *first* step of a Microsoft sign-in, which would close the browser before the password and MFA screens
+- **Decision**: `classifyLoginUrl` in `automation/runner.js` parses the URL with `new URL()` and classifies its **hostname** as `login`, `app`, or `unknown`. The flow completes only when the hostname is the app's and no sign-in field is on screen
+- **Rationale**: A substring check like `url.includes(appHost)` would be wrong, because the Microsoft sign-in URL carries the app URL in its `redirect_uri` query parameter. Hostname parsing handles that case, and because the function is pure it is covered by `automation/login-url.test.js` without launching a browser
+
 ### Site-agnostic helper layer between Puppeteer and the automations
 - **Context**: Each automation needs to wait-for-then-click, wait-for-then-type, take screenshots, etc. Inlining `page.waitForSelector` + `page.click` + try/catch into every step turns the automations into noise
 - **Decision**: `automation/helpers.js` exposes five primitives that each (a) wait for the selector with a default 15s timeout, (b) re-throw a clear "selector not found: X" error, (c) accept an opts bag for overrides. The automations read as a list of named intent steps with no try/catch
 - **Rationale**: Honest scope — these aren't a "framework," they're the obvious refactor of the five operations that show up in every automation. Anything more exotic is straight Puppeteer because the `page` is passed through to the automation function
 
 ### Two-process Electron with a context-bridge whitelist
-- **Context**: The renderer renders user-uploaded data (log lines, scraped results) and writes to disk indirectly through IPC. A misstep here is a remote-code-execution vector
-- **Decision**: `contextIsolation: true`, `nodeIntegration: false`, and `preload.js` exposes exactly the IPC channels the renderer needs as named methods on a `window.api` object. CSP header pinned to `default-src 'self'`
+- **Context**: The renderer displays text scraped from third-party pages (log lines, timesheet rows) and triggers disk writes indirectly through IPC. A misstep here is a remote-code-execution vector
+- **Decision**: `contextIsolation: true`, `nodeIntegration: false`, and `preload.js` exposes exactly the IPC channels the renderer needs as named methods on a `window.api` object. A CSP `<meta>` tag in `index.html` sets `default-src 'self'; script-src 'self'` (inline styles allowed), so scraped markup that reaches the DOM can't execute script
 - **Rationale**: Standard Electron hardening, but it constrained the design in useful ways — every renderer→main interaction is an explicit IPC channel that I'd had to think about

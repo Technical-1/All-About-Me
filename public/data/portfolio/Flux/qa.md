@@ -1,86 +1,104 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-Flux is a generative art and ambient sound studio built with React Native and Expo. It creates real-time particle sphere visualizations that react to layered ambient soundscapes, running on iOS, Android, and the web from a single codebase. I built it as an exploration of audio-reactive visuals, cross-platform audio engineering, and creative coding — inspired by apps like Endel and tools like Processing/p5.js.
+Flux is an ambient sound and generative visuals app for iOS, Android, and the web, built from one React Native and Expo codebase. You layer nature recordings, noise, and synthesized drones into a soundscape while a Fibonacci-distributed particle sphere rotates on screen. An adaptive mode follows the time of day and your movement, and two-minute guided sessions shape the experience into a short arc. The most interesting technical piece is the renderer: a Skia `Atlas` that draws thousands of particles in one GPU call, with every per-particle transform computed in UI-thread worklets, so the sphere animates without React re-rendering.
+
+## Problem Solved
+
+Focus and relaxation apps tend to offer either a fixed playlist or a static mixer. Flux sits between them: you build the mix yourself, and the app keeps it moving on its own (time-of-day drift, motion response, timed sessions) so a background session doesn't feel like a loop. The visuals give you something calm to look at, and they run the same way in a browser tab as on a phone.
+
+## Target Users
+
+- **People who work or study with background sound** — a Focus mix, a Pre-Focus ramp, and adaptive drift that brightens through the morning and calms down at night
+- **People winding down or falling asleep** — Sleep and Relax mixes, a Wind-Down session, and visuals that cool and slow overnight
+- **Visual tinkerers** — particle count, speed, wobble, size, trails, six color schemes, and an optional physics simulation, with creations saved to a gallery
 
 ## Key Features
 
-- **Audio-Reactive Particle Visualization**: A Fibonacci-distributed sphere of particles that pulses, wobbles, and shifts based on live audio amplitude analysis — bass drives size, mid drives wobble, treble drives trail intensity
-- **Dual Audio Engine**: Web gets full procedural synthesis (white/pink/brown noise, FM oscillators, binaural beats, solfeggio frequencies) via Web Audio API; native gets high-quality file playback via expo-audio with background audio support
-- **Bottom-Sheet UI Architecture**: All controls live in peek/expanded bottom sheets on mobile, with a smooth cross-fade transition system — the visualization stays visible at all times
-- **Custom Sound Import**: Users can upload their own audio files with a full trim interface, duration validation, and automatic integration into the sound library
-- **34 Built-in Sound Layers**: Nature recordings, noise generators, tonal drones, and ambient textures across four categories (nature, noise, tonal, ambient) — 24 backed by CC-licensed MP3s from Freesound.org and BBC Sound Effects, plus 10 web-synthesized layers (white/pink/brown noise and tonal drones including binaural beats and solfeggio frequencies)
-- **Real-Time Amplitude Analysis**: FFT-based on web (AnalyserNode), category-estimated on native — both feed the same visual reactivity pipeline
+### Layered sound mixer
+34 built-in layers in four categories: 15 nature, 3 noise, 9 tonal, and 7 ambient. 24 are bundled Freesound recordings and 10 are synthesized live: white, pink, and brown noise, drones, a pulse, binaural beats, and two solfeggio tones. Each layer has its own volume. A 3-band master EQ with six presets shapes the synthesized layers. Focus, Relax, Sleep, and Energy presets load curated combinations, and you can save your own.
+
+### Adaptive mode
+On by default. While audio plays, the app samples the clock every minute and, on native, the accelerometer about once a second. These feed smooth 24-hour curves that adjust intensity, EQ tilt, modulation rate, and particle speed, wobble, and size. Each soundscape mode has its own profile, so Sleep stays darker and slower than Energy at the same hour.
+
+### Two-minute micro-sessions
+Reset, Pre-Focus, and Wind-Down chips in the bottom bar each start a 120-second arc: about 25 seconds of settling, a core phase, then a 20-second resolve back to neutral. If nothing is playing, a session starts the matching soundscape. Tapping the chip again cancels it.
+
+### First-run quiz
+Three questions (what you want, how noisy your space is, calm or vivid visuals) choose a soundscape, a visual preset, and whether adaptive mode starts on. The mapping is deterministic, so the same answers always give the same setup.
+
+### GPU particle sphere with optional physics
+The sphere uses golden-angle point placement, depth-based size and opacity, drag-to-rotate, and trails. The physics option adds gravity, magnetism, short-range attraction and repulsion, friction, and flocking, while a spring holds the particles to the sphere shape.
+
+### Custom sounds, saves, and backups
+Import an audio file of 1 second to 3 minutes and trim it (anything over 2 minutes prompts a trim). It loops inside the trim window. Creations save with SVG thumbnails, favorites, and an optional auto-save. All data exports to a JSON file (a download on web, the share sheet on native) and imports back with validation.
+
+### Audio-reactive background and credits
+Background orbs scale and fade with bass, mid, and treble energy. A Sound Credits & Licenses screen lists the author, source link, and license for every CC-BY recording.
 
 ## Technical Highlights
 
-### Cross-Platform Audio Architecture
-The biggest engineering challenge was building a unified audio API that works across web and native. Web Audio API enables procedural sound generation (noise buffers, oscillator synthesis, FM modulation) and real frequency analysis via AnalyserNode — none of which is available through expo-audio. On native, I use file-based playback with simulated amplitude data estimated per sound category. The abstraction layer (`AudioProvider`) exposes a single `useAudio()` hook that hides all platform differences from the rest of the app.
+### A single-draw-call particle renderer on the UI thread
+Drawing each particle as its own view or SVG element means React and native view work for every particle, so smoothness drops as the count grows. `components/ParticleSphereSkia.tsx` instead uses one shared white-circle texture in a Skia `Atlas`, tinted per instance with a `modulate` color blend. Rotation, wobble, perspective projection, and depth-based alpha and size are computed per particle inside `useRSXformBuffer` and `useColorBuffer` worklets, driven by Reanimated shared values. Atlas can't z-sort sprites, so `buildParticleGeometry` in `lib/particleAtlas.ts` sorts points back-to-front once, and the depth cue hides the drift during rotation. The wobble clock's loop target is a whole number of 2π periods, so the animation never snaps when it repeats.
 
-### Fibonacci Sphere with Physics
-The particle visualization uses golden angle distribution (`π × (3 - √5)`) for even sphere coverage, rendered as depth-sorted SVG circles. The optional physics engine adds gravity, magnetism, inter-particle forces, and boid-like flocking — all running in a requestAnimationFrame loop. Reanimated handles the base rotation on the UI thread for smooth 60fps, while physics runs on the JS thread with manual state updates.
+### Physics without per-frame allocation
+The physics simulation runs in a JS `requestAnimationFrame` loop over flat `Float32Array` position and velocity buffers. Each frame it copies positions into one of two pre-allocated output buffers and publishes that to a shared value, alternating between them. The UI thread gets a new reference each frame (so it picks up the change) while the loop allocates nothing after setup.
 
-### Sheet Transition System
-I built a custom `SheetContentWrapper` component that renders both peek and expanded content simultaneously as overlapping layers, using Reanimated's `useSharedValue` interpolation on the sheet's `animatedIndex`. This avoids the flash/pop artifacts you get from conditional rendering when a sheet crosses snap points. The cross-fade midpoint is calculated dynamically from the sheet's snap point positions.
+### Seam-free adaptive curves and session arcs
+Both `lib/adaptiveEngine.ts` and `lib/sessionArc.ts` sample keyframes with cubic smoothstep, which has zero slope at every knot, so each output is smooth with no visible corners. The adaptive curves wrap across midnight, so 23:59 flows into 00:00. Every session track ends on the same neutral values, so when a session finishes and adaptive mode takes over, nothing jumps. Both modules are pure and fully unit-tested. The hooks around them (`useAdaptiveContext`, `useSession`) only own the timers, sensor subscription, and React state.
 
-### SVG Thumbnail Consistency from a Shared Module
-Saved creations include a static SVG thumbnail generated with the exact same Fibonacci distribution as the live visualization. Rather than copy the algorithm into each consumer, the golden-angle math lives in one module (`lib/fibonacciSphere.ts`) imported by the live render, the thumbnail generator, and the gallery card preview — so a thumbnail can never drift from what the user actually created. Centralizing it also made the math unit-testable, including the `numPoints = 1` edge case where the distribution denominator has to be clamped to keep the points finite.
-
-### Pure-Function Core, Testable Without a Renderer
-The correctness-critical logic — audio gain mixing, FFT band normalization, soundscape layer resolution, custom-sound persistence, preview-playback state, and reactive-background color derivation — is extracted into dependency-free modules under `lib/` (`audioEngine.ts`, `customSoundsStore.ts`, `soundscapeColors.ts`, `soundscapeSelection.ts`, `previewPlayback.ts`, `fibonacciSphere.ts`). Each has a matching Jest suite in `__tests__/lib/`. Because these functions take inputs and return outputs with no hooks or platform APIs, the bulk of the app's logic can be verified deterministically and fast, leaving the React components thin and focused on rendering.
+### Keeping 20 Hz amplitude updates cheap
+The FFT is read every 50 ms during playback. With the result in the main audio context, every component using `useAudio()` would re-render 20 times a second. `AmplitudeProvider` in `lib/AudioContext.tsx` holds it in its own context, keyed on whether audio is playing and how many layers are active (not on the layers array), so only the reactive background and the three level dots re-render. On the receiving side, `AudioReactiveBackground` eases toward each new value with an 80 ms `withTiming` instead of restarting a spring on every tick.
 
 ## Engineering Decisions
 
-### SVG rendering over WebGL/Three.js
-- **Constraint**: Particles needed to render consistently across iOS, Android, and web — including older Android devices and varied web browsers — at 60fps
-- **Options**: `@react-three/fiber` + Three.js for WebGL rendering, raw Skia via `@shopify/react-native-skia`, or React Native SVG
-- **Choice**: React Native SVG with Reanimated driving rotation on the UI thread
-- **Why**: WebGL had inconsistent GL context behavior across the target platforms during prototyping. SVG renders identically everywhere, the bundle stays smaller, and ~1200 particles still hit 60fps — well above the visual budget. The ceiling is lower than WebGL could reach, but the visual quality inside that range is strong enough that the simpler renderer wins. The Three.js prototype dependencies were since removed entirely from the project.
+### Skia Atlas over SVG for the sphere
+- **Constraint**: Thousands of particles with trails need to animate smoothly on phones and in browsers
+- **Options**: One SVG circle per particle with Reanimated, WebGL through Three.js, or Skia's `Atlas`
+- **Choice**: Skia `Atlas`, natively and on web through CanvasKit
+- **Why**: SVG worked at a few hundred particles but scaled with element count. Three.js would have meant a separate GL path per platform. Atlas keeps one renderer everywhere and raises the cap to 2,000 on mobile and 5,000 on desktop. The cost is shipping the CanvasKit WASM on web, which `scripts/copy-canvaskit.js` stages into `public/` and `ParticleSphere.tsx` loads from the site root.
 
-### Amplitude simulation on native instead of a native FFT module
-- **Constraint**: The native audio stack (`expo-audio`) exposes file playback but no real-time frequency analysis, while the visualization needs bass/mid/treble values to drive reactivity
-- **Options**: Write a custom native module wrapping `AVAudioEngine` / Android `Visualizer`, ship without reactivity on native, or estimate amplitude from sound metadata
-- **Choice**: Per-category amplitude estimation with exponential smoothing, sharing the same downstream pipeline as the web FFT path
-- **Why**: A native module would have meant ejecting from the managed Expo workflow and maintaining iOS + Android implementations. The estimated signal is good enough to drive visually convincing reactivity, and the abstraction keeps a single `useAudio()` consumer API. The trade-off is documented and easy to swap later if a native module ships.
+### One audio graph API on every platform
+- **Constraint**: Synthesis, EQ, and frequency analysis must work on native too, not just in the browser
+- **Options**: Keep Web Audio for web and simulate amplitude on native, write custom native modules, or adopt `react-native-audio-api`
+- **Choice**: `react-native-audio-api` for the synthesis graph everywhere, with `expo-audio` kept for MP3 playback
+- **Why**: It exposes the familiar `AudioContext` / `AnalyserNode` / `BiquadFilterNode` API on iOS, Android, and web, so the graph code is shared and native amplitude is real rather than estimated. The known limit is that `expo-audio` playback doesn't pass through the graph, so EQ and the FFT only cover the synthesized layers.
 
-### `flux_` AsyncStorage key namespacing with prefix-filtered import
-- **Constraint**: Bulk export/import has to be safe — restoring a backup must not stomp on other storage, and a third-party library writing to AsyncStorage must not poison Flux state
-- **Options**: A single JSON blob under one key, separate storage buckets per data type, or namespaced keys with prefix filtering
-- **Choice**: Every key prefixed with `flux_`; import filters on the prefix before writing
-- **Why**: Per-type buckets multiplied the surface area for migrations. A single blob made partial reads expensive. Prefix filtering keeps reads cheap, lets export/import operate as a bulk scan, and makes "reset Flux data" a one-line operation that won't touch anything else on device.
+### Effects layered on top of the user's settings
+- **Constraint**: Adaptive mode and sessions change visuals and loudness all the time, but switching them off must leave exactly what the user set
+- **Options**: Write adaptive values into the settings and remember the originals, or derive an effective state on top
+- **Choice**: Derive. `StudioScreen` computes `effectiveSettings` with `applyAdaptiveVisual`, and audio uses a separate adaptive gain (0.65–1.0) multiplied over the per-layer and master volumes
+- **Why**: Nothing adaptive is ever saved, and `resetAdaptiveAudio` only has to restore unity gain and a flat EQ. Sessions reuse the same apply paths, so they need no audio code of their own.
 
-### Dual content layers in bottom sheets instead of conditional rendering
-- **Constraint**: Sheets need to show different content at peek vs expanded snap points without flash or pop artifacts when the user drags across the boundary
-- **Options**: Swap children on snap-point change, render only the current snap's content, or render both layers and cross-fade
-- **Choice**: A `SheetContentWrapper` that renders peek and expanded content as overlapping absolutely-positioned layers, cross-fading via Reanimated `useSharedValue` interpolation on `animatedIndex`
-- **Why**: Conditional rendering caused visible mount/unmount jank mid-drag. Rendering both layers keeps the UI thread free of layout work during the gesture; only opacity changes, which Reanimated can drive on the UI thread. The cost is double the JSX in memory per sheet, which is negligible at this app size.
+### An entitlement seam before any paywall
+- **Constraint**: A future premium tier shouldn't require touching every screen, but nothing should be locked today
+- **Options**: Add a store SDK now, scatter feature flags, or build a small typed gate first
+- **Choice**: `lib/entitlements.ts` with a persisted value, a subscribe/notify emitter, `useEntitlement()`, and `isGated()` reading an empty `PREMIUM_GATES` map
+- **Why**: Call sites get a stable API now. Gating a feature later is one line, and wiring a purchase provider changes this file only.
 
 ## Frequently Asked Questions
 
-### How does the particle visualization work?
-Points are distributed on a sphere using the Fibonacci/golden angle method, which produces the most visually uniform coverage (unlike latitude/longitude grids that cluster at poles). Each point is projected to 2D with depth-based sizing and opacity, rendered as SVG circles, and rotated via Reanimated's `withRepeat(withTiming(...))`. When physics is enabled, particles have velocity vectors influenced by configurable forces.
+### Does the particle sphere react to the music?
+Not directly. The audio-reactive part is the background: its orbs respond to bass, mid, and treble energy, and three level dots in the studio header pulse with the bands. The sphere's motion comes from your settings, plus adaptive mode or a running session.
 
-### Why use SVG instead of WebGL/Three.js?
-I initially prototyped with `@react-three/fiber` and Three.js, but hit cross-platform GL context issues — especially on older Android devices and certain web browsers. SVG via `react-native-svg` renders consistently on all platforms, and combined with Reanimated for rotation, achieves 60fps with up to 1200 particles. The tradeoff is a lower particle ceiling than WebGL could achieve, but the visual quality is excellent within that range.
+### What does adaptive mode actually change?
+On the audio side: the master EQ tilt (warmer at night, brighter mid-morning), an overall gain factor between 0.65 and 1.0, and the modulation rate of the synthesized drones. On the visual side: particle speed, wobble, and size multipliers. It never changes your per-layer volumes or saved settings, and turning it off restores them.
 
-### How does audio reactivity work?
-On web, the audio system runs an AnalyserNode with FFT size 256 every 50ms. The frequency bins are split into bass (0-10%), mid (10-40%), and treble (40-100%) ranges, each averaged and normalized to 0-1. On native, amplitude is estimated based on each sound layer's category and frequency characteristics, with some random variation for organic feel. Both paths apply exponential smoothing. The `ParticleSphere` reads these values to modulate particle size (bass), wobble intensity (mid), and trail opacity (treble).
+### Why does motion sensing only work on phones?
+`useAdaptiveContext` reads the accelerometer through `expo-sensors`, which isn't available in the web build. On web, and on any device where the sensor is missing or permission is denied, motion is treated as zero and adaptive mode runs on time of day alone.
 
-### Why does the app have both file-based sounds and generated sounds?
-File-based sounds (nature recordings, ambient textures) provide rich, organic audio that can't be synthesized. Generated sounds (noise types, oscillators, binaural beats) offer precise control and infinite variation without large audio files. On web, both coexist. On native, only file-based sounds are available since the Web Audio API synthesis isn't accessible — the generated sound options gracefully degrade.
+### What happens at the end of a micro-session?
+The last 20 seconds ease every parameter back to neutral. The session shows as complete for 2.5 seconds and then stops itself. Your audio keeps playing, and adaptive mode takes over again if it's on.
 
-### How is the bottom-sheet UI structured?
-The app uses four `@gorhom/bottom-sheet` instances (Controls, Sounds, Library, Settings), each with 2-3 snap points. A custom `SheetContentWrapper` renders peek and expanded content as overlapping absolutely-positioned layers, with animated opacity interpolation based on the sheet's current snap index. Only one sheet can be open at a time. On desktop (≥900px), sheets are replaced by a sliding side panel that contains the same content.
+### How many particles can it draw?
+The points slider goes from 50 to 2,000. The renderer also enforces a device cap: 2,000 on mobile screens and 5,000 on desktop, lowered to 800 and 2,000 with the Performance Mode setting, which is on by default on phones and narrow browsers.
 
-### What's the Easter egg?
-Tapping the "FLUX" logo 7 times within 3 seconds activates the Flux Capacitor — a full-screen animated SVG recreation of the Back to the Future flux capacitor. It features animated electric arcs along three paths and a speed counter that ramps up to 88 MPH. Each intermediate tap triggers a haptic pulse.
+### Can I move my creations to another device?
+Yes. **Export Data** in Settings writes a versioned JSON file (a download on web, the share sheet on native), and **Import Data** reads it back. Import only accepts known keys with the right types: saved creations, favorites, recordings, app and particle settings, the onboarding flag, and the entitlement. Anything else is skipped and reported, so custom sounds and custom soundscapes are not restored by an import.
 
-### How does data export/import work?
-All app data is stored in AsyncStorage with a `flux_` key prefix. Export collects all `flux_*` keys into a versioned JSON object. Import validates the format, filters for `flux_*` keys only (ignoring anything else), and writes them back. This makes it safe to transfer data between devices or back up before a reset.
+### Where do the sounds come from?
+All 24 bundled recordings are from Freesound.org under CC0 or CC-BY. The ten CC-BY recordings are credited in the in-app Sound Credits & Licenses screen. The Python scripts in `scripts/` were used to analyze, trim, and make seamless loops with ffmpeg; they aren't part of the app.
 
-### What are the Python scripts for?
-The `scripts/` directory contains Python tools for processing audio assets: analyzing duration/format, trimming long files (>5 min to 2 min with fade), and creating seamless loops via crossfade. They use ffmpeg/ffprobe (no Python audio libraries) and auto-backup originals before modifying. These are development-time tools, not part of the app runtime.
-
-### How is an audiovisual app like this tested?
-The decision logic is deliberately separated from rendering. Audio gain math, FFT band normalization, soundscape layer resolution, custom-sound storage rules, preview-playback state, and Fibonacci point generation all live in pure modules under `lib/`, each with a matching Jest suite in `__tests__/lib/`. That makes the parts most likely to break — a divide-by-zero when master volume is 0, a thumbnail that no longer matches the live sphere, a custom sound that fails to persist — verifiable without spinning up a renderer or mocking platform audio APIs. Component tests cover `ParticleSphere` and `AudioReactiveBackground` on top of that.
+### Is there an Easter egg?
+Tap the "FLUX" logo seven times within three seconds. A Back to the Future flux capacitor fills the screen and its speedometer climbs to 88 MPH.

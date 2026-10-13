@@ -9,13 +9,15 @@
 | Build | Vite | ^7.2 | Fast dev server, and dynamic imports give every topic's data its own chunk for free |
 | Styling | Tailwind CSS | ^4.1 | Utility classes with a class-based dark mode; a few design tokens live in `src/index.css` |
 | Charts | Recharts | ^3.5 | The 30-day accuracy and session charts on the Stats page |
+| Typography | JetBrains Mono (`@fontsource-variable/jetbrains-mono`) | ^5.3 | Settings' display face, bundled and served from `'self'` so the CSP needs no font-host exception |
 
 ## Frontend
 
 - **Framework**: React 19, function components only
 - **State**: study state lifted into `LearningApp` (`src/App.tsx`) via `useAppState`; React Context for the current topic, theme and toasts
 - **Routing**: a small hash router (`useHashRouter`) — landing, `#/learn/<topic>`, `#/about`, `#/privacy`
-- **Styling**: Tailwind CSS 4 through PostCSS, light/dark/system theme
+- **Styling**: Tailwind CSS 4 through PostCSS, light/dark/system theme; Settings draws only from `--st-*` design tokens in `src/index.css`, contrast-checked against WCAG for both schemes
+- **Fonts**: the system sans for body text; a Latin-only variable JetBrains Mono for Settings, preloaded at startup (`src/fonts.ts`)
 - **Build**: Vite 7 with manual chunks for React and Recharts plus one lazily loaded chunk per topic
 - **Browser APIs**: Web Speech (read the question aloud), Web Audio (answer tones), Notifications (goal and inactivity reminders), Service Worker (offline)
 
@@ -35,17 +37,18 @@ None. The app is static files; all data is in the browser's `localStorage`, and 
 
 - **Package manager**: npm
 - **Linting**: ESLint 9 with typescript-eslint and the React Hooks plugin
-- **Testing**: Vitest 4 with React Testing Library in jsdom, V8 coverage; the suite is pinned to a non-UTC time zone so local-day logic is really exercised
+- **Testing**: Vitest 4 with React Testing Library in jsdom, V8 coverage; 60 test files covering the question rules, storage and backups, focus handling and every study mode. The suite is pinned to a non-UTC time zone (`America/New_York`) so local-day logic is really exercised
 - **Bundle analysis**: rollup-plugin-visualizer
 
 ## Key Dependencies
 
-The runtime surface is three packages: `react`, `react-dom` and `recharts`.
+The runtime surface is four packages: `react`, `react-dom`, `recharts` and `@fontsource-variable/jetbrains-mono` (the app takes a single woff2 file from the last one).
 
 | Package | Purpose |
 |---------|---------|
 | `react`, `react-dom` | UI |
 | `recharts` | Stats charts |
+| `@fontsource-variable/jetbrains-mono` | Self-hosted variable font for Settings |
 | `vitest` | Test runner sharing Vite's config |
 | `@testing-library/react` | Component tests that drive the UI the way a user does |
 | `jsdom` | Browser environment for tests |

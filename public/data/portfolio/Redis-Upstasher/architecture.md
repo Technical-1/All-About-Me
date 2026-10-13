@@ -5,13 +5,13 @@
 ```mermaid
 flowchart TD
     subgraph Schedule
-        Cron[GitHub Actions cron<br/>every 3 days @ 06:00 UTC]
+        Cron["GitHub Actions cron<br/>every 3 days @ 06:00 UTC"]
         Manual[gh workflow run<br/>manual trigger]
     end
 
     subgraph Workflow [keepalive.yml]
-        Checkout[actions/checkout@v6]
-        SetupNode[actions/setup-node@v6<br/>node-version: 24]
+        Checkout["actions/checkout@v6"]
+        SetupNode["actions/setup-node@v6<br/>node-version: 24"]
         Test[npm test<br/>full suite]
         Run[node src/cli.ts]
         Commit[git add state/status.json<br/>git commit + push]
@@ -26,8 +26,8 @@ flowchart TD
     end
 
     subgraph External
-        Upstash[(Upstash REST<br/>per-DB endpoint)]
-        State[(state/status.json<br/>committed to main)]
+        Upstash["(Upstash REST<br/>per-DB endpoint)"]
+        State["(state/status.json<br/>committed to main)"]
     end
 
     Cron --> Checkout
@@ -48,7 +48,7 @@ flowchart TD
 ### `src/cli.ts`
 - **Purpose**: Process entry point. Builds the runtime dependencies (live `pingDatabase`, `loadRegistry`, `loadState`/`saveState`) and hands them to `main()`. `main()` is exported for tests, which inject fakes.
 - **Key responsibilities**:
-  - Read `UPSTASH_REGISTRY` env var; eagerly parse it (so `labels` is immutable and the parse error path is straightforward).
+  - Read `UPSTASH_REGISTRY` env var; exit 1 immediately if it is unset. Otherwise parse it eagerly, so the host-to-label map is built once and a parse error is held in `registryErr` and re-thrown from `discover()`.
   - Call the runner; load prior state; check `isRegistryUnavailable`.
   - Merge new ping results into state, write state, log results.
   - Apply the `[STALE]` prefix to hosts whose post-merge `consecutiveFailures > 5`.
@@ -96,7 +96,7 @@ flowchart TD
   - `timeout-minutes: 10` so a wedged run can't lock out the next tick.
   - `npm ci` → `npm test` (gates every run on a green suite) → `node src/cli.ts`.
   - `Commit state` step only runs if `npm test` passed (`if: always() && steps.test.outcome == 'success'`), preventing false heartbeats.
-  - Heartbeat commit (`--allow-empty`) only if the last real commit is >45 days old.
+  - Heartbeat commit (`--allow-empty`) only if nothing changed and the last commit is >45 days old.
   - `git push` with a single 5-second retry, then fail the job — push failures are no longer silently masked.
 
 ## Data flow
@@ -104,8 +104,8 @@ flowchart TD
 1. **Trigger**: cron at 06:00 UTC every 3 days, or `gh workflow run keepalive`.
 2. **Setup**: checkout, install Node 24, `npm ci`.
 3. **Gate**: `npm test` must pass. If it fails, the `Commit state` step is skipped (no heartbeat commit on a failed run).
-4. **Discover**: `realEntry()` reads `UPSTASH_REGISTRY` and parses it via `loadRegistry`. Parse errors are captured into `registryErr` and surfaced through `discover()` later.
-5. **Ping**: `runner.run()` calls `Promise.allSettled(dbs.map(ping))`. Each ping does SET → GET with a 15s timeout and one retry on 5xx / non-timeout throws.
+4. **Discover**: `realEntry()` reads `UPSTASH_REGISTRY` (exiting 1 if it is unset) and parses it via `loadRegistry`. Parse errors are captured into `registryErr` and surfaced through `discover()` later.
+5. **Ping**: `runner.run()` calls `Promise.allSettled(dbs.map(ping))`. Each ping does SET → GET, each command with a 15s timeout and one retry on 5xx / non-timeout throws.
 6. **Merge**: `main()` calls `loadState` (throws loudly on corruption), checks `isRegistryUnavailable`, calls `mergeState` to produce the next StatusFile.
 7. **Persist**: `saveState` writes atomically via temp + rename. Log lines printed for each host (with `[STALE]` prefix if `consecutiveFailures > 5`).
 8. **Commit**: workflow stages `state/status.json`, commits if changed (or empty-heartbeats if quiet >45 days), pushes (with a 5s retry on failure).
@@ -115,7 +115,7 @@ flowchart TD
 
 | Service | Purpose | Notes |
 |---------|---------|-------|
-| Upstash REST API | Receive SET/GET pings that reset the inactivity timer | One endpoint per DB; bearer-token auth. Auth method is `Authorization: Bearer <token>` per the REST URL the Upstash console provides. |
+| Upstash REST API | Receive SET/GET pings that reset the inactivity timer | One endpoint per DB. Each command is a `POST` of a JSON array (e.g. `["GET","upstasher:keepalive"]`) with `Authorization: Bearer <token>`; only the `result` field of the response is read. |
 | GitHub Actions | Cron scheduler + runner + commit destination | The committed state is *also* the activity signal that prevents Actions itself from auto-suspending the workflow at the 60-day mark. |
 
 ## Key architectural decisions
@@ -141,7 +141,7 @@ flowchart TD
 - **Rationale**: Pings are independent (different hosts, different tokens). Combined with the 15s fetch timeout, total run time is bounded by the slowest single host.
 
 ### Narrow retry policy
-- **Context**: A single 502 from an Upstash edge restart used to produce a false-positive failure email until the next 3-day cron.
+- **Context**: Without a retry, a single 502 from an Upstash edge restart produces a false-positive failure email that stands until the next 3-day cron.
 - **Decision**: One retry on 5xx and on non-timeout thrown errors with a 500ms backoff. 4xx, AUTH_FAIL, round-trip-verify failures, and timeouts stay terminal.
 - **Rationale**: Retrying conditions that don't recover (bad token, wrong endpoint, wedged host) is churn. Retrying a 502 absorbs real-world platform blips without masking real outages.
 
@@ -151,11 +151,11 @@ flowchart TD
 - **Rationale**: A failed test would otherwise still trigger the anti-suspend heartbeat commit, falsely crediting Actions with activity while masking the regression.
 
 ### Heartbeat commit when quiet >45 days
-- **Context**: GitHub Actions auto-suspends scheduled workflows after 60 days of no repo activity. If no DB needs pinging (or all pings are NO-OP duplicates), the workflow generates no commits.
+- **Context**: GitHub Actions auto-suspends scheduled workflows after 60 days of no repo activity. A normal run always changes `state/status.json` (at minimum `lastRun`), but a run that exits before saving state — secret unset, registry unavailable, or a corrupt state file — produces no diff and therefore no commit. If that persisted, the cron would suspend itself while it was already broken.
 - **Decision**: If `state/status.json` has no real change and the last commit is older than 45 days, push an empty `--allow-empty` heartbeat commit.
 - **Rationale**: 45 < 60 gives a 15-day safety margin. The heartbeat is the activity signal Actions needs to keep the cron alive.
 
 ### Native Node TypeScript stripping (no `tsx`)
 - **Context**: Earlier the project used `tsx` to run `.ts` files directly.
 - **Decision**: Switch to `node src/cli.ts` and `node --test test/*.test.ts`. Node 24+ ships with type-stripping enabled by default.
-- **Rationale**: One fewer dependency, faster CI cold-start (-3s), no build step. The trade-off: we can't use TS-only runtime features (`enum`, `namespace`, parameter properties) — but we don't, and the type system encourages cleaner alternatives anyway.
+- **Rationale**: Drops `tsx` and its transitive packages from the lockfile and removes the build step. `tsconfig.json` sets `noEmit` and `allowImportingTsExtensions`, so `npx tsc` is a pure type-check over the same `.ts` imports Node runs. The trade-off: we can't use TS-only runtime features (`enum`, `namespace`, parameter properties) — but we don't, and the type system encourages cleaner alternatives anyway.

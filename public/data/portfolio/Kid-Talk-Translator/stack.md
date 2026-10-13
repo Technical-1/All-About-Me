@@ -8,23 +8,26 @@
 | Framework | React | ^18.2.0 | UI component library |
 | Build Tool | Vite | ^5.1.4 | Dev server with HMR + production bundler |
 | Styling | Tailwind CSS | ^3.4.1 | Utility-first CSS framework |
+| Backend services | Firebase (JS SDK) | ^12.9.0 | Auth, Firestore and callable Functions from the client |
+| Server functions | firebase-functions / firebase-admin | ^6.0.0 / ^13.0.0 | Publisher, moderation and account-deletion Cloud Functions on Node 20 |
 
 ## Frontend
 
 - **Framework**: React 18.2
-- **State Management**: React useState/useContext hooks (ThemeContext, AuthContext)
+- **State Management**: React useState/useContext hooks (ThemeContext, AuthContext, ApprovedTermsContext) plus `useSyncExternalStore` over the live dictionary store
 - **Styling**: Tailwind CSS with dark mode (`darkMode: 'class'`), custom color palette (cream, coral, sage, ink, warmgray)
 - **Build Tool**: Vite 5 with React plugin
 - **PWA**: vite-plugin-pwa 0.19.2 (Workbox service worker, auto-update)
 - **Typography**: Nunito (custom font via Tailwind config)
+- **Shared UI primitives**: `chipClasses` in `webapp/src/components/chip.js`, the bordered pill used for Listen, Copy and the Yes / No votes (same look as the iOS app's chip buttons)
 - **Icons**: Custom SVG components (`Icons.jsx`)
 
 ## Backend / API
 
 - **Runtime**: Vercel Serverless Functions (AI proxies; the site is served from `kidtalktranslator.app`)
-- **AI API**: Anthropic Claude Haiku 4.5 (`@anthropic-ai/sdk ^0.77.0`) via two serverless functions — `/api/ai-translate` (decode) and `/api/ai-encode` (encode, with a dictionary-anchored prompt)
+- **AI API**: Anthropic Claude Haiku 4.5 (`@anthropic-ai/sdk ^0.77.0`) via two serverless functions — `/api/ai-translate` (decode) and `/api/ai-encode` (encode, with a dictionary-anchored prompt). Both return JSON by default and stream NDJSON (`application/x-ndjson`) when the request sets `stream: true`, which the iOS app does
 - **External dictionary APIs**: none. Lookups use the curated dictionary only; an Urban Dictionary fallback was removed because its API terms require express permission
-- **Shared API helpers**: `webapp/api/_lib/` — `cors.js` (single-source allowlist), `kv.js` (real-or-fake KV switch for tests), `rate-limit.js` (per-IP buckets, KV-backed with in-memory fallback)
+- **Shared API helpers**: `webapp/api/_lib/` — `cors.js` (single-source allowlist), `kv.js` (real-or-fake KV switch for tests), `rate-limit.js` (per-IP buckets, KV-backed with in-memory fallback), `stream.js` (NDJSON relay and partial-JSON parser)
 - **Caching**: Vercel KV (server-side, production), localStorage (client-side, 20-entry LRU for AI results, plus the synced dictionary)
 - **Auth**: Firebase Auth. Google sign-in via OAuth popup on the web and the native GoogleSignIn
   SDK on iOS; Apple sign-in is native on iOS and, on the web, awaits an Apple Services ID
@@ -32,11 +35,11 @@
 
 ## Infrastructure
 
-- **Hosting**: Vercel (recommended) or Netlify
+- **Hosting**: Vercel (`webapp/vercel.json`: headers, rewrites for `/privacy`, `/terms`, `/support`, and redirects from `www.` and the `vercel.app` host to `kidtalktranslator.app`); Firebase for Firestore rules/indexes and Cloud Functions (`firebase.json`)
 - **CI/CD**: GitHub Actions (`ci-v2.yml`: lint → Vitest → Firestore rules tests on Firebase emulator → build). Dictionary content ships through a Firebase Cloud Function publisher, not the deploy pipeline
 - **CI tooling**: JDK 21 (required by `firebase-tools >= 15` for the Firestore emulator)
 - **Monitoring**: Sentry (`@sentry/react ^10.39.0`, production only, 10% trace sample rate, hidden source maps uploaded for symbolication)
-- **Security Headers**: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection (via `vercel.json`)
+- **Security Headers**: Content-Security-Policy, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection and Referrer-Policy (via `vercel.json`; the CSP is also checked by `webapp/src/__tests__/csp.test.js`)
 - **Asset Caching**: 1-year immutable cache for hashed assets
 - **Source Maps**: Hidden (uploaded to Sentry, not exposed to users)
 
@@ -45,7 +48,7 @@
 - **Package Manager**: npm
 - **Linting**: ESLint 8 + eslint-plugin-react + eslint-plugin-react-hooks + eslint-plugin-react-refresh + eslint-config-prettier
 - **Formatting**: Prettier 3.8 (no semicolons, single quotes, trailing commas es5, 100 char width)
-- **Testing**: Vitest 4 + React Testing Library 16 + jest-dom 6 + user-event 14 + jsdom (240 tests across 33 files covering hooks, services, components, the live dictionary store, moderation UI, and API handlers)
+- **Testing**: Vitest 4 + React Testing Library 16 + jest-dom 6 + user-event 14 + jsdom (257 tests across 36 files covering hooks, services, components including the Settings sheet and App Store banner, the live dictionary store, moderation UI, API handlers, and the NDJSON stream helper)
 - **Rules testing**: `@firebase/rules-unit-testing` driven by `firebase-tools` against the Firestore emulator (`npm run test:rules`)
 - **CSS Processing**: PostCSS + Autoprefixer
 
@@ -55,7 +58,8 @@
 |---------|---------|
 | `react` / `react-dom` | UI component library and DOM renderer |
 | `@anthropic-ai/sdk` | Anthropic API client for contextual slang analysis |
-| `firebase` | Authentication (Google + Apple) and Firestore database |
+| `firebase` | Authentication (Google + Apple), Firestore database, and the `deleteAccount` callable |
+| `firebase-functions` | Firestore triggers and the callable function in `functions/index.js` |
 | `@sentry/react` | Production error tracking and performance monitoring |
 | `@vercel/kv` | Server-side key-value cache for API responses and rate-limit counters |
 | `vite` | Dev server and production bundler |

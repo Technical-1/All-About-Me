@@ -1,119 +1,104 @@
-# BTC Explorer - Project Q&A
+# Project Q&A
 
-## Project Overview
+## Overview
 
-BTC Explorer is a comprehensive Bitcoin blockchain explorer and educational platform that I built to visualize Bitcoin's activity in real-time. The application streams live transactions from the mempool, displays network statistics, tracks corporate Bitcoin holdings, and provides educational content about Bitcoin technology. I designed it for Bitcoin enthusiasts, investors, and anyone curious about how the Bitcoin network operates, whether they are technical or non-technical users.
+BTC Explorer ([btcexplorer.io](https://btcexplorer.io)) is a real-time Bitcoin explorer and learning site. You can watch unconfirmed transactions arrive over a WebSocket, check fees, mempool depth, hashrate and difficulty progress, and compare the live price with a power-law model. It also tracks how much BTC companies, ETFs and governments hold, and explains the protocol from proof of work to Taproot. The interesting engineering is resilience: the site has no backend of its own and depends on about eight free public APIs, so every data source has a timeout, a TTL cache and a fallback chain, and the 3D scenes are isolated so a WebGL failure cannot take a page down.
 
-**Live Demo:** [btcexplorer.io](https://btcexplorer.io)
+## Problem Solved
+
+Block explorers like mempool.space are built for looking up transactions and blocks. Market sites show price but not the network underneath it. Educational content usually sits apart from live data. BTC Explorer puts all three in one place: you can watch the mempool fill, see what fees it is driving, and read how difficulty adjustment or SegWit works on the same site, using live numbers rather than screenshots.
+
+## Target Users
+
+- **Bitcoin-curious newcomers** — a visual, live introduction to how the network operates, with explainers next to real data
+- **Holders and market watchers** — fee tiers, the power-law deviation, BTC dominance, and who holds the most BTC, all on one site
+- **Engineers** — a compact example of building a resilient real-time dashboard entirely on keyless public APIs
 
 ## Key Features
 
-### Real-Time Transaction Stream
-The Live page connects via WebSocket to stream unconfirmed transactions directly from the Bitcoin network. Users can watch transactions flow in real-time, see BTC values, transaction sizes, and input/output counts. I implemented pause/resume controls and automatic reconnection for a smooth experience.
+### Live transaction stream
+The Live page subscribes to Blockchain.info's WebSocket and lists the newest 100 unconfirmed transactions with value, size and input/output counts. It also shows running tx/s and average-size stats and the last 10 blocks. A toggle swaps the list for a 3D transaction-flow scene. Pause, resume and reset controls let you freeze the feed to inspect it.
 
-### 3D Blockchain Visualizations
-Using Three.js and React Three Fiber, I created immersive 3D visualizations including an animated Bitcoin logo, a particle system representing network activity, and a blockchain node network. Users can toggle between a list view and 3D transaction flow visualization.
+### Network dashboard
+Block height, mempool.space's four recommended fee tiers, mempool transaction count, virtual size and total pending fees, 3-day average hashrate, and progress to the next difficulty adjustment. Block height is also shown in the site-wide nav.
 
-### Power Law Price Model
-I implemented the Bitcoin power law model with 95.65% R-squared accuracy. Users can explore projected prices, calculate potential returns on investments, and view price milestones. The logarithmic chart shows the model trajectory from 2010 to 2040.
+### Market analytics
+A log-scale price chart built from CryptoCompare daily closes bucketed to month-end. If that API is unavailable, the chart falls back to a curated series of 50 historical events, from the whitepaper (2008-10-31) to the US Strategic Bitcoin Reserve (2025-01-20), whose tooltips show each event. Alongside it: adoption-by-country charts (attributed periodic estimates) and a halving chart that plots block reward as bars and price as a line on a second axis.
 
-### Corporate Treasury Tracker
-This feature tracks 100+ entities holding Bitcoin including public companies (Strategy, Tesla, Marathon), ETFs (IBIT, FBTC, GBTC), governments (US, El Salvador), and private entities. I pull data from BitcoinTreasuries.net via a Cloudflare Worker proxy with a 6-hour cache and display it with sortable tables, pie charts, and bar charts. Categories are dynamically generated from the data (only showing categories with 10+ entities), and filters persist when selecting categories. A force-refresh option (`?refresh=1`) is available for debugging stale cache data.
+### Power law model
+The model price is `10^intercept × years_since_genesis^slope`, with coefficients and an R² of 0.9565 stored in `powerLawParams`. The page compares it with the live price, shows the current deviation, finds the first model year that crosses $100K, $250K, $500K and $1M, and projects what an investment would be worth in a chosen year. The chart runs from 2010 to 2040, with ×3.5 and ÷3.5 bands.
 
-### Network Statistics Dashboard
-The navigation bar and Live page display real-time network metrics: current block height, BTC price, mempool size, fee estimates, hashrate, and difficulty adjustment progress.
+### Treasury tracker
+A searchable, sortable table of entities holding BTC: public and private companies, ETFs, governments and wrapped/DeFi tokens. It includes a type breakdown, a top-10 bar chart and a category pie chart, with USD values computed from the live BTC price. Category filters are generated from the data, and only categories with at least three entities appear.
 
-### Educational Content
-I curated 70+ historical Bitcoin events from the 2008 whitepaper to the 2024 halving. The Learn section explains Bitcoin technology including PoW, SHA-256, SegWit, Taproot, and Lightning Network.
+### Strategy (MSTR) page
+Strategy's holdings, cost basis, purchase timeline and capital structure, with the live MSTR share price from `/api/mstr`.
 
-### Wallet Guide
-A comprehensive comparison of hardware wallets (Ledger, Trezor, Coldcard) and software wallets (Sparrow, BlueWallet, Phoenix) with features, pros/cons, and direct links.
+### Technology and wallets
+Expandable explainers on blockchain structure, PoW, ECDSA and Schnorr, Lightning (with live node, channel and capacity counts), difficulty adjustment, halving, SegWit and Taproot. A wallet guide compares six hardware wallets (Ledger, Trezor, Coldcard, Keystone, Tangem, BitBox02) and six software wallets (Sparrow, BlueWallet, Exodus, Electrum, Phoenix, Muun).
 
 ## Technical Highlights
 
-### Challenge: Real-Time Data Without a Backend
-I needed to display live blockchain data without maintaining server infrastructure. My solution was to connect directly to public APIs and WebSockets from the browser, with Cloudflare Workers handling CORS-restricted APIs (BitcoinTreasuries.net, Yahoo Finance, CoinGecko). This keeps hosting costs at zero while providing real-time functionality.
+### An unmount-safe WebSocket with capped backoff and a REST fallback
+`useBlockchainWebSocket` in `src/lib/useBlockchain.js` reconnects on close with exponential backoff (3 s base, 30 s cap), resetting the attempt counter on a successful open. Before closing, `disconnect()` sets an unmounting flag and detaches `onclose`, so React StrictMode's mount, unmount, remount cycle cannot leak a second socket or schedule a reconnect after teardown. `useBlockchain.websocket.test.jsx` checks all three behaviours against a mocked `WebSocket`. If no block arrives within 5 s of connecting, or the socket fails, the hook backfills the last 10 blocks from mempool.space and de-duplicates by hash.
 
-### Challenge: Multiple Unreliable Data Sources
-Bitcoin data comes from various APIs with different reliability and rate limits. I built a multi-source fallback system: CoinGecko primary with Coinbase backup for prices, and a Vercel serverless function (`/api/mstr`) that fetches MSTR stock data server-side from Yahoo Finance with Stooq as fallback. The serverless approach was necessary after Yahoo Finance began blocking browser requests (CORS + rate limiting), so the function runs server-side with proper headers and Vercel's CDN caches the responses. Aggressive client-side caching via TanStack Query and LocalStorage handles API outages gracefully.
+### Collision-free React keys for a high-rate stream
+The Live list re-renders on every incoming transaction. Keying rows by `hash` alone breaks when a payload has no hash, because every such row collapses to the same `'unknown'` key, and React then reuses the wrong DOM nodes and animations. `normalizeTransaction` derives `tx-<hash>` when a hash exists and falls back to `tx-seq-<n>` from a monotonic counter otherwise. Rows are memoized and keyed by that value, so `AnimatePresence` only animates genuinely new entries.
 
-### Challenge: Performance with 3D Graphics
-Three.js is heavy and could slow initial page load. I implemented code splitting so 3D components only load when users navigate to views that need them. The lazy loading keeps the critical path fast while still offering rich visualizations.
+### Partial failure instead of total failure
+`fetchMempoolSnapshot` sends five mempool.space requests through `Promise.allSettled` under one shared 8 s `AbortController`. Each rejected or non-OK response becomes `null` for that field only, and `parseBlockHeight` makes sure a malformed body yields `null` rather than `NaN`. The same idea runs through the rest of the data layer: each fetcher returns `null` on failure instead of throwing, and each hook substitutes the cached value or a dated static snapshot.
 
-### Challenge: Keeping Data Fresh
-I used TanStack Query with visibility-based refetching. Data refreshes automatically when the tab is visible but pauses when hidden, saving bandwidth and API calls. LocalStorage caching with TTL (via getCached/setCached utilities) ensures users see recent data even on return visits. For treasury data, I implemented a 6-hour cache with a force-refresh URL parameter for debugging, and category filters that persist across interactions.
-
-### Innovative Approach: WebSocket with Fallback
-The live transaction stream uses WebSockets for real-time data, but I implemented a REST API fallback for recent blocks if the WebSocket connection fails or takes too long to receive blocks. This hybrid approach ensures users always see meaningful data.
+### Cache-first rendering on every visit
+Each query hook reads a localStorage entry through `getCached(key, maxAgeMs)` and passes it to TanStack Query as `initialData`, so a returning visitor sees last-known values immediately. Each dataset has its own TTL: 2 min for mempool, 5 min for price, 30 min for Lightning, 24 h for price history, and 6 h for treasuries. `refetchInterval` returns `false` while the tab is hidden, so background tabs stop polling.
 
 ## Engineering Decisions
 
-### Static SPA over server-rendered app
-- **Constraint**: A blockchain explorer needs real-time WebSocket updates, 3D scenes, and frequent client interaction; SEO matters less than interactivity.
-- **Options**: Next.js SSR, Remix, plain Vite SPA on Vercel.
-- **Choice**: Vite + React 18 SPA deployed as a static site.
-- **Why**: SSR offers little benefit when the primary view is a live mempool stream that hydrates seconds after load anyway. A static SPA ships faster, has no server runtime to scale, and lets me run on Vercel's free tier indefinitely.
+### Same-origin serverless function for the MSTR quote
+- **Constraint**: Yahoo Finance rejects browser-style requests without a proper User-Agent, and Stooq sends no CORS headers, so neither can be called from the page.
+- **Options**: A third Cloudflare Worker, a standing Node backend, or dropping the live quote.
+- **Choice**: `api/mstr.js` on Vercel: Yahoo first, Stooq as fallback, `s-maxage=60, stale-while-revalidate=120`.
+- **Why**: Same-origin means no preflight. Server-side code can set the header the browser cannot, and the CDN cache keeps upstream traffic flat. In development, the Vite proxy in `vite.config.js` points `/api/mstr` at Yahoo, and the client parses both response shapes, so local dev needs no extra tooling.
 
-### Vercel serverless function for MSTR price
-- **Constraint**: Yahoo Finance started returning 429s for browser User-Agents and Stooq has no CORS headers; I needed MSTR data for the Strategy treasury page.
-- **Options**: Add a third Cloudflare Worker, run a Node backend, drop the feature.
-- **Choice**: A single Vercel serverless function at `/api/mstr` (Yahoo Finance with Stooq fallback, 60s CDN cache + 120s stale-while-revalidate).
-- **Why**: Same-origin eliminates CORS preflight, server-side requests can set proper headers, and Vercel's CDN absorbs traffic spikes for free. Adding a third Worker would have split secrets and observability across providers.
+### Pure fetchers, thin hooks
+- **Constraint**: The fallback chains are the most branch-heavy code in the app and the most likely to break.
+- **Options**: Inline fetch logic inside each `useQuery`, or extract it.
+- **Choice**: Every network path is an exported async function. Hooks only add caching and polling.
+- **Why**: The fetchers are tested by stubbing `fetch`, with no provider or render needed (`useBlockchain.fetchMempoolSnapshot`, `.priceHistory`, `.globalStats` and `.lightningStats` tests). `Layout` reuses the same functions to prefetch price and mempool data on nav hover.
 
-### TanStack Query + localStorage instead of a state manager
-- **Constraint**: Multiple data sources with different refresh cadences (WebSocket pushes, 45s/60s/2m/5m polls), API outages must degrade gracefully.
-- **Options**: Redux + RTK Query, Zustand + manual fetch, plain useEffect + Context.
-- **Choice**: TanStack Query as the single source of truth, wrapped with TTL-based `getCached`/`setCached` helpers writing to localStorage.
-- **Why**: Query gives me deduplication, background refetch, visibility-pause, and stale-while-revalidate out of the box. The localStorage layer turns a cold open into an instant render and keeps the app readable when an upstream API is down.
+### TanStack Query over a global store
+- **Constraint**: Six REST query hooks with refresh windows from 45 s to 24 h, plus a push stream, all of which must degrade gracefully.
+- **Options**: Redux Toolkit with RTK Query, Zustand with hand-written fetching, or Context with `useEffect`.
+- **Choice**: TanStack Query for REST data, a dedicated hook with refs for the WebSocket, and component state for the treasury page.
+- **Why**: Visibility-aware polling, dedupe, retry and `initialData` come built in. The WebSocket stays outside Query because it is a push stream with its own lifecycle, not a request.
 
-### Three.js loaded only where it's used
-- **Constraint**: Three.js + drei + fiber adds ~500 KB gzipped; users hitting the corporate holdings page should not pay for the 3D bundle.
-- **Options**: Bundle everything, server-render the 3D into images, lazy-load per route.
-- **Choice**: React.lazy + Suspense at the route boundary so 3D code only ships when the user navigates to Home or Live.
-- **Why**: Keeps the critical bundle under 150 KB gzipped while preserving the headline 3D experience. Image fallbacks would have lost the interactivity that is the whole point of those pages.
+### WebGL behind lazy imports and error boundaries
+- **Constraint**: Three.js is the heaviest dependency, and WebGL is not available on every device.
+- **Options**: Bundle it globally, replace the scenes with static images, or isolate them.
+- **Choice**: A dedicated `three` chunk in `vite.config.js`, scenes loaded with `React.lazy` inside Home and Live, and each `Canvas` wrapped in its own `ErrorBoundary` with a placeholder. The route tree has an outer boundary as well.
+- **Why**: Pages without 3D never download it, and a GPU failure costs one decorative panel instead of the route. Static images would have lost the interactive orbit controls.
 
 ## Frequently Asked Questions
 
-### 1. Why did you build this instead of using existing blockchain explorers?
+### Are the live transactions real?
+Yes. They are unconfirmed transactions as relayed by Blockchain.info's public WebSocket (`unconfirmed_sub`). Values are summed from each transaction's outputs and converted from satoshis. Fees, mempool depth, hashrate and difficulty come separately from mempool.space.
 
-Most blockchain explorers focus on transaction lookup and block details. I wanted to create an experience that helps people understand Bitcoin at a visceral level - watching transactions flow in real-time, visualizing the network in 3D, and seeing how the price follows mathematical patterns. It is as much an educational tool as a utility.
+### What happens when an API is down or rate-limited?
+The affected panel falls back in order: an alternate provider (CoinGecko, then Coinbase for price; Yahoo, then Stooq for MSTR), then the cached value in localStorage, then a dated static snapshot or bundled dataset. Fields with no data show a dash. The rest of the page is unaffected.
 
-### 2. How accurate is the live transaction data?
+### Why does the price chart sometimes show events instead of a smooth line?
+The chart prefers CryptoCompare's keyless daily history, which covers the most recent 2,000 days. That endpoint has a low quota. When it returns an error, the chart switches to the curated 50-event series, which reaches back to the 2008 whitepaper and explains what happened at each point. The live series is cached for 24 hours to keep requests rare.
 
-The transactions are streamed directly from Blockchain.info's public WebSocket API. They represent actual unconfirmed transactions entering the mempool in real-time. Block confirmations and network stats come from Mempool.space, which runs production-grade Bitcoin infrastructure.
+### How is the power-law model computed, and is it advice?
+`calculatePowerLawPrice` in `src/lib/bitcoinData.js` counts years since the genesis block (2009-01-03) and returns `10^intercept × years^slope`. The coefficients are fixed and published with their R² rather than refit live. It is a statistical fit, not a forecast, and the page, the Strategy page and the site footer all state that the content is educational and not financial advice.
 
-### 3. Is the Power Law model financial advice?
+### Where does the treasury data come from, and how fresh is it?
+BitcoinTreasuries.net, reached through a Cloudflare Worker that adds CORS and caching. The browser caches the result for 6 hours and re-checks every 5 minutes while the page is open. Payloads with fewer than 10 valid entities are rejected. If the Worker is unreachable, a bundled 43-entity dataset is used. `?refresh=1` bypasses the cache and `?clearcache=1` deletes it.
 
-No. I clearly state throughout the application that this is for educational purposes only. The power law model is a statistical observation that has held for 15+ years, but past performance does not guarantee future results. Users should do their own research before making investment decisions.
+### Does the 3D work on low-end or mobile devices?
+It is optional. The scenes appear only on Home and Live, load lazily, and sit inside error boundaries. If WebGL fails, Home shows a plain panel and Live shows "3D view unavailable on this device", while the stream list keeps working.
 
-### 4. How do you handle API rate limits?
+### How is accessibility enforced?
+In the code: keyboard-operable nav dropdowns (Enter, Space, ArrowDown, Escape), `aria-expanded` and `aria-haspopup` on menu toggles, a skip-to-content link and visible focus rings. In tooling: `eslint-plugin-jsx-a11y` recommended rules, plus a Lighthouse CI gate that fails the build if the accessibility score drops below 0.8.
 
-I implemented several strategies: TanStack Query deduplicates requests and caches responses, LocalStorage persists data across sessions with TTL validation, Cloudflare Workers cache responses at the edge, and I use multiple fallback sources when primary APIs fail or rate limit.
-
-### 5. Why Three.js instead of WebGL directly or another library?
-
-Three.js has the best balance of power and developer experience. React Three Fiber lets me write 3D scenes using familiar React patterns, making the code maintainable. The Drei library provides production-ready helpers. Direct WebGL would have taken much longer for similar results.
-
-### 6. How does the WebSocket reconnection logic work?
-
-`useBlockchainWebSocket` in `src/lib/useBlockchain.js` opens a connection to Blockchain.info, subscribes to `unconfirmed_sub` and `blocks_sub`, and listens for `tx` and `block` events. If the socket closes or errors, an exponential backoff retries with a cap, and a `visibilitychange` handler pauses the stream when the tab is hidden so users don't burn bandwidth. If no block arrives within a timeout window, the hook falls back to polling Mempool.space for recent blocks so the Live page always shows something fresh.
-
-### 7. How do you ensure accessibility?
-
-I implemented keyboard navigation throughout, proper focus states for all interactive elements, skip-to-content links, ARIA labels on icon buttons, and sufficient color contrast. The ESLint jsx-a11y plugin catches accessibility issues during development.
-
-### 8. Why Vercel and Cloudflare instead of a traditional backend?
-
-Cost and simplicity. Vercel's free tier handles the static site hosting and serverless functions (like the `/api/mstr` MSTR price proxy), and Cloudflare Workers' free tier is sufficient for my other API proxy needs (treasury data, CoinGecko). This serverless architecture means I pay nothing to run the application and have no servers to maintain. When Yahoo Finance broke due to CORS/rate-limiting changes, I was able to add a Vercel serverless function as a same-origin proxy in minutes rather than spinning up a backend.
-
-### 9. How current is the corporate treasury data?
-
-The treasury data comes from BitcoinTreasuries.net, which aggregates information from SEC filings, company announcements, and blockchain analysis. My Cloudflare Worker proxy caches this data for 6 hours to reduce load on their servers. I also maintain a comprehensive fallback dataset with 100+ entities that serves data if the API is unreachable. Users can force a cache refresh by appending `?refresh=1` to the URL. For real-time critical decisions, users should verify with primary sources.
-
-### 10. Does the site have legal and compliance pages?
-
-Yes. I added Terms of Service, Privacy Policy, and Disclaimer pages as static HTML in the public directory. These are linked from the footer in the Layout component, making them accessible from every page.
-
-### 11. How does the Power Law calculator work?
-
-The Power Law page implements the model `price = A * (days_since_genesis ^ n)` with parameters fit to historical price data. The chart uses Recharts with a logarithmic Y axis so the curve renders as a straight line, and the calculator accepts an investment date and amount to project a value at a future date. Bitcoin's genesis block (2009-01-03) anchors the day count, and the parameters live alongside the fit metadata in `src/lib/bitcoinData.js` so they can be re-tuned without touching the page component.
+### How is it tested?
+With Vitest and React Testing Library in jsdom: 34 cases across 11 files. They cover each fetcher's success and failure paths, `parseBlockHeight` and `normalizeTransaction` edge cases, the WebSocket's unmount and backoff behaviour, `ErrorBoundary` fallbacks, the halving chart's dual-axis structure, and the shared holdings constants. CI runs lint, tests, coverage and a production build on every push to `main`.

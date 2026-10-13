@@ -2,103 +2,100 @@
 
 ## Overview
 
-Themed Crossword Generator is a full-stack web app that creates custom crossword puzzles on any topic. The user enters a theme like "Space Exploration" or "Italian Cuisine," an LLM generates themed words with clever clues, and a layout algorithm arranges them into a playable grid. The app includes a complete solving experience with checker mode, hints, statistics tracking, and social sharing — all wrapped in a PWA that works offline.
+Themed Crossword Generator is a platform for publishing branded, themed crosswords. An operator types a topic, or pastes a list of headlines, and gets back a newspaper-style grid. The grid is symmetric, every letter is checked, and the theme answers sit in the long marquee slots. The puzzle comes with clues, a fact-check pass and a quality grade, and can be published to the tenant's own puzzle site with a daily featured puzzle and a leaderboard. The interesting technical part is the division of labour. A constraint solver over a 229k-entry scored word list builds the grid, the LLM supplies only the themed answers and the clues, and a crossword-craft scorer decides what ships.
 
 ## Problem Solved
 
-Mass-market crosswords cycle through a narrow set of editor-approved themes. Players who want puzzles about niche topics — a favourite show, a hobby, a sport — usually can't find them. This app turns any topic into a playable puzzle in seconds, with the difficulty and grid size the player wants.
+Branded crosswords for a team, a newspaper or a campus are usually hand-built by a constructor, which is slow and expensive. Generating them with an LLM alone gives you something that looks like a crossword but is not one: sparse grids, unchecked letters, invented phrases and confidently wrong trivia. This project produces puzzles that follow real construction rules, catches fabricated content before a customer sees it, and wraps the result in a self-serve site that a tenant can run and pay for without an operator.
 
 ## Target Users
 
-- **Casual crossword solvers** — Get a fresh themed puzzle without waiting for a daily release
-- **Educators and parents** — Generate puzzles on a subject the student is studying
-- **Trivia enthusiasts** — Build puzzles around their favourite domain knowledge
+- **Organisations that want a branded puzzle** (teams, publishers, schools): a hosted puzzle page in their colours, with a daily puzzle, an archive and a leaderboard to bring people back
+- **Editors** who want today's stories in today's puzzle: paste the headlines, then see which ones made it into the grid as answers and which only through clues
+- **Casual solvers**: a free single-player generator at `/legacy` with stats, streaks, sharing and offline puzzles
 
 ## Key Features
 
-### Themed Puzzle Generation
-Anthropic Claude (Sonnet 4) produces a JSON list of `{answer, clue}` pairs for the requested theme. A layout algorithm then arranges them into a valid grid, retrying up to 3 times if it can't find enough intersections.
+### Real grids with themed marquee entries
+Each puzzle is built on an 11x11, 15x15 or 21x21 template, or on a shape the operator draws. Templates are measured against published-grid rules. The model's themed answers go into 7+ letter slots at symmetric positions, and the solver fills everything else from the dictionary.
 
-### Interactive Crossword Grid
-SVG-based grid with full keyboard navigation, auto-advance to the next clue, and a mobile-optimised clue bar.
+### Quality report on every generation
+The admin preview shows a 0-100 score, an A-F grade and up to six findings, worst first: a duplicate entry, a likely fabricated marquee answer, theme "wallpaper" clues, answers not in the word list. The operator knows exactly what to check before publishing.
 
-### Checker Mode
-Real-time answer validation that tracks SVG text elements using a greedy distance-based algorithm to colour-code correct (blue) and incorrect (red) cells.
+### Multi-theme coverage
+Up to 20 themes per puzzle. The coverage panel separates the themes that placed an answer of their own from those that appear only in a clue, so the operator can regenerate with an uncovered theme prioritised. At completion, the solver sees credit lines for the source stories.
 
-### Statistics and Streaks
-Tracks completion streaks (daily), best and average times per difficulty, and the last 50 puzzles (up to 500 completion records).
+### Drafts, tokens and checkout
+One token buys a job of up to three drafts, and a failed generation refunds automatically. Tenants buy packs from $20 for a single puzzle down to $10 a puzzle at 50, through Stripe Checkout, and the balance updates from a signed webhook.
 
-### URL-Encoded Puzzle Sharing
-The entire puzzle is compressed with `lz-string` and encoded into a `?p=` query parameter. Recipients can play the exact same puzzle without an API call.
+### Two puzzle styles
+The default grid style puts a few theme answers among dictionary fill. The simple style is a criss-cross in which every answer is a theme word. It gives up the newspaper grid in exchange for full theme density, and it is audited so that no stray letter pairs form non-words.
 
-### Offline PWA
-75 pre-generated puzzles (5 per theme across 15 themes) are bundled and cached by a service worker for fully offline play.
-
-### Accessibility
-High-contrast themes, reduced-motion support, adjustable text sizes, screen-reader announcements, and full keyboard navigation.
+### A complete solver
+Keyboard and mobile clue-bar navigation, checker mode, three scattered hints that jump to their clue, a timer, saved progress, streaks and best times, four colour themes including high-contrast ones, share links, and an installable PWA with offline puzzles.
 
 ## Technical Highlights
 
-### SVG DOM tracking for the checker
-`@jaredreisinger/react-crossword` does not expose an API for styling individual cells. To paint correct/incorrect colours, the component scans the rendered SVG for `<text>` elements and matches each to a logical grid position with a greedy nearest-neighbour algorithm. Correct cells are locked (cannot be erased) and turn blue; incorrect cells turn red. This avoids forking the third-party library while still giving cell-level feedback. See `src/components/CrosswordGame.tsx`.
+### Arc-consistent fill search over word bitsets
+A plain backtracking search with forward checking could not finish the larger templates within its time budget, and giving it ten times the budget barely moved the fill rate. That pattern points to too little inference rather than too little time. `fill()` in `lib/grid/filler.ts` now maintains arc consistency between slots and crossing squares. Each slot holds a bitset of its still-legal words, and each square holds a 32-bit mask of the letters still possible there. Placing a word propagates to a fixpoint, slots are chosen by MRV from a cached popcount, and candidates are ordered least-constraining first. The search is deterministic for a given pool, so an operator's retry is reproducible and the filler is unit-testable.
 
-### Sandboxed LLM prompt with JSON extraction
-User-supplied themes are wrapped in XML tags (`<theme>...</theme>`) and stripped of non-printable characters before being sent to the model. The response is parsed with a regex that tolerates the model occasionally wrapping the JSON in a Markdown code block. The request asks for `wordCount + 5` words so the layout engine has extra options when the first arrangement fails. See `lib/crossword-generator.ts`.
+### Spending variance-reduction on the free step
+Quality varied widely between fills of a single word pool. One measured run scored 55 to 85 across five fills of the same pool. Clue writing, meanwhile, is most of a puzzle's cost. `seedFillAndPick` in `lib/crossword-generator.ts` builds three fills from one pool and ranks them by fill rate and then by the clue-free `scoreFill`, and only the winner is clued. The tail improves with no extra model calls. The default of 3 was set against a pre-stated rule, because 5 added almost nothing.
 
-### Resilient generation pipeline
-The end-to-end generation path has multiple resilience layers: exponential backoff retry (1s → 2s → 4s, max 3 attempts), error categorisation (`network` / `verification` / `generation` / `generic`), `AbortController` for cancelling stale requests, and automatic fallback to a pre-generated offline puzzle when retries are exhausted. On the server side, the rate limiter degrades from the shared Upstash counter to a per-instance in-memory limiter if Redis is unreachable, so abuse protection survives a backing-store outage without ever blocking legitimate users.
+### Fact-checking with a fresh context
+Form checks cannot catch a fluent, on-theme clue about a player who does not exist. `lib/ai/fact-check.ts` filters clues with a free regex for checkable claims (about a quarter of them), then sends those to a verifier call that has no writing context. The verifier states the deciding fact in a few words before giving `true`, `false` or `unsure`. On a labelled fixture, stating the fact first raised catches from 5 of 14 fabrications to 12 of 14. Clues judged false are rewritten, and the pass can only replace clues, never fail a generation.
 
-### Database-free puzzle sharing
-Completed puzzles are serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. The recipient's app detects the parameter on mount and renders the puzzle directly. No backend storage, no expiring links, no API call.
+### Exactly-once money movement on Redis
+Concurrency hazards exist on both sides of the ledger. Spending is a single `DECRBY`, compensated if it overshoots (`lib/tenant-tokens.ts`). Draft claims are a single `INCR` with a 24h TTL (`lib/draft-jobs.ts`). Stripe's at-least-once webhooks are handled by `SET NX` on the session id before the `INCRBY` (`lib/token-purchase.ts`). The webhook verifies the signature over the exact raw bytes rather than re-serialised JSON (`api/stripe-webhook.ts`).
 
 ## Engineering Decisions
 
-### State-based routing instead of React Router
-- **Constraint**: Only three views (selector, game, history); no need for deep linking beyond the share URL
-- **Options**: `react-router`, TanStack Router, or a simple state variable
-- **Choice**: A single `currentView` state plus conditional rendering with Framer Motion `AnimatePresence`
-- **Why**: Pulling in a router would have added a dependency, bundle size, and configuration for no real benefit at this scale.
+### Solver-built grids over LLM-built grids
+- **Constraint**: A puzzle sold as a crossword has to obey crossword rules, and the LLM is the most expensive and least reliable part of the pipeline
+- **Options**: Ask the model for words and let a layout library arrange them, let the model choose slots in a fixed grid, or fix the grid and fill it from a dictionary
+- **Choice**: A fixed symmetric mask filled from a scored, content-filtered word list, with only the theme entries supplied by the model
+- **Why**: The layout-library approach produced grids that did not read as crosswords, and the model-picks-slots mode measured far below seeded fills while landing no theme entries. The dictionary approach is rule-compliant by construction and keeps model output short
 
-### localStorage for all persistence
-- **Constraint**: Puzzle history, stats, settings, and in-progress game state all need to survive reloads
-- **Options**: A hosted database (Supabase, Firebase), IndexedDB, or localStorage
-- **Choice**: localStorage, with capped record counts (50 puzzles, 500 completions)
-- **Why**: Zero infrastructure cost, synchronous reads, works offline. The trade-off — data is device-local and capped near 5 MB — is acceptable for a solo solving experience.
+### Flag uncertain answers instead of filtering them
+- **Constraint**: A themed puzzle is bought for entries a static list cannot know, but invented phrases look the same
+- **Options**: Drop anything not in the list, trust the model, or flag for review
+- **Choice**: Keep the answer, mark it `novel` when the list does not carry it or the model said it was unsure, and show it to the operator. The hard gate rejects any that slip through unflagged
+- **Why**: Only a human can tell a current-season name from a fabrication. Dropping them would remove the reason to buy a themed puzzle
 
-### Shared generator library between dev server and serverless function
-- **Constraint**: The same generation logic has to run inside an Express dev server and a Vercel serverless function
-- **Options**: Duplicate the code, share a JS file, or build a small internal package
-- **Choice**: Extract to `lib/crossword-generator.ts` and import it from both entry points
-- **Why**: Keeps dev/prod behaviour identical without the overhead of publishing a package. The serverless function is a thin wrapper around the shared module.
+### Hide quality-damaging controls from customers, not from the API
+- **Constraint**: Obscure vocabulary and a high word-score floor measurably starve the theme or make fills incomplete, and drawing grids confused buyers
+- **Options**: Remove the controls, leave them for everyone, or tier them by actor
+- **Choice**: `src/tenant/exposure.ts` shows these controls only to the platform operator. The API still accepts them from anyone authorised to generate
+- **Why**: Operators keep every dial for batch work and showpiece puzzles, customers get defaults the quality numbers were measured on, and the security boundary stays in `lib/tenant-authz.ts`
 
-### Trust-based rate limiting instead of a captcha gate
-- **Constraint**: The asset worth protecting is the paid LLM endpoint, but a hard Turnstile gate produced false-positives — it blocked users behind content blockers and would lock everyone out during a Cloudflare outage
-- **Options**: Reject any request without a valid token, fail-open on verification errors only, or stop gating on the token entirely
-- **Choice**: Treat the token as a trust signal that only selects the rate-limit tier — verified IPs get 10 requests/min, unverified (or token-blocked) IPs get 3/min, and nobody is hard-rejected for a missing token. The Upstash-backed per-IP counter, keyed on the unspoofable `x-real-ip`, is the only gate
-- **Why**: It bounds abuse of the expensive endpoint without punishing real users, and tokenless requests skip the `siteverify` round-trip so they can't be turned into a Cloudflare-spamming amplifier.
+### PBKDF2 and stateless sessions on Web Crypto
+- **Constraint**: The same auth code runs in Node functions, Edge Middleware and Vitest
+- **Options**: scrypt or Argon2 through a native dependency, server-side sessions in Redis, or PBKDF2 with HMAC sessions
+- **Choice**: PBKDF2-HMAC-SHA256 at 600k iterations via `crypto.subtle`, and self-contained HMAC session cookies with a 12h TTL (`lib/tenant-auth.ts`)
+- **Why**: PBKDF2 is the only real KDF in all three runtimes without a dependency, and authorisation needs no Redis read. The trade-off is that revocation means rotating the secret, which is acceptable for a small set of tenant admins
 
 ## Frequently Asked Questions
 
-### How are the words and clues generated?
-The serverless function sends a structured request to Anthropic Claude (Sonnet 4) with the user's theme, difficulty, and word count. The model returns a JSON array of `{answer, clue}` pairs, which `crossword-layout-generator` then arranges into a valid grid. If the layout fails (not enough intersections), the pipeline retries up to 3 times before falling back to an offline puzzle.
+### What does the model actually do, and what does code do?
+The model makes up to three calls per puzzle: a themed word pool sized only to the theme slots, clues for the answers that landed, and the fact check. Everything else is deterministic code: choosing theme slots, filling the grid from the word list, picking the best candidate, scoring and gating. The model is Claude Sonnet 5 by default and can be set per call site in `lib/ai/models.ts`.
 
-### Why React + Vite instead of Next.js?
-The app is fundamentally a client-side SPA — all state lives in the browser, there is no SEO requirement for puzzle pages, and the only server-side code is a single API endpoint. Vite gives faster dev builds and simpler deployment, and the one API route runs perfectly well as a standalone Vercel function.
+### How does it know a puzzle is good enough to publish?
+`lib/quality-gate.ts` has two tiers. Hard failures return no puzzle and refund the token: a fill below 95%, a fill whose misses cannot be blackened into a legal grid, a themed puzzle with no theme entry, or an unknown answer that was not flagged. Soft issues, such as more than three wallpaper clues or more than one answer echoed in the puzzle's own clues, become warnings in the preview next to the A-F grade from `lib/quality-score.ts`.
 
-### How does the app work offline?
-A service worker (`public/sw.js`) caches the static assets and 75 pre-generated puzzles on install. When the network is unavailable, `useOfflineDetection` triggers the offline path and the app serves cached puzzles. The generation flow also auto-falls back to offline puzzles after exhausting retries.
+### Can a tenant use their own grid shape?
+Yes, through the platform operator. The grid designer (`src/tenant/GridDesigner.tsx`, backed by the pure state machine in `src/grid/maskEditor.ts`) supports 180-degree symmetry, drag painting, undo and keyboard input. It shows live slot statistics, and after a fill it highlights the slots the filler missed. Saved shapes are stored per tenant as compact bitsets, and a customer can pick a saved shape from a list.
 
-### How does puzzle sharing work without a database?
-The entire puzzle (grid layout, clues, answers) is serialised to JSON, compressed with `lz-string`, and appended as a `?p=` query parameter. On open, the app detects the parameter, decompresses it, and renders the puzzle directly. Shared links never expire and never hit the API.
+### What happens if a generation fails after I've paid a token?
+The token and the draft are both rolled back (`rollbackGeneration` in `lib/metering.ts`). A successful generation that you choose not to publish is not refunded, because that is what the other two drafts in the job are for.
 
-### What stops people from abusing the LLM endpoint?
-A per-IP rate limiter, not a captcha wall. Each IP gets a fixed-window quota — 10 requests/min if a valid Cloudflare Turnstile token is present, 3/min if not — enforced by a shared Upstash Redis counter (with an in-memory fallback if Redis is down). The limiter keys on the edge-injected `x-real-ip`, which clients can't spoof, rather than `x-forwarded-for`. The Anthropic API key is only ever read server-side, so the client never sees it. Turnstile is a trust signal that picks the quota tier — it never hard-blocks a request on its own.
+### Can the content be trusted for a family audience?
+The dictionary is rebuilt by `scripts/build-wordlist.ts` with an explicit blocklist (`data/wordlist-blocklist.txt`), because the upstream list scores entries for construction quality, not suitability. A score floor alone would let some vulgar entries through. A curated supplement adds real entries the list is missing, and the build fails if an entry appears in both files.
 
-### How does checker mode decide which cells are correct?
-When checker mode activates, the component walks the crossword SVG, maps each `<text>` element to a grid position with a greedy distance algorithm, and compares the cell's current value against the known answer. Correct cells turn blue and lock; incorrect cells turn red. The mapping is strict one-to-one to avoid double-colouring overlapping cells.
+### How is the public generator protected from abuse?
+Per-IP fixed-window limits in Upstash Redis are keyed on the edge-set `x-real-ip`: 10/min with a valid Turnstile token and 3/min without one. Turnstile is never a hard block. `PUBLIC_DAILY_GENERATION_CAP` adds an optional ceiling on total unmetered generations per UTC day. Tenant generations are metered instead, and they fail closed when Redis is unavailable.
 
-### What accessibility features are included?
-Four theme variants (light, dark, high-contrast light, high-contrast dark); text-size options (normal/large/larger); reduced-motion mode that honours both the manual toggle and `prefers-reduced-motion`; screen-reader announcements for checker results and clue changes; full keyboard navigation; and ARIA attributes on every interactive element.
+### Does it work offline?
+The single-player app does. The service worker precaches 15 pre-generated puzzles, one per theme, and the app falls back to them when the device is offline or when network errors persist after retries. Tenant pages need the API, because their puzzles live in Redis.
 
-### How is the theme system implemented?
-All colours are CSS custom properties (`--color-*`) in `src/index.css`. Themes toggle by setting classes and data attributes on `document.documentElement`. Switching is instant (no re-render), composes cleanly with Tailwind utility classes, and is trivial to extend.
+### Do old share links still work now that the root is a tenant site?
+Yes. `resolveAppView` in `lib/tenants.ts` routes both `?p=` and the older `#puzzle=` links to the legacy solver before falling back to the default tenant. A shared puzzle is decoded from the URL itself, so links never expire and never call the API.

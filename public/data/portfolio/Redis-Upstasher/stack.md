@@ -28,9 +28,9 @@
 
 - **Package manager**: `npm` (with lockfile committed).
 - **Build step**: none. Node strips TypeScript types natively at load time.
-- **Linting / formatting**: none. The codebase is small enough (~250 LOC across 6 files) that style consistency is enforceable by review.
-- **Type checking**: TypeScript compiler is available locally but not run in CI. Native Node TS-stripping doesn't type-check, but the dependency-injected architecture makes test feedback fast enough that runtime errors surface immediately.
-- **Test invocation**: `node --test test/*.test.ts`.
+- **Linting / formatting**: none. The codebase is small enough (~450 lines across 6 source files, plus ~550 lines of tests) that style consistency is enforceable by review.
+- **Type checking**: `npx tsc` locally (`tsconfig.json` sets `strict`, `noEmit`, and `allowImportingTsExtensions`, covering `src/` and `test/`); not run in CI. Native Node TS-stripping doesn't type-check, but the dependency-injected architecture makes test feedback fast enough that runtime errors surface immediately.
+- **Test invocation**: `node --test test/*.test.ts` (41 tests across 5 files, no network access).
 - **CI**: GitHub Actions (the same workflow that runs the keepalive cron also gates on `npm test`).
 
 ## Key dependencies
@@ -40,17 +40,18 @@
 | `typescript` | Compiler / language server for editor tooling; not run at build or runtime. |
 | `@types/node` | Type definitions for `node:fs`, `node:test`, `node:url`, `AbortSignal`, etc. |
 
-That's the entire dependency tree. No runtime dependencies, two dev-only dependencies. `npm ci` installs 2 packages.
+That's the entire dependency tree. No runtime dependencies, two dev-only dependencies. `npm ci` installs 3 packages (the third is `undici-types`, pulled in by `@types/node`).
 
 ## Languages / APIs in use
 
 - **TypeScript**: interfaces, type aliases, `import type`, narrow union types (`'OK' | 'UNREACHABLE' | 'AUTH_FAIL'`).
 - **Node.js APIs**:
   - `node:fs` — `readFileSync`, `writeFileSync`, `mkdirSync`, `renameSync`.
-  - `node:path` — `dirname`, `join`.
+  - `node:path` — `dirname` (state directory creation); `join` in tests.
+  - `node:os` — `tmpdir` for the filesystem tests' scratch directories.
   - `node:url` — `pathToFileURL` for ESM entry-point detection.
   - `node:test` — `test` (no `describe`), executed via `node --test`.
-  - `node:assert/strict` — `assert.equal`, `assert.deepEqual`, `assert.throws`, `assert.match`.
+  - `node:assert/strict` — `assert.equal`, `assert.deepEqual`, `assert.throws`, `assert.match`, `assert.ok`.
   - `fetch` (global, WHATWG) — Upstash REST calls.
   - `AbortSignal.timeout` — 15s per-fetch deadline.
   - `Promise.allSettled` — parallel ping fan-out.

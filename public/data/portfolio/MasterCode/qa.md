@@ -32,8 +32,11 @@ Per-item accuracy, a 30-day accuracy chart, streaks, achievements and daily goal
 ### Portable, lossless backups
 Export a topic as JSON and import it on another device or in the companion iPhone & iPad app. Imports merge with what's there, so moving back and forth never loses progress.
 
+### Settings in four tabs
+Study, Alerts, Data and About — a tab bar on a phone, a side rail with a live summary of each tab on a wide screen. Quiz direction and backups apply to the open topic and say so; theme, sound, speech and reminders apply everywhere.
+
 ### Accessible and offline
-Keyboard shortcuts, screen-reader announcements for every answer, neutral image descriptions until you answer, reduced-motion support, and an installable PWA that works offline.
+Keyboard shortcuts, screen-reader announcements for every answer, flashcard faces read as they are drawn, neutral image descriptions until you answer, focus that stays inside an open dialog, reduced-motion support, and an installable PWA that works offline.
 
 ## Technical Highlights
 
@@ -41,13 +44,19 @@ Keyboard shortcuts, screen-reader announcements for every answer, neutral image 
 The target is that the usual shortcuts — pick the option whose letters match, pick the odd one out by format, pick the middle number — do no better than chance. `src/utils/distractors.ts` scores every candidate by how confusable it is with the answer, in both directions, with per-topic strategies: edit distance for Morse, differing dots for Braille, arm angles for semaphore, curated confusable groups for flags, hand shapes and Greek glyphs, pay-grade distance for military ranks, one-symbol-off numerals for Roman numerals (XIV → XVI, XIX), and generated abbreviations that fit an expansion's letters as well as the real acronym ("Federal Bureau of Investigation" → FBOI, FEBI). Tests assert the invariants for every topic — the answer appears once, no wrong option is also right, near-synonyms such as `0x41` and "ASCII 65–90" never share a question — and check the specific tricks, such as the correct Roman numeral landing at the top, bottom and middle of the range.
 
 ### Typed answers: lenient, with a proof of no false positives
-`src/utils/answers.ts` normalises word answers (accents, case, curly quotes, every dash variant, "&", punctuation, a leading "the"), accepts the "core" of a long value ("Treble Clef" for "Treble Clef (G Clef) - Most common clef") and curated alternates (Alfa, Juliet, Aluminium). Leniency is only safe if it never accepts another item, so the core is accepted only when unique within the topic, and a collision test runs every typeable topic and direction to prove that no other item's answer is ever accepted. Symbol answers stay exact — Morse, Braille — except where two forms are genuinely equal, such as a semaphore signal entered in either arm order.
+`src/utils/answers.ts` normalises word answers (accents, case, Greek final sigma, curly quotes, every dash variant, "&", punctuation, a leading "the"), accepts the "core" of a long value ("Treble Clef" for "Treble Clef (G Clef) - Most common clef") and curated alternates (Alfa, Juliet, Aluminium). Leniency is only safe if it never accepts another item, so the core is accepted only when unique within the topic, and a collision test runs every typeable topic and direction to prove that no other item's answer is ever accepted. Symbol answers stay exact — Morse, Braille — except where two forms are genuinely equal, such as a semaphore signal entered in either arm order.
 
 ### A speaker rule that never reveals the answer
 Reading the question aloud sounds harmless until the question is a picture of the flag for "Alpha", a Greek glyph that TTS pronounces as its name, or "Lt Col", which TTS expands into the rank. `src/utils/speech.ts` declares how each side of each topic is read (letter by name, spelled out, dit/dah, as text, or not at all) and hides the speaker whenever the prompt would give the answer away. The same care applies to images, which get neutral alt text until you answer, and to screen-reader announcements, which name the answer exactly as its button showed it.
 
 ### Data checked against the primary sources
 Maritime flags and numeral pennants follow the International Code of Signals (NGA Pub. 102), Braille digits and punctuation follow Unified English Braille, and the airport topic pairs IATA and ICAO codes for each airport and airline. Tests check the data itself — no topic has two items with the same answer — so a correction can't quietly create an ambiguous question.
+
+### Dialogs that own the keyboard
+Settings opens over a running quiz, which makes keyboard handling a correctness problem: Escape should close the dialog rather than the quiz, and the 1–4 and Enter keys must not answer the question behind it. The study shortcuts check `isDialogOpen()` (`src/utils/dialog.ts`) and stand down while any dialog is up. `src/hooks/useFocusTrap.ts` keeps a stack of open traps so a confirmation over Settings is the only one that acts, treats as stops only the elements Tab can actually reach — not disabled controls, inactive tab panels or unchecked radios in a group — and pulls focus back in when the button that held it disappears.
+
+### Backups that survive hostile input
+Backup files and stored data are untrusted, so `src/utils/storage.ts` builds every map keyed by item names with `Object.create(null)` and reads through `Object.hasOwn`, which means an item called `constructor` or `__proto__` is just an item rather than lost or treated as the prototype setter. Dates go through a single strict parser, `parseStoredDate()`, that accepts the same ISO 8601 and date-only forms as the iOS app and returns nothing rather than an Invalid Date, so a backup restores to the same instants on both and an unreadable date simply makes the card due.
 
 ### Deterministic local-day semantics
 Daily goals and history key by the user's local calendar day, which is easy to get silently wrong: UTC keys pass every test on a UTC machine. The suite pins a non-UTC time zone in `vitest.config.ts` and asserts at setup that it took effect, so a regression to UTC fails everywhere.
@@ -69,7 +78,7 @@ Daily goals and history key by the user's local calendar day, which is easy to g
 ### localStorage over a backend
 - **Constraint**: A study tool should load instantly, work offline and need no sign-up.
 - **Options**: Accounts with server sync, IndexedDB, or localStorage.
-- **Choice**: Per-topic `mastercode-*` localStorage keys, validated and clamped on every load, with a schema version and a rename table for corrected item names.
+- **Choice**: Per-topic `mastercode-*` localStorage keys, validated and clamped on every load, with a rename table for corrected item names.
 - **Why**: No auth, no latency and a single static deploy. The cost — no automatic sync — is covered by merge-on-import backups that also work with the iOS app.
 
 ### Hash routing instead of React Router
@@ -100,6 +109,12 @@ Signal flags follow the International Code of Signals (NGA Pub. 102), Braille fo
 
 ### Can I move my progress to another device or the iPhone app?
 Yes. Export a backup from Settings and import it on the other device or in the iPhone & iPad app. Imports merge — the richer record for each item wins, streaks and totals take the higher value — and a backup from a different topic asks before merging.
+
+### What does resetting a topic clear?
+Reset, in Settings' Data tab, removes that topic's item progress, stats, session log, accuracy history and daily-goal data, and its saved flashcard deck, so flashcards start fresh instead of resuming mid-deck. Other topics and app-wide settings are untouched. To replace a topic's progress with a backup rather than merge into it, reset first and then import.
+
+### Why do reminders work when browser notifications are blocked?
+The Reminders switch is MasterCode's own setting. It controls the in-app reminder messages, which need no permission, as well as browser notifications where the browser allows them; Settings shows which of those this browser permits and, when they are blocked, how to allow them.
 
 ### Does it work offline, and does it send my data anywhere?
 It works offline after the first visit, via a service worker. Nothing is sent anywhere: progress stays in your browser's storage, there are no analytics or cookies, and speech and reminders use the browser's local APIs.

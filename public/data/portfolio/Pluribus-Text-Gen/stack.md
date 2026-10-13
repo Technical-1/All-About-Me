@@ -1,129 +1,84 @@
 # Technology Stack
 
+## Core Technologies
+
+| Category | Technology | Version | Why this choice |
+|----------|------------|---------|-----------------|
+| Language | JavaScript (ES modules) | — | The effect is a few hundred lines of canvas maths; no type system or compile step needed |
+| Rendering | HTML5 Canvas 2D | Native | The effect is flat; 2D canvas keeps the whole simulation on the CPU with no shader code |
+| Build | Vite | ^7.2.4 (lockfile 7.3.3) | Zero-config dev server and production build for a plain-JS page |
+| Testing | Vitest | ^4.1.7 | Runs the pure simulation module natively as ES modules, with the same config as Vite |
+| Font | Montserrat Black (900) | Google Fonts | Bold geometric sans-serif close to the show's title type, which gives dense particle outlines |
+
 ## Frontend
 
-### Core Technologies
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| HTML5 Canvas | Native | 2D particle rendering and animation |
-| Vanilla JavaScript | ES6+ | Application logic, particle physics, event handling |
-| CSS3 | Native | UI styling, glassmorphism effects |
-
-### Build Tools
-
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Vite | ^7.2.4 | Development server and production bundler |
-
-### Dependencies
-
-| Package | Version | Reason for Choice |
-|---------|---------|-------------------|
-| three | ^0.181.2 | Listed in package.json but not currently used in the implementation. Originally considered for 3D rendering but I switched to 2D Canvas for simplicity. |
-
-### Dev Dependencies
-
-| Package | Version | Reason for Choice |
-|---------|---------|-------------------|
-| sharp | ^0.33.5 | Used by `scripts/generate-icons.js` to convert SVG source into PWA icons at multiple resolutions (180px, 192px, 512px). Chosen for its speed and zero-dependency native image processing. |
-
-### Fonts
-
-| Font | Weight | Source |
-|------|--------|--------|
-| Montserrat | 900 (Black) | Google Fonts CDN |
-
-I chose Montserrat Black because it closely matches the typography used in the actual Pluribus title sequence - bold, geometric sans-serif that creates strong particle outlines.
+- **Framework**: none — vanilla JavaScript
+- **State Management**: module-level variables in `src/main.js` (`particles`, `waves`, `config`, `currentText`)
+- **Styling**: inline `<style>` block in `index.html` (translucent, blurred input and button over a black canvas)
+- **Build Tool**: Vite
 
 ## Infrastructure
 
-### Hosting
-
-| Service | Purpose |
-|---------|---------|
-| Vercel | Static site hosting with automatic deployments |
-
-I chose Vercel because:
-- Zero-configuration deployments for Vite projects
-- Automatic HTTPS and CDN distribution
-- Free tier is more than sufficient for this static site
-- Instant preview deployments for each commit
-
-### Domain & SSL
-
-- Custom domain: `pluribus-text-gen.vercel.app`
-- SSL: Automatically provisioned by Vercel
+- **Hosting**: Vercel static hosting at `pluribus-text-gen.vercel.app`
+- **CI/CD**: none in the repo (no workflow files or `vercel.json`)
+- **Monitoring**: none
 
 ### PWA
 
-- **Manifest**: `manifest.webmanifest` with standalone display mode
-- **Icons**: 192px and 512px PNG icons (generated from SVG via sharp)
-- **Apple Support**: `apple-touch-icon` (180px), `apple-mobile-web-app-capable`, black-translucent status bar
+- **Manifest**: `public/manifest.webmanifest`, standalone display, black background and theme colour
+- **Icons**: `icon-192.png` / `icon-512.png` with purpose `any`, and `icon-maskable-192.png` / `icon-maskable-512.png` with purpose `maskable`
+- **Apple**: `apple-touch-icon` (180 px), `apple-mobile-web-app-capable`, black-translucent status bar
 
-## Development Environment
+## Development Tools
+
+- **Package Manager**: npm (`package-lock.json`)
+- **Linting**: none configured
+- **Formatting**: none configured
+- **Testing**: Vitest — 15 tests in `src/simulation.test.js` across `waveForce`, `waveVisualParticleCount` and `textScanBounds`
 
 ### Requirements
 
-- Node.js v18 or higher
-- npm (comes with Node.js)
+- Node.js 20.19+ or 22.12+ (Vite 7's engine range)
 
 ### Scripts
 
-```json
-{
-  "dev": "vite",                          // Start dev server at localhost:5173
-  "build": "vite build",                  // Production build to /dist
-  "preview": "vite preview",              // Preview production build locally
-  "generate-icons": "node scripts/generate-icons.js"  // Generate PWA icons from SVG
-}
-```
+| Script | Command | Purpose |
+|--------|---------|---------|
+| `dev` | `vite` | Dev server on `localhost:5173` |
+| `build` | `vite build` | Production build to `dist/` |
+| `preview` | `vite preview` | Serve the production build locally |
+| `test` | `vitest run` | Run the test suite once |
+| `test:watch` | `vitest` | Run tests in watch mode |
+| `generate-icons` | `node scripts/generate-icons.js` | Render the PWA icons from SVG |
+
+## Key Dependencies
+
+There are no runtime dependencies; all three packages are dev dependencies.
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `vite` | ^7.2.4 | Dev server and bundler |
+| `vitest` | ^4.1.7 | Unit tests for `src/simulation.js` |
+| `sharp` | ^0.33.5 | Used by `scripts/generate-icons.js` to render `icon-192.svg` and `icon-maskable.svg` to PNG |
 
 ## Why This Stack?
 
-### Why No React/Vue/Svelte?
+### Why no React, Vue or Svelte?
+The page is one canvas and one text box. All the work happens in an imperative `requestAnimationFrame` loop, so a declarative framework would add bundle weight and a reconciliation layer with nothing to reconcile. The production JavaScript bundle is 6.71 kB, 2.81 kB gzipped.
 
-This project renders thousands of particles at 60fps. Every millisecond counts. Framework overhead - virtual DOM diffing, reactivity systems, component lifecycles - would add latency to the render loop. The Canvas API is imperative by nature, so a declarative framework would be swimming upstream.
+### Why not Three.js or WebGL?
+The rings, bands and waves all live on a flat plane, and the particle count is one the CPU handles on 2D canvas. A GPU renderer would bring shader code and a large dependency for no visible difference.
 
-### Why Not Three.js/WebGL?
-
-I initially considered Three.js (it's still in package.json), but realized:
-
-1. **Overkill**: I only need 2D rendering, not 3D
-2. **Learning curve**: The 2D Canvas API was sufficient and let me understand the fundamentals
-3. **Bundle size**: Three.js adds ~600KB, while my entire app is <50KB
-4. **Compatibility**: 2D Canvas has broader browser support
-
-### Why Vite?
-
-- **Speed**: Near-instant hot module replacement during development
-- **Modern**: Native ES modules, no bundling during dev
-- **Simple**: Works out of the box with zero config for vanilla JS projects
-- **Small**: Production builds are optimized and tree-shaken
+### Why Vitest?
+The simulation maths is plain ES modules. Vitest runs them without a separate Babel or Jest transform setup, and shares Vite's module resolution.
 
 ### Why Vercel?
-
-- **Integration**: Automatic deployments from GitHub pushes
-- **Performance**: Edge network for fast global delivery
-- **Simplicity**: No servers to manage for a static site
-- **Cost**: Free for personal projects
-
-## Browser Compatibility
-
-The application uses:
-- Canvas 2D API (supported in all modern browsers)
-- ES6 modules (supported in all modern browsers)
-- CSS backdrop-filter (gracefully degrades in older browsers)
-
-Tested and working in:
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+A static Vite build needs no server, and Vercel serves one with zero configuration, HTTPS and a CDN on the free tier.
 
 ## Performance Considerations
 
-- **Particle count**: Dynamically adjusted based on screen size
-- **requestAnimationFrame**: Used for smooth 60fps animation
-- **Object pooling**: Particles are reused rather than garbage collected
-- **Math optimization**: Pre-calculated inverse squares for ellipse checks
+- **Responsive particle density**: grid gap, texture spacing and sample step change below a 520 px short side (`applyResponsiveTuning()` in `src/main.js`)
+- **Capped wave rings**: at most 220 decorative dots per wave per frame (`maxWaveVisualParticles`)
+- **Region-limited text scan**: `getImageData` reads only the text bounding box from `textScanBounds()`
+- **Precomputed ellipse terms**: each letter's exclusion test uses stored `1/rx²` and `1/ry²`
+- **Debounced rebuilds**: resizes, keystrokes and keyboard close share one 150 ms debounce

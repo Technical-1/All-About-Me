@@ -28,7 +28,7 @@ flowchart TD
         TC[TimedChallenge]
         SS[SmartSession]
         ST[Stats]
-        SET[SettingsModal<br/>backups, reset]
+        SET["SettingsModal<br/>Study · Alerts · Data · About tabs"]
     end
 
     subgraph Rules["Question rules (src/utils)"]
@@ -37,6 +37,7 @@ flowchart TD
         ANS["answers.ts<br/>typed-answer matching"]
         SPK["speech.ts<br/>what may be read aloud"]
         DSP["display.ts<br/>labels, announcements, alt text"]
+        A11Y["accessibility.ts<br/>flashcard faces, confusion rows"]
     end
 
     subgraph Data["Data"]
@@ -59,6 +60,7 @@ flowchart TD
     MC & TY & TC & FC --> SPK & DSP
     MC & TY & TC --> SR --> STO
     MC & TY --> CNF --> STO
+    FC & ST & SS --> A11Y --> DSP
     ST --> CNF
     SET --> STO
 ```
@@ -98,12 +100,17 @@ flowchart TD
 ### Speech and display rules
 - **Purpose**: Never reveal the answer through the speaker, an image description or an announcement
 - **Location**: `src/utils/speech.ts`, `src/utils/display.ts`
-- **Key responsibilities**: The speaker reads only the prompt and is hidden when the prompt is a picture, a Greek glyph (TTS would name it) or a rank abbreviation (TTS expands it), or when it cannot be read at all. Images get neutral alt text until answered. Every "the answer is …" message names the answer exactly as its button showed it, and Braille answers are announced by their dots.
+- **Key responsibilities**: The speaker reads only the prompt and is hidden when the prompt is a picture, a Greek glyph (TTS would name it) or a rank abbreviation (TTS expands it), or when it cannot be read at all. Images get neutral alt text until answered. Every "the answer is …" message names the answer exactly as its button showed it, and Braille answers are announced by their dots. `src/utils/accessibility.ts` builds the screen-reader text for drawn content from the same rules: a flashcard face is read as it is drawn (text, Braille dots or the picture's description) with a flip-or-next hint, and each Most Confused Pairs row is one sentence ("A, Alpha, often picked as B, Bravo, 2 times").
 
 ### Braille input and cells
 - **Purpose**: Make Braille answerable and readable
 - **Location**: `src/components/BrailleInput.tsx`, `src/components/BrailleCell.tsx`
 - **Key responsibilities**: `BrailleInput` is a six-dot grid per cell (tap, or keys 1–6, Space, Backspace, Enter) that composes Unicode Braille. `BrailleCell` draws every Braille value as a framed 2×3 cell with unraised dots shown faintly, because Unicode glyphs render ⠅, ⠒ and ⠤ as the same colon-like shape.
+
+### Settings and dialogs
+- **Purpose**: Configure study, alerts and data without disturbing the quiz behind it
+- **Location**: `src/components/SettingsModal.tsx`, `src/hooks/useFocusTrap.ts`, `src/utils/dialog.ts`, `src/index.css`, `src/fonts.ts`
+- **Key responsibilities**: Four tabs — Study (quiz direction for this topic, theme), Alerts (sound, speech, reminders), Data (backup, import and reset for this topic) and About (how spaced repetition works, keyboard shortcuts, privacy). On a phone the tabs are a bar under the title; from the `lg` breakpoint they become a left rail with a one-line summary of each tab. The tablist uses roving `tabIndex` with arrow keys, Home and End; number keys are deliberately not bound to tabs because 1–4 answer quizzes. While any dialog is open, `isDialogOpen()` makes the study shortcuts stand down, so Escape closes Settings rather than the quiz. `useFocusTrap` keeps a stack of open traps so only the topmost dialog acts, counts only elements Tab can actually reach (not disabled controls, hidden tab panels or unchecked radios in a checked group), and pulls stray focus back in. Colours come from `--st-*` tokens in `src/index.css`, each checked against WCAG contrast on the worst surface it sits on; the display face is a self-hosted, preloaded Latin subset of JetBrains Mono. The Reminders switch is the app's own setting, so it works in any browser, and reports separately what the browser's notification permission allows. Resetting a topic also clears its saved flashcard deck.
 
 ### SM-2 and confusions
 - **Purpose**: Schedule reviews and learn from mistakes
@@ -113,7 +120,7 @@ flowchart TD
 ### Storage
 - **Purpose**: Persist everything in the browser, safely
 - **Location**: `src/utils/storage.ts`
-- **Key responsibilities**: Per-topic keys (`mastercode-progress-<topic>`, `mastercode-stats-<topic>`, …), with the original `nato-trainer-*` names still read as fallbacks. Every load validates and clamps what it reads. A schema version gates migrations, renamed items are migrated on first load, and accuracy history keeps the most recent 30 days. Backups record their topic and are merged on import.
+- **Key responsibilities**: Per-topic keys (`mastercode-progress-<topic>`, `mastercode-stats-<topic>`, …); NATO achievements still fall back to the original global `nato-trainer-achievements` key, so the earliest users kept their unlocks. Every load validates and clamps what it reads. Maps keyed by item names are built without a prototype (`Object.create(null)`) and read through an own-property check, so a stored or imported key such as `constructor` or `__proto__` is just an item. Dates are parsed by one strict function, `parseStoredDate()`, that accepts the same ISO 8601 and date-only forms as the iOS app and never yields an Invalid Date. Renamed items are migrated on load (`migrateProgressKeys`), a schema-version key is in place for future migrations, and accuracy history keeps the most recent 30 days. Backups record their topic and are merged on import.
 
 ### Landing page
 - **Purpose**: Explain the science, then offer the topics
@@ -163,15 +170,20 @@ flowchart TD
 
 ### localStorage with per-topic keys, migrations and a rename table
 - **Context**: No backend, but data must survive app updates — including items whose names were corrected (Air Force "2Lt" → "2d Lt").
-- **Decision**: Per-topic `mastercode-*` keys, a schema version, and a rename table applied on load and on import; when both the old and new name have progress they are combined field by field (max counts, schedule from whichever was seen last).
-- **Rationale**: Every step is a max or a pick, so re-running it changes nothing and counts are never inflated. Legacy `nato-trainer-*` keys are still read so the earliest users kept their history.
+- **Decision**: Per-topic `mastercode-*` keys and a rename table applied on load and on import; when both the old and new name have progress they are combined field by field (max counts, schedule from whichever was seen last).
+- **Rationale**: Every step is a max or a pick, so re-running it changes nothing and counts are never inflated. Because item names arrive from untrusted storage and files, every map keyed by them has no prototype, so a name like `toString` can neither be lost nor collide with a built-in.
 
 ### Merge-on-import, shared with the iOS app
 - **Context**: Backups are the only way to move progress between devices and to the companion iPhone & iPad app; replacing on import makes the last file win silently.
 - **Decision**: Import merges — per item, the record with more attempts wins (ties go to the most recent), confusion counts combine by maximum, stats take per-field maximums. Backups carry their topic, and importing into a different topic asks first.
-- **Rationale**: Transfers are lossless and order-independent. The iOS app implements the same merge, rename and answer rules, and its topic data is generated from this repository, so both apps stay in step.
+- **Rationale**: Transfers are lossless and order-independent. The iOS app implements the same merge, rename, date-parsing and answer rules, so a backup restores identically on both; an unreadable date makes the card due for review rather than storing an invalid date.
 
 ### Split-strategy service worker
 - **Context**: Offline use without pinning users to a stale build.
 - **Decision**: Cache-first for content-hashed `/assets/*` and `/images/*`; network-first with an offline fallback for pages and the app shell.
 - **Rationale**: Hashed files are immutable and safe to cache forever; HTML stays fresh so a new deploy arrives on the next online load.
+
+### Self-hosted display font under a strict CSP
+- **Context**: The Settings design uses JetBrains Mono, but the CSP in `vercel.json` allows fonts only from `'self'`, and a late font swap makes the dialog reflow as it opens.
+- **Decision**: Bundle the variable font from `@fontsource-variable/jetbrains-mono`, declare only the Latin subset in `src/fonts.css`, preload that same hashed file from `src/main.tsx` (with `crossorigin` so the preload is reused), and draw the few symbols outside Latin (→ ✓ ↗ ⚠) as inline SVG.
+- **Rationale**: A font CDN would need a CSP exception and a third-party request; one self-hosted variable file covers every weight, and the CSP stays unchanged.

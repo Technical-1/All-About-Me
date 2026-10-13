@@ -5,174 +5,213 @@
 ```mermaid
 flowchart TD
     subgraph Browser["Browser / PWA"]
+        Router["main.jsx - React Router: / landing, /app"]
+        Home[HomePage - marketing landing]
+        Gate[LockGate - create / unlock / recovery / restore]
+
         subgraph UI["UI Layer (React 19)"]
-            Header[Header - Nav, Search, AI Import, Theme]
+            Header[Header - Nav, Search, Sign in, SyncStatus]
             Views[Views - Dashboard, Budget, Cards, Calendar, Yearly, Goals]
-            Modals[Modals - Settings, Edit, Paycheck, AI Parser, etc.]
+            Modals[Modals - Settings, Paycheck, Receipts, AI Parser, Privacy, Conflict, etc.]
             Common[Common - FAB, Search, Toast, ErrorBoundary]
         end
 
-        subgraph State["State Layer (Zustand v5)"]
-            BS[budgetStore - Budget template, categories, credit cards]
-            TS[trackingStore - Monthly tracking, paychecks, rollover]
-            US[uiStore - View routing, modal state, form fields]
-            GS[goalsStore - Financial goals]
-            HS[historyStore - Undo/redo stack]
-            ToS[toastStore - Notification queue]
+        subgraph State["State Layer (Zustand 5)"]
+            BS[budgetStore - template, categories, cards]
+            TS[trackingStore - months, paychecks, rollover, receipts meta]
+            US[uiStore - view routing, modal state]
+            AS[authStore - user, in-memory DEK, sync status]
+            GS[goalsStore]
+            HS[historyStore]
+            ToS[toastStore]
         end
 
-        subgraph Hooks["Computation Layer (Custom Hooks)"]
-            UC[useCalculations - Budget period math, allocations]
-            UBH[useBudgetHealth - Insights, scores]
-            UP[usePersistence - Bidirectional IndexedDB sync]
-            UCur[useCurrency - Multi-currency formatting]
-            USrch[useSearch - Full-text search]
+        subgraph Hooks["Hooks"]
+            UC[useCalculations - budget period math]
+            UP[usePersistence - IndexedDB load/save, import/export]
+            USync[useSync - debounced encrypted push/pull]
+            UR[useReceipts - attach / open / delete]
         end
 
-        subgraph Data["Data Layer"]
-            DB[(IndexedDB - BudgetFlowDB v3)]
+        subgraph Crypto["Crypto (WebCrypto)"]
+            Env[crypto/envelope - AES-GCM, PBKDF2]
+            Vault[crypto/keyVault - wrapped-key record]
+            DbC[db/crypto - per-store field encryption]
         end
 
-        subgraph Utils["Export Utilities"]
-            PDF[pdfGenerator - jsPDF monthly reports]
-            ICS[calendarExport - RFC 5545 ICS files]
-            Notif[notificationService - Web Push Notifications]
-        end
+        DB[(IndexedDB - BudgetFlowDB v4, 13 stores)]
+        SyncEng[sync/syncEngine - snapshot + resolvePull]
     end
 
     subgraph External["External Services"]
-        Claude[Anthropic Claude API]
+        FAuth[Firebase Auth - Google]
+        FS[(Firestore - keys/envelope, vault/snapshot)]
+        FSt[(Firebase Storage - encrypted receipts)]
+        Claude[Anthropic Messages API]
     end
 
-    Header --> US
+    Router --> Home
+    Router --> Gate
+    Gate --> Vault
+    Gate -->|DEK| DbC
+    Gate -->|unlocked| UI
+
     Views --> UC
     Views --> State
     Modals --> State
-    Common --> ToS
-    Common --> HS
-
     UC --> BS
     UC --> TS
-    UBH --> UC
-    UP --> DB
+
     UP --> State
+    UP --> DB
+    DB --> DbC
+    DbC --> Env
 
-    State --> UP
-    Views --> Utils
+    USync --> State
+    USync --> SyncEng
+    SyncEng --> Env
+    USync --> FS
+    USync --> FAuth
+    UR --> DB
+    UR --> FSt
 
-    Modals --> Claude
+    Modals -->|user API key| Claude
 ```
 
 ## Data Flow Diagram
 
 ```mermaid
 flowchart LR
-    subgraph Mount["App Mount"]
-        A[initDB] --> B[Load all stores from IndexedDB]
-        B --> C[Restore saved view]
+    subgraph Boot["Opening /app"]
+        A[Load local key record] --> B{Record exists?}
+        B -->|no| C[Create passphrase + recovery code]
+        B -->|yes| D[Unlock with passphrase or recovery code]
+        C --> E[DEK in memory, setDbKey]
+        D --> E
+        E --> F[migrateToEncrypted - one-time, resumable]
+        F --> G[usePersistence loads stores]
     end
 
     subgraph Runtime["Runtime"]
-        D[User action] --> E[Store setter called]
-        E --> F[React re-render]
-        E --> G[usePersistence useEffect fires]
-        G --> H[Write to IndexedDB]
-    end
-
-    subgraph Calc["Calculations"]
-        I[Store state changes] --> J[useCalculations recomputes]
-        J --> K[Memoized results returned to views]
+        H[User action] --> I[Store setter]
+        I --> J[usePersistence effect: encrypt + write IndexedDB]
+        I --> K[useSync marks dirty, 4s debounce]
+        K --> L[Encrypt snapshot, write Firestore]
     end
 ```
 
 ## Component Descriptions
 
+### main.jsx
+- **Purpose**: Entry point and top-level routing
+- **Location**: `src/main.jsx`
+- **Key responsibilities**: Requests persistent storage, then routes `/` to the landing page and `/app` to the application; unknown paths redirect to `/`
+
+### HomePage
+- **Purpose**: Public landing page
+- **Location**: `src/components/home/HomePage.jsx`
+- **Key responsibilities**: Feature grid, privacy explanation, scroll-reveal via `IntersectionObserver` (no animation library), "Open app" and optional Google sign-in
+
+### LockGate
+- **Purpose**: Full-screen gate that holds back all data until it can be decrypted
+- **Location**: `src/components/lock/LockGate.jsx`
+- **Key responsibilities**: First-run passphrase creation (10+ characters) with a one-time recovery code; unlock by passphrase or recovery code; "Sign in to restore" on a fresh device, which pulls the cloud key record and adopts it locally; a last-resort "reset and erase" path
+
 ### App.jsx
-- **Purpose**: Root component that hosts all views and modals
+- **Purpose**: Root of the unlocked application
 - **Location**: `src/App.jsx`
-- **Key responsibilities**: Conditional view rendering based on `uiStore.view`, mounting all modal components, initializing `usePersistence` and undo keyboard shortcuts via `useUndoable`
+- **Key responsibilities**: Loads the local key record, renders `LockGate` until unlocked, runs the at-rest migration, then mounts views (lazy except Dashboard), all modals, `usePersistence`, `useSync`, and `useUndoable`
 
 ### Header.jsx
 - **Purpose**: Top navigation bar
 - **Location**: `src/components/layout/Header.jsx`
-- **Key responsibilities**: View switching tabs, search trigger (Cmd+K), AI import button, settings gear, theme toggle
+- **Key responsibilities**: View tabs (hidden while the budget is empty), search trigger (Cmd+K), Google sign-in/out, sync status indicator, settings menu
 
 ### Dashboard (View)
 - **Purpose**: Primary monthly budget view
 - **Location**: `src/components/views/Dashboard/`
-- **Key responsibilities**: Month navigation, available funds display, expense list with paid/skip toggles, paycheck allocation breakdown, savings section, budget health score, PDF export
+- **Key responsibilities**: Guided `GettingStarted` screen when the budget is empty (`src/utils/dashboardState.js`), month navigation, available funds, expense list with paid/skip toggles and receipt paperclips, paycheck allocation, savings section, health score, PDF export
 
-### Budget (View)
-- **Purpose**: Budget template editor
-- **Location**: `src/components/views/Budget/`
-- **Key responsibilities**: Category CRUD, expense item CRUD (name, amount, due day, frequency), deduction management, move items between categories
-
-### Cards (View)
-- **Purpose**: Payment method assignment
-- **Location**: `src/components/views/Cards/`
-- **Key responsibilities**: Drag-and-drop assignment of expenses to credit cards, per-card totals, savings/rollover columns
-
-### Calendar (View)
-- **Purpose**: Monthly calendar with bill visualization
-- **Location**: `src/components/views/Calendar/`
-- **Key responsibilities**: Calendar grid with colored bill dots, paycheck day markers, day detail panel, ICS calendar export
-
-### Yearly (View)
-- **Purpose**: Annual overview and trends
-- **Location**: `src/components/views/Yearly/`
-- **Key responsibilities**: Year totals, 12-month spending trends chart (Recharts), category pie chart, subscription timeline
+### Budget, Cards, Calendar, Yearly, Goals (Views)
+- **Location**: `src/components/views/{Budget,Cards,Calendar,Yearly,Goals}/`
+- **Key responsibilities**: Template editor (categories, items, frequencies, deductions); drag-and-drop card assignment with per-card totals; calendar grid with bill dots and ICS export; yearly totals, trends chart, category pie, subscription timeline; goals UI (built but hidden from navigation)
 
 ### useCalculations Hook
 - **Purpose**: Central computation engine
 - **Location**: `src/hooks/useCalculations.js`
-- **Key responsibilities**: Budget period logic (paycheck-centric, not calendar-centric), expense item expansion (weekly/bi-weekly occurrences), monthly totals, paycheck allocation, available funds, card totals, yearly aggregation
+- **Key responsibilities**: Paycheck-centric budget periods, frequency-aware due detection, expansion of weekly/bi-weekly items into occurrences, monthly and card totals, paycheck allocation, yearly aggregation and spending trends
 
 ### usePersistence Hook
-- **Purpose**: Bidirectional state-to-database sync
+- **Purpose**: State-to-database persistence and file backup
 - **Location**: `src/hooks/usePersistence.js`
-- **Key responsibilities**: Load all stores from IndexedDB on mount, reactive writes via useEffect watchers, localStorage migration
+- **Key responsibilities**: Loads every store from IndexedDB after unlock, per-slice write effects, legacy localStorage migration, JSON export (receipt files embedded as data URLs) and Zod-validated import
+
+### Encryption layer
+- **Purpose**: Zero-knowledge key management and at-rest encryption
+- **Location**: `src/crypto/envelope.js`, `src/crypto/keyVault.js`, `src/db/crypto.js`
+- **Key responsibilities**: AES-GCM 256 and PBKDF2-SHA256 (600,000 iterations) primitives; a random DEK wrapped twice — by a passphrase-derived key and a recovery-code-derived key; passphrase rotation without re-encrypting data; per-store transform that keeps only key paths and indexed fields plaintext and puts everything else in an `_enc` envelope
 
 ### db.js
 - **Purpose**: All IndexedDB operations
 - **Location**: `src/db.js`
-- **Key responsibilities**: Database initialization (v3 schema, 12 object stores), CRUD for all stores, data export/import, health check, emergency export, database recovery
+- **Key responsibilities**: Schema v4 with 13 object stores (the newest is `receipts`), CRUD routed through the encryption transform, encrypted receipt blobs, local copy of the wrapped-key record for offline unlock, idempotent `migrateToEncrypted`, health check, emergency export, recovery
+
+### useSync Hook and sync engine
+- **Purpose**: Optional end-to-end encrypted sync
+- **Location**: `src/hooks/useSync.js`, `src/sync/syncEngine.js`, `src/sync/keyRecord.js`, `src/firebase/`
+- **Key responsibilities**: On sign-in, reconcile the local and cloud key records (seed the cloud on first use, pull when they match, pause when they differ); debounced pushes that skip unchanged content via a content signature; a serial push loop that coalesces concurrent changes; pure `resolvePull` deciding apply / push / none / conflict
+
+### useReceipts Hook
+- **Purpose**: Receipt attachments per payment
+- **Location**: `src/hooks/useReceipts.js`, `src/components/modals/ReceiptsModal.jsx`, `src/firebase/storageRepo.js`
+- **Key responsibilities**: Save locally first, then encrypt and upload to Firebase Storage when signed in; on open, read the local copy or download, decrypt, and cache; retry pending uploads after sync connects
 
 ## External Integrations
 
-| Service | Purpose | Documentation |
-|---------|---------|---------------|
-| Anthropic Claude API | AI-powered budget parsing from images | [Anthropic API Docs](https://docs.anthropic.com/) |
-| Web Notifications API | Bill reminders and budget threshold alerts | [MDN Web Notifications](https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API) |
-| Workbox (via vite-plugin-pwa) | Service worker caching for offline support | [Workbox Docs](https://developer.chrome.com/docs/workbox/) |
+| Service | Purpose | Notes |
+|---------|---------|-------|
+| Firebase Auth (Google) | Identity for optional sync | Popup sign-in; disabled entirely when `VITE_FIREBASE_*` env vars are absent |
+| Cloud Firestore | Stores the wrapped-key record and one encrypted snapshot per user | `users/{uid}/keys/envelope` and `users/{uid}/vault/snapshot`; deny-by-default rules in `firestore.rules` |
+| Firebase Storage | Encrypted receipt files | `users/{uid}/receipts/{id}`; rules in `storage.rules` |
+| Firebase Analytics | Usage analytics | Initialized best-effort only when supported and Firebase is configured (`src/firebase/config.js`) |
+| Anthropic Messages API | AI budget parsing from images | Direct browser call with the user's own key and the `anthropic-dangerous-direct-browser-access` header |
+| Web Notifications API | Bill reminders and budget threshold alerts | Local only |
+| Workbox (via vite-plugin-pwa) | Service worker caching for offline support | Precache plus CacheFirst for Google Fonts |
+| Vercel | Static hosting | SPA rewrites and security headers in `vercel.json` |
 
 ## Key Architectural Decisions
 
 ### Budget Periods Instead of Calendar Months
 - **Context**: Users get paid on specific dates, not the 1st of the month. A bill due on the 3rd is funded by the previous month's last paycheck.
 - **Decision**: Expenses belong to the paycheck period that funds them, not the calendar month they fall in.
-- **Rationale**: Reflects how people actually manage money — paycheck to paycheck. More accurate "available funds" calculations.
+- **Rationale**: Reflects how people actually manage money — paycheck to paycheck — and gives more accurate "available funds".
 
-### IndexedDB Over localStorage
-- **Context**: The app stores complex, nested data (monthly tracking maps, paychecks, credit cards, goals) that grows over time.
-- **Decision**: Migrated from localStorage to IndexedDB with 12 structured object stores.
-- **Rationale**: localStorage has a 5-10 MB cap and only supports string key-value pairs. IndexedDB supports structured data, indexes for efficient queries, and much larger storage limits.
+### One DEK, Two Wrappers (Envelope Encryption)
+- **Context**: Users need a forgot-passphrase path, but the server must never be able to decrypt anything.
+- **Decision**: A random 256-bit DEK encrypts the data; it is wrapped separately by a PBKDF2 key from the passphrase and by one from a 20-character recovery code (`src/crypto/keyVault.js`).
+- **Rationale**: Either secret unlocks the same data, changing the passphrase only re-wraps one slot instead of re-encrypting everything, and the stored record is ciphertext plus salts. Deriving the data key directly from the passphrase was rejected because it makes rotation and recovery require a full re-encrypt.
 
-### Zustand Without Persist Middleware
-- **Context**: Zustand v5 has built-in `persist` middleware, but the app needed granular control over what gets saved and when.
-- **Decision**: Custom `usePersistence` hook with individual `useEffect` watchers per state slice.
-- **Rationale**: Avoids serializing the entire store on every change. Enables the migration path from localStorage. Allows some store actions to write directly to IndexedDB for immediate persistence (e.g., drag-and-drop).
+### Same Key Locally and in the Cloud
+- **Context**: Encryption at rest and E2EE sync both need a key; two separate passphrases would be confusing and fragile.
+- **Decision**: The local key record is created at the `LockGate`; on first sign-in the cloud adopts it, and on a fresh device "Sign in to restore" adopts the cloud record locally (`src/hooks/useSync.js`, `src/components/lock/LockGate.jsx`).
+- **Rationale**: One passphrase everywhere. Key-record equality is checked by comparing salts and wrapped bytes (`src/sync/keyRecord.js`), not `JSON.stringify`, because Firestore can return fields reordered.
 
-### No React Router
-- **Context**: The app is a single-page PWA that works fully offline.
-- **Decision**: View routing is handled by a `view` string in `uiStore`, conditionally rendered in `App.jsx`.
-- **Rationale**: URL-based routing adds complexity without benefit for an offline-first app with no shareable URLs. Keeps the app self-contained.
+### Field-Level Encryption Inside IndexedDB
+- **Context**: Encrypting whole records would break the object stores' key paths and `monthKey` / `date` indexes.
+- **Decision**: `src/db/crypto.js` lists, per store, the fields that stay plaintext (key path and indexed fields); everything else is encrypted into `_enc`. A small allowlist of settings (theme, currency, font scale, the key record) stays plaintext so the shell can render before unlock.
+- **Rationale**: Keeps indexed lookups and the existing schema working while hiding amounts, names, and notes. The migration is per-record and skips anything already encrypted, so an interrupted run is safe to resume.
 
-### Direct Browser API Calls to Claude
-- **Context**: The AI budget import feature needs to send images to Claude for parsing.
-- **Decision**: Call the Anthropic API directly from the browser using the user's own API key stored locally.
-- **Rationale**: Eliminates the need for a backend server. The API key never leaves the user's device except to Anthropic. Uses the `anthropic-dangerous-direct-browser-access` header.
+### Whole-State Encrypted Snapshot Instead of Per-Record Sync
+- **Context**: The server can't see the data, so it can't merge it.
+- **Decision**: Sync pushes one encrypted snapshot document with a monotonic version; `resolvePull` compares it with the local version and a dirty flag, and true divergence goes to a user-facing conflict dialog. Receipt files go to Storage separately rather than into the snapshot.
+- **Rationale**: Last-writer-wins with explicit conflict choice is simple and predictable for a single-person budget. Keeping binary files out of the snapshot keeps it small (Firestore documents cap at 1 MiB).
+
+### Path Routing for the Landing Page, State Routing Inside the App
+- **Context**: The site needed a crawlable public landing page, while the app itself is an offline PWA with no shareable views.
+- **Decision**: React Router serves `/` and `/app`; inside `/app` the active view is a string in `uiStore`.
+- **Rationale**: The landing page gets a real URL and metadata; the app avoids URL-sync complexity. The PWA manifest's `start_url` is `/app` so installs open straight into the app.
 
 ### Lazy-Loaded Views
-- **Context**: The app has 6 views, but users primarily interact with the Dashboard.
-- **Decision**: All views except Dashboard use `React.lazy()` with `<Suspense>` fallbacks.
-- **Rationale**: Reduces initial bundle size and speeds up first load, especially important for a PWA that may be loaded on slower connections.
+- **Context**: The app has six views, but users mostly use the Dashboard.
+- **Decision**: All views except Dashboard use `React.lazy()` with `<Suspense>`, and jsPDF is loaded only when exporting.
+- **Rationale**: Smaller initial bundle and faster first load.

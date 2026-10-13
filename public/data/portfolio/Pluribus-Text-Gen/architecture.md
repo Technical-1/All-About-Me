@@ -4,181 +4,148 @@
 
 ```mermaid
 flowchart TB
-    subgraph Browser["Browser Runtime"]
-        subgraph UI["User Interface Layer"]
-            HTML["index.html<br/>Text Input + Controls"]
-            CSS["Inline CSS<br/>Styling + Layout"]
-        end
-
-        subgraph Core["Core Engine (main.js)"]
-            Canvas["HTML5 Canvas API"]
-            Config["Configuration Object<br/>Wave speed, spacing, etc."]
-
-            subgraph ParticleSystem["Particle System"]
-                TextParticles["Text Particles<br/>High opacity, subtle jitter"]
-                BGParticles["Background Particles<br/>Grid layout, wave-responsive"]
-            end
-
-            subgraph WaveSystem["Wave System"]
-                WaveEmitter["Wave Emitter<br/>First letter origin"]
-                WavePhysics["Wave Physics<br/>Pull particles to crests"]
-            end
-
-            subgraph Rendering["Rendering Pipeline"]
-                TextScan["Text Scanner<br/>Pixel-by-pixel analysis"]
-                FingerprintGen["Fingerprint Generator<br/>Concentric elliptical lines"]
-                ExclusionZones["Exclusion Zones<br/>Letter boundaries"]
-                AnimLoop["Animation Loop<br/>60fps requestAnimationFrame"]
-            end
-        end
+    subgraph Page["index.html"]
+        Input["Text input<br/>(maxlength 12)"]
+        Shot["Screenshot button"]
+        Styles["Inline CSS"]
     end
 
-        subgraph PWA["PWA Layer"]
-            Manifest["manifest.webmanifest<br/>Installable app"]
-            Icons["PWA Icons<br/>192px + 512px"]
-            Screenshot["Screenshot Export<br/>1200x630 OG image"]
-        end
+    subgraph Main["src/main.js"]
+        Config["config object<br/>wave + texture parameters"]
+        Tuning["applyResponsiveTuning()<br/>getResponsiveFontSize()"]
+        Init["init()<br/>exclusion ellipses, BG grid,<br/>text scan, fingerprint filter"]
+        ParticleCls["Particle class<br/>TEXT / BG"]
+        WaveCls["Wave class<br/>expanding ring"]
+        Loop["animate()<br/>requestAnimationFrame"]
+        Debounce["scheduleReinit()<br/>150 ms debounce"]
     end
 
-    subgraph External["External Resources"]
-        Font["Google Fonts<br/>Montserrat Black 900"]
-        Vercel["Vercel Hosting<br/>Static deployment"]
+    subgraph Sim["src/simulation.js (pure, no DOM)"]
+        Force["waveForce()"]
+        Budget["waveVisualParticleCount()"]
+        Bounds["textScanBounds()"]
     end
 
-    subgraph DevTools["Development Tools"]
-        IconGen["generate-icons.js<br/>Sharp-based icon pipeline"]
-    end
+    Tests["src/simulation.test.js<br/>Vitest"]
+    Canvas["2D canvas"]
+    Font["Google Fonts<br/>Montserrat 900"]
 
-    HTML --> Canvas
-    Config --> ParticleSystem
-    Config --> WaveSystem
-    TextScan --> FingerprintGen
-    FingerprintGen --> TextParticles
-    ExclusionZones --> BGParticles
-    WaveEmitter --> WavePhysics
-    WavePhysics --> BGParticles
-    ParticleSystem --> AnimLoop
-    WaveSystem --> AnimLoop
-    AnimLoop --> Canvas
-    Font -.-> HTML
-    Manifest -.-> HTML
-    Icons -.-> Manifest
-    Screenshot --> Canvas
-    Browser --> Vercel
+    subgraph PWA["public/"]
+        Manifest["manifest.webmanifest"]
+        Icons["any + maskable icons"]
+    end
+    IconGen["scripts/generate-icons.js<br/>sharp"]
+
+    Input -- "input / blur" --> Debounce
+    Debounce --> Init
+    Tuning --> Init
+    Config --> Init
+    Init --> Bounds
+    Init --> ParticleCls
+    Loop --> ParticleCls
+    Loop --> WaveCls
+    ParticleCls --> Force
+    WaveCls --> Budget
+    Loop --> Canvas
+    Shot -- "toDataURL" --> Canvas
+    Font -.-> Init
+    Tests -.-> Sim
     IconGen -.-> Icons
+    Icons -.-> Manifest
 ```
+
+## Component Descriptions
+
+### Scene setup — `init()`
+- **Purpose**: Build the particle field for the current text and viewport.
+- **Location**: `src/main.js`
+- **Key responsibilities**: apply small-screen tuning, size the font to fit 86% of the width and 55% of the height, compute one exclusion ellipse per letter, lay down the jittered background grid outside those ellipses, then scan the text's bounding box and keep only the pixels that fall on a fingerprint line.
+
+### Particles and waves
+- **Purpose**: Per-frame motion and drawing.
+- **Location**: `Particle` and `Wave` classes in `src/main.js`
+- **Key responsibilities**: background particles sum the pull of every active wave and are snapped back by a 0.90 return factor; text particles get only a small random jitter. Each wave grows by `waveSpeed` per frame, draws a scattered ring of decorative dots, and is removed once it passes 1.2x the larger canvas dimension.
+
+### Simulation math
+- **Purpose**: The numeric core, kept free of DOM and canvas calls so it can be unit-tested.
+- **Location**: `src/simulation.js`, tested by `src/simulation.test.js`
+- **Key responsibilities**: `waveForce()` (pull toward the crest, with a zero-distance guard), `waveVisualParticleCount()` (ring dot budget, capped at `maxWaveVisualParticles`), `textScanBounds()` (the clamped region to read back for text pixels).
+
+### Viewport and input handling
+- **Purpose**: Keep the scene stable across window resizes and mobile keyboards.
+- **Location**: bottom of `src/main.js`
+- **Key responsibilities**: `window` and `visualViewport` resize listeners, a focus check that freezes the stored dimensions while the keyboard is open, a 100 ms post-blur restore, and a shared 150 ms debounce so all of these collapse into one `init()`.
+
+### PWA and icons
+- **Purpose**: Make the page installable.
+- **Location**: `public/manifest.webmanifest`, `scripts/generate-icons.js`
+- **Key responsibilities**: the manifest declares standalone display and four icons split by purpose (`any` at 192/512, `maskable` at 192/512). The generator renders `icon-192.svg` to 180/192/512 px and `icon-maskable.svg` to 192/512 px.
 
 ## Data Flow
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant Input as Text Input
+    participant Input as Text input
+    participant Debounce as scheduleReinit()
     participant Init as init()
-    participant Scanner as Text Scanner
-    participant Canvas as Canvas Context
-    participant Particles as Particle Array
-    participant Waves as Wave Array
-    participant Loop as Animation Loop
+    participant Canvas as Canvas context
+    participant Particles as particles[]
+    participant Anim as animate()
 
     User->>Input: Type text
-    Input->>Init: Trigger init()
-    Init->>Canvas: Clear and resize
-    Init->>Scanner: Render text to hidden context
-    Scanner->>Scanner: Scan pixels for text boundaries
-    Scanner->>Particles: Create TEXT particles (fingerprint pattern)
-    Init->>Particles: Create BG particles (grid, exclude letters)
-    Init->>Waves: Clear wave array
+    Input->>Debounce: currentText updated immediately
+    Debounce->>Init: one rebuild after 150 ms of quiet
+    Init->>Particles: BG grid outside letter ellipses
+    Init->>Canvas: fillText, read text bounding box, clearRect
+    Init->>Particles: TEXT particles on fingerprint lines
+    Init->>Anim: waves[] cleared
 
-    loop Every Frame (60fps)
-        Loop->>Waves: Spawn new wave (every 140 frames)
-        Loop->>Waves: Update wave radii
-        Loop->>Particles: Apply wave forces to BG particles
-        Loop->>Particles: Apply friction/return force
-        Loop->>Canvas: Draw BG particles
-        Loop->>Canvas: Draw wave ring particles
-        Loop->>Canvas: Draw TEXT particles (on top)
+    loop Every frame
+        Anim->>Canvas: translucent black fill (motion trails)
+        Anim->>Anim: spawn a wave every 140 frames
+        Anim->>Particles: update (waveForce + return)
+        Anim->>Canvas: draw BG particles
+        Anim->>Canvas: grow and draw wave rings
+        Anim->>Canvas: draw TEXT particles on top
     end
 ```
 
-## Key Architecture Decisions
+## External Integrations
 
-### 1. Vanilla JavaScript Over Frameworks
+| Service | Purpose | Notes |
+|---------|---------|-------|
+| Google Fonts | Montserrat 900 | Loaded in `index.html`; `init()` waits on `document.fonts.ready`, with an 1800 ms fallback |
+| Vercel | Static hosting | Serves the Vite build at `pluribus-text-gen.vercel.app` |
 
-I chose to build this with vanilla JavaScript and the native Canvas API rather than using a framework like React or a library like Three.js. The reasons were:
+## Key Architectural Decisions
 
-- **Performance**: Direct Canvas API access eliminates framework overhead for a graphics-intensive application
-- **Simplicity**: The application has a single purpose with no complex state management needs
-- **Bundle Size**: The entire application is under 11KB of JavaScript, which would balloon significantly with framework dependencies
-- **Learning**: Working directly with the Canvas API provided deeper understanding of 2D rendering
+### 1. Vanilla JavaScript and 2D Canvas over a framework or WebGL
+- **Context**: One full-screen effect, one text input, thousands of dots per frame, no shared application state.
+- **Decision**: Plain ES modules drawing straight to a 2D canvas, with no runtime dependencies.
+- **Rationale**: A component framework would add a render layer with nothing to diff, and WebGL would add shader work for an effect that is flat and already cheap on the CPU. The production JavaScript bundle is 6.71 kB (2.81 kB gzipped).
 
-### 2. Single-File Architecture
+### 2. Pure simulation module split out of the render code
+- **Context**: The wave maths had a real failure mode (see decision 5), and the canvas code cannot be tested without a browser.
+- **Decision**: Move the numeric functions into `src/simulation.js` with no globals or rendering calls, and cover them with Vitest in `src/simulation.test.js`.
+- **Rationale**: Mocking a canvas would mostly test the mock. Keeping the maths pure lets the 15 tests assert exact values and edge cases, while the classes in `main.js` stay thin wrappers around it.
 
-The entire particle system lives in `main.js` (~390 lines). While this could be modularized, I kept it unified because:
+### 3. Elliptical exclusion zones over pixel masking
+- **Context**: Background dots must stay clear of the letters.
+- **Decision**: One ellipse per character (padded by `gapScaleX` 1.1 and `gapScaleY` 1.3), with `1/rx²` and `1/ry²` precomputed so each test is a multiply-add-compare.
+- **Rationale**: Sampling the text bitmap for every grid point costs more, and bounding rectangles let dots into letter corners. Ellipses give a smooth, even margin.
 
-- All components are tightly coupled (particles depend on waves, both depend on config)
-- The file is still easily navigable at this size
-- No build-time code splitting needed for such a small codebase
+### 4. Fingerprint lines as a distance-modulo filter
+- **Context**: The title's letters are filled with concentric bands, not solid dots.
+- **Decision**: Keep a text pixel only when `effectiveDist % textureSpacing < textureThickness`, where the distance is measured from the first letter with the vertical offset doubled and a `sin(dy * 0.05) * 2` wobble added.
+- **Rationale**: One expression produces elliptical rings centred on the first letter without any geometry for the rings themselves, and the wobble stops them looking machine-drawn.
 
-### 3. Elliptical Exclusion Zones
+### 5. Bounded per-frame cost
+- **Context**: A particle exactly on the wave origin made the force divide by zero, and the resulting NaN stuck in its position for good. Separately, the ring dot count grew with radius without limit.
+- **Decision**: `waveForce()` returns zero force at zero distance; `waveVisualParticleCount()` caps ring dots at 220 per wave; the text scan reads only the region from `textScanBounds()` rather than the whole canvas.
+- **Rationale**: Each change removes a cost or failure that grows with screen size or running time, which is where a long-running animation degrades on low-end phones.
 
-Rather than using pixel-perfect collision detection between background particles and text, I implemented mathematical elliptical exclusion zones around each letter. This approach:
-
-- Is computationally cheaper than per-pixel checks every frame
-- Creates cleaner visual separation between text and background
-- Allows for configurable padding via `gapScaleX` and `gapScaleY`
-
-### 4. Fingerprint Pattern Generation
-
-The text particles are not placed at every text pixel. Instead, I use a mathematical formula:
-```javascript
-(effectiveDist) % textureSpacing < textureThickness
-```
-
-This creates concentric elliptical lines emanating from the first letter, mimicking a fingerprint pattern. The `organic` offset adds subtle waviness to prevent perfectly geometric lines.
-
-### 5. Layered Rendering Order
-
-I render in a specific order to achieve the correct visual hierarchy:
-1. Background particles (lowest layer)
-2. Wave ring particles (middle layer)
-3. Text particles (top layer)
-
-This ensures text remains readable even when waves pass through.
-
-### 6. Responsive Design Strategy
-
-Rather than using CSS media queries, I implemented responsive behavior in JavaScript:
-
-- Font size scales based on viewport dimensions
-- Particle density and spacing adjust for small screens
-- Wave parameters adapt to screen size
-
-This approach ensures the visual effect scales proportionally rather than just repositioning elements.
-
-### 7. Wave Physics Simplification
-
-The original Pluribus effect likely uses more sophisticated physics. I simplified to:
-
-- Waves pull particles toward the wave crest (not push outward)
-- High friction (0.90) causes rapid return to base position
-- Text particles are immune to wave forces (only have subtle jitter)
-
-This achieves a similar visual effect with much simpler math.
-
-### 8. Mobile Viewport Handling
-
-Mobile keyboards resize the viewport, which would cause the canvas to shrink and reinitialize. I solved this by:
-
-- Storing `fullWidth`/`fullHeight` separately from the live viewport
-- Skipping dimension updates when the text input is focused (keyboard is open)
-- Using the `visualViewport` API for more accurate resize events on mobile
-- Reinitializing with correct dimensions on input blur (keyboard close)
-
-### 9. PWA Support
-
-The app is installable as a Progressive Web App with:
-
-- A `manifest.webmanifest` defining the app name, icons, and standalone display mode
-- Apple-specific meta tags for iOS home screen support
-- Icons at 180px, 192px, and 512px generated from SVG source via a `sharp`-based Node script
+### 6. Responsive tuning in JavaScript, with debounced rebuilds
+- **Context**: CSS can resize a canvas but cannot change particle density, and every rebuild re-scans the text.
+- **Decision**: When the shorter side is 520 px or less, `applyResponsiveTuning()` tightens texture spacing (11 to 7), thickens the lines (1.4 to 2.4), reduces the grid gap (26 to 22), narrows the wave band (50 to 36) and samples every pixel instead of every second one. Resizes, keystrokes and keyboard close all go through one 150 ms debounce.
+- **Rationale**: The fingerprint bands stay legible at phone size, and a drag-resize or a burst of typing costs one rebuild instead of dozens.

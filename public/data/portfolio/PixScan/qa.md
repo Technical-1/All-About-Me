@@ -23,10 +23,13 @@ Swipe right to keep, left to delete, up or down to extract text before deciding.
 Swiping left marks a photo rather than deleting it. Deletion runs as a batch through `PHPhotoLibrary.performChanges`, so iOS presents its own confirmation and the photos remain recoverable in Recently Deleted for 30 days. The queue shows how much space the batch will reclaim before anything is committed.
 
 ### A searchable text library
-Every extraction records the photo it came from and shows its thumbnail. Search highlights matches in place, entries sort by date or length, swipe actions are user-remappable, and the whole library exports as a `.txt` file.
+Every extraction records the photo it came from and shows its thumbnail. Search highlights matches in place, entries sort by date or length, multi-select supports bulk copy, share and delete, swipe actions are user-remappable, and the whole library exports as a `.txt` file. List previews skip the leading lines of status-bar noise a screenshot carries into OCR output, without altering the stored text.
 
 ### Running totals
 After a batch deletion, the app reports what that batch removed and what has been removed across the app's lifetime — photos deleted, space freed, photos reviewed and text extractions.
+
+### A walkthrough you perform
+First launch says a short walkthrough is coming, then has the user perform each swipe on sample cards that are labelled as samples, so the first gesture never looks like it is about to delete a real photo. It finishes with the trash and text icons and the permission request, and can be replayed from About.
 
 ### Usable without sight
 The four decisions and undo are exposed as named accessibility actions, so the app's primary task is completable with VoiceOver, and addressable by name with Voice Control.
@@ -44,6 +47,9 @@ Reporting freed space requires the size of assets that are about to stop existin
 
 ### Giving a gesture-driven app a non-gesture path
 Every decision routed exclusively through `DragGesture`, and VoiceOver consumes swipes for its own navigation, so the app's primary task could not be completed with it running. The photo card in `ContentView.swift` now exposes Keep, Delete, both extract variants and Undo as named accessibility actions that call the same handlers the gestures call, rather than a parallel implementation that would drift out of step.
+
+### Running OCR on the image recognition actually needs
+The card on screen is requested with `.opportunistic` delivery and `.aspectFill`, which is right for display and wrong for recognition: opportunistic delivery calls back twice, so OCR ran on a blurry placeholder and then stored a duplicate entry, and aspect-fill crops to a square, cutting text off the edges of non-square photos. The OCR path in `ContentView.swift` requests a 2400px `.aspectFit` image with `.highQualityFormat` delivery, and extractions run through a serial queue so a burst of swipes cannot race. If the photo is iCloud-only and the device is offline, the user is told why the extraction was skipped instead of getting an empty result.
 
 ## Engineering Decisions
 
@@ -91,8 +97,11 @@ So an extraction can be traced back to what produced it. Entries record the asse
 ### What is the screenshots-only filter matching on?
 The PhotoKit media subtype `photoScreenshot`, so it reflects how iOS itself classifies the asset rather than guessing from dimensions. Reviewed photos are tracked by identifier across both modes, so switching filters never re-presents something already decided.
 
+### What if I delete photos in the Photos app while PixScan is open?
+The view model registers as a `PHPhotoLibraryChangeObserver`, so the deck is rebuilt from PhotoKit's updated fetch result, and anything that vanished is pruned from the delete queue. The same path handles iCloud sync landing and changes to a limited-access selection.
+
 ### Does the app work without a network connection?
 Entirely, for anything already on the device. Text recognition is local, persistence is local, and there is no server to reach. The only thing a connection affects is fetching full-resolution photos that live in iCloud.
 
 ### How is it tested?
-118 unit tests under Swift Testing cover the model, persistence, size and contrast arithmetic, and the accessibility surface, with protocol seams standing in for PhotoKit and the photo library. 25 UI tests drive the real app, and a separate suite generates the App Store screenshots by walking the running app rather than assembling them by hand.
+121 unit tests under Swift Testing cover the model, persistence and schema migration, size and contrast arithmetic, the image-load state machine, and the accessibility and onboarding surface, with protocol seams (`PhotoImageManaging`, `PhotoLibraryDeleting`) standing in for PhotoKit and the photo library. 24 UI tests drive the real app, skipping cleanly when the simulator has no photos, and a separate capture test walks the running deck to produce the source images for the App Store screenshots.

@@ -2,97 +2,94 @@
 
 ## Overview
 
-Pluribus Particle Text is an interactive web experience that recreates the opening title sequence from Apple TV+'s "Pluribus" using particles in a fingerprint-like concentric pattern. Type any text and it renders as thousands of tiny dots arranged in elliptical bands radiating from the first letter, with circular waves that ripple outward and tug background particles toward each wave crest. The whole thing runs on pure HTML5 Canvas and vanilla JavaScript — no frameworks, no WebGL.
+Pluribus Particle Text is an interactive browser recreation of the opening title sequence from Apple TV+'s *Pluribus*. Type up to 12 characters and they are drawn as white dots arranged in fingerprint-like elliptical bands radiating from the first letter, while circular waves ripple outward and pull the surrounding dot field into moving compression rings. It runs on plain HTML5 Canvas and vanilla JavaScript with no runtime dependencies, and the numeric core is split into a pure, unit-tested module.
 
 ## Problem Solved
 
-TV title sequences look impossible to reproduce outside of After Effects. This project shows the Pluribus aesthetic — fingerprint typography plus rippling waves — can be done in a browser with 2D Canvas math, and made interactive so the visitor can see their own name in the style.
+Title sequences like this are normally made in motion-graphics software and exported as video. This project shows the look can be produced live in a browser from a few hundred lines of 2D canvas maths, and makes it interactive so a visitor can see their own word in the style and save it as an image.
 
 ## Target Users
 
-- **Designers** wanting a quick way to mock up Pluribus-style text visuals
-- **Creative coders** studying particle systems and Canvas animation techniques
-- **Fans of the show** who want to render their name in the iconic style and share it
+- **Fans of the show** — render a name or word in the title style and download it as a share-sized PNG
+- **Creative coders** — a compact, readable example of a canvas particle system with wave forces and procedural texture
+- **Designers** — a quick way to mock up Pluribus-style text
 
 ## Key Features
 
 ### Fingerprint text pattern
-Particles are placed only where `(distance from first letter) % textureSpacing < textureThickness`. The result is concentric elliptical lines emanating from the first character — the distinctive fingerprint look. A small `Math.sin(dy * 0.05) * 2` offset adds organic waviness so the bands don't look mechanically perfect.
+Only text pixels where `effectiveDist % textureSpacing < textureThickness` become particles. The distance is measured from the first letter's centre with the vertical offset doubled, so the bands are ellipses, and a `Math.sin(dy * 0.05) * 2` term adds an organic wobble.
 
 ### Wave aggregation
-Circular waves emit from the first letter every ~140 frames and expand outward. Background particles within a configurable band around the wave radius get pulled toward the crest, producing visible compression bands as the wave travels. Text particles are immune to wave forces and only have subtle jitter.
+A wave is emitted from the first letter every 140 frames and grows by 6 px per frame. Background particles within the wave band are pulled toward the crest, which bunches them into a visible travelling ring, and then spring back. Text particles ignore waves and only jitter slightly.
 
-### Pixel-accurate text scanning
-Text is rendered to a hidden canvas first, then scanned pixel by pixel to decide where to place particles. Any font, any character, any size works without the particle system knowing anything about typography.
+### Live text input
+The input is limited to 12 characters and the text is upper-cased before rendering. An empty box falls back to the default `PLUR1BUS`. The font size is fitted to 86% of the viewport width and 55% of its height.
 
 ### Screenshot export
-A camera button captures the live canvas as a 1200×630 PNG (standard Open Graph dimensions) entirely client-side, ready to drop into a social post.
+The camera button copies the live canvas onto a black 1200x630 canvas, scaled to fit and centred, and downloads it as `og-image.png`. Everything happens client-side.
 
-### PWA install
-The site ships a web manifest with standalone display mode plus icons at 180/192/512 px, so it installs to a home screen on iOS and Android.
+### Installable PWA
+A web manifest with standalone display, separate `any` and `maskable` icon sets, and Apple home-screen meta tags let it install on iOS, Android and desktop.
 
 ## Technical Highlights
 
-### Particle rendering at 60 fps without WebGL
-The render loop has to push thousands of particles per frame on plain 2D Canvas. Each particle draws as a single `arc()` call with a pre-set `fillStyle` per type to minimise context state changes, ellipse inclusion tests use pre-computed inverse squared radii, and particle update logic is separated from the draw pass so there's only one read/write cycle through the array per frame. Code lives in `src/main.js`.
+### A NaN guard that keeps the field from corrupting itself
+In `waveForce()` (`src/simulation.js`), the direction to the crest is `dx / dist`. A particle exactly on the wave origin gives `dist === 0`, and the resulting NaN never leaves the particle's position, because the return-to-base step multiplies NaN by the friction factor and that is still NaN. This applies to text particles too, whose wave strength is zero, since NaN times zero is NaN. The function returns zero force at zero distance, and `src/simulation.test.js` includes regression tests for both particle types.
 
-### Elliptical exclusion zones for clean text edges
-Background particles need to stay out of letter shapes without per-pixel collision checks every frame. During init, each character gets a bounding ellipse with stored `1/rx²` and `1/ry²` values. Placement uses one multiply-add-compare per zone — cheap enough to run against every candidate background particle during init, and the result is crisper than pixel masking because the boundary is mathematically smooth.
+### Reading back only the text, not the whole screen
+To find text pixels, `init()` draws the string with `fillText` and reads it back with `getImageData`. Reading the full canvas on a large display copies millions of pixels just to find a strip in the middle. `textScanBounds()` computes the text's box (with padding for Montserrat's ascent and descent), clamps it to the canvas, and `createTextParticles()` converts region-local coordinates back to canvas coordinates.
 
-### Mobile keyboard viewport handling
-Opening a mobile keyboard fires a resize event that shrinks the visual viewport. Naively reinitialising on resize would collapse the canvas mid-typing. The fix stores `fullWidth`/`fullHeight` separately from the live viewport, skips updates while the text input is focused, and uses the `visualViewport` API for accurate metrics, then reinitialises after blur with a short delay so the layout settles first.
+### Elliptical exclusion zones for clean letter edges
+Each character gets an ellipse sized from its measured width and the font size, padded 1.1x horizontally and 1.3x vertically, with `1/rx²` and `1/ry²` stored up front. A background grid point is dropped if `dx²·invRxSq + dy²·invRySq <= 1` for any letter. That is a multiply-add-compare per letter, run once per rebuild, and gives a smoother margin than rectangles.
 
-### Wave physics without differential equations
-Real wave dynamics (interference, decay, reflection) would dominate the CPU budget. Instead each wave is a single expanding radius, and any background particle within `waveBandWidth` of that radius gets a velocity nudge toward the crest. Combined with a 0.90 friction coefficient that pulls particles back to their origin, this produces convincing ripple-band motion in a handful of lines of math.
+### Mobile keyboard and resize handling
+Opening a mobile keyboard shrinks the viewport, which would otherwise rebuild the scene at half height mid-typing. `src/main.js` keeps `fullWidth`/`fullHeight` separate from the live viewport, ignores size changes while the input has focus, restores the real size 100 ms after blur, and routes `window` resize, `visualViewport` resize, typing and blur through one 150 ms debounce so they produce a single rebuild.
 
 ## Engineering Decisions
 
-### Vanilla JS over a framework
-- **Constraint**: Thousands of particles updating every frame, single-purpose UI.
-- **Options**: React + Canvas, Svelte + Canvas, vanilla JS + Canvas.
-- **Choice**: Vanilla JS, direct Canvas calls.
-- **Why**: There's no shared state to manage and no component tree worth diffing. A framework would add bundle weight and a render layer the project doesn't need; the whole app stays under ~50 KB.
+### Vanilla JS and 2D Canvas
+- **Constraint**: One full-screen animation and one input, with thousands of dots updated every frame.
+- **Options**: A component framework with a canvas, Three.js or raw WebGL, or plain 2D canvas.
+- **Choice**: Plain ES modules and the 2D canvas API.
+- **Why**: There is no UI state worth a framework, and the effect is flat, so a GPU renderer would add shader code and a large dependency without changing what is on screen. The production JavaScript bundle is 6.71 kB (2.81 kB gzipped).
 
-### 2D Canvas instead of Three.js / WebGL
-- **Constraint**: Effect is fundamentally 2D — concentric ellipses and ripple bands on a flat plane.
-- **Options**: Three.js sprites, raw WebGL shaders, 2D Canvas.
-- **Choice**: 2D Canvas API.
-- **Why**: WebGL would add ~600 KB and a shader-authoring step for an effect that's already cheap on CPU at this particle count. Three.js stayed listed in `package.json` from an early prototype but is not imported.
+### Pure maths module instead of testing through the canvas
+- **Constraint**: The canvas code needs a browser to run, but the wave maths needed regression coverage.
+- **Options**: Mock the canvas in a DOM test environment, use browser-based end-to-end tests, or extract the maths.
+- **Choice**: `src/simulation.js` holds side-effect-free functions; `main.js` calls them.
+- **Why**: The tests assert exact numbers in milliseconds under plain Vitest with no DOM shim, and a mocked canvas would mostly test the mock.
 
-### Elliptical exclusion zones over pixel masking
-- **Constraint**: Background particles must not visually collide with letter shapes.
-- **Options**: Sample the rendered-text bitmap per particle, use rectangular bounding boxes, use elliptical bounds.
-- **Choice**: Elliptical zones with pre-computed inverse squares.
-- **Why**: Bitmap sampling is the most accurate but requires keeping the offscreen canvas hot and doing per-pixel reads. Rectangles leak particles into letter corners. Ellipses are O(1) per check, look better than rectangles, and the test reduces to one multiply-add-compare.
+### Hard caps on per-frame work
+- **Constraint**: The animation runs indefinitely, including on low-end phones.
+- **Options**: Trust the default parameters, or bound every cost that grows with radius or screen size.
+- **Choice**: Ring dots per wave capped at 220 (`waveVisualParticleCount()`), the text scan limited to its bounding box, and rebuilds debounced.
+- **Why**: Ring dots used to grow linearly with radius, and a full-screen readback scales with display size; both are costs that only appear on big screens or after the page has been open a while.
 
-### JS-driven responsive scaling instead of CSS breakpoints
-- **Constraint**: The visual effect needs to feel proportionally similar at every size, not just rearrange.
-- **Options**: CSS media queries adjusting font/canvas size, JS reading viewport and adjusting particle parameters.
-- **Choice**: JS-driven, with `textureSpacing`, `bgGridGap`, and `waveBandWidth` all scaling to viewport.
-- **Why**: CSS can resize the canvas but can't retune particle density or wave width. Driving the parameters from JS keeps the fingerprint banding visible on a 360 px phone screen and a 2560 px desktop without one looking sparse or the other looking muddy.
+### Responsive parameters in JavaScript rather than CSS
+- **Constraint**: The effect should look the same on a phone and a large monitor, not just shrink.
+- **Options**: CSS media queries on the canvas, or retuning the simulation itself.
+- **Choice**: `applyResponsiveTuning()` switches texture spacing, line thickness, grid gap, wave band and sample step when the shorter side is 520 px or less.
+- **Why**: CSS cannot change particle density or band width, and without the retune the fingerprint lines blur into a solid fill at phone size.
 
 ## Frequently Asked Questions
 
-### Why does the default text use a "1" instead of an "I" in PLUR1BUS?
-The show's title card uses a stylised 1 in place of the I. The default text matches the source; users can type whatever they want.
+### Why does the default text use a "1" instead of an "I"?
+The show's title card uses a stylised 1 in place of the I, so the default `PLUR1BUS` matches it. You can type anything up to 12 characters.
 
-### How many particles are on screen at once?
-It varies with viewport size and text length. A typical desktop view runs 2,000–4,000 background particles plus 500–1,500 text particles, controlled by `bgGridGap` and `sampleStep` in `src/main.js`.
+### How many particles are on screen?
+It depends on the viewport. Background particles come from a grid with a 26 px gap (22 px on small screens), so a 1920x1080 window starts from about 3,100 grid points, minus the ones inside letter ellipses. Text particle count depends on the word and font size, since only pixels on a fingerprint line are kept. Each wave also draws up to 220 decorative ring dots per frame.
 
-### Why do the waves originate from the first letter?
-The original title sequence anchors visually on the P, so waves emit from the first character's centre to match. It also gives the fingerprint pattern a natural origin to radiate from.
+### Why do the waves start at the first letter?
+The original sequence anchors on the opening P, so the waves and the fingerprint bands both radiate from the first character's centre.
 
-### Can I change the particle colour?
-Not without editing code. The fill is hardcoded as `rgba(255, 255, 255, alpha)` in `main.js` to match the show's black-and-white look. Swapping it is a one-line change.
+### Can I change the colours or speed?
+Only by editing code. The dots are drawn as `rgba(255, 255, 255, alpha)` in `src/main.js`, and speed, emission rate, strength and band width are fields on the `config` object at the top of the same file.
 
-### Why is `three` listed in `package.json` if it isn't used?
-It was added during an early prototype that explored 3D rendering and never removed. The shipped implementation uses only the 2D Canvas API. Safe to ignore.
+### Where does the screenshot come from?
+It is the live canvas at the moment you click, drawn onto a black 1200x630 canvas and exported with `toDataURL`. If your window is not 1.91:1, the frame is letterboxed rather than cropped.
 
-### How is the screenshot button implemented?
-It creates an offscreen 1200×630 canvas, redraws the current frame into it at the OG aspect ratio, and triggers a PNG download via an anchor tag. Entirely client-side.
+### Can I install it on my phone?
+Yes. On iOS use Share, then Add to Home Screen; Chromium browsers on Android and desktop offer an install prompt. It opens in standalone mode without browser chrome.
 
-### Can I install this on my phone?
-Yes. On iOS use Share → Add to Home Screen; on Android Chrome will show an install prompt. The `manifest.webmanifest` declares standalone display mode so it runs without browser chrome.
-
-### How are the PWA icons built?
-`scripts/generate-icons.js` uses `sharp` to convert `public/favicon.svg` into PNGs at 180, 192, and 512 px. Run `npm run generate-icons` to regenerate.
+### How do I run the tests?
+`npm test` runs the Vitest suite once (15 tests) and `npm run test:watch` re-runs on change. They cover `waveForce`, `waveVisualParticleCount` and `textScanBounds`.

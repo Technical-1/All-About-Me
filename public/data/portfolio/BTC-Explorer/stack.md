@@ -1,229 +1,62 @@
-# BTC Explorer - Technology Stack
+# Tech Stack
+
+Versions are the ranges declared in `package.json`; the lockfile currently resolves them as shown in parentheses where it differs materially.
+
+## Core Technologies
+
+| Category | Technology | Version | Why this choice |
+|----------|------------|---------|-----------------|
+| Language | JavaScript (ES modules, JSX) | — | Small codebase with no shared API contracts to type; ESLint covers the hook-rule and accessibility classes of bugs |
+| UI framework | React | ^18.2.0 (18.3.1) | Hooks plus `lazy`/`Suspense` for route and 3D code splitting; the R3F and Recharts ecosystems target it |
+| Routing | React Router DOM | ^6.20.0 (6.30.2) | Nested routes under one `Layout` outlet |
+| Server state | TanStack Query | ^5.90.12 | Per-query polling intervals, visibility-aware `refetchInterval`, dedupe, `initialData` seeding from cache |
+| Build tool | Vite | ^5.0.0 (5.4.21) | Fast dev server, a dev proxy for `/api/mstr`, Rollup `manualChunks` for vendor splitting |
+| Styling | Tailwind CSS | ^3.3.6 (3.4.18) | Custom `btc` and `void` palettes and font families in `tailwind.config.js` |
+| Database | None | — | All data is fetched live or bundled in `src/lib/bitcoinData.js` |
 
 ## Frontend
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| React | 18.2.0 | Core UI framework |
-| React Router DOM | 6.20.0 | Client-side routing with nested routes |
-| Vite | 5.0.0 | Build tool and dev server |
-| Tailwind CSS | 3.3.6 | Utility-first styling |
+- **Framework**: React 18 with React Router 6; all eight routed pages are `React.lazy` imports in `src/App.jsx`
+- **State management**: TanStack Query for server state; local `useState`/`useRef` for UI state; a TTL localStorage layer (`getCached`/`setCached` in `src/lib/useBlockchain.js`)
+- **Styling**: Tailwind CSS 3 with PostCSS and Autoprefixer; Sora, Oxanium and IBM Plex Mono from Google Fonts
+- **Charts**: Recharts ^2.10.0 (2.15.4), with log-scale Y axes on the price-history and power-law charts and a dual-axis `ComposedChart` for halvings
+- **3D**: Three.js ^0.160.0, @react-three/fiber ^8.15.0 (8.18.0), @react-three/drei ^9.88.0 (9.122.0)
+- **Motion and icons**: Framer Motion ^10.16.0 (10.18.0), Lucide React ^0.294.0
+- **Build tool**: Vite 5 with `@vitejs/plugin-react` ^4.2.0
 
-### Why React 18
+## Backend
 
-I chose React 18 for several reasons:
+- **Runtime**: Vercel serverless function (`api/mstr.js`, default-export `handler(req, res)`), using the built-in `fetch` and `AbortSignal.timeout`
+- **Framework**: none
+- **API style**: one REST GET endpoint, `/api/mstr` → `{ price, changePct }`
+- **Auth**: none; all upstream APIs are keyless
+- **Edge proxies**: two Cloudflare Workers (treasury data and CoinGecko/MSTR), maintained in a separate repository and configured through `VITE_TREASURY_PROXY_URL` and `VITE_COINGECKO_PROXY_URL`
 
-- **Concurrent rendering** enables smooth UI updates even during heavy computations like 3D rendering
-- **Suspense** works perfectly with lazy-loaded components, improving initial load time
-- **Automatic batching** reduces unnecessary re-renders when multiple state updates occur
-- The ecosystem has excellent support for real-time data visualization
+## Infrastructure
 
-### Why Vite
-
-Vite provides:
-
-- Near-instant hot module replacement during development
-- Optimized production builds with automatic code splitting
-- Native ES modules support
-- Simple configuration compared to webpack
-
-### Why Tailwind CSS
-
-- Rapid prototyping with utility classes
-- Custom design system (Bitcoin orange palette, void/dark theme)
-- Purges unused CSS in production for minimal bundle size
-- Easy responsive design with mobile-first breakpoints
-
-## 3D Visualization
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Three.js | 0.160.0 | WebGL 3D graphics engine |
-| React Three Fiber | 8.15.0 | React renderer for Three.js |
-| React Three Drei | 9.88.0 | Useful helpers and abstractions |
-
-### Why Three.js with React Three Fiber
-
-I wanted to create an immersive visualization of Bitcoin transactions and the blockchain network. Three.js is the most mature WebGL library, and React Three Fiber lets me write 3D scenes using familiar React patterns:
-
-- Declarative component-based 3D scenes
-- Automatic disposal and memory management
-- Easy integration with React state and hooks
-- The `Drei` library provides pre-built components like `OrbitControls`, `Float`, and texture loaders
-
-**3D Features I Built:**
-- Animated spinning Bitcoin logo with texture mapping
-- Particle system representing network transactions
-- Blockchain node network visualization with connections
-- Real-time transaction flow visualization
-
-## Data Management
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| TanStack Query | 5.90.12 | Server state management and caching |
-| Custom Hooks | - | WebSocket connections, data transformation |
-
-### Why TanStack Query
-
-Managing real-time data from multiple APIs requires robust caching and synchronization. TanStack Query provides:
-
-- Automatic background refetching with configurable intervals
-- Deduplication of identical requests
-- Optimistic updates and stale-while-revalidate pattern
-- Built-in loading and error states
-- Window focus refetching (I disable this for better UX)
-
-### Custom Data Hooks
-
-I built several custom hooks in `useBlockchain.js`:
-
-- `useBlockchainWebSocket()` - WebSocket connection to Blockchain.info for live transactions
-- `useMempoolData()` - Polling mempool.space API for network stats
-- `useBitcoinPrice()` - Multi-source price fetching (CoinGecko primary, Coinbase fallback)
-- `useMstrPrice()` - MSTR stock price via Vercel serverless function (Yahoo Finance → Stooq fallback chain)
-
-## Animation & UI
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Framer Motion | 10.16.0 | Animation library |
-| Lucide React | 0.294.0 | Icon library |
-| Recharts | 2.10.0 | Charting library |
-
-### Why Framer Motion
-
-For smooth UI animations, Framer Motion offers:
-
-- Simple declarative API with `initial`, `animate`, `exit` props
-- Layout animations for list reordering (transaction stream)
-- AnimatePresence for enter/exit animations
-- Spring physics for natural-feeling motion
-
-### Why Recharts
-
-For the Power Law chart and Treasury visualizations, I needed a React-native charting solution:
-
-- Composable component-based API
-- Built-in responsive container
-- Good support for logarithmic scales (essential for Bitcoin price charts)
-- Custom styling that matches my dark theme
-
-## Infrastructure & Deployment
-
-| Technology | Purpose |
-|------------|---------|
-| Vercel | Frontend hosting with edge network + serverless functions |
-| Vercel Serverless Functions | MSTR stock price API proxy (`/api/mstr`) |
-| Cloudflare Workers | API proxy functions for treasury and price data |
-| GitHub | Source control |
-
-### Why Vercel
-
-- Zero-config deployment for Vite/React apps
-- Global edge network for fast loading worldwide
-- Automatic HTTPS and CDN caching
-- **Serverless Functions** for same-origin API proxying (eliminates CORS issues)
-- CDN-level response caching for serverless functions (`s-maxage`, `stale-while-revalidate`)
-- Easy environment variable management
-- Free tier sufficient for this project
-
-### Why Cloudflare Workers
-
-I built lightweight proxy workers to solve several problems:
-
-1. **CORS restrictions** - BitcoinTreasuries.net and CoinGecko APIs block browser requests
-2. **Rate limiting** - Aggregate requests to stay under API limits
-3. **Fallback handling** - Try multiple data sources automatically
-4. **Response caching** - Cache responses at the edge
-
-**Workers I deployed:**
-- `treasuries-proxy` - Proxies BitcoinTreasuries.net and aggregates data
-- `treasuries-proxy-coingecko` - Handles CoinGecko API with caching
-
-### Why Vercel Serverless Functions (for MSTR)
-
-Yahoo Finance began returning `429 Too Many Requests` for requests without a proper `User-Agent` header, and Stooq lacks CORS headers entirely. Instead of relying solely on external Cloudflare Workers, I added a Vercel serverless function at `/api/mstr` that:
-
-1. **Runs server-side** - Can set `User-Agent` headers that browsers can't for cross-origin requests
-2. **Is same-origin** - No CORS preflight needed, the browser treats it like any other page resource
-3. **Has CDN caching** - Vercel caches responses for 60s with 120s stale-while-revalidate
-4. **Has built-in fallback** - Tries Yahoo Finance first, falls back to Stooq
-
-## External Data Sources
-
-| API | Data Provided | Rate Limits |
-|-----|---------------|-------------|
-| Mempool.space | Block height, fees, mempool stats, difficulty | Generous public API |
-| Blockchain.info WebSocket | Live unconfirmed transactions, new blocks | Real-time stream |
-| CoinGecko | Bitcoin price, 24h change | 10-30 calls/minute |
-| Coinbase | Spot price (fallback) | Public API |
-| Yahoo Finance | MSTR stock price (via `/api/mstr` serverless function) | Rate limited; requires User-Agent |
-| Stooq | MSTR price (fallback via `/api/mstr`) | No CORS; server-side only |
-| BitcoinTreasuries.net | Corporate, ETF, and government holdings (100+ entities) | Via proxy, 6h cache |
+- **Hosting**: Vercel. `vercel.json` sets a permanent www → apex redirect and a catch-all rewrite to `/` for client-side routing.
+- **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`) on Node 24. Job 1 runs `npm ci`, lint, tests, coverage and build. Job 2 builds and runs `treosh/lighthouse-ci-action@v12` against `dist/` using `.lighthouserc.json`: accessibility below 0.8 fails the run; performance (0.6), best practices (0.8) and SEO (0.8) warn.
+- **Monitoring**: none
+- **Production build**: sourcemaps on; `console` and `debugger` stripped by esbuild; vendor chunks `three`, `charts`, `framer` and `vendor` (lucide)
 
 ## Development Tools
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| ESLint | 9.39.1 | Code linting and quality |
-| PostCSS | 8.4.32 | CSS processing |
-| Autoprefixer | 10.4.16 | CSS vendor prefixes |
-| TypeScript (types) | 5.5.2 | Type definitions for workers |
+- **Package manager**: npm (`package-lock.json`)
+- **Linting**: ESLint ^9.39.1 flat config with `eslint-plugin-react`, `react-hooks` (rules-of-hooks as error), `jsx-a11y` recommended, `react-refresh`
+- **Formatting**: none configured
+- **Testing**: Vitest ^3.2.4 in jsdom ^25.0.1, React Testing Library ^16.3.2, `@testing-library/jest-dom`, `@vitest/coverage-v8`. 34 test cases across 11 co-located test files cover the data fetchers, the WebSocket lifecycle, `ErrorBoundary`, the halving-chart structure, and shared constants.
 
-### Code Quality
+## Key Dependencies
 
-I configured ESLint with:
-- `eslint-plugin-react-hooks` for proper dependency arrays
-- `eslint-plugin-jsx-a11y` for accessibility compliance
-- `eslint-plugin-react-refresh` for hot reload compatibility
-- `eslint-plugin-react` for React best practices
-- `globals` for environment-specific global definitions
-
-## Bundle Size Considerations
-
-To keep the application fast, I implemented several optimizations:
-
-1. **Lazy loading** - All page components load on-demand
-2. **Code splitting** - Vite automatically splits by route
-3. **Tree shaking** - Unused code eliminated in production
-4. **CSS purging** - Tailwind removes unused classes
-
-The Three.js bundle is significant (~500KB), but I only load it on pages that need 3D visualization. The core app bundle stays under 150KB gzipped.
-
-## Key Dependencies Summary
-
-**Production Dependencies:**
-```json
-{
-  "@react-three/drei": "^9.88.0",
-  "@react-three/fiber": "^8.15.0",
-  "@tanstack/react-query": "^5.90.12",
-  "framer-motion": "^10.16.0",
-  "lucide-react": "^0.294.0",
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "react-router-dom": "^6.20.0",
-  "recharts": "^2.10.0",
-  "three": "^0.160.0"
-}
-```
-
-**Dev Dependencies:**
-```json
-{
-  "@types/react": "^18.2.0",
-  "@types/react-dom": "^18.2.0",
-  "@vitejs/plugin-react": "^4.2.0",
-  "autoprefixer": "^10.4.16",
-  "eslint": "^9.39.1",
-  "eslint-plugin-jsx-a11y": "^6.10.2",
-  "eslint-plugin-react": "^7.37.5",
-  "eslint-plugin-react-hooks": "^7.0.1",
-  "eslint-plugin-react-refresh": "^0.4.24",
-  "globals": "^16.5.0",
-  "postcss": "^8.4.32",
-  "tailwindcss": "^3.3.6",
-  "vite": "^5.0.0"
-}
-```
+| Package | Purpose |
+|---------|---------|
+| `@tanstack/react-query` | Polling, caching and dedupe for every REST data source |
+| `react-router-dom` | Routes and nav with active-link styling |
+| `recharts` | Price history, power law, halving, adoption and treasury charts |
+| `three` | WebGL engine behind the hero and transaction-flow scenes |
+| `@react-three/fiber` | Declarative React renderer for the Three.js scenes |
+| `@react-three/drei` | `OrbitControls`, `Float` and `useTexture` helpers |
+| `framer-motion` | Entry animations and `AnimatePresence` on the live transaction list |
+| `lucide-react` | Icon set |
+| `vitest` + `@testing-library/react` | Unit and component tests |
+| `eslint-plugin-jsx-a11y` | Accessibility linting; paired with the Lighthouse accessibility gate in CI |

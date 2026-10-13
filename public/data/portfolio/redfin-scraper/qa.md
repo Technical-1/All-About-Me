@@ -2,100 +2,106 @@
 
 ## Overview
 
-Redfin Property Scraper is a cross-platform desktop application that enriches CSV files of property addresses with real estate data from Redfin. I built it to automate bulk property lookups — instead of manually searching Redfin for each address, I upload a CSV and get back estimated values, sale history, and property details for every address in the file.
+Redfin Property Scraper is a cross-platform Electron app that enriches a CSV of addresses with Redfin data: estimated value, last sale price and date, appreciation, beds, baths, square footage, year built, and more. Instead of searching Redfin one address at a time, a user drops in a spreadsheet, previews and trims it, and gets back CSV, Excel, or JSON output with a data-quality summary. The interesting technical angle is that it reads Redfin's own JSON endpoints through a bundled Chrome session, keeps a WASM SQLite cache across runs, and paces itself from the responses it gets back.
 
 ## Problem Solved
 
-Manually researching properties on Redfin doesn't scale past a handful of addresses. Realtors, investors, and analysts often need to compare valuations, recent sale prices, square footage, and year built across dozens or hundreds of properties. This tool turns a CSV of addresses into an enriched CSV in one click, with crash recovery so long jobs survive interruptions.
+Manually researching properties on Redfin does not scale past a handful of addresses. Investors, agents, and analysts often need valuations and basic stats for dozens or hundreds of properties at once, and they re-check the same lists repeatedly. This tool turns a list into an enriched spreadsheet in one run, remembers what it has already looked up, and survives being stopped or crashing halfway through a long batch.
 
 ## Target Users
 
-- **Real estate investors** — Bulk-evaluate potential acquisitions by enriching a list of addresses with current Redfin estimates, last sale price, and appreciation
-- **Realtors and agents** — Pull comps and listing details across territories without 100+ manual searches
-- **Property analysts** — Build datasets for valuation models without paying for an enterprise data API
+- **Real estate investors** — Bulk-evaluate a target list with current estimates, last sale price, and appreciation
+- **Agents** — Pull basic stats and estimates across a territory without hundreds of manual searches
+- **Property analysts** — Build a dataset for a valuation model, with Excel output that already has numeric cells
 
 ## Key Features
 
-### API-First Data Extraction
-Uses Redfin's internal Stingray API for fast, structured data retrieval instead of slow browser scraping. Per-address time dropped from ~30 seconds to ~13–15 seconds.
+### Preview before scraping
+Dropping a CSV shows the row count, validation warnings (empty or unusual addresses), the detected address columns highlighted, and the first 10 rows. Nothing is fetched until the user starts a run.
 
-### Intelligent Fallback
-Automatically falls back to full Puppeteer browser scraping when API endpoints fail or return incomplete data, so a single API change doesn't break the tool.
+### Row and column selection
+Each row has a checkbox, with select-all and a "Deselect duplicates" button that works across the whole file, not just the visible rows. The user can also untick any of the 15 enriched columns to leave them out of every output format.
 
-### Batch CSV Processing
-Upload a CSV with Street/City/State/Zip columns and get back an enriched CSV with 15 new data columns: Redfin Estimate, Purchase Price, Year Purchased, Appreciation, Beds, Baths, Sq Ft, Lot Size, Year Built, Price/Sq Ft, Property Type, Listing Status, Property ID, Redfin URL, and Data Source.
+### Test first row
+One click scrapes only the first row and shows all 15 fields, so the user can confirm the result looks right before starting a long batch.
 
-### Real-Time Progress
-Visual progress bar, per-address status, and terminal-style log output show success or failure for each row as the job runs.
+### Persistent cache
+Found properties are remembered for 30 days and confirmed misses for 3 days. Re-running a list serves cached rows instantly, repeated addresses in one file are fetched once, and a "Force fresh" toggle and "Clear cache" button (with entry count and file size) are in the UI.
 
-### Crash Recovery
-Each processed row is written to a `.partial` output file immediately, with a `.checkpoint` JSON tracking progress. If the app crashes or is killed, restarting resumes from the last completed address.
+### CSV, Excel, and JSON output
+CSV is always written; `.xlsx` and `.json` are optional. The Excel file stores currency and counts as real numbers with number formats, so it sorts and sums without cleanup.
 
-### Cross-Platform Distribution
-Builds for macOS (DMG), Windows (NSIS/Portable), and Linux (AppImage/DEB) via GitHub Actions.
+### Adaptive pacing with a visible banner
+When Redfin starts returning 403s, the delay between addresses increases and a banner says so. It returns to normal gradually once responses are clean again.
+
+### Data-quality summary
+After a run, the results panel shows how many addresses were found, per-column fill rates sorted lowest first, and how many rows came from the API, the browser fallback, both, or the cache.
+
+### Stop, resume, start over
+A Stop button finishes the current address and exits cleanly. Reopening the same file offers Resume or Start Over, and the progress bar picks up from the right row.
 
 ## Technical Highlights
 
-### API-First Pipeline in `scraper-v4.js`
-The scraper runs a 3-step pipeline for each address: Puppeteer resolves the address to a `propertyId` (the only step that truly needs a browser), two parallel HTTPS requests fetch valuation and historical JSON, and Puppeteer only runs full-page scraping if the API returned no estimate. `Promise.all` runs the AVM and historical-data fetches concurrently, which is the single biggest win in throughput.
+### API calls that ride the browser's TLS session
+Redfin's CDN rejects plain Node.js HTTPS requests, so `RedfinScraperV4.init()` in `scraper-v4.js` opens redfin.com in the bundled Chrome and injects `PuppeteerScraper.browserFetch` into `StingrayAPI` with `setFetcher`. Each request runs `fetch` inside the page with an `AbortController` timeout, and timeouts surface as status 0 so the client's retry logic treats them like any other transient failure. Because the fetcher is injected, `modules/api-client.test.js` exercises the client with a stub and no browser.
 
-### Browser Reliability Layers
-Automated browsers behave differently from real ones, which makes page loads flaky. `PuppeteerScraper` in `scraper-v4.js` uses `puppeteer-extra-plugin-stealth` to make the headless browser behave like a normal desktop browser, plus user-agent rotation, modest randomized typing/navigation timing, and small viewport variation to keep page rendering consistent. Exponential backoff retries transient request failures.
+### Pacing driven by response codes
+`AdaptivePacer` in `modules/rate-limiter.js` keeps the last 20 statuses, weighting 403 as 1.0 and network failures as 0.5. Once there are at least 5 samples and the weighted rate reaches 0.3, a blocked outcome raises the throttle level and the delay becomes baseline x 1.8^level, capped at 15 s. Only a streak of 10 clean responses steps it down one level. Separating "what can raise" from "what can lower" gives hysteresis without timers, which keeps the class pure and directly testable.
 
-### Resilient Selector Fallbacks
-Redfin's DOM varies by property type, listing status, and the day of the week. Rather than chasing every redesign, the browser-fallback path keeps an ordered array of selectors for each field (e.g., six different selectors for beds) and a `trySelectors` helper that returns the first match. This isolates DOM churn to one small file change.
+### Resume that cannot silently corrupt output
+The checkpoint written after every row stores the input path and the row/column selection. `selectionMatchesCheckpoint` refuses to resume if the selection changed, and `resolveResumeState` refuses if the `.partial` file has fewer rows than the checkpoint claims. At the end, exports and the quality summary are built by re-reading the full `.partial`, not from in-memory rows, so a run resumed three times still produces one complete file.
 
-### Stingray JSONP Quirk
-Redfin's internal endpoints prefix every response with `{}&&` — a JSONP-style guard. `StingrayAPI` strips that prefix before `JSON.parse`. Missing this step was the silent bug that wasted the most debugging time, and it's now the first thing the response handler does.
+### One address identity, used everywhere
+`normalizeAddress` in `modules/address.js` lowercases, strips punctuation, and folds USPS-style suffixes and directionals ("North Main Street" and "N Main St" become the same key). It is the cache key, the in-run dedup key, and the basis of `computeDuplicateMask` in the preview, so "Deselect duplicates" and the cache agree on what a duplicate is.
 
 ## Engineering Decisions
 
-### API-first over pure browser scraping
-- **Constraint**: Pure Puppeteer scraping was ~30s/address and broke on every Redfin layout tweak
-- **Options**: Stick with browser scraping and harden selectors, find a third-party real-estate API, or use the same public JSON endpoints the Redfin website itself calls
-- **Choice**: Use Redfin's internal Stingray API for data, keep Puppeteer only for address-to-propertyId resolution
-- **Why**: 10x faster, returns structured JSON instead of scraped DOM, and the API surface changes less often than the visible HTML. Browser fallback covers the case where the API does change
+### sql.js over a native SQLite module
+- **Constraint**: The cache has to work in packaged builds for macOS x64 and arm64, Windows, and Linux.
+- **Options**: `better-sqlite3` or `sqlite3` (native, rebuilt against Electron's ABI per target), a JSON file, or `sql.js` (WASM).
+- **Choice**: `sql.js`, with `sql-wasm.wasm` bundled through electron-builder `extraResources` and located by `modules/cache-wasm-path.js`.
+- **Why**: One WASM file works on every target with no native rebuild step in CI. Indexed lookups by address and property ID are still real SQL. The cost is that the database lives in memory and is flushed to disk, which `PropertyCache` does every 10 writes and on close.
 
-### Electron for the desktop shell
-- **Constraint**: Non-technical users need to drag a CSV onto a window — a CLI was a non-starter
-- **Options**: Electron, Tauri, or a hosted web app with file upload
-- **Choice**: Electron
-- **Why**: Puppeteer is Node.js-based and already bundles Chromium-like dependencies, so Electron lets the GUI and scraper share one process model. IPC between the renderer and main process via `ipcMain`/`ipcRenderer` is built in. A hosted web app would require running a backend with headless Chrome, which adds infra cost and rate-limit exposure
+### Bundle a pinned Chrome instead of relying on the user's
+- **Constraint**: The app needs a real Chrome on machines where none may be installed, and the user-agent strings it advertises should match the browser actually running.
+- **Options**: Full `puppeteer` (downloads Chromium at install time), detect a system Chrome, or `puppeteer-core` plus a pinned Chrome for Testing.
+- **Choice**: `puppeteer-core` with Chrome for Testing 149 downloaded by `scripts/download-chrome.js` in `prebuild` and shipped in `extraResources`.
+- **Why**: Every install runs the same browser build. `scripts/download-chrome.test.js` fails if the pinned major version drifts away from every Chrome user agent in `modules/config.js`, so the two are updated together.
 
-### Native `https` module instead of axios/fetch
-- **Constraint**: Bundle size and dependency count matter for an Electron app — every extra package ships in the installer
-- **Options**: `axios`, `node-fetch`, undici, or the built-in `https` module
-- **Choice**: Node's built-in `https`
-- **Why**: The scraper only hits three endpoints with one auth pattern. Pulling in a full HTTP client for that is overkill, and it keeps the dependency tree minimal for security review
+### Fetch all fields, project only at write time
+- **Constraint**: Users want to drop output columns, but the cache should be reusable by later runs that want different columns.
+- **Options**: Skip fetching deselected fields, or fetch everything and filter on output.
+- **Choice**: Always fetch all 15 fields; `writeOutputs` in `modules/exporters.js` applies the column projection to CSV, XLSX, and JSON alike.
+- **Why**: Cached entries stay complete, all three formats are guaranteed to match, and the quality summary (computed before projection) does not report deselected columns as empty.
 
-### Checkpoint to disk per row, not per batch
-- **Constraint**: An 87-address job takes ~19 minutes. A crash at minute 18 shouldn't lose 17 minutes of work
-- **Options**: In-memory progress with a final write, periodic batch flush every N rows, or row-by-row append
-- **Choice**: Append each row to a `.partial` file immediately, and update a small `.checkpoint` JSON after every row
-- **Why**: Disk writes per row are cheap relative to the ~14s/row network cost. Resume logic is trivial — load the partial, read the checkpoint index, start from the next row. Files are cleaned up on successful completion
+### Keep the Chrome sandbox on for end users
+- **Constraint**: The app loads live pages and runs `fetch` against remote responses.
+- **Options**: Always pass `--no-sandbox` for simplicity, or only where the OS requires it.
+- **Choice**: `buildLaunchArgs` in `modules/puppeteer-scraper.js` adds `--no-sandbox` only in CI or the unpackaged dev environment.
+- **Why**: The sandbox is a real security boundary on user machines; dropping it everywhere would trade safety for a convenience only needed in containers.
 
 ## Frequently Asked Questions
 
-### What CSV columns does the input need?
-Street, City, State, and Zip Code, with case-insensitive aliases (e.g., "street", "ADDRESS", "address" all map to the street field). Empty rows are warned but skipped, and suspicious addresses (too short, all numbers) are flagged before processing starts.
+### What columns does my CSV need?
+Street, city, state, and ZIP, with common variants accepted (`Street`/`Address`, `City`/`CITY`, `Zip Code`/`ZIP`/`zipcode`, and so on). Rows with an empty street or city are warned about and skipped; very short or digit-only streets are flagged as unusual. The app can save a template CSV for you.
 
-### Why is the first address slower than the rest?
-The first address pays the Puppeteer cold-start cost — launching headless Chrome, loading the stealth plugin, and warming up the user-agent pool. Subsequent addresses reuse the same browser instance, so they hit the steady-state ~13–15s rate.
+### Why are some columns empty even when the address was found?
+The API path fills estimate, last sale, appreciation, beds, baths, square footage, and year built. Lot size, price per square foot, property type, and listing status come from the property page, which is only scraped when the API returns no estimate. The quality panel's fill rates show exactly which columns are sparse for a given run.
 
-### Can I run this on a server or in CI?
-Technically yes, but it's not the design target. The app expects a desktop user to drop a CSV onto the window. For headless use you'd need to invoke `scraper-v4.js` directly from Node with the input path, and bypass the Electron GUI layer.
+### How do I tell where a row's data came from?
+The `Data Source` column is `api`, `browser`, `api+browser`, or `cache`. The quality summary also totals rows by source.
 
-### What happens if a request fails or is rate-limited?
-The scraper detects 403 responses and applies exponential backoff with jitter before retrying. If failures persist across retries, the row is marked as failed in the output CSV and the job continues. Requests are paced conservatively to stay well within reasonable usage.
+### What happens if I run the same list twice?
+Rows found in the last 30 days come straight from the local cache and are marked `cache`; addresses confirmed missing in the last 3 days are skipped. Tick "Force fresh" to re-fetch everything for one run, or "Clear cache" to empty it.
 
-### How do I know which rows came from the API vs. the browser fallback?
-The output CSV includes a "Data Source" column showing `api` or `browser` per row. This is useful when auditing accuracy — API responses are structured and consistent, while browser-scraped rows are subject to selector quirks.
+### What if I change the row selection and then press Resume?
+The app starts over instead. The checkpoint records which rows and columns the original run used, and resuming with a different selection would mix two different row sets in one output file.
 
-### Does it work on Apple Silicon?
-Yes. The macOS build is a universal DMG covering both x64 and arm64. The bundled Chromium binary is downloaded for the host architecture by the `download-chrome` prebuild script.
+### Why does the Excel file behave differently from the CSV?
+The CSV keeps Redfin's display strings (for example `$450,000`). The `.xlsx` converts currency and count columns to numbers with `$#,##0` and `#,##0` formats, leaving cells blank rather than 0 when a value is missing or unparseable. If the `.xlsx` is open in Excel and cannot be overwritten, the CSV and JSON are still written and the error is reported.
 
-### What's the Stingray API and is it documented?
-Stingray is the data service that powers Redfin's own website. The endpoints used here (`/stingray/api/home/details/avm`, `avmHistoricalData`, `propertyParcelInfo`) are the same public JSON endpoints the site's pages load in a normal browser. They are not a stable published API and can change without notice, which is exactly why the browser fallback exists.
+### Does it run on Apple Silicon?
+Yes. electron-builder produces separate arm64 and x64 macOS builds. Note that the `prebuild` script downloads Chrome for the architecture of the machine running the build, so the bundled browser matches that machine's architecture.
 
-### Why does the macOS build show a security warning?
-Unless the app is signed and notarized with an Apple Developer ID, macOS Gatekeeper warns on first launch. The release workflow signs and notarizes automatically when Apple Developer credentials are configured as GitHub Actions secrets; otherwise builds are produced unsigned. Pre-built releases are unsigned by default.
+### Why does macOS warn the first time I open it?
+Builds are only signed and notarized when Apple Developer credentials are configured as GitHub Actions secrets; otherwise the binaries are unsigned and Gatekeeper warns on first launch.
