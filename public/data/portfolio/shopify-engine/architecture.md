@@ -11,7 +11,7 @@ State: `live`. A compute engine: it reads the raw tier's `source='shopify'` rows
 5. **Normalize** (`normalize/`) — each payload decoded once (`json.loads(parse_float=str)`: no float is ever constructed) into a content-addressed cache keyed by the payload's sha256 and the decoder identity. `normalize/shape.py` checks what each table needs of a payload: the parse coverages.
 6. **The partition** (`partition.py`) — every row's class, `(dir, payload gid-type, doc_id gid-type, parent gid-type)`, is on exactly one side: derivation input (a table selects it) or declared out (by rule, never by list). A class on neither side fails the build `data-error`.
 7. **Derive** (`derive/`) — every table in full from the selected versions; each column names its raw key path beside the assignment. Then the join coverages, each held to its floor (`coverage.py`, `tests/fixtures/floors.json`).
-8. **The store** (`store.py`) — written beside the previous one (`store.db.prev`); `build_id` is the content digest of the `d_*` tables, so it moves only when derived content does. `build_meta` is a `(key, value)` table.
+8. **The store** (`store.py`) — written whole under `store.db.new` as a rollback-journal database (`journal_mode=DELETE`, set and checked), then swapped in so that a reader always finds a whole store under `store.db`: the build it replaces is kept by a hard link (`store.db.prev.tmp`, renamed onto `store.db.prev`), and the new one arrives by one `rename` onto `store.db`, flushed to the device before it takes the name and the directory after. Any entry under a sidecar's name (`-journal`, `-wal`, `-shm`; a file, a directory, a link that points nowhere) beside the live store or beside the closed new file refuses the swap (`store.SwapRefused`): the run records `local-error` and the live store stays. An interrupted write's leftovers are cleared by the next. `build_id` is the content digest of the `d_*` tables, so it moves only when derived content does. `build_meta` is a `(key, value)` table. A build that replaces a store it cannot read ends `ok` with `changes: null` in its report and a `changes-unknown` finding.
 9. **The run record** (`runrecord.py`) — `last-run.json` and `runs.jsonl`, written before the report. A non-paging finding goes to `findings[]`, never `warnings[]`.
 
 ## Selection (`select.py`)
@@ -64,13 +64,19 @@ A table names its class: a resource dir, the gid-type of the payload's own `id`,
 
 Listed by the code: `shopify_engine/config.py` `CLASSES`, `derive/__init__.py` `SCHEMA`.
 
+## Readers of the store (`store.open_store`, `store.open_pair`)
+
+- **A verb call is one reading of `store.db`.** `verbs/common.py` `Context` opens the store once and reads `build_meta` and every table through that one connection: the rows served are the build's whose `build_id` the envelope prints, whatever a running build renames over the name meanwhile.
+- **`status` is one reading of `store.db` and `store.db.prev`.** Each name is opened once, a descriptor pinning the file for the whole call; the pair is proven from the file system to be a build and the build it replaced — after `store.db.prev` is opened the store's name must still name the file opened first, and the two must not be one file — opened once more if it was caught moving, and otherwise refused as `stale` (exit 4) with the reason. An unreadable `store.db.prev` is refused, never read as no previous build; with none, every row is `added`. `changes` lists the tables the two files hold.
+- `verify` reads the store by name, once per reading (`verify.native`, `verify.e4_live`): across a swap it can report a family red that is not, never a served figure.
+
 ## Receipts (`receipts.py`)
 
 `{"kind":"raw","source":"shopify","doc_id":"<gid>","receipt":"sha12=<12 hex> <dir>/<table>.<column>[ #<child gid>]"}` — the origin's gid, and the pin of the version file inside the justification. A child of an order receipts the order's version and names its own gid after `#`. An aggregate row carries `receipts[]`, its members, up to 100 inline and a `member_spec` above; `receipts-for <figure_id>` returns them all.
 
 ## State on disk (`/data/fast/state/shopify-engine/`)
 
-`store.db` · `store.db.prev` · `gate-reading.json` · `freshness.json` · `last-run.json` · `runs.jsonl` · `cache/` (the decode cache) · `conformance/last-run.json` (written by `verify`).
+`store.db` · `store.db.prev` (the build `store.db` replaced; `store.db.new` and `store.db.prev.tmp` exist only inside a write) · `gate-reading.json` · `freshness.json` · `last-run.json` · `runs.jsonl` · `cache/` (the decode cache) · `conformance/last-run.json` (written by `verify`).
 
 ## Deployed
 

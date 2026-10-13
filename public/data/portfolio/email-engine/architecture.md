@@ -1,6 +1,6 @@
 # email-engine — architecture
 
-State: `live`. Written against the shipped code, deployed on the tower at T11. The fixture figures were read on the Mac; the archive figures on the tower. It is rewritten against the shipped code at deploy (plan T11).
+State: `live`. Written against the shipped code, deployed on the tower at T11. The fixture figures were read on the Mac; the archive figures on the tower.
 
 ## Shape
 
@@ -10,8 +10,8 @@ One process, one run, four stages — read → normalize → derive → verbs �
 |---|---|---|
 | read | `inputs.py`, `select.py`, `partition.py` | one read-only read transaction over the raw tier's manifest, through `raw_tier.snapshot` only; every version of the two mail sources; the version rule at both grains; the snapshot identity and the change gate; the total partition by class; the payloads the decode cache lacks, read through the reader and appended to a spool file in the state dir, never held |
 | normalize | `normalize/` | each payload decoded once, one at a time from the spool, and cached by its full sha256 under the decoder identity; the declared charset read by `declared_charset` (a MIME type or a leaked `=3D` is UTF-8 mislabelled): the MIME walk (`mail.py`, over parts parsed as MIME defines them: a `message/*` part that encapsulates no message is one leaf), the date finder (`date_rules.py`), the calendar-part reader (`invite_rules.py`), the link scan executing the pinned shape's rules (`link_rules.py`); the header names and the `Precedence` / `Auto-Submitted` values the bulk rule reads, kept as facts |
-| derive | `derive/` | every table, in full, into a fresh store file swapped in atomically; classification (`rules.py`: routing, entity, subscription and the bulk rule `bulk-v2`; a Bcc read from each holding account's own copy of a message), date resolution against each message's own sent date (`date_resolve.py`), address relations (`relations.py`) |
-| verbs | `verbs/` | read verbs over the store, one JSON envelope, declared limits and `meta.freshness` on every one |
+| derive | `derive/` | every table, in full, into a fresh store file swapped in atomically; classification (`rules.py`: routing, entity, subscription and the bulk rule `bulk-v2`; a Bcc read from each holding account's own copy of a message), the form tables and the verdicts (`forms.py`: each holding account's own copy of a message read by itself into d_message_copy; a message a submission when one copy qualifies, its rows read whole from the first qualifying copy in account order — `select.account_order`, the order a Bcc is read in, never the order of two polls; an own copy a body and a sidecar under the account's own path, each the version that account's own poll archived last — `select.Selection.own_body`, `own_sidecar`, never `last_seen`, which any holder of the same bytes writes), date resolution against each message's own sent date (`date_resolve.py`), address relations (`relations.py`) |
+| verbs | `verbs/` | read verbs over the store, one JSON envelope, declared limits and `meta.freshness` on every one; a verb for one message (`message-detail`, `form-lines`) reads that message's rows by key through the store's declared indexes (`store.INDEXES`: schema, never in the content digest), never a table whole |
 
 Beside the store the run writes `gate-reading.json` and `freshness.json` (every tick), `last-run.json` and `runs.jsonl` (the run record, before the report is printed).
 

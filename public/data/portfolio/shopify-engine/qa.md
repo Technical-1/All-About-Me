@@ -9,7 +9,7 @@ State: `live`.
 | the conformance suite, E1–E12 | `tests/conformance/` (frozen; shared by every engine) | the layer rule, the snapshot, identical rebuild, receipts, recomputed figures, the partition, coverages, fixture cases, declared limits, no count literal, the run record, the package boundary |
 | E13, the mutation census | `tests/fixture.py census` | every mutant of the catalogue and of `tests/fixtures/census-anchors.toml` is killed by a family; a fatal control dies and an inert one survives |
 | the spec's gate | `tests/spec/`, with a subdirectory per amendment (`ls -d tests/spec/*/`) | one file per table and per named spec item; `tests/spec/coverage_map.py` maps the plan's §2 to them, both ways |
-| method obligations | `tests/run/` | `receipts-for`, `status`, the changes diff, the stale exit, the recompute declarations, the ruled exclusions (test, zero-total, comped) |
+| method obligations | `tests/run/` | `receipts-for`, `status`, the changes diff, the stale exit, the recompute declarations, the ruled exclusions (test, zero-total, comped), the store's swap with a reader at every step of it, `status` and a verb as one reading across a swap, a `--limit` below one refused on every verb |
 | identities | `tests/identity/` | the code identity, the decoder identity, the clean-tree refusal, the change gate |
 | units | `tests/unit/` | the fixture gate, the Source's widened payloads, `scripts/e14-observe.py`, periods, decode failures |
 | E14, liveness | `scripts/e14-observe.py`, on the tower | each timer tick against every clause of E14; it watches and starts nothing |

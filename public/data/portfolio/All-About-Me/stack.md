@@ -33,17 +33,11 @@ I implemented a hybrid approach:
 - **Cloud fallback**: Anthropic Claude Haiku 4.5 provides faster, higher-quality responses when WebGPU isn't available.
 - **RAG embeddings**: Xenova's MiniLM-L6-v2 generates 384-dimensional embeddings for semantic search over portfolio content.
 
-## 3D Graphics
+## Visual Design
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Three.js** | 0.182.0 | 3D rendering for hero section particle effects |
-| **@react-three/fiber** | 9.5.0 | React renderer for Three.js |
-| **@react-three/drei** | 10.7.7 | Useful Three.js helpers and abstractions |
+The hero and background are plain CSS and Astro, with no 3D or canvas work. `GeometricBackground.astro` draws a grid and rotated red and teal rectangles that match the OpenGraph image style, and `HeroSection.astro` runs a small typing animation that restarts cleanly across View Transitions.
 
-### Why Three.js
-
-The hero section features an interactive particle system. React Three Fiber provides a declarative way to build Three.js scenes while maintaining React's component model.
+`three`, `@react-three/fiber` and `@react-three/drei` are still listed in `package.json`, but nothing in `src/` imports them.
 
 ## State Management
 
@@ -73,14 +67,14 @@ I chose Zustand over Context for its simplicity and built-in persistence support
 
 | Platform | Purpose |
 |----------|---------|
-| **Vercel** | Production hosting with edge functions |
-| **GitHub** | Source control and CI/CD |
+| **Vercel** | Production hosting; the chat API runs as a serverless function |
+| **GitHub Actions** | Nightly repo + portfolio-doc sync (`sync-private-repos.yml`) |
 | **@astrojs/vercel** | Vercel adapter for SSR API routes |
 
 ### Deployment Pipeline
 
-- Push to main triggers Vercel build
-- Embeddings regenerated on each deploy
+- Push to main triggers Vercel build, including the nightly bot commit that refreshes repo data
+- Embeddings regenerated on each deploy, so new project docs reach the chat within a day
 - API routes run as Vercel serverless functions
 - Static assets cached at edge
 
@@ -88,14 +82,14 @@ I chose Zustand over Context for its simplicity and built-in persistence support
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **tsx** | 4.7.0 | TypeScript execution for build scripts |
+| **tsx** | 4.21.0 | TypeScript execution for build scripts |
 | **Vitest** | 4.1.8 | Unit tests for the pure logic (project categorization in `projectSections.ts`) |
 | **Puppeteer** | 24.36.1 | OG image generation |
 
 ## Key Dependencies Deep Dive
 
 ### @mlc-ai/web-llm
-Enables running LLMs directly in the browser using WebGPU. I use SmolLM2-1.7B-Instruct because it balances quality with download size (~1.7GB). The model is cached in IndexedDB after first download.
+Enables running LLMs directly in the browser using WebGPU. I use SmolLM2-1.7B-Instruct because it balances quality with download size (about 1 GB). The model is cached in IndexedDB after first download.
 
 ### @xenova/transformers
 Provides the same transformer models as Hugging Face but compiled for browser execution. I use MiniLM-L6-v2 for generating query embeddings at runtime - it's small (~23MB) and fast enough for real-time search.
@@ -110,7 +104,7 @@ Portfolio markdown files can include Mermaid diagrams. The marked renderer is co
 
 ### Bundle Size
 - Core app: ~150KB gzipped (excluding WebLLM model)
-- WebLLM model: ~1.7GB (cached after first load)
+- WebLLM model: about 1 GB (cached after first load)
 - Xenova embedder: ~23MB (lazy loaded on chat page)
 
 ### Runtime Performance

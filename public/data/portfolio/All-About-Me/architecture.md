@@ -140,7 +140,7 @@ sequenceDiagram
 
 I implemented a dual-mode chat system that can run either locally in the browser or via cloud API:
 
-- **Local Mode**: Uses WebLLM with SmolLM2-1.7B model running on WebGPU. The model is preloaded in the background when the user hovers over navigation links, reducing perceived latency.
+- **Local Mode**: Uses WebLLM with SmolLM2-1.7B model running on WebGPU. On devices with full WebGPU support, a site-wide preloader downloads and caches the model in the background once the page goes idle, so the chat is usually ready by the time a visitor opens it.
 - **Cloud Mode**: Falls back to Anthropic's Claude Haiku 4.5 for devices without WebGPU support or when the user prefers faster responses.
 
 The mode toggle is only shown when WebGPU is detected, otherwise cloud mode is used automatically.
@@ -149,7 +149,7 @@ The mode toggle is only shown when WebGPU is detected, otherwise cloud mode is u
 
 Rather than fine-tuning a model or stuffing all project information into the system prompt, I implemented semantic search over pre-computed embeddings:
 
-- **Build-time**: `generate-embeddings.ts` processes portfolio markdown files, chunks them, and generates embeddings using Xenova transformers (MiniLM-L6-v2)
+- **Build-time**: `generate-embeddings.ts` processes every project's portfolio docs, the personal knowledge files, and published blog posts, chunks them, and generates embeddings using Xenova transformers (MiniLM-L6-v2). Drafts and future-dated posts are skipped with the same rule the blog listing uses, so the chat can't discuss a post before it goes live
 - **Runtime**: User queries are embedded with the same model, then compared via cosine similarity + keyword boosting
 - **Hybrid Search**: Pure semantic search missed exact project names, so I added keyword boosting for terms that appear verbatim in the content
 
@@ -174,12 +174,13 @@ The theme implementation handles several edge cases:
 
 ### 5. GitHub Integration
 
-Project data comes from multiple sources:
+Project data is synced, not hand-maintained. A nightly GitHub Action (`sync-private-repos.yml`, 07:00 UTC) runs `scripts/fetch_private_repos.js` with a personal access token:
 
-- **Public repos**: Fetched from GitHub API at build time
-- **Private repos**: Manually curated in `private_repos.json` with metadata
-- **Featured projects**: Subset with rich portfolio documentation
-- **Portfolio files**: Markdown docs in `.portfolio/` directories provide architecture/stack/Q&A content
+- **Repo snapshot**: every owned repo, public and private, goes into `public/data/private_repos.json` with languages, push date, and a domain category from `scripts/repo-categories.js`. Forks are dropped, and an `EXCLUDED_REPOS` list keeps work and scratch repos off the site entirely. Nothing is fetched from an excluded repo.
+- **Portfolio files**: each repo's `.portfolio/architecture.md`, `stack.md` and `qa.md` are copied to `public/data/portfolio/<repo>/`, and `.portfolio/preview.png|gif` to `public/screenshots/<slug>/`. Directories for repos that drop out are pruned.
+- **Featured projects**: a hard-coded, ordered list in the sync script writes `featured_repos.json`.
+
+The bot commits the snapshot to `main`, which triggers a Vercel deploy, which rebuilds the embeddings. A new project's docs reach the chat the morning after they land in its repo. In the browser, the projects page also merges in the public GitHub API listing and caches the result in localStorage for two hours.
 
 ### 6. Project Shelves & Categorization
 
@@ -193,7 +194,7 @@ The projects page groups every repo into domain shelves (AI, Crypto & Fintech, D
 
 ### 7. Scheduled Blog Publishing
 
-The blog is an Astro content collection (`src/content/blog`, schema in `src/content/config.ts`) that accepts both Markdown and MDX, so richer posts can embed React (for example the `TabbedGuide` island). Each post's frontmatter carries a `pubDate` and a `draft` flag:
+The blog is an Astro content collection (`src/content/blog`, schema in `src/content.config.ts`) that accepts both Markdown and MDX, so richer posts can embed React (for example the `TabbedGuide` island). Each post's frontmatter carries a `pubDate` and a `draft` flag:
 
 - A `draft: true` post has no page at all.
 - A post with a future `pubDate` still builds a page but is filtered out of the listing until its date arrives.
@@ -237,4 +238,4 @@ npm run build
 # 2. astro build → static site with prerendered pages
 ```
 
-This ensures RAG data is always fresh when deployed.
+This ensures RAG data is always fresh when deployed. Because every nightly snapshot commit triggers a deploy, the index is rebuilt at least once a day.
