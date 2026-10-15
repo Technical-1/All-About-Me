@@ -309,8 +309,14 @@ code belongs to its own repo.**
 
 ## Known limits — stated, not solved
 
-- ⛔ **A tower with no network cannot ntfy — and that is itself worth alerting
-  on.** The Mac-native half covers this blind spot and is not built yet.
+- ⚠️ **A tower with no network still cannot ntfy.** [TD-281] splits the
+  answer: an **outside watchdog** (`watchdog.py`, one empty HTTPS GET every
+  few minutes to a dead-man service, which pages when the check-ins stop)
+  speaks during the outage, and the alerter keeps the outage as **one fault**
+  (`outage.py`, `outages.json`) and pages once when it is over. The judgment
+  needs two independent signals — the watchdog unanswered and every internet
+  Source that ran since unanswered — so one provider's outage stays its own
+  Source's fault. The Mac-native half of [NT-2] is still not built.
 - ⭐ **Nothing watches the watcher.** If this timer dies, silence looks exactly
   like health. Mitigated by a weekly `all clear` heartbeat so silence becomes
   informative — ⚠️ a *mitigation*, not a solution.

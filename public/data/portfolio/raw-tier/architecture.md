@@ -1011,6 +1011,15 @@ with SnapshotReader(raw_root, rs, registrar_lock=LOCK,
   a later event keeps the stamp or observation a later return overwrote, and
   the rule applies the instant itself, as `MirrorStore.served_at` does. Only
   `iter_raw_reverts` / `iter_mirror_reverts` stop at the instant.
+- ⭐ **The declarations an engine reads its clocks from**, each read inside the
+  snapshot, as stored (no clock filter — the identity's `raw_amendments` /
+  `mirror_amendments` digests hold them), `None` where absent and refused
+  (`SnapshotStateError` / `ValueError`) on a bad read, never `None`:
+  `raw_revert_epoch()`, `mirror_revert_epoch(source)`, `event_since(source,
+  tbl)` — a table's switch instant — and (2026-10-15, ai-lab [TD-250] B9)
+  `mirror_meaning_epoch(source)`, the instant the mirror gained the frozen
+  deletion meaning: an `event` tombstone with no meaning written at or after
+  it is a finding, before it pre-amendment (relational-mirror §12.1 rule 3).
 - ⭐ **`freeze_copy`** (E3): manifest first, then — only when the read set names
   mirrors — each named mirror under the shared lock (backup API), then a fresh
   byte copy of every `ref` referent of a read-set source, refused if the

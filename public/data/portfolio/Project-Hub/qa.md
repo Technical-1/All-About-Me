@@ -1,101 +1,112 @@
-# Project Q&A Knowledge Base
+# Project Q&A
 
 ## Overview
 
-Project Hub is a local-first Tauri desktop app I built as a single command center for everything I'm working on. It syncs repositories from several GitHub accounts and keeps per-project notes and tasks. It also records my real activity from git history into a work log, which powers a daily "Today" view: activity heatmap, velocity, standup digest, "Up Next", stuck-task alerts, and a Stale Work Radar. On top of that it drives the Claude Code CLI. It can open a session focused on one task, run unattended investigation passes on a schedule, or supervise a Fleet of up to five parallel sessions, each on its own git worktree. An MCP server shares the same SQLite database, so those sessions can read and update tasks while they work.
+Project Hub is a macOS desktop app I built to be the one place I manage all of my code projects. It syncs my GitHub repositories across more than one account, keeps tasks and notes per project, runs dev servers, and opens any project in a terminal or Claude Code with one click. The interesting technical part is that it builds its activity record on its own: pushed commits are captured into a work log on every sync, and a `[hub-N]` tag in a commit message closes the matching task. That log drives a daily Today page. It is a Tauri 2 app with a React front end, a Rust core and a local SQLite database, and it currently runs as a development build with no signed release.
 
 ## Problem Solved
 
-I work across dozens of repositories under more than one GitHub account and organization. I kept losing track of which projects had drifted, which had uncommitted local changes, and which task was actually next. Project Hub puts all of that in one view and derives status from git, not self-reporting. "Open the right repo and start on the right task" becomes one click, and so does handing a backlog to several coding sessions at once.
+I work across a large number of repositories and kept losing track of which ones had drifted, which had uncommitted local changes, and what I had meant to do next in each. Project Hub puts every repository on one board, derives status from git instead of from what I remember to write down, and removes the steps between "I should work on that" and having the right project open with the right task in front of me.
 
 ## Target Users
 
-- **Me, primarily**: a single-user orchestrator for a large portfolio of personal projects
-- **Solo developers with many repos or several GitHub accounts**: anyone with the same fan-out problem who wants tracking that happens on its own, without manual logging
-- **Developers already working in Claude Code**: the MCP server and `[hub-N]` commit convention close the loop between a coding session and the task list
+- **Me, primarily** — it was built around how I work across my own repositories
+- **Solo developers with many repositories** — anyone with the same fan-out problem who would rather have activity tracked from commits than log it by hand
 
 ## Key Features
 
-### Multi-account sync with owner filtering
-Several GitHub accounts sync into one project list. Each repo shows a badge for the account that owns it. The dashboard filters by status, by account, and by owner or organization, and owner chips carry counts.
+### Dashboard
+A card for every repository, filterable by status, GitHub account and owner or organization. A project is `pending`, `active`, `on_hold`, `idea`, `done`, `archived` or `ignore`; the default view shows only active work, and `ignore` keeps a repository out of the Today statistics entirely. From a card I can clone, link an existing folder, start the dev server, open a terminal or Claude Code, and push.
 
-### Ambient capture
-Commits are ingested into a work log automatically. A `[hub-N]` tag in a commit message resolves the referenced task, with no extra UI step.
+### Ambient capture and the `[hub-N]` convention
+Each sync records recent commits in a work log. If a commit message contains `[hub-42]`, task 42 is resolved and linked to that commit once the commit is pushed. I never mark tasks done by hand.
 
-### Today workflow
-Heatmap, per-project velocity, standup digest, "Up Next" recommendation, stuck-task and Stale Work Radar alerts, and the latest scheduled-run results, all on one page. Projects marked `ignore` are left out of every widget and out of the headline project count.
+### Today page
+A 12-week activity heatmap, per-project velocity for the last 14 days, today's activity, a copyable standup for yesterday, stuck in-progress tasks, and a recommended next task.
 
-### Fleet board
-Launch up to five Claude Code sessions across projects. Each one gets a hub-task, slash-command, or free-text brief. Every session runs in its own worktree and branch. The board shows live activity, lets you queue a follow-up note that resumes the same session, shows a diffstat, and discards the worktree and branch when you're done.
+### Stale Work Radar
+Flags active, cloned projects that have uncommitted tracked changes with no commit in 7 days, or no recorded activity for 7 days, with a button to open a terminal there.
+
+### Task Board and Claude Code launchers
+Tasks across every project with a three-state lifecycle and priorities. A single task opens in Claude Code with a prompt built from its title, description and project, including the instruction to tag the commit. Separately, a project's whole list of open tasks can be handed to one session, and an Investigate action runs a headless review of a repository and files what it finds as new tasks.
+
+### Fleet
+Up to five headless Claude Code sessions running at once, each in its own git worktree and branch, with a live line showing what each is doing and a box to send it a follow-up instruction.
 
 ### Scheduled investigation
-An opt-in daily or weekly pass, at a chosen hour, over the projects I pick in Settings. It imports discovered issues as prioritized tasks and records a run history.
+Chosen projects can be investigated daily or weekly at a set hour while the app is open; each run and its result is listed on the Today page.
 
-### Project lifecycle with portfolio preservation
-Clone, link, run, and push from one place. Marking a project `done` or `archived` deletes the local clone but saves its `.portfolio/` docs first, to separate `.done/` and `.archive/` roots. Restoring re-clones the project and puts them back.
+### Multiple GitHub accounts
+I can connect several accounts. Each project remembers which account it came from, and clones use that account's token and commit identity.
+
+### Archive with preserved context
+Marking a cloned project done or archived saves its `.portfolio/` write-ups to a side folder and removes the local clone. Restoring re-clones the repository and puts them back.
+
+### MCP server
+A small Node server exposes the task board and work log as tools, so a Claude Code session can identify its project, list and create tasks, and log work directly. It is a separate package that has to be built and registered by hand; the app does not bundle it.
 
 ## Technical Highlights
 
-### Supervising streaming CLI sessions from Rust
-`src-tauri/src/commands/fleet.rs` spawns `claude -p … --output-format stream-json` in a worktree and reads its stdout line by line inside a `tokio::select!`, alongside a `watch` channel used for cancellation. `parse_stream_line` reduces each JSON event to a session ID, a short activity string ("Reading lib.rs", "Searching for …"), or a done marker, and every change is emitted to the UI as a `fleet-agent-update` event. When a turn completes the session goes idle. A queued note restarts it with `--resume <session_id>`, so the conversation carries over without keeping a process alive between turns.
+### A radar that ignores untracked noise
+The obvious dirtiness check, a non-empty `git status --porcelain`, flagged repositories for `.DS_Store` files, build output and sync-conflict copies. `has_uncommitted_changes` in `src-tauri/src/commands/git.rs` counts only tracked modifications, and `compute_stale_projects` in `src-tauri/src/commands/today.rs` never labels a dirty repository "untouched", so the radar shows work that could be lost and little else.
 
-### Credential handling across several accounts
-Each project row records the account that owns it, and every clone, commit fetch, and push uses that account's token. The token never appears in a remote URL. Clones pass it as a per-command `http.extraheader`. After a clone or link, `git::apply_repo_identity` writes the repo-local extraheader and the account's `<id>+<login>@users.noreply.github.com` identity, and stderr is redacted before it reaches the UI. The account store is written owner-only (`0600`) with a `.bak` copy first. The legacy single-token migration deletes the old file only after the new store is safely saved, and it keeps the token on transient network errors (`github/oauth.rs`).
+### Commit ingestion that is safe to repeat
+Sync re-reads the same recent commits every five minutes. A partial unique index on `work_log(project_id, commit_hash)` restricted to `committed` rows turns repeat inserts into no-ops, while still allowing several `auto_resolved` rows for one commit that closes several tasks. Ingestion and task resolution run in one transaction per project (`src-tauri/src/commands/capture.rs`), and the migration in `src-tauri/src/db/schema.rs` detects and replaces an older, broader definition of that index.
 
-### Two processes, one SQLite file
-The Tauri app and every MCP server process write to the same `project-hub.db`. `db/mod.rs` turns on WAL and a 5s `busy_timeout`, so writers wait their turn instead of failing with `SQLITE_BUSY`. `tauri-plugin-single-instance` is registered first so that a second launch focuses the existing window instead of starting another writer. The MCP server exits on stdin EOF or transport close, so disconnected clients never pile up as orphans holding the database open.
+### Supervising headless sessions from their output stream
+Fleet starts each session with stream-json output and reads it line by line (`parse_stream_line` in `src-tauri/src/commands/fleet.rs`). The session id from the init line is what makes follow-ups possible: a queued note is delivered by starting a new turn that resumes that session. Tool-use lines become a one-line activity summary, and a stream that ends without a result is reported as an error with the exit status, not as a quiet idle.
 
-### A Stale Work Radar without false positives
-A naive `git status --porcelain` check treats `.DS_Store`, build output, and other untracked clutter as at-risk work. `has_uncommitted_changes` in `commands/git.rs` counts only tracked modifications, app-wide. `compute_stale_projects` in `commands/today.rs` is a pure function: a project is "uncommitted" when it is dirty and its last commit is 7+ days old, or "untouched" when it has had no work-log activity for 7+ days, and a dirty repo is never labelled untouched. The git subprocess calls run only after the database lock has been released.
+### Two programs, one SQLite file
+The app and the MCP server both write to the database. `src-tauri/src/db/mod.rs` enables WAL mode and a five-second busy timeout so a writer waits for the lock instead of failing, and a single-instance guard keeps a second copy of the app from joining in. The server exits when its client disconnects, which stops orphaned processes from holding the file open.
 
 ## Engineering Decisions
 
 ### Tauri over Electron
-- **Constraint**: A native desktop app that does a lot of git and process work in parallel, with a small footprint
+- **Constraint**: A desktop app that spends its time running git and child processes, without shipping a browser
 - **Options**: Electron, Tauri 2, native SwiftUI
 - **Choice**: Tauri 2
-- **Why**: A small bundle, Rust's async process handling for streaming CLI sessions and parallel fetches, and a typed IPC boundary. SwiftUI would have locked out the Linux and Windows code paths that the launcher already handles.
+- **Why**: A Rust core suits process and git work, the bundle is small, and I could keep a web UI I can iterate on quickly
 
-### MCP server reading the database directly, not an API in the app
-- **Constraint**: Coding sessions need to read and update tasks, including when the desktop app is closed
-- **Options**: An HTTP API hosted by the Tauri app, a CLI wrapper, or a standalone MCP server on the shared SQLite file
-- **Choice**: A standalone Node MCP server (`mcp-server/`) using better-sqlite3 against the same file
-- **Why**: There is no dependency on the app running, and the MCP SDK is native to Node. The cost is that two codebases encode the schema and the database path, so the server's default path is kept identical to the Rust app's `project-hub.db`, and `PROJECT_HUB_DB` overrides it.
+### Local SQLite, no backend
+- **Constraint**: One user, one machine, and it has to work offline
+- **Options**: Hosted database with accounts, local SQLite, flat JSON files
+- **Choice**: Local SQLite through rusqlite
+- **Why**: No infrastructure to run, instant queries, and real SQL for the Today aggregations
 
-### Status-specific portfolio roots for done vs. archived
-- **Constraint**: Retiring a project should free disk space without losing its write-up, and shipped work should stay separate from abandoned work
-- **Options**: Zip the whole clone, keep the clone and hide the row, or save only `.portfolio/` and delete the rest
-- **Choice**: Save `.portfolio/` to `<clone dir>/.done/` or `<clone dir>/.archive/` based on status, delete the clone, and clear `local_path`
-- **Why**: Git history already lives on GitHub. The portfolio docs are the only thing at risk. Clearing `local_path` gives every retired project the same restore path, and restore checks the other root in case the status changed after archiving. If no `.portfolio/` existed, the UI warns at archive time.
+### Read commits from GitHub, not from local clones
+- **Constraint**: The work log has to fill itself in, including for repositories I have not cloned
+- **Options**: Manual logging, a timer, local `git log`, GitHub webhooks, polling the GitHub API during sync
+- **Choice**: Poll the API as part of the sync that already runs
+- **Why**: It reuses calls the app is already making and covers every repository. Webhooks would need a public endpoint. The cost is that a commit only counts once it is pushed to the default branch
 
-### Opt-in scheduling with an audit table
-- **Constraint**: Unattended runs cost time and tokens and can touch many repos
-- **Options**: Run on every `active` project, or require explicit opt-in per project
-- **Choice**: A `scheduled` column that defaults to 0, a cadence/weekday/hour setting, and an append-only `scheduled_runs` table that keeps a `project_name` snapshot
-- **Why**: Nothing runs until I choose it. The run history survives project deletion, and the pure `should_run_now`/`group_rows` helpers keep the scheduling logic unit-testable.
+### GitHub tokens in a local file
+- **Constraint**: Several accounts, each needing a token for API calls, clones and pushes
+- **Options**: The system keychain, a file in the home directory
+- **Choice**: A JSON file, `~/.project-hub-accounts.json`, restricted to my user
+- **Why**: It was the simplest thing that supported multiple accounts. The trade-off is that the file is plain text, and the token is also written into each clone's git config so that pushes authenticate
 
 ## Frequently Asked Questions
 
-### How does `[hub-N]` auto-resolution work?
-During sync, `extract_task_ids` scans each new commit message for `[hub-N]` (case-insensitive, deduplicated). Any matching unresolved task in that same project is resolved, with the commit hash and message recorded, and an `auto_resolved` row is written to `work_log`. Ingest and resolution share one transaction per project. The prompts Project Hub hands to Claude Code instruct the session to apply the tag, so a task closes itself on the next sync after the commit is pushed.
+### How does a commit close a task?
+During sync the app fetches the latest commits for my most recently pushed repositories. For each `[hub-N]` in a message it looks for task N in that same project; if the task is not already resolved it is marked resolved with the commit hash and subject, and an `auto_resolved` entry goes in the work log. The commit has to be pushed to the default branch first, because the app reads commits from GitHub.
 
-### What happens to a Fleet session's work?
-It stays on its own `hub-fleet/<project>-<timestamp>-<id>` branch in a worktree under the app-data directory. The original checkout is never touched. From the card you can read the diffstat, send another note, dismiss the session (which stops it and keeps the branch), or discard it (which removes the worktree and deletes the branch). Merging is deliberately left to me.
+### How does the Stale Work Radar decide what is at risk?
+It looks only at projects that are active and cloned. A project with tracked uncommitted changes whose last commit is 7 or more days old is flagged "uncommitted". A clean project whose newest work-log entry is 7 or more days old is flagged "untouched". A project with no history at all is not flagged.
 
-### Why are Fleet and scheduled runs started with permission prompts skipped?
-They run headless with nobody there to answer a prompt, so they pass `--dangerously-skip-permissions`. The blast radius is limited in other ways. Fleet sessions run in a disposable worktree. Investigation runs only import a JSON task list (`.project-hub-tasks.json`), validating each priority and truncating long titles and descriptions. Scheduled runs only touch projects I've opted in.
+### What do the Claude Code actions actually do?
+There are three different things. Opening a task starts an interactive session in Terminal with a prompt for that one task. "Task Completion" on a project starts one interactive session seeded with all of its open tasks. "Investigate" runs a headless session that reviews the repository and writes its findings to a file, which the app imports as new tasks. The plain "Open in Claude" button uses `happy` if it is installed and `claude` otherwise.
 
-### How does the Stale Work Radar decide what's at risk?
-It looks only at `active` projects with a local clone. A project is flagged "uncommitted" if it has tracked uncommitted changes and its last commit is 7+ days old, or "untouched" if it has had no work-log activity for 7+ days. Untracked-only working trees are not considered dirty.
+### What happens to Fleet agents when I quit the app?
+They are stopped and forgotten: the list of running agents is held in memory. Their worktrees and branches stay on disk under the app-data directory, so the work is not lost, but the app will not list them again. Nothing in Fleet merges or pushes a branch; that step is mine.
 
-### What does the `ignore` status do?
-It's for repos I never need to look at, such as forks and one-off experiments. Unlike `done` and `archived`, it doesn't delete the clone. It hides the project from the default dashboard filter, the headline count, and every Today widget.
+### Where is my data stored?
+Projects, tasks, notes and the work log are in one SQLite file in the app-data directory. GitHub accounts and tokens are in `~/.project-hub-accounts.json`, readable only by my user. The app's own network requests go only to GitHub; the Claude Code sessions it starts talk to their own service.
 
-### Why does the dashboard have separate account and owner filters?
-They answer different questions. The account filter is about which signed-in GitHub identity can see a repo. The owner filter is about which user or organization the repo belongs to (the `owner/` half of `full_name`). One account often sees repos from several organizations, so the dashboard needs both. Owner chips are computed from the already-filtered list, so their counts always match what you'd see after clicking.
+### Why does sign-in use a localhost callback?
+There is no server to receive the redirect. The app listens on `127.0.0.1:8765` for the one callback, checks the `state` value, and exchanges the code for a token. It uses an OAuth App whose client id and secret are read from a local `.env`, which is why running the app today means registering your own.
 
-### Why scope Tailwind v4 to `src/` explicitly?
-By default, Tailwind v4's scanner walks the whole project tree. `@import "tailwindcss" source(".")` in `src/index.css` keeps it inside the frontend folder. That speeds up builds and keeps it from stalling on placeholder files evicted to cloud storage outside `src/`.
+### Does it work on Windows or Linux?
+Not in practice. The launchers drive Terminal.app through AppleScript, and the MCP server's default database path is the macOS one. The Rust code has branches for other platforms that I have not run.
 
 ### Is this open source?
-No. It's a personal project, and the repository is not licensed for redistribution or reuse.
+No license has been granted yet; all rights are reserved pending a decision on how it will be distributed.

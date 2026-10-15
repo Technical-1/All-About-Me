@@ -24,6 +24,8 @@ notification said **`demo-source` / `run failed: auth-error`** and nothing else.
 | `test_send.py` | 122 | the request shape; the message table; the credential's refusals and its redaction; plural transports delivered independently; ⭐ the stuffed-record leak test, end to end |
 | `test_wiring.py` | 51 | ⭐ [NT-9] every systemd list shape (append, space-separated, the empty-assignment **reset**, continuations, comments, section scoping, drop-in order); missing/unreadable units as findings; that NOT WIRED does **not** move the exit code |
 | `test_package_build.py` | 3 | that a real wheel contains the package, declares the console script, and requires nothing [SF-11] |
+| `test_watchdog.py` | measure: `pytest --collect-only -q tests/test_watchdog.py` | [TD-281] each guard with its threat present: an intercepting gateway's certificate, a hung check-in, the URL file absent / readable by others / a symlink / someone else's / not https; what leaves (an empty GET, the URL as written, one fixed header); the URL in no output |
+| `test_outage.py` | measure: `pytest --collect-only -q tests/test_outage.py` | [TD-281] the two-signal judgment; one Source down while the others are up stays its own fault; a stale watchdog judges nothing; the open outage across real subprocesses; one page after, none during, retried until delivered; no false recovery |
 | `test_raw_fsck_seam.py` | 27 | ⭐⭐ 2026-08-12: **the cross-repo seam.** Real bytes on disk → the real `raw_tier` writer → `last-run.json` → this reader → the store → the words that would leave the machine |
 
 ## ⭐⭐ The seam, tested as a seam [MA-41]
