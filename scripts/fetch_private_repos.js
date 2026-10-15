@@ -100,6 +100,18 @@ const headers = {
   'Accept': 'application/vnd.github+json'
 };
 
+// Any failure other than a 404 (rate limit, auth, 5xx, network) must abort the
+// run. Treating it as "file missing" makes the prune step delete real previews
+// and docs, and the workflow then commits the gutted snapshot.
+class FatalSyncError extends Error {}
+
+async function okOr404(res, url) {
+  if (res.ok) return true;
+  if (res.status === 404) return false;
+  const text = await res.text();
+  throw new FatalSyncError(`Request failed ${res.status} ${res.statusText} for ${url}: ${text}`);
+}
+
 async function fetchJson(url) {
   const res = await fetch(url, { headers });
   if (!res.ok) {
@@ -111,30 +123,20 @@ async function fetchJson(url) {
 
 async function fetchFileContent(owner, repo, filePath) {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/contents/${filePath}`;
-  try {
-    const res = await fetch(url, { headers });
-    if (!res.ok) {
-      if (res.status === 404) return null; // File doesn't exist
-      return null;
-    }
-    const data = await res.json();
-    if (data.content && data.encoding === 'base64') {
-      return Buffer.from(data.content, 'base64').toString('utf8');
-    }
-    return null;
-  } catch (err) {
-    return null;
+  const res = await fetch(url, { headers });
+  if (!(await okOr404(res, url))) return null; // File doesn't exist
+  const data = await res.json();
+  if (data.content && data.encoding === 'base64') {
+    return Buffer.from(data.content, 'base64').toString('utf8');
   }
+  return null;
 }
 
 async function fetchBinaryFile(owner, repo, filePath) {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/contents/${filePath}`;
   try {
     const res = await fetch(url, { headers });
-    if (!res.ok) {
-      if (res.status === 404) return null; // File doesn't exist
-      return null;
-    }
+    if (!(await okOr404(res, url))) return null; // File doesn't exist
     const data = await res.json();
 
     // For small files, content is returned as base64
@@ -146,15 +148,16 @@ async function fetchBinaryFile(owner, repo, filePath) {
     // Use the download_url instead (requires auth for private repos)
     if (data.download_url) {
       const rawRes = await fetch(data.download_url, { headers });
-      if (!rawRes.ok) return null;
+      if (!(await okOr404(rawRes, data.download_url))) return null;
       const arrayBuffer = await rawRes.arrayBuffer();
       return Buffer.from(arrayBuffer);
     }
 
     return null;
   } catch (err) {
-    console.error(`  Error fetching ${filePath}: ${err.message}`);
-    return null;
+    throw err instanceof FatalSyncError
+      ? err
+      : new FatalSyncError(`Error fetching ${filePath}: ${err.message}`);
   }
 }
 
@@ -250,8 +253,7 @@ async function fetchLanguagesForRepo(repo) {
     const langData = await fetchJson(repo.languages_url);
     return langData;
   } catch (err) {
-    console.error(`Failed to fetch languages for ${repo.full_name}: ${err.message}`);
-    return {};
+    throw new FatalSyncError(`Failed to fetch languages for ${repo.full_name}: ${err.message}`);
   }
 }
 
