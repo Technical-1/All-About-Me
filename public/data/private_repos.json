@@ -37,7 +37,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T06:08:59Z",
+      "pushed_at": "2026-10-13T20:55:14Z",
       "topics": []
     },
     "languages": [
@@ -89,32 +89,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T02:32:16Z",
+      "pushed_at": "2026-10-13T21:28:03Z",
       "topics": []
     },
     "languages": [
-      "TypeScript",
-      "CSS",
-      "Dockerfile",
-      "HTML",
       "JavaScript",
-      "Shell"
+      "CSS",
+      "HTML"
     ],
     "language_bytes": {
-      "TypeScript": 1596445,
-      "CSS": 3270,
-      "Dockerfile": 2981,
-      "HTML": 1587,
-      "JavaScript": 643,
-      "Shell": 110
+      "JavaScript": 85150,
+      "CSS": 9775,
+      "HTML": 2663
     },
-    "primary_language": "TypeScript",
-    "has_portfolio": true,
-    "portfolio_files": [
-      "architecture.md",
-      "stack.md",
-      "qa.md"
-    ],
+    "primary_language": "JavaScript",
+    "has_portfolio": false,
+    "portfolio_files": [],
     "metadata": {
       "category": "other"
     }
@@ -894,7 +884,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T04:00:39Z",
+      "pushed_at": "2026-10-13T19:10:48Z",
       "topics": []
     },
     "languages": [
@@ -1239,7 +1229,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-14T09:29:22Z",
+      "pushed_at": "2026-10-13T09:28:53Z",
       "topics": []
     },
     "languages": [
@@ -2322,7 +2312,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T05:56:40Z",
+      "pushed_at": "2026-10-08T05:58:20Z",
       "topics": []
     },
     "languages": [
@@ -2354,7 +2344,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T06:08:00Z",
+      "pushed_at": "2026-10-13T19:41:06Z",
       "topics": []
     },
     "languages": [
@@ -2390,8 +2380,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2409,11 +2403,19 @@
       "pushed_at": "2026-10-04T21:40:17Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 284687
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2431,11 +2433,19 @@
       "pushed_at": "2026-09-30T20:20:47Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 78253
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2453,8 +2463,30 @@
       "pushed_at": "2025-12-04T16:21:20Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "TypeScript",
+      "Bicep",
+      "HTML",
+      "CSS",
+      "PowerShell",
+      "Shell",
+      "Dockerfile",
+      "Batchfile",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 1137896,
+      "TypeScript": 544576,
+      "Bicep": 388314,
+      "HTML": 165138,
+      "CSS": 84671,
+      "PowerShell": 65648,
+      "Shell": 49575,
+      "Dockerfile": 4726,
+      "Batchfile": 1484,
+      "JavaScript": 532
+    },
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2475,11 +2507,19 @@
       "pushed_at": "2026-10-11T09:02:01Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 235094
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2500,8 +2540,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2519,11 +2563,28 @@
       "pushed_at": "2026-09-28T17:51:49Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 451978,
+      "JavaScript": 48006,
+      "CSS": 29777,
+      "HTML": 8428
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/oddoneout/preview.png"
+    ],
     "metadata": {
       "category": "games"
     }
@@ -2541,11 +2602,21 @@
       "pushed_at": "2026-09-28T17:56:21Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Swift": 315374,
+      "Shell": 1558
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2563,8 +2634,26 @@
       "pushed_at": "2026-06-05T19:25:26Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "Swift",
+      "JavaScript",
+      "HTML",
+      "Shell",
+      "Ruby",
+      "Kotlin",
+      "Batchfile"
+    ],
+    "language_bytes": {
+      "TypeScript": 679592,
+      "Swift": 391429,
+      "JavaScript": 301994,
+      "HTML": 132130,
+      "Shell": 8801,
+      "Ruby": 3484,
+      "Kotlin": 2348,
+      "Batchfile": 2068
+    },
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2601,11 +2690,30 @@
         "visualization"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML",
+      "Python",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 765972,
+      "JavaScript": 617732,
+      "HTML": 11747,
+      "Python": 6341,
+      "CSS": 3095
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/orbit/preview.png"
+    ],
     "metadata": {
       "category": "ai-ml",
       "featured": true
@@ -2633,11 +2741,26 @@
         "zustand"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 763573,
+      "CSS": 186384,
+      "HTML": 10288
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/personal-budget-tool/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -2655,11 +2778,24 @@
       "pushed_at": "2026-10-13T16:09:27Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Swift": 259062,
+      "HTML": 35671
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pixscan/preview.png"
+    ],
     "metadata": {
       "category": "mobile",
       "featured": true
@@ -2678,8 +2814,14 @@
       "pushed_at": "2026-08-28T18:51:20Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "HTML": 15862,
+      "CSS": 12604
+    },
     "primary_language": "HTML",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2719,7 +2861,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T04:04:12Z",
+      "pushed_at": "2026-10-13T16:09:39Z",
       "topics": [
         "claude-code",
         "desktop-app",
@@ -2735,11 +2877,28 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "TypeScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "Rust": 399414,
+      "TypeScript": 322288,
+      "HTML": 5331,
+      "CSS": 1720
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/project-hub/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -2757,8 +2916,18 @@
       "pushed_at": "2026-06-11T19:11:53Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 802386,
+      "HTML": 677070,
+      "CSS": 7409,
+      "JavaScript": 559
+    },
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2779,11 +2948,28 @@
       "pushed_at": "2026-05-26T22:44:40Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "TypeScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 404213,
+      "TypeScript": 230204,
+      "CSS": 21571,
+      "HTML": 14677
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/quickpass-v2/preview.png"
+    ],
     "metadata": {
       "category": "security"
     }
@@ -2798,14 +2984,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T05:43:56Z",
+      "pushed_at": "2026-10-10T16:18:01Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 1811487
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -2823,8 +3017,18 @@
       "pushed_at": "2025-06-26T19:54:14Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "Ruby",
+      "Swift",
+      "C"
+    ],
+    "language_bytes": {
+      "JavaScript": 656334,
+      "Ruby": 2465,
+      "Swift": 2275,
+      "C": 102
+    },
     "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2845,8 +3049,14 @@
       "pushed_at": "2025-10-12T21:34:03Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 248792,
+      "HTML": 1101
+    },
     "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -2873,11 +3083,24 @@
         "web-scraping"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 277439,
+      "HTML": 35576
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/redfin-scraper/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -2906,11 +3129,26 @@
         "vercel-marketplace"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "TypeScript": 33484,
+      "HTML": 14230,
+      "Shell": 1000
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/redis-upstasher/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -2939,11 +3177,26 @@
         "white-label"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 640250,
+      "HTML": 8174,
+      "CSS": 6641
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/restauranthub/preview.png"
+    ],
     "metadata": {
       "category": "client-sites"
     }
@@ -2972,11 +3225,25 @@
         "zustand"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 997214,
+      "CSS": 192319,
+      "JavaScript": 112426,
+      "HTML": 9938
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "ai-ml"
     }
@@ -2994,11 +3261,27 @@
       "pushed_at": "2026-10-05T19:49:03Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "TypeScript",
+      "Shell",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "Rust": 713316,
+      "TypeScript": 687040,
+      "Shell": 955,
+      "HTML": 361,
+      "CSS": 23
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "ai-ml"
     }
@@ -3016,8 +3299,16 @@
       "pushed_at": "2025-10-28T14:13:49Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 105982,
+      "CSS": 2167,
+      "JavaScript": 605
+    },
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3045,11 +3336,26 @@
         "ocr-processing"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 185608,
+      "JavaScript": 68709,
+      "HTML": 17691
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/serverless-document-pipeline/preview.png"
+    ],
     "metadata": {
       "category": "ai-ml"
     }
@@ -3083,11 +3389,27 @@
         "zustand"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "MDX"
+    ],
+    "language_bytes": {
+      "TypeScript": 6285047,
+      "HTML": 1854513,
+      "CSS": 72471,
+      "JavaScript": 63670,
+      "MDX": 6655
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -3105,11 +3427,29 @@
       "pushed_at": "2026-10-05T19:53:06Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "JavaScript",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Swift": 33822,
+      "JavaScript": 17565,
+      "HTML": 3183,
+      "Shell": 3159
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shan-shui-wallpaper/preview.png",
+      "/screenshots/shan-shui-wallpaper/preview.gif"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -3124,14 +3464,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T05:05:18Z",
+      "pushed_at": "2026-10-12T18:03:10Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 1323123
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3146,14 +3494,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T00:14:56Z",
+      "pushed_at": "2026-10-07T14:54:28Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 818716
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3174,8 +3530,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3193,11 +3553,19 @@
       "pushed_at": "2026-10-11T09:02:03Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 235094
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3215,11 +3583,19 @@
       "pushed_at": "2026-10-04T21:40:20Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 728877
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3240,8 +3616,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3268,11 +3648,23 @@
         "swiftui"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "Python",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Swift": 1353668,
+      "Python": 1307050,
+      "Shell": 9802
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "mobile"
     }
@@ -3297,8 +3689,16 @@
         "vite"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 33235,
+      "CSS": 15722,
+      "HTML": 1442
+    },
     "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3319,11 +3719,28 @@
       "pushed_at": "2026-10-13T16:09:28Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "TypeScript",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Swift": 283942,
+      "TypeScript": 65135,
+      "JavaScript": 13330,
+      "HTML": 9127
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/snapdragon/preview.png"
+    ],
     "metadata": {
       "category": "mobile"
     }
@@ -3341,8 +3758,18 @@
       "pushed_at": "2025-12-27T17:29:15Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 923754,
+      "CSS": 7077,
+      "JavaScript": 387,
+      "HTML": 304
+    },
     "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3360,14 +3787,22 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T00:14:53Z",
+      "pushed_at": "2026-10-11T14:15:25Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 336878
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3385,8 +3820,12 @@
       "pushed_at": "2026-10-05T01:20:44Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 67769
+    },
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3410,8 +3849,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3432,8 +3875,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3451,8 +3898,18 @@
       "pushed_at": "2026-10-06T13:32:42Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "Shell",
+      "Dockerfile",
+      "Just"
+    ],
+    "language_bytes": {
+      "Python": 200782,
+      "Shell": 4376,
+      "Dockerfile": 1821,
+      "Just": 1103
+    },
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3484,11 +3941,28 @@
         "web-design"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Liquid",
+      "CSS",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Liquid": 963370,
+      "CSS": 382622,
+      "JavaScript": 193984,
+      "HTML": 7349
+    },
     "primary_language": "Liquid",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/terra-moda-rewrite/preview.png"
+    ],
     "metadata": {
       "category": "client-sites"
     }
@@ -3506,11 +3980,28 @@
       "pushed_at": "2026-10-13T21:07:18Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 1917812,
+      "HTML": 39511,
+      "CSS": 29580,
+      "JavaScript": 6678
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/themed-crossword-gen/preview.png"
+    ],
     "metadata": {
       "category": "games"
     }
@@ -3525,34 +4016,18 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T03:12:28Z",
+      "pushed_at": "2026-10-13T16:27:57Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "Shell"
+    ],
+    "language_bytes": {
+      "Python": 747525,
+      "Shell": 228755
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
-    "metadata": {
-      "category": "other"
-    }
-  },
-  {
-    "repo": {
-      "name": "tower-watcher",
-      "full_name": "Technical-1/tower-watcher",
-      "html_url": "https://github.com/Technical-1/tower-watcher",
-      "homepage": "https://tower-watcher.vercel.app",
-      "description": "Dead-man watcher for the tower's check-ins",
-      "private": true,
-      "fork": false,
-      "archived": false,
-      "pushed_at": "2026-10-15T02:47:15Z",
-      "topics": []
-    },
-    "languages": [],
-    "language_bytes": {},
-    "primary_language": "TypeScript",
     "has_portfolio": false,
     "portfolio_files": [],
     "metadata": {
@@ -3575,8 +4050,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3594,11 +4073,27 @@
       "pushed_at": "2026-09-24T21:24:09Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "Astro",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 971007,
+      "CSS": 318598,
+      "Astro": 57092,
+      "JavaScript": 28392,
+      "HTML": 11507
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -3616,8 +4111,12 @@
       "pushed_at": "2025-07-05T14:28:11Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 168667
+    },
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3651,11 +4150,26 @@
         "web-workers"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 100919,
+      "HTML": 11835,
+      "CSS": 10893
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/video-to-ascii/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -3673,8 +4187,14 @@
       "pushed_at": "2026-10-06T13:31:59Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "Just"
+    ],
+    "language_bytes": {
+      "Python": 491659,
+      "Just": 1973
+    },
     "primary_language": "Python",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -3701,11 +4221,26 @@
         "selenium"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "Python",
+      "Shell"
+    ],
+    "language_bytes": {
+      "HTML": 8981720,
+      "Python": 71032,
+      "Shell": 8759
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/webcrawler/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -3726,8 +4261,12 @@
     "languages": [],
     "language_bytes": {},
     "primary_language": null,
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3772,8 +4311,15 @@
       "Markdown": 1128
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ahsr-senior-design-archive/preview.png"
+    ],
     "metadata": {
       "role": "Software Lead",
       "duration": "Jan 2023 - Dec 2024",
@@ -3791,7 +4337,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-14T07:08:28Z",
+      "pushed_at": "2026-10-13T16:13:36Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -3803,11 +4349,34 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "Astro",
+      "HTML",
+      "MDX",
+      "JavaScript",
+      "CSS",
+      "Shell"
+    ],
+    "language_bytes": {
+      "TypeScript": 156674,
+      "Astro": 89660,
+      "HTML": 59128,
+      "MDX": 40493,
+      "JavaScript": 29739,
+      "CSS": 10581,
+      "Shell": 7015
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/all-about-me/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -3836,11 +4405,22 @@
         "student-project"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Java"
+    ],
+    "language_bytes": {
+      "Java": 64590
+    },
     "primary_language": "Java",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/apcomputersciencea2019-2020/preview.png"
+    ],
     "metadata": {
       "category": "academic"
     }
@@ -3871,11 +4451,24 @@
         "web-app"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 47852,
+      "HTML": 12217
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ascii-react-native/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -3900,11 +4493,24 @@
         "tensorflow"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Jupyter Notebook",
+      "Rich Text Format"
+    ],
+    "language_bytes": {
+      "Jupyter Notebook": 50998379,
+      "Rich Text Format": 486
+    },
     "primary_language": "Jupyter Notebook",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/cap4770-final-project/preview.png"
+    ],
     "metadata": {
       "category": "academic"
     }
@@ -3922,11 +4528,23 @@
       "pushed_at": "2026-08-30T02:45:25Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "Shell",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 87424,
+      "Shell": 11733,
+      "HTML": 3135
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "other"
     }
@@ -3944,11 +4562,26 @@
       "pushed_at": "2026-10-13T16:09:21Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 172457,
+      "HTML": 5474,
+      "JavaScript": 775
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinbasis-py/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -3979,11 +4612,24 @@
         "taxes"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 146230,
+      "HTML": 6295
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinbasis-rs/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -4001,11 +4647,26 @@
       "pushed_at": "2026-06-04T17:21:07Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 166351,
+      "HTML": 5585,
+      "JavaScript": 775
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/coinlytics-py/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -4036,11 +4697,30 @@
         "usda"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Makefile",
+      "C++",
+      "C",
+      "CMake",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Makefile": 64866,
+      "C++": 55382,
+      "C": 24939,
+      "CMake": 12404,
+      "HTML": 9310
+    },
     "primary_language": "Makefile",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/cplories-and-more/preview.png"
+    ],
     "metadata": {
       "category": "academic"
     }
@@ -4058,11 +4738,26 @@
       "pushed_at": "2026-06-04T17:57:48Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 157947,
+      "HTML": 7262,
+      "JavaScript": 775
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/crypto-price-tracker/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -4092,11 +4787,24 @@
         "tui"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 152974,
+      "HTML": 7106
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/crypto-price-tracker-v2/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -4128,11 +4836,24 @@
         "volatility"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 49469,
+      "HTML": 8440
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/cryptolytics-rs/preview.png"
+    ],
     "metadata": {
       "category": "crypto-fintech"
     }
@@ -4153,11 +4874,28 @@
         "time-blocking"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "JavaScript": 142231,
+      "CSS": 34033,
+      "HTML": 29734,
+      "Shell": 1642
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/easy-time-blocking/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -4175,11 +4913,24 @@
       "pushed_at": "2026-06-01T09:20:15Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "Python"
+    ],
+    "language_bytes": {
+      "HTML": 5559,
+      "Python": 747
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ebayviews/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -4206,11 +4957,24 @@
         "requests"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 40218,
+      "HTML": 10679
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ebayviews-desktop/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -4241,11 +5005,34 @@
         "zigbee"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "C",
+      "CMake",
+      "HTML",
+      "Python",
+      "C++",
+      "Shell",
+      "Makefile"
+    ],
+    "language_bytes": {
+      "C": 11636,
+      "CMake": 6931,
+      "HTML": 5025,
+      "Python": 4155,
+      "C++": 1918,
+      "Shell": 395,
+      "Makefile": 229
+    },
     "primary_language": "C",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/eel4599-final-project/preview.png"
+    ],
     "metadata": {
       "category": "academic"
     }
@@ -4272,11 +5059,24 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 267872,
+      "HTML": 6159
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/email-archive-parser/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4305,11 +5105,28 @@
         "vite"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 879511,
+      "CSS": 10446,
+      "HTML": 6886,
+      "JavaScript": 616
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/emailanalyzer/preview.png"
+    ],
     "metadata": {
       "category": "security"
     }
@@ -4327,11 +5144,19 @@
       "pushed_at": "2026-06-03T13:40:30Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 15791
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4349,11 +5174,30 @@
       "pushed_at": "2026-05-26T22:16:59Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "TypeScript",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 216965,
+      "TypeScript": 163971,
+      "JavaScript": 2179,
+      "CSS": 1657,
+      "HTML": 362
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-archiver/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4377,11 +5221,28 @@
         "preservation"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "Shell"
+    ],
+    "language_bytes": {
+      "JavaScript": 69405,
+      "CSS": 42266,
+      "HTML": 39630,
+      "Shell": 11212
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/git-archiver-web/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4399,11 +5260,26 @@
       "pushed_at": "2026-06-04T22:23:45Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 39185,
+      "HTML": 21330,
+      "CSS": 2559
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/googleformsautofiller/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -4421,11 +5297,24 @@
       "pushed_at": "2026-06-04T20:39:10Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "Ruby"
+    ],
+    "language_bytes": {
+      "HTML": 5167,
+      "Ruby": 2598
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/homebrew-tap/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4443,11 +5332,30 @@
       "pushed_at": "2026-06-01T13:10:38Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "Python",
+      "CSS",
+      "JavaScript",
+      "Procfile"
+    ],
+    "language_bytes": {
+      "HTML": 12326,
+      "Python": 8092,
+      "CSS": 7830,
+      "JavaScript": 6144,
+      "Procfile": 55
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/image-to-ascii-flask/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -4465,11 +5373,26 @@
       "pushed_at": "2026-06-03T21:45:41Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 122917,
+      "HTML": 12634,
+      "CSS": 8000
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/image-to-ascii-vite/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -4487,11 +5410,24 @@
       "pushed_at": "2026-06-01T11:43:47Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "Python"
+    ],
+    "language_bytes": {
+      "HTML": 5228,
+      "Python": 4232
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/img2ascii/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -4509,8 +5445,14 @@
       "pushed_at": "2025-03-04T00:35:52Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 14453,
+      "HTML": 1950
+    },
     "primary_language": "JavaScript",
     "has_portfolio": false,
     "portfolio_files": [],
@@ -4536,11 +5478,21 @@
         "python3"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "AppleScript"
+    ],
+    "language_bytes": {
+      "Python": 19960,
+      "AppleScript": 4479
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -4572,11 +5524,32 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "Svelte",
+      "HTML",
+      "CSS",
+      "TypeScript",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Rust": 53052,
+      "Svelte": 51107,
+      "HTML": 11778,
+      "CSS": 2660,
+      "TypeScript": 2127,
+      "JavaScript": 291
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/local-hoster/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4602,11 +5575,26 @@
         "voter-education"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "HTML": 93346,
+      "CSS": 12410,
+      "JavaScript": 2246
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/myvoteproject-v1/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -4630,11 +5618,26 @@
         "ws2812"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 117255,
+      "HTML": 36313,
+      "CSS": 35117
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/neomatrix-framecreator/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -4660,11 +5663,24 @@
         "programming-language"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Java",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Java": 258919,
+      "HTML": 9311
+    },
     "primary_language": "Java",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/plc-project/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4686,11 +5702,26 @@
         "webgl"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 21348,
+      "HTML": 8395,
+      "CSS": 1523
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pluribus-text-gen/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -4719,11 +5750,28 @@
         "yjs"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 366470,
+      "CSS": 63954,
+      "HTML": 58813,
+      "TypeScript": 1142
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/private-collab-whiteboard/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities",
       "featured": true
@@ -4748,11 +5796,23 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 535116,
+      "JavaScript": 3865,
+      "HTML": 864
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4776,11 +5836,21 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 27100,
+      "HTML": 2899
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4807,11 +5877,28 @@
         "uv"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "Jinja",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Python": 260219,
+      "Jinja": 100364,
+      "HTML": 4386,
+      "JavaScript": 940
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pythonforge/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4843,11 +5930,24 @@
         "totp"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Rust",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Rust": 280036,
+      "HTML": 12097
+    },
     "primary_language": "Rust",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/quickpass/preview.png"
+    ],
     "metadata": {
       "category": "security"
     }
@@ -4873,11 +5973,28 @@
         "vercel"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML",
+      "JavaScript",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 29756,
+      "HTML": 4669,
+      "JavaScript": 630,
+      "CSS": 504
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/remote-preview/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4901,11 +6018,26 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 253900,
+      "CSS": 5885,
+      "JavaScript": 672
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/repolens/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools",
       "featured": true
@@ -4932,11 +6064,32 @@
         "rust-gui"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Svelte",
+      "Rust",
+      "CSS",
+      "HTML",
+      "TypeScript",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "Svelte": 84369,
+      "Rust": 53897,
+      "CSS": 12306,
+      "HTML": 10620,
+      "TypeScript": 8867,
+      "JavaScript": 296
+    },
     "primary_language": "Svelte",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/rust-dashboard/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -4967,11 +6120,24 @@
         "shopify"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 20688,
+      "HTML": 4963
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shopify-atc/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -4997,11 +6163,28 @@
         "vercel"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 65449,
+      "CSS": 28689,
+      "HTML": 4948,
+      "JavaScript": 465
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/shopify-atc-gui/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -5029,11 +6212,26 @@
         "vite"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 140422,
+      "HTML": 22278,
+      "CSS": 17592
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/signature-studio/preview.png"
+    ],
     "metadata": {
       "category": "creative"
     }
@@ -5061,11 +6259,28 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 275921,
+      "CSS": 17425,
+      "HTML": 13331,
+      "JavaScript": 2417
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/simple-backgammon/preview.png"
+    ],
     "metadata": {
       "category": "games"
     }
@@ -5094,11 +6309,24 @@
         "vite"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "TypeScript": 166110,
+      "HTML": 5399
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/snorlax-tracker/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities"
     }
@@ -5127,11 +6355,26 @@
         "wpm"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML",
+      "CSS"
+    ],
+    "language_bytes": {
+      "JavaScript": 19252,
+      "HTML": 13410,
+      "CSS": 9264
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/supernatural-speed-racer/preview.png"
+    ],
     "metadata": {
       "category": "games"
     }
@@ -5149,11 +6392,24 @@
       "pushed_at": "2026-06-03T17:57:25Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "HTML"
+    ],
+    "language_bytes": {
+      "JavaScript": 25974,
+      "HTML": 7203
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/supernatural-speed-typer/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }
@@ -5168,14 +6424,27 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-15T04:21:16Z",
+      "pushed_at": "2026-10-14T04:24:28Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Python",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Python": 63871,
+      "HTML": 7297
+    },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/technical-1/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools"
     }
@@ -5193,11 +6462,24 @@
       "pushed_at": "2026-05-27T17:13:42Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "HTML",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "HTML": 11989,
+      "JavaScript": 4912
+    },
     "primary_language": "HTML",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ucf-decisionchecker/preview.png"
+    ],
     "metadata": {
       "category": "automation"
     }

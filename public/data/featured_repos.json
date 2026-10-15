@@ -23,11 +23,28 @@
         "yjs"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "JavaScript",
+      "CSS",
+      "HTML",
+      "TypeScript"
+    ],
+    "language_bytes": {
+      "JavaScript": 366470,
+      "CSS": 63954,
+      "HTML": 58813,
+      "TypeScript": 1142
+    },
     "primary_language": "JavaScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/private-collab-whiteboard/preview.png"
+    ],
     "metadata": {
       "category": "web-utilities",
       "featured": true
@@ -62,11 +79,30 @@
         "visualization"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "JavaScript",
+      "HTML",
+      "Python",
+      "CSS"
+    ],
+    "language_bytes": {
+      "TypeScript": 765972,
+      "JavaScript": 617732,
+      "HTML": 11747,
+      "Python": 6341,
+      "CSS": 3095
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/orbit/preview.png"
+    ],
     "metadata": {
       "category": "ai-ml",
       "featured": true
@@ -130,11 +166,24 @@
       "pushed_at": "2026-10-13T16:09:27Z",
       "topics": []
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "Swift",
+      "HTML"
+    ],
+    "language_bytes": {
+      "Swift": 259062,
+      "HTML": 35671
+    },
     "primary_language": "Swift",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/pixscan/preview.png"
+    ],
     "metadata": {
       "category": "mobile",
       "featured": true
@@ -180,8 +229,15 @@
       "Markdown": 1128
     },
     "primary_language": "Python",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/ahsr-senior-design-archive/preview.png"
+    ],
     "metadata": {
       "role": "Software Lead",
       "duration": "Jan 2023 - Dec 2024",
@@ -208,11 +264,26 @@
         "typescript"
       ]
     },
-    "languages": [],
-    "language_bytes": {},
+    "languages": [
+      "TypeScript",
+      "CSS",
+      "JavaScript"
+    ],
+    "language_bytes": {
+      "TypeScript": 253900,
+      "CSS": 5885,
+      "JavaScript": 672
+    },
     "primary_language": "TypeScript",
-    "has_portfolio": false,
-    "portfolio_files": [],
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md",
+      "stack.md",
+      "qa.md"
+    ],
+    "screenshots": [
+      "/screenshots/repolens/preview.png"
+    ],
     "metadata": {
       "category": "dev-tools",
       "featured": true

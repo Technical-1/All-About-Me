@@ -1,0 +1,154 @@
+# Tech Stack
+
+## Overview
+
+A full-stack web application featuring a real-time multiplayer backgammon game with AI opponents, 3D graphics, and persistent storage.
+
+## Frontend
+
+### Framework
+
+- **Next.js 15.5.12** - React framework with App Router
+  - App Router provides file-based routing and React Server Components support
+  - Built-in image optimization and code splitting
+  - Minimal config needed compared to a hand-rolled Webpack/Vite setup
+
+### UI Library
+
+- **React 18** - Component-based UI
+  - Concurrent features enable smooth animations
+  - Hooks for clean state management
+
+### Language
+
+- **TypeScript 5** - Type safety throughout
+  - Catches game logic errors at compile time
+  - Self-documenting types for game state
+
+### Graphics
+
+- **Three.js 0.182.0** - 3D rendering
+  - Powers the hero background animation on the home page
+  - Isolated to specific components for code splitting
+- **HTML5 Canvas API** - 2D board rendering
+  - Direct pixel manipulation for game board
+  - Smooth piece movement animations
+- **CSS 3D Transforms** - Dice animations
+  - Hardware-accelerated 3D dice rotations
+  - Simpler than Three.js for basic 3D effects
+
+### Styling
+
+- **Custom CSS** - Hand-crafted utility classes
+  - No CSS framework dependency
+  - Dark theme with gold/copper accents
+  - Responsive design with mobile-first approach
+
+## Backend
+
+### Real-Time Server
+
+- **PartyKit 0.0.115** - WebSocket infrastructure
+  - Built on Cloudflare Workers and Durable Objects
+  - Game-room server imports the shared `lib/` rule engine and is fully authoritative over moves
+  - Durable storage alarms drive the 90-second disconnect grace and forfeit, surviving platform hibernation
+  - Deployed to edge for low latency
+
+### WebSocket Client
+
+- **PartySocket 1.1.10** - React WebSocket hook
+  - Automatic reconnection with exponential backoff
+  - Type-safe message passing
+
+### Server Hardening
+
+- **Input sanitization** (`lib/validation.ts`) - control characters stripped, names/messages length-capped
+- **Rate limiting** - 20 messages/second per connection on both the game room and matchmaker
+- **Server-authoritative validation** - clients send intents only; the server recomputes move legality
+
+## Database / Storage
+
+### Client-Side Persistence
+
+- **localStorage** - Game state and statistics
+  - Up to 5 saved games per browser
+  - Win/loss statistics tracking
+  - Player preferences (name, settings)
+
+### Server-Side Persistence
+
+- **PartyKit Durable Storage** - Room state
+  - Persists game state across disconnections and platform hibernation
+  - 90-second disconnect grace enforced by a durable storage alarm; timeout forfeits the game to the present opponent
+  - Chat history (last 100 messages), replayed to reconnecting players
+
+## Infrastructure and Deployment
+
+### Frontend Hosting
+
+- **Vercel** - Next.js deployment
+  - Automatic deployments from Git
+  - Edge network for fast global access
+  - Preview deployments for PRs
+
+### Backend Hosting
+
+- **PartyKit Cloud** - WebSocket servers
+  - Cloudflare Workers runtime
+  - Global edge deployment
+  - Durable Objects for state
+
+### Build Tools
+
+- **npm** - Package management
+- **ESLint 8** - Code linting with Next.js config
+- **Vitest 4** - Unit tests across the rule engine, AI, storage, validation, and pure helpers in `lib/`, plus the room forfeit logic and the shared-engine invariant in `party/`
+- **Sharp 0.34.5** - Image processing for build
+
+## Key Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| next | ^15.5.12 | React framework |
+| react | ^18 | UI library |
+| react-dom | ^18 | React DOM renderer |
+| three | ^0.182.0 | 3D graphics library |
+| @types/three | ^0.182.0 | TypeScript types for Three.js |
+| partykit | ^0.0.115 | WebSocket server framework |
+| partysocket | ^1.1.10 | WebSocket client with React hooks |
+| typescript | ^5 | Type checking |
+| eslint | ^8 | Linting |
+| eslint-config-next | ^15.5.12 | Next.js ESLint rules |
+| vitest | ^4.0.18 | Unit testing for game logic |
+| sharp | ^0.34.5 | Image optimization |
+
+## Why These Choices
+
+### Next.js over Create React App
+
+I chose Next.js because:
+- App Router simplifies routing without external dependencies
+- Server-side rendering improves initial load
+- Built-in optimizations reduce configuration
+
+### PartyKit over Socket.io/Firebase
+
+I selected PartyKit because:
+- Simpler API than raw WebSockets
+- Edge deployment means lower latency
+- Durable Objects handle state persistence automatically
+- No database to manage for game rooms
+
+### Canvas over DOM/SVG
+
+I used Canvas for the board because:
+- Better performance for animations
+- Pixel-perfect control over rendering
+- Simpler coordinate calculations for click detection
+
+### Custom CSS over Tailwind/Styled Components
+
+I wrote custom CSS because:
+- Complete control over design tokens
+- No external dependency
+- Smaller bundle size for a single project
