@@ -67,6 +67,20 @@ badly (`origin-error`); a transport error is it not answering at all
 (`unreachable`). ⚠️ The first version keyed on count, so one repo returning 500
 read as `unreachable` — sending an operator to a network that was fine.
 
+**⭐ A rate-limited 403 is `origin-error`, never `auth-error`.** GitHub answers
+403 when its rate limit is hit: the primary limit with
+`x-ratelimit-remaining: 0`, the secondary with `retry-after`. On the roster
+listing that now records `origin-error`, which the alerter waits three runs on;
+a 401, and a 403 with budget left, stay `auth-error`, which pages at once.
+⛔ GitHub sends `x-ratelimit-*` on every authenticated response, so the mere
+presence of those headers proves nothing — only exhaustion or `retry-after`
+does. The run record's `failure_reason` keeps the rate-limit headers of every
+listing failure (`x-ratelimit-limit`, `-remaining`, `-reset`, `retry-after`,
+nothing else), so a future 403 can be read after the fact. ⚠️ Before this the
+record kept none, and the two single-run `auth-error` 403s of 2026-10-13 and
+2026-10-15 could only be shown to be rate limits by their shape (first request,
+healed the next hour on the same token), never by their headers.
+
 ## ⚠️ What is deliberately narrow
 
 `.portfolio/` + `CLAUDE.md`, `.md`/`.mdx`, under 1 MB. ⛔ `README.md` and

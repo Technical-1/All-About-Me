@@ -22,7 +22,9 @@ refuses to skip**.
 
 - **Exit discipline.** The run record's `exit_class` is the only fault signal
   that reaches `source-alerter`; `systemd` exits 0 for every fault class and can
-  never see it. Tests pin which conditions produce which class.
+  never see it. Tests pin which conditions produce which class —
+  `tests/test_rate_limited_403.py` pins a rate-limited 403 as `origin-error`,
+  with a 403 that still has budget as its control (it must stay `auth-error`).
 - **The roster is discovered, never hand-listed.** `affiliation=owner` once hid
   24% of the roster; it now sends
   `owner,collaborator,organization_member`.

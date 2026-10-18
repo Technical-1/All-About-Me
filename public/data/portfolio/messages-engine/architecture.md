@@ -23,10 +23,10 @@ One process, one run, four stages: read → normalize → derive → verbs. Ther
 - **Exit discipline** [D-L]:
   - `ok`, built or unchanged, exits 0;
   - `lock-contended` exits 0;
-  - `local-error` and `data-error` exit 1 (a `data-error` is a populated class on neither side of the partition, or a record kind the derive has not seen).
+  - `local-error` and `data-error` exit 1 (a `data-error` is a populated class on neither side of the partition, or a record kind the derive has not seen; a table declared in the mirror and empty is on no side until it takes a row, which is when a gap first shows — why contacts-metadata's CloudKit namespace is out by prefix, [ai-lab TD-311]).
 
   A non-paging finding goes to `findings[]`, which the alerter does not read [D-M].
-- **Memory does not grow with the archive's messages.** The read phase spools what it hands on and the derive streams. What still grows is raw-tier's read log during the read phase. Every build prints one stderr line per phase: rows, seconds, resident and peak MiB.
+- **Memory does not grow with the archive's messages.** The read phase spools what it hands on and the derive streams. What still grows is raw-tier's read log during the read phase; after it, only what the build holds by design — the raw arm's manifest versions, every tombstone, the chat members' first-seen instants — never anything per message (`tests/unit/test_build_memory.py`). Every build prints one stderr line per phase: rows, seconds, resident and peak MiB.
 
 ## Deployed
 

@@ -19,8 +19,9 @@ State: `live`, deployed on the tower at plan T11. The figures below were read on
   - the render step;
   - the claims export;
   - the E14 observer: a row fall held to the rows the diff reports gone (`test_e14_observer.py`), and a trigger a still-running build absorbed named `ABSORBED` and passed over, while a genuinely late gate reading still fails (`test_e14_absorbed.py`);
+  - the partition's CloudKit prefix (`test_partition_cloudkit.py`): a CloudKit table planted in a copy of the fixture's contacts-metadata mirror, given its first row, builds `ok` and is declared out, the named CloudKit lines keep their reasons, and a table outside the namespace, or the same name in the imessage mirror, still fails `data-error` naming it [ai-lab TD-311]; read on the Mac 2026-10-17;
   - the deployed period (`test_deploy_period.py`: the constant and the drafted alerter stanza are one figure, ten minutes as Jacob ruled).
-- **`tests/unit/`** — the decode cache, the rules (date, link, intent, rich link), the typedstream decoder, the spool and the per-phase memory bound, the text pass, the INSIGHT specimens.
+- **`tests/unit/`** — the decode cache, the rules (date, link, intent, rich link), the typedstream decoder, the spool, the per-phase memory bound and the bound on what a build keeps per message alone, the text pass, the INSIGHT specimens, and the guard that every locked per-counterpart figure is what the fixture's rows give (`test_expectations_track_fixture.py`).
 - **`tests/tools/`** — the tools' own tests: the judge, the draw, the generator, the fixture loader, the coverage map, the report boundary, the patch points.
 
 ## How a mutant is held
