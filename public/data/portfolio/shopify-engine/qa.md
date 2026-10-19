@@ -11,7 +11,7 @@ State: `live`.
 | the spec's gate | `tests/spec/`, with a subdirectory per amendment (`ls -d tests/spec/*/`) | one file per table and per named spec item; `tests/spec/coverage_map.py` maps the plan's §2 to them, both ways |
 | method obligations | `tests/run/` | `receipts-for`, `status`, the changes diff, the stale exit, the recompute declarations, the ruled exclusions (test, zero-total, comped), the store's swap with a reader at every step of it, `status` and a verb as one reading across a swap, a `--limit` below one refused on every verb, an unknown pair of each pair table built as a finding in each shape that leaves one, an error planted at each stage of a build ending in a `local-error` run record, a failing engine served as the last good build and said so until it is stale, `status` by the same reading of the run record |
 | identities | `tests/identity/` | the code identity, the decoder identity, the clean-tree refusal, the change gate |
-| units | `tests/unit/` | the fixture gate, the Source's widened payloads, `scripts/e14-observe.py`, periods, decode failures, the class of each pair table |
+| units | `tests/unit/` | the fixture gate, the Source's widened payloads, `scripts/e14-observe.py`, periods, the timer period derived from the unit, decode failures, the class of each pair table |
 | E14, liveness | `scripts/e14-observe.py`, on the tower | each timer tick against every clause of E14; it watches and starts nothing |
 
 ```bash

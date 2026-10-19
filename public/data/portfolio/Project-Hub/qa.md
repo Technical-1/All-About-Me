@@ -2,11 +2,11 @@
 
 ## Overview
 
-Project Hub is a macOS desktop app I built to be the one place I manage all of my code projects. It syncs my GitHub repositories across more than one account, keeps tasks and notes per project, runs dev servers, and opens any project in a terminal or Claude Code with one click. The interesting technical part is that it builds its activity record on its own: pushed commits are captured into a work log on every sync, and a `[hub-N]` tag in a commit message closes the matching task. That log drives a daily Today page. It is a Tauri 2 app with a React front end, a Rust core and a local SQLite database, and it currently runs as a development build with no signed release.
+Repohangar (called Project Hub until October 2026) is a macOS desktop app I built to be the one place I manage all of my code projects. It syncs my GitHub repositories across more than one account, keeps tasks and notes per project, runs dev servers, and opens any project in a terminal or Claude Code with one click. The interesting technical part is that it builds its activity record on its own: pushed commits are captured into a work log on every sync, and a `[hub-N]` tag in a commit message closes the matching task. That log drives a daily Today page. It also watches GitHub Actions and can have my coding agent diagnose a failed run and prepare a fix that only reaches GitHub after I approve it. It is a Tauri 2 app with a React front end, a Rust core and a local SQLite database, and it currently runs as a development build with no signed release.
 
 ## Problem Solved
 
-I work across a large number of repositories and kept losing track of which ones had drifted, which had uncommitted local changes, and what I had meant to do next in each. Project Hub puts every repository on one board, derives status from git instead of from what I remember to write down, and removes the steps between "I should work on that" and having the right project open with the right task in front of me.
+I work across a large number of repositories and kept losing track of which ones had drifted, which had uncommitted local changes, and what I had meant to do next in each. Repohangar puts every repository on one board, derives status from git instead of from what I remember to write down, and removes the steps between "I should work on that" and having the right project open with the right task in front of me.
 
 ## Target Users
 
@@ -15,8 +15,11 @@ I work across a large number of repositories and kept losing track of which ones
 
 ## Key Features
 
-### Dashboard
-A card for every repository, filterable by status, GitHub account and owner or organization. A project is `pending`, `active`, `on_hold`, `idea`, `done`, `archived` or `ignore`; the default view shows only active work, and `ignore` keeps a repository out of the Today statistics entirely. From a card I can clone, link an existing folder, start the dev server, open a terminal or Claude Code, and push.
+### Projects
+Every repository in one list (or as cards), filterable by status, GitHub account and owner or organization, with a page per project (overview, tasks, notes, activity, settings). A project is `pending`, `active`, `on_hold`, `idea`, `done`, `archived` or `ignore`; `ignore` keeps a repository out of the Today statistics entirely. From a project I can clone, link an existing folder, start the dev server, open a terminal, an editor or Claude Code, and commit chosen files and push them after a preview. A sidebar with ⌘1–⌘6 and a ⌘K palette reach everything from the keyboard.
+
+### Waiting on you
+One queue of what needs me: accounts to reconnect, failed CI runs, failed scheduled investigations, stale work and stuck tasks.
 
 ### Ambient capture and the `[hub-N]` convention
 Each sync records recent commits in a work log. If a commit message contains `[hub-42]`, task 42 is resolved and linked to that commit once the commit is pushed. I never mark tasks done by hand.
@@ -27,20 +30,23 @@ A 12-week activity heatmap, per-project velocity for the last 14 days, today's a
 ### Stale Work Radar
 Flags active, cloned projects that have uncommitted tracked changes with no commit in 7 days, or no recorded activity for 7 days, with a button to open a terminal there.
 
-### Task Board and Claude Code launchers
+### Tasks and Claude Code launchers
 Tasks across every project with a three-state lifecycle and priorities. A single task opens in Claude Code with a prompt built from its title, description and project, including the instruction to tag the commit. Separately, a project's whole list of open tasks can be handed to one session, and an Investigate action runs a headless review of a repository and files what it finds as new tasks.
 
-### Fleet
+### CI failure analysis
+With CI watching on, failed GitHub Actions runs on default branches become incidents with a log excerpt, the changes since the last green run and a triage guess. My coding agent (Claude Code or Codex) diagnoses an incident read-only in its own worktree and can then propose a fix; approving it commits on a `hub-ci/` branch and opens a pull request, and the approval is tied to the exact diff I reviewed. The review screens are still being built.
+
+### Fleet (experimental)
 Up to five headless Claude Code sessions running at once, each in its own git worktree and branch, with a live line showing what each is doing and a box to send it a follow-up instruction.
 
 ### Scheduled investigation
 Chosen projects can be investigated daily or weekly at a set hour while the app is open; each run and its result is listed on the Today page.
 
 ### Multiple GitHub accounts
-I can connect several accounts. Each project remembers which account it came from, and clones use that account's token and commit identity.
+I can connect several accounts. Each project remembers which account it came from, and clones use that account's token. The app never writes a repository's commit identity.
 
 ### Archive with preserved context
-Marking a cloned project done or archived saves its `.portfolio/` write-ups to a side folder and removes the local clone. Restoring re-clones the repository and puts them back.
+Marking a cloned project done or archived first checks the clone for anything that would be lost (uncommitted or untracked files, unpushed commits, stashes, other worktrees), then saves its `.portfolio/` write-ups to a side folder and removes the local clone. Restoring re-clones the repository and puts them back.
 
 ### MCP server
 A small Node server exposes the task board and work log as tools, so a Claude Code session can identify its project, list and create tasks, and log work directly. It is a separate package that has to be built and registered by hand; the app does not bundle it.
@@ -79,11 +85,11 @@ The app and the MCP server both write to the database. `src-tauri/src/db/mod.rs`
 - **Choice**: Poll the API as part of the sync that already runs
 - **Why**: It reuses calls the app is already making and covers every repository. Webhooks would need a public endpoint. The cost is that a commit only counts once it is pushed to the default branch
 
-### GitHub tokens in a local file
-- **Constraint**: Several accounts, each needing a token for API calls, clones and pushes
-- **Options**: The system keychain, a file in the home directory
-- **Choice**: A JSON file, `~/.project-hub-accounts.json`, restricted to my user
-- **Why**: It was the simplest thing that supported multiple accounts. The trade-off is that the file is plain text, and the token is also written into each clone's git config so that pushes authenticate
+### GitHub tokens in the Keychain, git through the app's own credential helper
+- **Constraint**: Several accounts, each needing a token for API calls, clones and pushes, without leaving the token in a file or in each repository
+- **Options**: A file in the home directory (what the first version did), the system keychain with the token written into each clone's git config, the system keychain with the app acting as git's credential helper
+- **Choice**: One Keychain item per account, and the app binary itself as a per-command git credential helper, injected through git's environment so nothing is written into any repository
+- **Why**: The first version kept tokens in a plain JSON file and wrote them into each clone's `.git/config`, where they travelled with every copy of the folder. Now the token is never on a command line, in the environment or in a config file, and a startup migration moves old files into the Keychain and deletes them. The remaining trade-off: any process running as my user can call the helper the way git does and get a token, which a later sandboxing step is meant to close
 
 ## Frequently Asked Questions
 
@@ -94,16 +100,16 @@ During sync the app fetches the latest commits for my most recently pushed repos
 It looks only at projects that are active and cloned. A project with tracked uncommitted changes whose last commit is 7 or more days old is flagged "uncommitted". A clean project whose newest work-log entry is 7 or more days old is flagged "untouched". A project with no history at all is not flagged.
 
 ### What do the Claude Code actions actually do?
-There are three different things. Opening a task starts an interactive session in Terminal with a prompt for that one task. "Task Completion" on a project starts one interactive session seeded with all of its open tasks. "Investigate" runs a headless session that reviews the repository and writes its findings to a file, which the app imports as new tasks. The plain "Open in Claude" button uses `happy` if it is installed and `claude` otherwise.
+There are three different things. Opening a task starts an interactive session in Terminal with a prompt for that one task. "Task Completion" on a project starts one interactive session seeded with all of its open tasks. "Investigate" runs a headless, read-only session in a throwaway worktree that reviews the repository and answers through structured output, which the app checks and imports as new tasks. The plain "Open in Claude" button uses `happy` if it is installed and `claude` otherwise.
 
 ### What happens to Fleet agents when I quit the app?
 They are stopped and forgotten: the list of running agents is held in memory. Their worktrees and branches stay on disk under the app-data directory, so the work is not lost, but the app will not list them again. Nothing in Fleet merges or pushes a branch; that step is mine.
 
 ### Where is my data stored?
-Projects, tasks, notes and the work log are in one SQLite file in the app-data directory. GitHub accounts and tokens are in `~/.project-hub-accounts.json`, readable only by my user. The app's own network requests go only to GitHub; the Claude Code sessions it starts talk to their own service.
+Projects, tasks, notes, the work log and CI history are in one SQLite file in the app-data directory, backed up before every schema upgrade. GitHub tokens are in the macOS Keychain, one item per account; the database holds only the account metadata. The app's own network requests go only to GitHub; the agent sessions it starts talk to their own services, and CI analysis gives them a scrubbed excerpt of the failing logs.
 
-### Why does sign-in use a localhost callback?
-There is no server to receive the redirect. The app listens on `127.0.0.1:8765` for the one callback, checks the `state` value, and exchanges the code for a token. It uses an OAuth App whose client id and secret are read from a local `.env`, which is why running the app today means registering your own.
+### Why does sign-in use a device code?
+A desktop app cannot keep a client secret, and there is no server to receive a redirect. With GitHub's device flow the app shows a short code, I enter it on github.com, and the app polls GitHub until the token is issued. The OAuth App's client id is public and compiled in, so there is no secret, no local port and no `.env`. The cost is that the app cannot revoke a token itself (that needs the secret); signing out deletes it from the Keychain and links to the GitHub page where I revoke it.
 
 ### Does it work on Windows or Linux?
 Not in practice. The launchers drive Terminal.app through AppleScript, and the MCP server's default database path is the macOS one. The Rust code has branches for other platforms that I have not run.

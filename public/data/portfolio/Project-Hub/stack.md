@@ -16,7 +16,8 @@
 - **Framework**: React 19
 - **Routing**: TanStack Router 1.x, file-based; the route tree is generated with `tsr generate`
 - **State Management**: TanStack Query 5.x for everything that comes from the Rust core, with interval polling for views that other processes can change
-- **Styling**: Tailwind CSS v4 through `@tailwindcss/vite`, with content scanning scoped to `src/`
+- **Styling**: Tailwind CSS v4 through `@tailwindcss/vite`, with content scanning scoped to `src/`; design tokens (`src/theme/tokens.css`) exposed as role utilities, light and dark
+- **Components**: own primitives in `src/ui/` on Radix UI; cmdk for the ⌘K palette
 - **Build Tool**: Vite 7
 - **Icons and utilities**: lucide-react, clsx, date-fns
 
@@ -25,13 +26,13 @@
 - **Runtime**: Rust with tokio; long-running work goes to `spawn_blocking`
 - **Framework**: Tauri 2 commands, with events for streaming updates
 - **API Style**: Tauri `invoke` calls, wrapped one-to-one in `src/lib/tauri.ts`
-- **Auth**: GitHub OAuth web flow with a localhost callback on port 8765 and a `state` check; multiple accounts stored in `~/.project-hub-accounts.json` with owner-only permissions (plain JSON, not the system keychain)
+- **Auth**: GitHub OAuth device flow with a public, compiled-in client id (no client secret, no local listener); multiple accounts, with tokens in the macOS Keychain and app-run git authenticated through the app binary acting as a git credential helper
 - **HTTP client**: reqwest 0.12 with connect and request timeouts; rate-limit and expired-token responses are detected and surfaced, not retried
 
 ## Infrastructure
 
 - **Hosting**: None. It is a local desktop app
-- **CI/CD**: None
+- **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`): Rust tests, clippy, fmt and `cargo audit` on macOS; type check, build, Vitest and `npm audit` for the front end; build and tests for the MCP server. No release pipeline yet
 - **Monitoring**: None
 - **Packaging**: Tauri bundler configured for all targets; no code signing, notarization or updater is set up, so the app currently runs as a development build
 
@@ -40,7 +41,7 @@
 - **Package Manager**: npm for the UI and the MCP server, Cargo for the core
 - **Linting**: `cargo clippy`; no JavaScript linter is configured
 - **Formatting**: `cargo fmt`; no JavaScript formatter is configured
-- **Testing**: `cargo test` for Rust unit tests. The UI and the MCP server have no tests; Vitest is installed but there are no test files
+- **Testing**: `cargo test` for the Rust core (including fixture-driven GitHub and fake-agent tests); Vitest with happy-dom and Testing Library for the UI; `node --test` for the MCP server's schema check
 
 ## Key Dependencies
 
@@ -48,18 +49,18 @@
 |---------|---------|
 | `tauri` | Window, IPC, app-data paths, event emission |
 | `tauri-plugin-single-instance` | Keeps a second launch from opening a second writer on the database |
-| `tauri-plugin-opener` | Opens the browser for OAuth and external links |
+| `tauri-plugin-opener` | Opens GitHub's device-code page and external links |
 | `rusqlite` (bundled) | Embedded SQLite |
-| `reqwest` | GitHub REST and OAuth calls |
+| `reqwest` | GitHub REST and device-flow calls |
 | `tokio` | Async runtime, child-process streaming for Fleet and investigations |
 | `chrono` | Timestamps and the scheduler's local-time decisions |
 | `walkdir` | Copying `.portfolio/` directories on archive and restore |
-| `rfd` | Native folder picker |
-| `dotenvy` | Loads the OAuth client id and secret from `.env` in development |
+| `rfd` | Native folder picker and dialogs |
+| `security-framework` | GitHub tokens in the macOS Keychain |
 | `@tanstack/react-router` | File-based routing |
 | `@tanstack/react-query` | Data fetching, caching, invalidation, polling |
+| `radix-ui`, `cmdk` | Accessible primitives and the command palette |
 | `tailwindcss` / `@tailwindcss/vite` | Styling |
-| `@modelcontextprotocol/sdk` | MCP server protocol and stdio transport |
-| `better-sqlite3` | The MCP server's SQLite driver (a native addon) |
+| `rmcp` (pinned), `schemars` | The MCP server in the app binary (`--mcp`): protocol, stdio transport, tool schemas |
 
-`tauri-plugin-deep-link` is also registered, with a `project-hub://` scheme, but sign-in uses the localhost callback and nothing sends a deep link.
+Sign-in uses GitHub's device flow; there is no deep-link plugin or localhost callback.

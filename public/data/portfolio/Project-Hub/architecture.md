@@ -4,30 +4,32 @@
 
 ```mermaid
 flowchart TD
-    subgraph App["Project Hub (single desktop process)"]
+    subgraph App["Repohangar, formerly Project Hub (single desktop process)"]
         subgraph Webview["Webview: React + TypeScript (src/)"]
-            R[routes: Dashboard, Today, Task Board, Notes, Servers, Fleet, Settings, project tasks]
+            R[routes: Today, Projects, project page, Waiting on you, Tasks, Inbox, Portfolio, Failed runs, Settings]
             Q[lib/queries.ts: TanStack Query hooks]
             IPC[lib/tauri.ts: typed invoke wrappers]
         end
         subgraph Core["Rust core (src-tauri/src/)"]
-            GHC[commands/github.rs + github/: OAuth, account store, repo sync]
+            GHC[commands/github.rs + github/ + auth/: device-flow sign-in, accounts, repo sync]
             CAP[commands/capture.rs: ambient capture]
             PRJ[commands/projects.rs + git.rs: clone, link, archive, local git sync]
             PROC[commands/processes.rs: launchers, dev servers, investigation]
             FLEET[commands/fleet.rs: FleetManager, in memory]
             SCHED[scheduler task, 60 s tick]
             DATA[commands/data.rs, work_log.rs, today.rs, settings.rs]
+            CI[commands/ci/: poller, evidence, analysis, write gate]
+            AG[agents/: providers, runner, profiles]
         end
     end
 
     DB[(SQLite, WAL mode)]
-    MCP[mcp-server/: Node MCP server over stdio]
-    GH[GitHub REST API + OAuth]
+    MCP["project-hub --mcp: same binary, MCP over stdio"]
+    GH[GitHub REST API + device flow]
     GIT[git CLI and local clones]
     CC[Claude Code CLI]
     TERM[Terminal.app via AppleScript]
-    ACCT[~/.project-hub-accounts.json]
+    ACCT[macOS Keychain: one token per account]
 
     R --> Q --> IPC
     IPC -->|invoke| Core
@@ -43,26 +45,31 @@ flowchart TD
     FLEET -->|worktree per agent| GIT
     FLEET --> CC
     SCHED --> PROC
-    CC -. launches .-> MCP
+    CI --> GH
+    CI --> AG
+    AG --> CC
+    AG --> CDX[Codex CLI]
+    CI --> DB
+    CC -. launches via the data-dir symlink .-> MCP
     MCP -->|second writer| DB
 ```
 
 ## Component Descriptions
 
 ### Webview front end
-- **Purpose**: The whole user interface: a Dashboard of project cards, the Today page, a cross-project Task Board, Notes, running Servers, the Fleet board and Settings
-- **Location**: `src/routes/`, `src/components/`, `src/lib/`
+- **Purpose**: The whole user interface: Today, Projects and a page per project, a Waiting-on-you queue, Tasks, Inbox, Portfolio, Failed runs, Settings, plus a ⌘K palette
+- **Location**: `src/routes/`, `src/features/`, `src/ui/`, `src/components/`, `src/lib/`
 - **Key responsibilities**: File-based routing with TanStack Router; all server state through TanStack Query hooks in `src/lib/queries.ts`; every call into Rust goes through a typed wrapper in `src/lib/tauri.ts`; `src/main.tsx` owns the sync timers (shortly after launch, every five minutes, and when the window becomes visible again)
 
 ### Rust command layer
 - **Purpose**: Everything the UI can ask for, exposed as Tauri commands
-- **Location**: `src-tauri/src/commands/` (`github`, `capture`, `projects`, `git`, `processes`, `fleet`, `scheduler`, `data`, `work_log`, `today`, `settings`), registered in `src-tauri/src/lib.rs`
+- **Location**: `src-tauri/src/commands/` (`github`, `capture`, `projects`, `git`, `processes`, `fleet`, `scheduler`, `data`, `work_log`, `today`, `settings`, `agents`, `ci/`), registered in `src-tauri/src/lib.rs`
 - **Key responsibilities**: GitHub sync, project lifecycle, local git operations, spawning child processes, notes and tasks, the Today aggregations, settings
 
 ### GitHub client and account store
 - **Purpose**: Sign in with one or more GitHub accounts and read their repositories and commits
-- **Location**: `src-tauri/src/github/oauth.rs`, `src-tauri/src/github/api.rs`
-- **Key responsibilities**: OAuth web flow with a temporary listener on `127.0.0.1:8765` and a random `state` check; a multi-account store in `~/.project-hub-accounts.json` (owner-only file permissions); a REST client with connect and request timeouts that reports an expired token or an exhausted rate limit as a specific error
+- **Location**: `src-tauri/src/github/device_flow.rs`, `src-tauri/src/github/api.rs`, `src-tauri/src/auth/`
+- **Key responsibilities**: GitHub device-flow sign-in with a public, compiled-in client id (no client secret, no listener); account metadata in the `accounts` table and tokens in the macOS Keychain; the app binary as a per-command git credential helper, so no token is written into a repository; a one-time move of tokens out of the old plain-text accounts file; a REST client with connect and request timeouts that reports an expired token or an exhausted rate limit as a specific error
 
 ### Ambient capture
 - **Purpose**: Build an activity journal from pushed commits, with no manual logging
@@ -71,18 +78,28 @@ flowchart TD
 
 ### Database
 - **Purpose**: Local persistence and schema evolution
-- **Location**: `src-tauri/src/db/mod.rs`, `src-tauri/src/db/schema.rs`
-- **Key responsibilities**: One mutex-guarded connection; WAL mode, foreign keys and a busy timeout; six tables (`projects`, `notes`, `tasks`, `settings`, `work_log`, `scheduled_runs`); `run_migrations` applies additive changes on every start
+- **Location**: `src-tauri/src/db/` (`mod.rs`, `migrations.rs`, `backup.rs`, `schema.rs`)
+- **Key responsibilities**: One mutex-guarded connection; WAL mode, foreign keys and a busy timeout; thirteen tables (projects, tasks, notes, the work log, settings, scheduler history, agent runs and five CI tables); ordered migrations keyed on `PRAGMA user_version`, each in its own transaction after a verified backup, and a refusal to open a database written by a newer build
 
 ### Process launchers and dev servers
 - **Purpose**: Get from a project card to a running tool in one click
 - **Location**: `src-tauri/src/commands/processes.rs`
 - **Key responsibilities**: Open Terminal.app, Finder or Claude Code in a project; start and stop dev servers and track them in a `ProcessManager`; run a headless investigation and import its findings as tasks; host the scheduler loop
 
-### Fleet
+### Fleet (experimental)
 - **Purpose**: Run several headless Claude Code sessions in parallel, each isolated from the others and from my working tree
 - **Location**: `src-tauri/src/commands/fleet.rs`, `src/components/fleet/`
 - **Key responsibilities**: Create a git worktree and branch per agent under the app-data directory; start `claude -p` with stream-json output; parse the stream into status and activity; resume a session with a follow-up note; discard the worktree and branch on request. The registry is in memory only
+
+### CI failure detection and analysis
+- **Purpose**: Notice when a GitHub Actions run fails on a default branch and get a diagnosis, and possibly a fix, ready for review
+- **Location**: `src-tauri/src/commands/ci/`, `src-tauri/src/github/transport.rs` and `actions.rs`
+- **Key responsibilities**: Poll watched repositories with ETags and per-account rate-limit pauses; turn runs into incidents with failure signatures; build a scrubbed evidence bundle and a triage class; run the coding agent read-only to diagnose, then in an isolated edit profile to propose a fix, in a per-incident worktree; compute the diff itself; push and open a pull request only through one write gate, bound to the hash of the diff that was reviewed. Off unless switched on
+
+### Agent providers
+- **Purpose**: One place that knows how to run each coding-agent CLI
+- **Location**: `src-tauri/src/agents/`
+- **Key responsibilities**: Detect Claude Code, Codex, Gemini CLI and Antigravity CLI; map permission profiles to each CLI's flags; parse each CLI's event stream into one event type; spawn runs in their own process group with a timeout and cancel; validate structured answers against a JSON schema; record every run
 
 ### Scheduler
 - **Purpose**: Run an investigation on chosen projects daily or weekly
@@ -90,30 +107,33 @@ flowchart TD
 - **Key responsibilities**: Wake every minute, decide whether to fire from four settings, run opted-in projects one at a time, record each result in `scheduled_runs`
 
 ### MCP server
-- **Purpose**: Let a Claude Code session read and update the task board for the repository it is working in
-- **Location**: `mcp-server/src/`
-- **Key responsibilities**: Ten tools over stdio (identify project, list, create, update, start and resolve tasks, bulk create, log work, read the work log, project status); opens the same SQLite file as the app. It is a separate Node package that has to be built and registered by hand
+- **Purpose**: Let an agent session (Claude Code, Codex, Gemini CLI) read and update the task board for the repository it is working in
+- **Location**: `src-tauri/src/mcp/`, with the task, work-log, project and note rules in `src-tauri/src/core/`, shared with the app's own commands
+- **Key responsibilities**: The app binary run with `--mcp` serves `hub_*` tools over stdio (Rust `rmcp`): identify the project, list, get, create, update, start and resolve tasks, bulk create, log work, read the work log, project status, list projects, add a note. It opens the same SQLite file as the app, never creates or migrates it, checks the schema version on every call, and writes each call in one transaction. It works with the app closed. Settings > Agents registers it with each agent's own CLI, only on click and after showing the exact command; agents are pointed at a symlink in the data directory that the app re-points at itself on every launch
 
 ## Data Flow
 
-1. On launch the front end checks for a connected account and calls `sync_github_repos`, then runs one local git sync across every cloned project.
+1. Shortly after launch, every five minutes and when the window comes back into view, the front end calls `sync_github_repos` if an account is connected. Local git state is read without the network; projects on screen are fetched in the background, and nothing is ever pulled without a click.
 2. Sync lists repositories for each account, upserts them into `projects` keyed by GitHub id, and records which account each came from.
 3. For the 20 most recently pushed projects, sync fetches the latest 30 commits and hands them to ambient capture, which writes `committed` rows to `work_log` and resolves any task referenced by `[hub-N]`.
 4. The Today page aggregates `work_log` and `tasks` in SQL (heatmap, velocity, standup, stuck tasks) and combines stored git state with a `git log` call for the Stale Work Radar.
 5. User actions invoke commands that change SQLite, spawn a process, or both; the matching query keys are invalidated so the UI refetches.
-6. Setting a cloned project to `done` or `archived` copies its `.portfolio/` directory to a `.done/` or `.archive/` folder in the clone directory and removes the local clone; restoring re-clones it and copies the directory back.
-7. When a Claude Code session has the MCP server registered, its tool calls write straight to the same database, and the app picks the changes up on its next poll.
+6. Setting a cloned project to `done` or `archived` first runs a read-only safety check of the clone, then copies its `.portfolio/` directory to a `.done/` or `.archive/` folder in the clone directory and removes the local clone; restoring re-clones it and copies the directory back.
+7. When an agent session has the MCP server registered, its tool calls write straight to the same database. The app checks `PRAGMA data_version` every two seconds, emits a `db-changed` event when another process has committed, and the front end refetches tasks, notes, the work log, Today, projects and the inbox.
+8. With CI watching on, a background loop polls GitHub Actions, records failures as incidents, and may start an agent analysis in a worktree; its result waits for my approval before anything reaches GitHub.
 
 ## External Integrations
 
 | Service | Purpose | Notes |
 |---------|---------|-------|
 | GitHub REST API | List repositories and commits, identify the signed-in user | Bearer token per account; first page of the default branch only for commits; no caching or backoff |
-| GitHub OAuth | Sign-in | OAuth App web flow with a localhost callback; scopes `repo` and `read:user`; client id and secret come from a development `.env` |
+| GitHub OAuth (device flow) | Sign-in | The user enters a code on github.com while the app polls; scopes `repo` and `read:user` (`workflow` only on re-authorize); public client id compiled in, no secret |
 | `git` CLI | Clone, fetch, fast-forward pull, status, worktrees, push | Invoked with argument arrays; network calls have a 60-second timeout |
-| Claude Code CLI | Interactive sessions seeded with a task prompt; headless investigation, docs refresh and Fleet agents | Headless runs use `-p` with stream-json output; depends on slash commands that live outside this repository |
+| Claude Code CLI | Interactive sessions seeded with a task prompt; headless investigation, docs refresh, Fleet agents and CI analysis | Headless runs use `-p` with stream-json output and a permission profile, in a worktree; the prompts are compiled into the app (only Fleet's "Run a skill" mode names user skills) |
+| Codex CLI | CI analysis when chosen | `codex exec --json` inside Codex's sandbox |
+| GitHub Actions API | CI detection, logs, evidence; re-run and pull requests through the write gate | Off unless CI watching is on |
 | Terminal.app | Host for interactive sessions | Driven through AppleScript, so macOS only |
-| MCP clients | Read and write tasks from inside a coding session | stdio transport; the server is not bundled with the app |
+| MCP clients | Read and write tasks from inside a coding session | stdio transport; the server is the app binary run with `--mcp`, registered through `claude`, `codex` or `gemini mcp add` from Settings |
 
 ## Key Architectural Decisions
 
@@ -128,9 +148,9 @@ flowchart TD
 - **Rationale**: The record is accurate without any effort from me, and one convention links code to tasks. Capture rides on the sync that already runs every five minutes, so there is no second schedule to maintain; I rejected a separate capture command and webhooks (which need a public endpoint) for that reason. The cost is that only pushed commits on the default branch count
 
 ### A second process writing to the same database
-- **Context**: A coding session should be able to read and update the task board from any repository, with Project Hub remaining the single source of truth
-- **Decision**: The MCP server opens the SQLite file itself. The database runs in WAL mode with a busy timeout, and the app enforces a single instance
-- **Rationale**: Sharing the file means the tools work in any session without the app brokering each call. WAL plus a timeout turns writer contention into a short wait instead of an error. The trade-off is that the two programs must agree on the schema with no version handshake, and the app only sees the server's writes on its next poll
+- **Context**: A coding session should be able to read and update the task board from any repository, with Repohangar remaining the single source of truth
+- **Decision**: The MCP server is the app binary run with `--mcp`, and each server process opens the SQLite file itself. The database runs in WAL mode with a busy timeout, and the app enforces a single instance of its window process
+- **Rationale**: Sharing the file means the tools work in any session, even with the app closed, without the app brokering each call. WAL plus a timeout turns writer contention into a short wait instead of an error. Building the server into the same binary (it replaced an earlier separate Node server) means it shares the app's task logic and schema version, so there is no second copy of the SQL to drift and nothing extra to install. The server never migrates; it checks the version on every call and asks the user to open the app when the file is older than it expects. The app learns about the server's writes by polling `PRAGMA data_version`
 
 ### One worktree per Fleet agent, outside the repository
 - **Context**: Several unattended sessions editing the same working tree would trample each other and my own uncommitted work
@@ -142,7 +162,12 @@ flowchart TD
 - **Decision**: Logic that can be a function of its inputs is one: `compute_stale_projects`, `build_task_prompt`, `should_run_now`, `parse_stream_line`, `extract_task_ids`
 - **Rationale**: These carry the rules most likely to be wrong, and they can be tested without a window, a network or a real repository
 
-### Additive migrations checked on every start
-- **Context**: The schema changes often and there is one user
-- **Decision**: `run_migrations` checks for each column or index and adds what is missing, including replacing an index whose definition has changed
-- **Rationale**: Re-running is always safe and there is no migration framework to maintain. The price is no schema version number, which is a weakness once two programs share the file
+### Versioned migrations with a backup first
+- **Context**: The schema had been evolved by idempotent checks on every start, with no version number, while a second program reads the same file and real user data sits in it
+- **Decision**: `PRAGMA user_version` plus an ordered list of steps; the old idempotent code is frozen as step 1, so any earlier database is adopted. Before a pending step the app takes a `VACUUM INTO` copy and checks it; each step runs in its own transaction; a database newer than the build is refused untouched
+- **Rationale**: A failed upgrade rolls back to the last good version and leaves a verified backup, an older build cannot damage a newer database, and the MCP server can refuse a schema it does not know
+
+### Every AI change behind a human approval
+- **Context**: CI analysis lets an agent edit code unattended
+- **Decision**: The agent never holds git credentials and never commits; the app computes the diff itself, and a single write gate pushes only after I approve, refusing if the diff no longer hashes to what I reviewed
+- **Rationale**: The approval means something only if what is pushed is exactly what was shown. The remaining gap, that the fix phase can still run project scripts, is recorded as a release blocker

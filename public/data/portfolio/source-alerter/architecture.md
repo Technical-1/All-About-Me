@@ -54,7 +54,9 @@ each pinned by a test, because a naive grep gets three of them wrong.
 
 ```
 source_alerter/
-  state.py     the registry (which Sources, what period) + a tolerant record read
+  state.py     the registry (which Sources, what schedule and period) + a tolerant record read
+  schedule.py  the registry's OnCalendar= values read into trigger instants [TD-327]
+  units.py     systemd's read-only view of each unit: running, latest run's start [TD-327]
   detect.py    run records + a clock -> findings (source, condition, class)
   store.py     transition state: what has already been alerted, across runs
   send.py      the transports — the ONLY module that knows ntfy exists
@@ -109,7 +111,7 @@ and both are invisible to any check that begins by opening a file.
 |---|---|---|
 | `failed` | `exit_class != "ok"` | the loud case, and the one systemd can never see |
 | `partially-blind` | an otherwise-OK run carries `errors[]` **or** `warnings[]` | ⛔ **the dangerous one** — everything green, one account silently absent |
-| `stale` | nothing completed in `period × 3` | ⚠️ **a dead Source writes nothing at all**, so the two above can never fire for it |
+| `stale` | `run-overdue` at one due scheduled trigger with no record — a run that started for it ended, or 90 s passed and no run systemd reports active covers it — `no-recent-run` at three ([TD-327]) | ⚠️ **a dead Source writes nothing at all**, so the two above can never fire for it |
 | `missing` | there is no run record at all | ⭐ a Source that has **never** run is exactly the thing to report |
 | `unreadable` | the record cannot be interpreted | a truncated or older-version record is a condition — never a traceback, never "fine" |
 
@@ -155,17 +157,18 @@ its own report and left it open. `raw-fsck` now writes a record
 stated objection was that *"a weekly writer would earn a permanent
 never-clearing `missing` fault from an hourly scanner"*. `missing` fires on the
 ABSENCE of the file — one run creates it, and no later run removes it. ⭐ The
-condition that really would never have cleared is **`stale`**, judged at
-`period_seconds x STALE_PERIODS`, and `period_seconds` is a per-entry field
-that already existed:
+condition that really would never have cleared is **`stale`**, and it is
+judged from the entry's own schedule ([TD-327]):
 
 ```toml
 [sources."raw-fsck-verify"]
 period_seconds = 604800    # OnCalendar=Sun *-*-* 04:23:00
+schedule = "Sun *-*-* 04:23:00"
 ```
 
-Staleness then fires at **21 days** — three missed Sundays, exactly the reading
-an hourly Source gets from three missed hours. ⭐ **A weekly cadence needed no
+A missed Sunday is `run-overdue` once its trigger has had half a week; three
+missed Sundays are `no-recent-run` — exactly the reading an hourly Source gets
+from three missed hours. ⭐ **A weekly cadence needed no
 new mechanism; it needed the existing field not to be read as a law.** A
 second, parallel registry for "checks" was the alternative and was rejected:
 two lists is two lists to forget to add something to, and an explicit registry
@@ -206,7 +209,7 @@ one alert plus one recovery each, **four buzzes for two non-events.**
 |---|---|---|
 | **1st occurrence** | `auth-error` · `local-error` · `data-error` · `partially-blind` · `missing` · `unknown-class` | ⛔ none of them self-heals — a revoked credential stays revoked, a full disk does not empty itself, and every hour unknown is data lost |
 | ⭐ **3 consecutive runs** | `unreachable` · `origin-error` | ✅ usually transient. **Three hours of not reaching your bank is a problem; one is Tuesday** |
-| unchanged | `stale` | already `period × 3`, in the unit it belongs in — elapsed time, not run count |
+| unchanged | `stale` | already counted in due scheduled triggers ([TD-327]) — in the unit it belongs in, not run count |
 
 ⚠️ A class that never reached its threshold sends **no recovery**: you cannot
 recover from something the reader was never told about.

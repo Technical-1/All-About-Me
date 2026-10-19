@@ -80,4 +80,4 @@ Listed by the code: `shopify_engine/config.py` `CLASSES`, `derive/__init__.py` `
 
 ## Deployed
 
-`shopify-engine.timer` on the tower, four times an hour at :09 :27 :39 :51 (gaps of 18, 12, 12 and 18 minutes), runs `shopify-engine build` with every default. The alerter reads the run record after each run (`period_seconds = 1080`, the timer's longest gap). Units, stanza and bootstrap step: `Technical-1/tower`.
+`shopify-engine.timer` on the tower, four times an hour at :09 :27 :39 :51 (gaps of 18, 12, 12 and 18 minutes), runs `shopify-engine build` with every default. The alerter reads the run record after each run (`period_seconds = 1080`, the timer's longest gap — the engine's own timer period too, no longer the stale threshold: *stale* is two missed scheduled triggers [TD-324]). Units, stanza and bootstrap step: `Technical-1/tower`.

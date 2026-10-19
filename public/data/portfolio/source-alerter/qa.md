@@ -18,8 +18,10 @@ notification said **`demo-source` / `run failed: auth-error`** and nothing else.
 
 | File | Tests | Pins |
 |---|---:|---|
-| `test_detect.py` | 77 | the five conditions from real record shapes, including the [SF-17] one; the closed vocabulary; that a `Finding` has exactly three fields; that nothing but `last-run.json` is opened and nothing is written |
-| `test_state.py` | 33 | the registry's refusals (no sources, no transports, a bad period); the opaque transport table; every timestamp shape six Sources might write |
+| `test_detect.py` | measure: `pytest --collect-only -q tests/test_detect.py` | the five conditions from real record shapes, including the [SF-17] one; the closed vocabulary; that a `Finding` has exactly three fields; that nothing but `last-run.json` is opened and nothing is written |
+| `test_state.py` | measure: `pytest --collect-only -q tests/test_state.py` | the registry's refusals (no sources, no transports, a bad period, a missing or unreadable schedule, a period that is not the schedule's longest gap); the opaque transport table; every timestamp shape six Sources might write |
+| `test_schedule.py` | measure: `pytest --collect-only -q tests/test_schedule.py` | [TD-327] every tower `OnCalendar=` spelling read to its longest gap; unread spellings refused; instants UTC; schedules compared by what fires |
+| `test_units.py` | measure: `pytest --collect-only -q tests/test_units.py` | [TD-327] round 2: systemd's `show` output read as running/ended; a failed or partial answer is unreadable, never idle; `--check`'s installed-unit comparison |
 | `test_store.py` | 85 | ⭐ transitions across the process boundary — a fresh store per run, a moving clock, and once across real subprocesses; the commit point; the advisory lock |
 | `test_send.py` | 122 | the request shape; the message table; the credential's refusals and its redaction; plural transports delivered independently; ⭐ the stuffed-record leak test, end to end |
 | `test_wiring.py` | 51 | ⭐ [NT-9] every systemd list shape (append, space-separated, the empty-assignment **reset**, continuations, comments, section scoping, drop-in order); missing/unreadable units as findings; that NOT WIRED does **not** move the exit code |
