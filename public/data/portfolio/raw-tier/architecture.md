@@ -1032,3 +1032,29 @@ with SnapshotReader(raw_root, rs, registrar_lock=LOCK,
   of a read is SQLite's own: a `mode=ro` open of the WAL manifest creates
   `manifest.db-wal` / `-shm` when they are absent.
 
+## The holder record (2026-10-18)
+
+The manifest keeps identical bytes once, under the path of whichever holder offered them first, and a later holder's
+offer only bumps `last_seen` on that row. So "which mailbox holds this version, and when did it last confirm it" had
+no answer, and any engine asking it was really asking "which mailbox was polled first". `raw_holders` records every
+path a version was offered under, with that holder's own first and last offer, in the same transaction as the insert
+or the bump; its epoch is its own one-row table. Readers tell the eras apart from the data: a document whose every
+version postdates the epoch has its whole holder set recorded. `raw-fsck` checks that no holder row dangles and no
+write went around the record; the snapshot reader serves the rows, and each holder's holding, only to a read set that
+asks for them, so no other engine's identity moves.
+
+A write that goes around the record can no longer hide: two triggers on `raw_objects` itself log it to
+`raw_holder_gaps` whatever code made it, a version is in the era only if its own holder row was written with it, and a
+gap makes its document incomplete from that instant for every reader. `raw-fsck` pages a gap once, on the run that
+first sees it, so a standing gap never masks the next corruption alarm. A test fixture copies its source archive's
+record through `RawStore(root, holders_as=…)` rather than inventing one.
+
+The checks are exact rather than near enough. A bump is accepted only with the holder row that same write marked, so
+an old-code bump at another holder's instant is still logged. Two writers racing on one version decide under the
+write lock, so the loser lands as a holder rather than as an error or a gap. `raw-fsck` remembers, beside its own run
+record, the last gap id, the epoch and a digest of the revert events it reported: a crash never re-pages old gaps,
+each new gap event is its own error sentence, and a dropped record or a rewritten revert table is reported as damage.
+
+Measured on copies of the tower's manifest, the record adds about 22% WAL per re-confirmed object in steady state
+and about 700 B of manifest per holder row.
+

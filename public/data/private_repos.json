@@ -37,7 +37,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T06:51:24Z",
+      "pushed_at": "2026-10-20T05:24:51Z",
       "topics": []
     },
     "languages": [
@@ -45,7 +45,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 719677,
+      "Python": 723349,
       "Shell": 10452
     },
     "primary_language": "Python",
@@ -570,6 +570,34 @@
   },
   {
     "repo": {
+      "name": "compute-base",
+      "full_name": "Technical-1/compute-base",
+      "html_url": "https://github.com/Technical-1/compute-base",
+      "homepage": null,
+      "description": "Shared compute-engine library: run shell, read, decode, derive, store, verbs",
+      "private": true,
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-10-19T21:10:05Z",
+      "topics": []
+    },
+    "languages": [
+      "Python"
+    ],
+    "language_bytes": {
+      "Python": 744126
+    },
+    "primary_language": "Python",
+    "has_portfolio": true,
+    "portfolio_files": [
+      "architecture.md"
+    ],
+    "metadata": {
+      "category": "other"
+    }
+  },
+  {
+    "repo": {
       "name": "craps-site",
       "full_name": "Technical-1/craps-site",
       "html_url": "https://github.com/Technical-1/craps-site",
@@ -894,14 +922,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T06:31:48Z",
+      "pushed_at": "2026-10-19T14:51:32Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 2424846
+      "Python": 2427407
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -1239,7 +1267,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T07:03:42Z",
+      "pushed_at": "2026-10-19T09:31:26Z",
       "topics": []
     },
     "languages": [
@@ -2146,7 +2174,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-18T23:35:27Z",
+      "pushed_at": "2026-10-20T04:57:42Z",
       "topics": []
     },
     "languages": [
@@ -2155,7 +2183,7 @@
       "C"
     ],
     "language_bytes": {
-      "Python": 1558065,
+      "Python": 1587414,
       "Shell": 17496,
       "C": 6460
     },
@@ -2354,14 +2382,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T06:48:20Z",
+      "pushed_at": "2026-10-20T01:18:21Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 2595872
+      "Python": 2600413
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -2843,7 +2871,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T07:15:46Z",
+      "pushed_at": "2026-10-19T14:25:29Z",
       "topics": [
         "claude-code",
         "desktop-app",
@@ -2869,12 +2897,12 @@
       "Standard ML"
     ],
     "language_bytes": {
-      "Rust": 2163990,
-      "TypeScript": 1201615,
-      "JavaScript": 128090,
+      "Rust": 2847012,
+      "TypeScript": 1484138,
+      "JavaScript": 131800,
       "CSS": 43483,
       "HTML": 39125,
-      "Shell": 36351,
+      "Shell": 36564,
       "Standard ML": 396
     },
     "primary_language": "Rust",
@@ -2972,14 +3000,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-18T23:35:39Z",
+      "pushed_at": "2026-10-19T20:47:23Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 1829662
+      "Python": 2082034
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -3452,14 +3480,14 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T06:20:55Z",
+      "pushed_at": "2026-10-19T20:33:59Z",
       "topics": []
     },
     "languages": [
       "Python"
     ],
     "language_bytes": {
-      "Python": 1498290
+      "Python": 1502316
     },
     "primary_language": "Python",
     "has_portfolio": true,
@@ -4004,7 +4032,7 @@
       "private": true,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T02:17:36Z",
+      "pushed_at": "2026-10-19T21:16:29Z",
       "topics": []
     },
     "languages": [
@@ -4012,7 +4040,7 @@
       "Shell"
     ],
     "language_bytes": {
-      "Python": 888939,
+      "Python": 891783,
       "Shell": 255709
     },
     "primary_language": "Python",
@@ -4353,7 +4381,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-18T07:04:06Z",
+      "pushed_at": "2026-10-19T07:20:22Z",
       "topics": [
         "ai-chat",
         "astro",
@@ -6482,7 +6510,7 @@
       "private": false,
       "fork": false,
       "archived": false,
-      "pushed_at": "2026-10-19T04:25:05Z",
+      "pushed_at": "2026-10-20T04:22:50Z",
       "topics": []
     },
     "languages": [

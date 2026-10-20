@@ -24,7 +24,7 @@ flowchart TD
     end
 
     DB[(SQLite, WAL mode)]
-    MCP["project-hub --mcp: same binary, MCP over stdio"]
+    MCP["repohangar --mcp: same binary, MCP over stdio"]
     GH[GitHub REST API + device flow]
     GIT[git CLI and local clones]
     CC[Claude Code CLI]
